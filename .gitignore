@@ -1,0 +1,58 @@
+_site/
+_site_private/
+.sass-cache/
+.jekyll-cache/
+.jekyll-metadata
+
+# Bundler / Python / Node tooling
+.bundle/
+vendor/
+.venv/
+*.pyc
+*.egg-info/
+__pycache__/
+scripts/node_modules/
+studio-app/node_modules/
+studio-mobile/node_modules/
+studio-mobile/.expo/
+/node_modules/
+/dist/
+.wrangler/
+
+# Generates PDFs written to repo root
+/*.pdf
+
+# Visual inspection outputs (local / CI artifacts)
+/_screenshots/
+
+# Content pipeline export artifacts
+/_content_json/
+# Guidelines pack export (Studio Correct / Refine)
+/_guidelines_json/
+
+# Study raw data is tracked on purpose: see studies/README.md, rule 2.
+# Only the Python bytecode caches under it are ignored.
+studies/**/__pycache__/
+
+# VSCode
+.vscode/*
+!.vscode/settings.json
+
+# Use the .env file to store local environment variables (not committed)
+.env
+.env.local
+.env*.local
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+
+# Dummy static dir for `scripts/studio-api-dev.sh` (wrangler pages dev)
+.studio-api-static/
+
+# Agent worktrees (isolated checkouts; never part of the repo).
+.claude/worktrees/
+
+# Annoying Windows artifacts
+*Zone.Identifier
+Thumbs.db
+Desktop.ini
