@@ -14,10 +14,21 @@ pandorga:
   content:
     backend: static
     base_url: ""
+  home:
+    hero_art: page/hero-default.html
+  taxonomies:
+    articles:
+      tags: [Writing]
+      max: 3
+    posts:
+      tags: [notes]
+      max: 3
+    projects:
+      tags: [tools]
+      max: 3
   pages:
     - key: cv
       template: cv
-      layout: pandorga/articles
       title: Curriculum Vitæ
       path: /pages/cv/
       collections: { jobs: jobs, products: products }
@@ -25,53 +36,57 @@ pandorga:
       home: { band: hero }
     - key: projects
       template: portfolio
-      layout: pandorga/articles
       title: Projects
       collection: projects
       path: /pages/projects/
       detail: /projects/:slug/
       nav: { group: Profile, icon: terminal }
+      home: { limit: 4 }
     - key: articles
       template: articles
-      layout: pandorga/articles
       title: Articles
       collection: articles
       path: /pages/articles/
       detail: /articles/:slug/
+      language: en
+      accent: green
       nav: { group: Writing, icon: newsmode }
       home: { featured: true, limit: 3 }
     - key: blog
       template: blog
-      layout: pandorga/articles
       title: Drafts
       collection: posts
       path: /pages/blog/
       detail: /posts/:slug/
+      language: en
+      accent: ochre
       nav: { group: Writing, icon: stylus_note }
+      home: { limit: 4 }
     - key: resources
       template: media
-      layout: pandorga/articles
       title: Sources
       collection: resources
       path: /pages/sources/
       nav: { group: References, icon: media_link }
+      home: { band: index, group: references }
     - key: network
       template: network
-      layout: pandorga/articles
       title: Network
       sources: [articles, blog]
       path: /pages/network/
       nav: { group: References, icon: flowchart }
+      home: { band: index, group: references }
     - key: bibliography
       template: bibliography
-      layout: pandorga/articles
       title: Bibliography
       collection: bibliography
       cited_by: [articles, blog]
       path: /pages/bibliography/
       nav: false
+      home: { band: index, group: references }
 
 exclude:
   - Gemfile
   - Gemfile.lock
   - vendor/
+  - _content_json/

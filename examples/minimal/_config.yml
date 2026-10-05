@@ -13,9 +13,17 @@ pandorga:
   content:
     backend: static
     base_url: ""
+  home:
+    hero_art: page/hero-default.html
+  taxonomies:
+    articles:
+      tags: [Writing, Design]
+      max: 3
+      min: 1
   pages:
     - key: articles
       template: articles
+      title: Articles
       collection: articles
       path: /pages/articles/
       detail: /articles/:slug/
@@ -36,3 +44,4 @@ exclude:
   - Gemfile.lock
   - vendor/
   - scripts/
+  - _content_json/

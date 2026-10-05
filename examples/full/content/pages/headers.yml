@@ -1,0 +1,20 @@
+articles:
+  title: Articles
+  kicker: Writing
+  note: Long-form essays from the full example.
+blog:
+  title: Drafts
+  kicker: Notebook
+  note: Shorter notes and drafts.
+projects:
+  title: Projects
+  kicker: Systems
+  note: Portfolio systems in the full example.
+index:
+  title: Sources, Network & Bibliography
+  kicker: References
+  note: Apparatus behind the writing.
+cv:
+  title: Curriculum Vitæ
+home:
+  subtitle: Fictional persona for the Pandorga full example.

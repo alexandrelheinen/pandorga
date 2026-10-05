@@ -28,6 +28,11 @@ studio-mobile/.expo/
 
 # Content pipeline export artifacts
 /_content_json/
+examples/**/_content_json/
+examples/**/_site/
+examples/**/vendor/
+examples/**/.bundle/
+examples/**/Gemfile.lock
 # Guidelines pack export (Studio Correct / Refine)
 /_guidelines_json/
 
