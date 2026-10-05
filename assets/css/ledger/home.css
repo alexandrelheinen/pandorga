@@ -948,7 +948,7 @@ html[data-theme="light"] .home-hero-plate {
    always reserves six equal slots at a fixed button height. Desktop inventory
    sits in a panel container matched to the specimen height via CSS, not JS. */
 .home-projects-bench {
-  --home-specimen-height: 26rem;
+  --home-specimen-height: 32rem;
   --home-icon-btn-size: 2.75rem;
   --home-project-icon-count: 6;
   display: flex;
@@ -961,8 +961,9 @@ html[data-theme="light"] .home-hero-plate {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
+  gap: var(--space-md);
   padding: var(--space-md);
+  padding-bottom: var(--space-lg);
   max-width: none;
   width: 100%;
   height: var(--home-specimen-height);
@@ -984,7 +985,7 @@ html[data-theme="light"] .home-project-specimen,
   width: auto;
   margin: calc(var(--space-md) * -1) calc(var(--space-md) * -1) 0;
   aspect-ratio: 16 / 9;
-  max-height: calc(var(--home-specimen-height) * 0.58);
+  max-height: calc(var(--home-specimen-height) * 0.5);
   position: relative;
   overflow: hidden;
 }
@@ -1042,7 +1043,7 @@ html[data-theme="light"] .home-project-specimen,
   line-height: 1.2;
   color: var(--color-on-surface);
   min-height: calc(1.2em * 1);
-  margin: 0;
+  margin: var(--space-sm) 0 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1075,8 +1076,9 @@ html[data-theme="light"] .home-project-specimen,
   gap: var(--space-xs);
   margin: 0;
   margin-top: auto;
-  max-height: 4.5rem;
-  overflow: hidden;
+  flex: 0 0 auto;
+  max-height: none;
+  overflow: visible;
 }
 
 .home-project-specimen .ledger-card-links {
@@ -1173,7 +1175,7 @@ html[data-theme="light"] .home-project-specimen,
 
 @media (min-width: 900px) {
   .home-projects-bench {
-    --home-specimen-height: 28rem;
+    --home-specimen-height: 36rem;
     display: grid;
     grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
     gap: var(--space-xl);
