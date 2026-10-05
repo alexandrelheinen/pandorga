@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.2.2] — 2026-10-05
+
+### Added
+
+- Blog listing chrome follows `pages[].language` (`en` default; `pt-BR` for Portuguese UI strings)
+
+### Changed
+
+- Projects index cards are denser (shorter posters, tighter type) on the uniform Nx3 grid
+- Home draft cards are taller (~40%) so excerpts stay readable
+- Full example blog page is `Rascunhos` with `language: pt-BR`
+
+### Removed
+
+- Mobile nav no longer shows a page `badge` note (language belongs in `language`, not a sidebar label)
+
 ## [1.2.1] — 2026-10-05
 
 ### Added
