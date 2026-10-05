@@ -845,6 +845,12 @@ html[data-theme="light"] .home-hero-plate {
     border-color var(--motion-duration-fast) var(--motion-ease-default);
 }
 
+/* ~40% taller poster than the shared 16/9 plate so the dropped-sheet body
+   keeps room for the excerpt (four-up columns were clipping copy to a sliver). */
+.home-draft-card .ledger-poster {
+  aspect-ratio: 16 / 12.6;
+}
+
 /* A handful of fixed degrees per grid position — not a JS random() — so the
    tilt is identical on every render and every screenshot. */
 .home-draft-list>*:nth-child(4n + 1) {
@@ -897,13 +903,15 @@ html[data-theme="light"] .home-hero-plate {
      `flex: 1` gives the paragraph a definite block size from the flex
      allocation, so line-clamp/overflow clip against that height instead of
      growing past the ellipsis (the old flex:1 + clamp:2 bug that left text
-     after "…" and sliced mid-glyph at the card edge). */
+     after "…" and sliced mid-glyph at the card edge).
+     min-height ~40% above the old six-line band so short posters still leave
+     readable excerpt room. */
   flex: 1 1 auto;
-  min-height: 0;
+  min-height: calc(var(--type-subtitle) * var(--leading-body) * 8.4);
   height: 0;
   display: -webkit-box;
-  -webkit-line-clamp: 6;
-  line-clamp: 6;
+  -webkit-line-clamp: 8;
+  line-clamp: 8;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

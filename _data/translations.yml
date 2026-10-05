@@ -83,3 +83,118 @@ cited_by:
   ptbr: "Citado por"
   frfr: "Cité par"
   eses: "Citado por"
+filter:
+  enus: "Filter"
+  ptbr: "Filtrar"
+  frfr: "Filtrer"
+  eses: "Filtrar"
+keyword:
+  enus: "Keyword"
+  ptbr: "Palavra-chave"
+  frfr: "Mot-clé"
+  eses: "Palabra clave"
+filter_by_keyword:
+  enus: "Filter entries by keyword"
+  ptbr: "Filtrar entradas por palavra-chave"
+  frfr: "Filtrer les entrées par mot-clé"
+  eses: "Filtrar entradas por palabra clave"
+keyword_placeholder:
+  enus: "Title, summary, tag…"
+  ptbr: "Título, resumo, tag…"
+  frfr: "Titre, résumé, tag…"
+  eses: "Título, resumen, etiqueta…"
+loading_entries:
+  enus: "Loading entries..."
+  ptbr: "Carregando entradas..."
+  frfr: "Chargement des entrées…"
+  eses: "Cargando entradas…"
+nothing_matches_filters:
+  enus: "Nothing matches these filters yet."
+  ptbr: "Nada corresponde a estes filtros ainda."
+  frfr: "Rien ne correspond encore à ces filtres."
+  eses: "Nada coincide con estos filtros todavía."
+order_date_written:
+  enus: "Order: date written"
+  ptbr: "Ordem: data de escrita"
+  frfr: "Ordre : date d'écriture"
+  eses: "Orden: fecha de escritura"
+order_last_revised:
+  enus: "Order: last revised"
+  ptbr: "Ordem: última revisão"
+  frfr: "Ordre : dernière révision"
+  eses: "Orden: última revisión"
+order_random:
+  enus: "Order: random"
+  ptbr: "Ordem: aleatória"
+  frfr: "Ordre : aléatoire"
+  eses: "Orden: aleatorio"
+form_label:
+  enus: "Form"
+  ptbr: "Forma"
+  frfr: "Forme"
+  eses: "Forma"
+order_by:
+  enus: "Order by"
+  ptbr: "Ordenar por"
+  frfr: "Trier par"
+  eses: "Ordenar por"
+all_label:
+  enus: "All"
+  ptbr: "Todas"
+  frfr: "Toutes"
+  eses: "Todas"
+date_written:
+  enus: "Date written"
+  ptbr: "Data de escrita"
+  frfr: "Date d'écriture"
+  eses: "Fecha de escritura"
+last_revised:
+  enus: "Last revised"
+  ptbr: "Última revisão"
+  frfr: "Dernière révision"
+  eses: "Última revisión"
+revised_prefix:
+  enus: "Revised"
+  ptbr: "Revisado"
+  frfr: "Révisé"
+  eses: "Revisado"
+entry_singular:
+  enus: "entry"
+  ptbr: "entrada"
+  frfr: "entrée"
+  eses: "entrada"
+entry_plural:
+  enus: "entries"
+  ptbr: "entradas"
+  frfr: "entrées"
+  eses: "entradas"
+of_total:
+  enus: "of"
+  ptbr: "de"
+  frfr: "sur"
+  eses: "de"
+licensing_reuse:
+  enus: "Licensing & reuse"
+  ptbr: "Licença e reutilização"
+  frfr: "Licence et réutilisation"
+  eses: "Licencia y reutilización"
+entries_published_under:
+  enus: "Entries published under"
+  ptbr: "Entradas publicadas sob"
+  frfr: "Entrées publiées sous"
+  eses: "Entradas publicadas bajo"
+attribution_to:
+  enus: "Attribution to"
+  ptbr: "Atribuição a"
+  frfr: "Attribution à"
+  eses: "Atribución a"
+licence_terms:
+  enus: "Licence terms"
+  ptbr: "Termos da licença"
+  frfr: "Conditions de licence"
+  eses: "Términos de la licencia"
+post_load_error:
+  enus: "This post could not be loaded right now."
+  ptbr: "Este rascunho não pôde ser carregado agora."
+  frfr: "Ce billet n'a pas pu être chargé pour le moment."
+  eses: "Esta nota no se pudo cargar ahora."

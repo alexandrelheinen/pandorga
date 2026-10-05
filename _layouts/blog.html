@@ -3,6 +3,12 @@ layout: shell
 ---
 {%- assign blog_locale = page.lang | default: site.pandorga.identity.locale | default: "en" -%}
 {%- assign blog_title = page.title | default: "Blog" -%}
+{%- assign blog_ui = "enus" -%}
+{%- assign _blog_lang = blog_locale | downcase | replace: "_", "-" -%}
+{%- if _blog_lang == "pt-br" or _blog_lang == "ptbr" or _blog_lang == "pt" -%}
+  {%- assign blog_ui = "ptbr" -%}
+{%- endif -%}
+{%- assign t = site.data.translations -%}
 
 <main class="relative max-w-7xl mx-auto px-4 sm:px-8 md:px-16 pt-10 pb-16 rascunhos-main{% if page.accent and page.accent != 'blue' %} page-accent--{{ page.accent }}{% endif %}"
       {% include page/listing-runtime-attrs.html
@@ -23,23 +29,23 @@ layout: shell
   <div id="blog-listing" class="rascunhos-body">
     {%- comment -%}
       Same sidebar pattern as the articles listing: keyword box, facets, and
-      licence. Platform UI strings are English defaults; dates follow
-      site.pandorga.identity.locale (or page.lang).
+      licence. Chrome follows page.language (English default; pt-BR for
+      rascunhos). Dates use the same locale.
     {%- endcomment -%}
     <aside class="writing-rail listing-filter" data-listing-filter-root hidden>
       <button type="button" class="writing-rail-trigger listing-filter-trigger"
               data-listing-filter-trigger aria-expanded="false"
               aria-controls="rascunhos-filter-panel">
         <span class="material-symbols-outlined" aria-hidden="true">filter_list</span>
-        <span class="font-label writing-rail-trigger-label">Filter</span>
+        <span class="font-label writing-rail-trigger-label">{{ t.filter[blog_ui] }}</span>
       </button>
 
       <div id="rascunhos-filter-panel" class="writing-rail-panel" data-listing-filter-panel hidden>
-        <p class="listing-filter-group-label font-label text-on-surface-variant">Keyword</p>
+        <p class="listing-filter-group-label font-label text-on-surface-variant">{{ t.keyword[blog_ui] }}</p>
         <label class="writing-rail-search">
-          <span class="sr-only">Filter entries by keyword</span>
+          <span class="sr-only">{{ t.filter_by_keyword[blog_ui] }}</span>
           <input type="search" class="listing-filter-search writing-rail-input font-body"
-                 data-listing-filter-q placeholder="Title, summary, tag…" autocomplete="off">
+                 data-listing-filter-q placeholder="{{ t.keyword_placeholder[blog_ui] }}" autocomplete="off">
           <span class="material-symbols-outlined writing-rail-search-icon" aria-hidden="true">search</span>
         </label>
         <div data-listing-filter-chips></div>
@@ -65,10 +71,10 @@ layout: shell
 
       <div class="rascunhos-entries" id="posts-list">
         <section id="empty-state" class="rascunhos-state">
-          <p class="font-body text-on-surface-variant italic">Loading entries...</p>
+          <p class="font-body text-on-surface-variant italic">{{ t.loading_entries[blog_ui] }}</p>
         </section>
         <section id="no-results" class="rascunhos-state hidden">
-          <p class="font-body text-on-surface-variant italic">Nothing matches these filters yet.</p>
+          <p class="font-body text-on-surface-variant italic">{{ t.nothing_matches_filters[blog_ui] }}</p>
         </section>
       </div>
 
@@ -125,6 +131,11 @@ layout: shell
     var filterUi = null;
     var dateLocale = '{{ blog_locale }}';
     if (dateLocale === 'ptbr' || dateLocale === 'pt_BR') dateLocale = 'pt-BR';
+    var uiLang = '{{ blog_ui }}';
+
+    function t(key) {
+      return runtime.translate(key, uiLang) || key;
+    }
 
     /* Folio number by slug. Assigned once over the whole log, oldest first, so
      * an entry keeps the number it was written under no matter which filter,
@@ -133,9 +144,9 @@ layout: shell
     var folioBySlug = Object.create(null);
 
     var SORT_LABELS = {
-      published: 'Order: date written',
-      updated: 'Order: last revised',
-      random: 'Order: random'
+      published: t('order_date_written'),
+      updated: t('order_last_revised'),
+      random: t('order_random')
     };
 
     var MONTH_FORMAT = new Intl.DateTimeFormat(dateLocale, {
@@ -201,18 +212,18 @@ layout: shell
       return [
         {
           key: 'tag',
-          label: 'Form',
-          options: [{ value: null, label: 'All (' + allPosts.length + ')' }].concat(tags.map(function (tag) {
+          label: t('form_label'),
+          options: [{ value: null, label: t('all_label') + ' (' + allPosts.length + ')' }].concat(tags.map(function (tag) {
             return { value: tag, label: tag + ' (' + tagCounts[tag] + ')' };
           }))
         },
         {
           key: 'sort',
-          label: 'Order by',
+          label: t('order_by'),
           options: [
-            { value: 'published', label: 'Date written' },
-            { value: 'updated', label: 'Last revised' },
-            { value: 'random', label: 'Random' }
+            { value: 'published', label: t('date_written') },
+            { value: 'updated', label: t('last_revised') },
+            { value: 'random', label: t('random_text') }
           ]
         }
       ];
@@ -226,10 +237,10 @@ layout: shell
       if (orderEl) orderEl.textContent = SORT_LABELS[state.sort] || SORT_LABELS.published;
       if (!tallyEl) return;
       var total = allPosts.length;
-      var word = total === 1 ? 'entry' : 'entries';
+      var word = total === 1 ? t('entry_singular') : t('entry_plural');
       tallyEl.textContent = shown === total
         ? total + ' ' + word
-        : shown + ' of ' + total + ' ' + word;
+        : shown + ' ' + t('of_total') + ' ' + total + ' ' + word;
     }
 
     /* ── Notebook furniture ──────────────────────────────────────────────
@@ -287,7 +298,7 @@ layout: shell
       var folio = folioBySlug[post.slug];
       var updated = postUpdated(post);
       var revised = updated && updated.slice(0, 10) !== String(fm.date || '').slice(0, 10)
-        ? '<span class="rascunhos-revision">Revised ' +
+        ? '<span class="rascunhos-revision">' + runtime.escapeHtml(t('revised_prefix')) + ' ' +
           runtime.escapeHtml(runtime.formatDate(updated, dateLocale)) + '</span>'
         : '';
 
@@ -488,16 +499,19 @@ layout: shell
       var licence = manifest && manifest.content_license;
       if (!licence || !licence.name) return;
 
-      var parts = ['<span class="writing-rail-licence-label font-label">Licensing &amp; reuse</span>'];
+      var parts = ['<span class="writing-rail-licence-label font-label">' +
+        runtime.escapeHtml(t('licensing_reuse')) + '</span>'];
       var named = licence.id ? licence.name + ' (' + licence.id + ')' : licence.name;
-      parts.push('<p class="writing-rail-licence-copy font-body">Entries published under ' +
+      parts.push('<p class="writing-rail-licence-copy font-body">' +
+        runtime.escapeHtml(t('entries_published_under')) + ' ' +
         runtime.escapeHtml(named) + '.</p>');
       if (licence.rights_holder) {
-        parts.push('<p class="writing-rail-licence-copy font-body">Attribution to ' +
+        parts.push('<p class="writing-rail-licence-copy font-body">' +
+          runtime.escapeHtml(t('attribution_to')) + ' ' +
           runtime.escapeHtml(licence.rights_holder) + '.</p>');
       }
       var href = licence.page_path || licence.url;
-      if (href) parts.push(runtime.renderCtaLink(href, 'Licence terms'));
+      if (href) parts.push(runtime.renderCtaLink(href, t('licence_terms')));
 
       licenceEl.innerHTML = parts.join('');
       licenceEl.hidden = false;
@@ -526,7 +540,7 @@ layout: shell
             emptyState: emptyState,
             grid: grid,
             noResults: noResults,
-            message: 'This post could not be loaded right now.'
+            message: t('post_load_error')
           });
         });
       }

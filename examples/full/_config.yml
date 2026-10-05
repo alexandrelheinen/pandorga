@@ -54,11 +54,11 @@ pandorga:
       home: { featured: true, limit: 3 }
     - key: blog
       template: blog
-      title: Drafts
+      title: Rascunhos
       collection: posts
       path: /pages/blog/
       detail: /posts/:slug/
-      language: en
+      language: pt-BR
       accent: ochre
       nav: { group: Writing, icon: stylus_note }
       home: { limit: 4 }

@@ -86,7 +86,8 @@
 }
 
 .projects-page .projects-plate--mark {
-  aspect-ratio: 16 / 9;
+  /* Match the compact index poster — shorter than the shared 16/9 plate. */
+  aspect-ratio: 2 / 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -290,7 +291,7 @@
 .projects-page .projects-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-lg);
+  gap: var(--space-md);
   /* Cards stretch to the row. This used to be `align-items: start`, because a
      project with no poster left a hole between its summary and its links; now
      every project shows either its thumbnail or its glyph plate, so the row
@@ -310,31 +311,45 @@
   }
 }
 
+/* Compact index cells: denser padding and a shorter poster than the shared
+   16/9 system-card default, so three columns read as a catalogue rather than
+   a wall of panels. The lead plate above keeps its own scale. */
+.projects-page .projects-grid .ledger-system-card {
+  gap: var(--space-xs);
+  padding: var(--space-md);
+}
+
 /* The shared system card pads its own body, which insets the poster from the
    card edge and makes the picture look like an afterthought. Pulling it back
    out by the same padding is one rule and leaves every other spacing in the
    shared block alone. */
-.projects-page .ledger-system-card>.ledger-poster,
-.projects-page .ledger-system-card>.projects-plate {
+.projects-page .projects-grid .ledger-system-card>.ledger-poster,
+.projects-page .projects-grid .ledger-system-card>.projects-plate {
   width: auto;
-  margin: calc(var(--space-lg) * -1) calc(var(--space-lg) * -1) 0;
+  margin: calc(var(--space-md) * -1) calc(var(--space-md) * -1) 0;
+  aspect-ratio: 2 / 1;
 }
 
 /* The glyph plate is this page's own shape, so it takes the same breathing
    room the unscoped poster rule above gives every system card. */
 .projects-page .projects-plate+.ledger-meta {
-  margin-top: var(--space-md);
+  margin-top: var(--space-sm);
 }
 
-.projects-page .ledger-system-card .ledger-card-title {
-  font-size: var(--type-card-lg);
-  line-height: 1.15;
+.projects-page .projects-grid .ledger-system-card .ledger-card-title {
+  font-size: var(--type-card);
+  line-height: 1.2;
 }
 
-.projects-page .ledger-system-card .ledger-card-copy {
+.projects-page .projects-grid .ledger-system-card .ledger-card-copy {
   font-size: var(--type-subtitle);
   line-height: var(--leading-body);
   color: var(--color-legend);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
 }
 
 /* ══ Repositories ══

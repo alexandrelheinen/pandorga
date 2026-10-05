@@ -47,7 +47,7 @@ entry.
 | `home` | map \| `false` | no | Home band options; omit for template defaults |
 | `taxonomy` | map | no | Tag vocabulary for the page |
 | `accent` | string | no | Page accent token |
-| `language` | string | no | Listing / home band language |
+| `language` | string | no | Listing chrome + dates (`en` default). Use `pt-BR` for Portuguese UI (e.g. blog / rascunhos) |
 
 Duplicate `key`, unknown `template`, or conflicting `path` fails the build.
 

@@ -97,7 +97,7 @@ pages:
     language:
       type: string
       required: false
-      notes: Listing / home band language
+      notes: "Listing chrome + dates (`en` default). Use `pt-BR` for Portuguese UI (e.g. blog / rascunhos)"
   home_attributes:
     title: "`home` attributes"
     entries:
