@@ -34,4 +34,11 @@ jobs:
             exit 1
           fi
 
-      - uses: rubygems/release-gem@v1
+      - name: Configure RubyGems credentials
+        uses: rubygems/configure-rubygems-credentials@main
+
+      - name: Build and push gem
+        run: |
+          version="$(ruby -e 'require_relative "lib/pandorga/version"; print Pandorga::VERSION')"
+          gem build pandorga.gemspec
+          gem push "pandorga-${version}.gem"
