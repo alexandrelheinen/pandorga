@@ -943,11 +943,9 @@ html[data-theme="light"] .home-hero-plate {
   }
 }
 
-/* ── Engineering artifacts: specimen + inventory bench ──
-   40%/60% split: 16:9 specimen card beside a panel inventory whose height
-   matches the full specimen. Equal-flex rows; thumbs are full-row-height
-   16:9 plates flush left. List click updates the specimen; specimen click
-   opens the project. */
+/* ── Engineering artifacts: specimen + index folio ──
+   40%/60% split: 16:9 specimen beside a hairline index rail (no grey panel).
+   List click updates the specimen; specimen click opens the project. */
 .home-projects-bench {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -969,7 +967,15 @@ html[data-theme="light"] .home-hero-plate {
   padding: var(--space-md);
   max-width: none;
   width: 100%;
+  /* Borderless card: ink frame + drafting corners live on the poster only. */
+  border: 0;
   background: var(--color-panel-contrast);
+}
+
+:root:not([data-theme="dark"]) .home-project-specimen,
+html[data-theme="light"] .home-project-specimen,
+[data-theme="dark"] .home-project-specimen {
+  border: 0;
 }
 
 .home-project-specimen>.ledger-poster,
@@ -1030,15 +1036,19 @@ html[data-theme="light"] .home-hero-plate {
     min-height: 0;
     padding: 0;
     border: 1px solid var(--border-gentle-divider);
+    border-bottom-color: var(--border-gentle-divider);
     background: var(--color-panel-contrast);
     aspect-ratio: 1;
+    box-shadow: none;
   }
 
   .home-project-inventory-row:last-child {
     border-bottom: 1px solid var(--border-gentle-divider);
   }
 
-  .home-project-inventory-body {
+  .home-project-inventory-index,
+  .home-project-inventory-body,
+  .home-project-inventory-glyph {
     display: none;
   }
 
@@ -1063,6 +1073,7 @@ html[data-theme="light"] .home-hero-plate {
     border-color: var(--color-primary);
     outline: 1px solid var(--color-primary);
     outline-offset: -1px;
+    background: var(--color-panel-contrast);
   }
 }
 
@@ -1079,7 +1090,7 @@ html[data-theme="light"] .home-hero-plate {
 }
 
 .home-project-specimen .ledger-meta {
-  color: var(--color-on-surface-variant);
+  display: none;
 }
 
 .home-project-specimen .ledger-card-title,
@@ -1110,7 +1121,14 @@ html[data-theme="light"] .home-hero-plate {
   overflow: hidden;
 }
 
-.home-project-specimen .ledger-chip-row,
+/* Tags replace the old label/status strip; outbound links stay off. */
+.home-project-specimen .ledger-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin: 0;
+}
+
 .home-project-specimen .ledger-card-links {
   display: none;
 }
@@ -1120,8 +1138,8 @@ html[data-theme="light"] .home-hero-plate {
   flex-direction: column;
   min-width: 0;
   min-height: 0;
-  background: var(--color-panel-contrast);
-  border: 1px solid var(--border-gentle-divider);
+  background: transparent;
+  border: 0;
   overflow: hidden;
 }
 
@@ -1129,22 +1147,20 @@ html[data-theme="light"] .home-hero-plate {
   position: relative;
   display: flex;
   flex-direction: row;
-  align-items: stretch;
+  align-items: center;
   flex: 1 1 0;
   min-height: 0;
-  padding: 0;
-  gap: 0;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-sm) var(--space-sm) 0;
+  border: 0;
   border-bottom: 1px solid var(--border-gentle-divider);
+  background: transparent;
   cursor: pointer;
   transition: background-color var(--motion-duration-fast) var(--motion-ease-default);
 }
 
 .home-project-inventory-row:last-child {
-  border-bottom: none;
-}
-
-.home-project-inventory-row:not(:has(.home-project-inventory-media)) {
-  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--border-gentle-divider);
 }
 
 .home-project-inventory-row:hover,
@@ -1155,7 +1171,7 @@ html[data-theme="light"] .home-hero-plate {
 
 .home-project-inventory-row.is-selected {
   background: var(--color-surface-high);
-  box-shadow: inset 2px 0 0 var(--color-primary);
+  box-shadow: inset 3px 0 0 var(--color-primary);
 }
 
 .home-band--contrast .home-project-inventory-row:hover,
@@ -1164,19 +1180,33 @@ html[data-theme="light"] .home-hero-plate {
   background: var(--color-surface-high-contrast);
 }
 
-/* Thumb is a full-row-height 16:9 plate, flush to the list's left edge.
-   Aspect ratio lives on the media shell so the flex item sizes tightly —
-   not on a child that left an empty auto-track beside the poster. */
+.home-project-inventory-index {
+  flex: 0 0 1.75rem;
+  font-family: var(--font-mono);
+  font-size: var(--type-caption);
+  letter-spacing: 0.04em;
+  color: var(--color-on-surface-variant);
+  line-height: 1;
+  text-align: right;
+}
+
+.home-project-inventory-row.is-selected .home-project-inventory-index,
+.home-project-inventory-row:hover .home-project-inventory-index,
+.home-project-inventory-row:focus-visible .home-project-inventory-index {
+  color: var(--color-primary);
+}
+
 .home-project-inventory-media {
   flex: 0 0 auto;
-  align-self: stretch;
+  width: 5.5rem;
+  align-self: center;
   height: auto;
   min-width: 0;
   min-height: 0;
   aspect-ratio: 16 / 9;
   overflow: hidden;
   background: var(--color-surface-high);
-  border-right: 1px solid var(--border-gentle-subtle);
+  border: 1px solid var(--border-gentle-subtle);
 }
 
 .home-project-inventory-media .ledger-poster,
@@ -1190,8 +1220,7 @@ html[data-theme="light"] .home-hero-plate {
 }
 
 .home-project-inventory-media .ledger-poster::after {
-  --frame-corner-size: 0.45rem;
-  inset: 0.2rem;
+  display: none;
 }
 
 .home-project-inventory-media .ledger-poster img {
@@ -1224,10 +1253,10 @@ html[data-theme="light"] .home-hero-plate {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: var(--space-2xs);
+  gap: 0;
   flex: 1 1 0;
   min-width: 0;
-  padding: var(--space-sm) var(--space-md);
+  padding: 0;
 }
 
 .home-project-inventory-title {
@@ -1251,9 +1280,32 @@ html[data-theme="light"] .home-hero-plate {
   color: var(--color-primary);
 }
 
-.home-project-inventory-row .ledger-meta {
-  margin: 0;
+.home-project-inventory-glyph {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  margin-left: auto;
   color: var(--color-on-surface-variant);
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.home-project-inventory-glyph--initial {
+  font-family: var(--font-content-title);
+  font-size: var(--type-subtitle);
+  font-weight: var(--weight-title);
+}
+
+.home-project-inventory-row.is-selected .home-project-inventory-glyph,
+.home-project-inventory-row:hover .home-project-inventory-glyph {
+  color: var(--color-primary);
+}
+
+.home-project-inventory-row .ledger-meta {
+  display: none;
 }
 
 

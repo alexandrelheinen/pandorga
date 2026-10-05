@@ -324,10 +324,9 @@
       ].join('');
     }
 
-    /* Compact inventory row for the home portfolio bench — thumb + name +
-     * status only. Field-backed; no tagline or tag cloud.
-     * When options.selectable is true the row selects the specimen instead
-     * of navigating; the specimen card itself opens the project. */
+    /* Compact inventory row for the home portfolio bench.
+     * Desktop: index + thumb + title + project icon. Mobile strip uses the
+     * thumb/initial only. Selectable rows update the specimen. */
     function renderProjectInventoryRow(item, options) {
       options = options || {};
       var f = blockFields(item);
@@ -337,6 +336,7 @@
       var selectable = !!options.selectable;
       var selected = !!options.selected;
       var slug = item.slug || f.slug || '';
+      var index = options.index;
 
       var row = document.createElement('article');
       row.className = 'home-project-inventory-row group' +
@@ -350,13 +350,19 @@
       }
 
       var media = renderPosterMedia(fm.thumbnail, name);
+      var initial = String(name || '?').charAt(0).toUpperCase();
       if (!media) {
-        var initial = String(name || '?').charAt(0).toUpperCase();
         media = '<div class="home-project-inventory-mark home-project-inventory-mark--initial" aria-hidden="true">' +
           escapeHtml(initial) + '</div>';
       }
 
       var html = '';
+      if (index != null && index !== '') {
+        var label = String(Number(index));
+        if (label.length < 2) label = '0' + label;
+        html += '<span class="home-project-inventory-index" aria-hidden="true">' +
+          escapeHtml(label) + '</span>';
+      }
       if (media) {
         html += '<div class="home-project-inventory-media">' + media + '</div>';
       }
@@ -369,12 +375,14 @@
           '<a class="ledger-card-stretch" href="' + escapeAttr(href) + '">' +
           escapeHtml(name) + '</a></h3>';
       }
-      var meta = renderMetaStrip([
-        fm.label ? escapeHtml(fm.label) : '',
-        fm.status ? '<span class="ledger-status">' + escapeHtml(fm.status) + '</span>' : ''
-      ]);
-      if (meta) html += meta;
       html += '</div>';
+      if (fm.icon) {
+        html += '<span class="home-project-inventory-glyph material-symbols-outlined" aria-hidden="true">' +
+          escapeHtml(fm.icon) + '</span>';
+      } else {
+        html += '<span class="home-project-inventory-glyph home-project-inventory-glyph--initial" aria-hidden="true">' +
+          escapeHtml(initial) + '</span>';
+      }
 
       row.innerHTML = html;
       return row;

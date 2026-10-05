@@ -267,13 +267,15 @@ layout: shell
 
         function paintSpecimen(entry) {
           specimenSlot.innerHTML = '';
-          /* Corners live on .ledger-poster::after (the image plate), not on
-             the card — a second .ledger-frame-corners span doubled them. */
+          /* No card-level drafting corners / edge tick — markers live on the
+             poster plate only, so they do not overlap the image. Meta strip
+             is suppressed; tags take that slot below the plate. */
           specimenSlot.appendChild(runtime.renderSystemCard(asItem(entry), {
             href: entry.url || runtime.projectUrl(entry.slug),
             tagHref: systemTagHref,
-            className: 'home-project-specimen ledger-card--edge-primary',
-            glyphFallback: true
+            className: 'home-project-specimen',
+            glyphFallback: true,
+            metaParts: []
           }));
           var specimen = specimenSlot.querySelector('.home-project-specimen');
           watchSpecimen(specimen);
@@ -291,10 +293,11 @@ layout: shell
             '--home-project-icon-count',
             String(Math.min(portfolio.length, 6) || 1)
           );
-          portfolio.forEach(function (entry) {
+          portfolio.forEach(function (entry, i) {
             var row = runtime.renderProjectInventoryRow(asItem(entry), {
               selectable: true,
-              selected: entry.slug === selectedSlug
+              selected: entry.slug === selectedSlug,
+              index: i + 1
             });
             function select() {
               if (selectedSlug === entry.slug) return;
