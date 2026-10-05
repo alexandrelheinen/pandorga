@@ -34,7 +34,7 @@ bundle exec pandorga serve
 | `pandorga doctor` | Validate `pandorga:` config |
 | `pandorga export` | Content → JSON (`manifest.json` includes `schema_version`) |
 | `pandorga serve` | Export + `jekyll serve` |
-| `pandorga publish` | R2 sync (site script or env) |
+| `pandorga publish` | S3-compatible object-store sync (`S3_*` or `R2_*`) |
 | `pandorga install-functions` | Copy `functions/` + `studio/` into the site root |
 | `pandorga studio-schema` | Compose Studio schema from templates |
 

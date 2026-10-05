@@ -33,16 +33,32 @@ module Jekyll
       # makes `jekyll serve --watch` regenerate itself forever. dev-serve.sh owns
       # the re-export when content changes; this covers the case where somebody
       # runs Jekyll against the dev config with no export on disk at all.
+      def export_script(site)
+        site_script = File.join(site.source, "scripts", "content", "export-content-json.rb")
+        return site_script if File.file?(site_script)
+
+        begin
+          require "pandorga"
+          gem_script = Pandorga.gem_path("scripts/content/export-content-json.rb")
+          return gem_script if File.file?(gem_script)
+        rescue LoadError
+          nil
+        end
+      end
+
       def export_content!(site)
-        script = File.join(site.source, "scripts", "content", "export-content-json.rb")
-        return unless File.file?(script)
         return if File.directory?(export_root(site))
+
+        script = export_script(site)
+        return unless script
 
         content_dir = site.config["content_root"] || "content"
         output_dir = site.config["local_content_export_dir"] || "_content_json"
         env = {
           "CONTENT_API_BASE_URL" => site.config["content_api_base_url"].to_s.strip,
-          "CONTENT_EXPORT_INCLUDE_UNPUBLISHED" => site.config["content_include_unpublished"] == true ? "1" : "0"
+          "CONTENT_EXPORT_INCLUDE_UNPUBLISHED" => site.config["content_include_unpublished"] == true ? "1" : "0",
+          "PANDORGA_SITE_ROOT" => site.source.to_s,
+          "CONTENT_EXPORT_SKIP_VALIDATE" => "1"
         }
 
         ruby_bin = RbConfig.ruby
@@ -50,7 +66,7 @@ module Jekyll
         return if success
 
         Jekyll.logger.error "ContentLocalServe:", "export-content-json.rb failed"
-        raise "Content export failed; run ruby scripts/content/export-content-json.rb content _content_json"
+        raise "Content export failed; run bundle exec pandorga export content _content_json"
       end
 
       def copy_tree(source, destination)

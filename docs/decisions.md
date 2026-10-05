@@ -3,6 +3,17 @@
 ADR-style log for constraints that diverge from or freeze choices in
 [spec.md](spec.md). Newest first.
 
+## ADR-003: Object-store env names for v1
+
+Date: 2026-10-05  
+Status: accepted  
+Refs: `PLT` deploy, [spec.md §5.2](spec.md)
+
+`pandorga publish` accepts `S3_*` credentials for any S3-compatible bucket.
+Legacy `R2_*` names remain aliases. `pandorga.content.backend` values `r2`,
+`object_store`, and `s3` all mean “JSON at `base_url`”; `static` serves from
+`_site`.
+
 ## ADR-001: Freeze §13 owner decisions for v0.1
 
 Date: 2026-10-05  
