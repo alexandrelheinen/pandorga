@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.2] — 2026-10-05
+
+### Fixed
+
+- Home inventory rows are selectable, height-synced to the specimen, and keep
+  16:9 thumbs flush in flex media shells
+- Studio list surfaces use the themed panel background
+
 ## [1.3.1] — 2026-10-05
 
 ### Changed
