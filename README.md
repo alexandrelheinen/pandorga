@@ -5,7 +5,7 @@
 [![Gem Version](https://img.shields.io/gem/v/pandorga)](https://rubygems.org/gems/pandorga)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-<img src="docs/images/family_link_64dp_5084C1_FILL0_wght400_GRAD0_opsz48.svg" alt="Pandorga Logo" width="120" align="left">
+<img src="docs/images/family_link_64dp_5084C1_FILL0_wght400_GRAD0_opsz48.svg" alt="Pandorga Logo" width="120" style="float: left; margin-right: 10%;">
 A Jekyll publishing platform: static shell, content as JSON, page registry,
 and Studio. The kite frame — your site is the paper.
 
