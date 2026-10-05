@@ -1,5 +1,11 @@
 # Pandorga
 
+[![CI](https://github.com/alexandrelheinen/pandorga/actions/workflows/validate.yml/badge.svg)](https://github.com/alexandrelheinen/pandorga/actions/workflows/validate.yml)
+[![Release](https://img.shields.io/github/v/release/alexandrelheinen/pandorga)](https://github.com/alexandrelheinen/pandorga/releases/latest)
+[![Gem Version](https://img.shields.io/gem/v/pandorga)](https://rubygems.org/gems/pandorga)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+<img src="docs/images/family_link_64dp_5084C1_FILL0_wght400_GRAD0_opsz48.svg" alt="Pandorga Logo" width="120" align="left">
 A Jekyll publishing platform: static shell, content as JSON, page registry,
 and Studio. The kite frame — your site is the paper.
 
