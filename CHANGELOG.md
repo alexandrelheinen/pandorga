@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.1] — 2026-10-05
+
+### Changed
+
+- Home portfolio band is a specimen + inventory bench (16:9 media) instead of
+  an equal card grid
+- Projects listing lead shows a Featured chip
+
 ## [1.3.0] — 2026-10-05
 
 ### Fixed
