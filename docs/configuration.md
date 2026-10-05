@@ -16,8 +16,22 @@ Generated from the registry contract. Gate: keep in sync with
 
 | Key | Type | Notes |
 |---|---|---|
-| `backend` | `r2` \| `static` | `static` serves JSON from `_site` |
-| `base_url` | string | Public content origin when `r2` |
+| `backend` | `static` \| `r2` \| `object_store` \| `s3` | `static` serves JSON from `_site`. The others use `base_url` as the public object-store origin |
+| `base_url` | string | Public content origin when backend is not `static` |
+
+Legacy `content_api_base_url` still works as a fallback for `base_url`.
+
+## `pandorga.home`
+
+| Key | Type | Notes |
+|---|---|---|
+| `hero_art` | string | Include path for hero decoration (default `page/hero-default.html`) |
+
+## `pandorga.taxonomies`
+
+Closed tag vocabularies per collection (`tags`, `max`, `min`). Page-local
+`pandorga.pages[].taxonomy` is also accepted when a collection has no top-level
+entry.
 
 ## `pandorga.pages[]`
 
@@ -25,13 +39,25 @@ Generated from the registry contract. Gate: keep in sync with
 |---|---|---|---|
 | `key` | string | yes | Unique page id |
 | `template` | string | yes | One of `cv`, `articles`, `blog`, `media`, `network`, `bibliography`, `portfolio` |
-| `layout` | string | no | Jekyll layout override |
+| `layout` | string | no | Jekyll layout override (default from template) |
 | `collection` / `collections` | string / map | template-dependent | Content folders |
 | `path` | string | yes | Listing URL |
 | `detail` | string | no | Detail route pattern |
 | `nav` | map \| `false` | no | `{ group, icon }` or hide |
-| `home` | map \| `false` | no | Home band options |
-| `taxonomy` | string | no | Key into `pandorga.taxonomies` |
+| `home` | map \| `false` | no | Home band options; omit for template defaults |
+| `taxonomy` | map | no | Tag vocabulary for the page |
 | `accent` | string | no | Page accent token |
+| `language` | string | no | Listing / home band language |
 
 Duplicate `key`, unknown `template`, or conflicting `path` fails the build.
+
+### `home` attributes
+
+| Key | Notes |
+|---|---|
+| `band: hero` | Page feeds the hero (CV); not a separate band |
+| `band: index` + `group` | Joins a shared index panel group |
+| `featured` | Lead card for writing bands |
+| `limit` | Max items in the band |
+| `cta` | Listing CTA label (default `View all`) |
+| `false` | Omit from the homepage |
