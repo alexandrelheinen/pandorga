@@ -5,12 +5,12 @@
 [![Gem Version](https://img.shields.io/gem/v/pandorga)](https://rubygems.org/gems/pandorga)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-<img src="docs/images/family_link_64dp_5084C1_FILL0_wght400_GRAD0_opsz48.svg" alt="Pandorga Logo" width="120" style="float: left; margin-right: 10%;">
-A Jekyll publishing platform: static shell, content as JSON, page registry,
-and Studio. The kite frame — your site is the paper.
+<img src="docs/images/family_link_64dp_5084C1_FILL0_wght400_GRAD0_opsz48.svg" alt="Pandorga Logo" width="120" align="left" style="margin-right: 10%;">
+An aesthetic Jekyll publishing platform for creative and technical writing. The site is your paper, your portfolio, and an extension of your own thoughts.
 
-Extracted from a personal site; this repository starts with a clean history
-and contains no owner identity. Configuration belongs to each consuming site.
+- **Headless and S3-compatible.** Your content lives independently of the Pandorga shell — write, store, and move it on your own terms.
+- **Studio CMS.** Manage everything from quick notes to full diagrams without touching the repo.
+- **Fully configurable.** Portfolio, CV, blog, articles, and bibliography — each with its own presentation.
 
 ## Quickstart
 
