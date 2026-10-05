@@ -39,11 +39,23 @@
     {%- if _featured -%}
     <div id="{{ _slot_id }}-featured" data-home-featured-slot data-tag-base="{{ _path }}"></div>
     {%- endif -%}
+    {%- if band.kind == 'portfolio' -%}
     <div
       id="{{ _slot_id }}"
-      class="{% if band.kind == 'blog' %}home-draft-list{% elsif band.kind == 'portfolio' %}home-system-grid{% else %}home-card-grid{% endif %}"
+      class="home-projects-bench"
+      data-home-list
+      data-tag-base="{{ _path }}"
+    >
+      <div data-home-specimen></div>
+      <div class="home-project-inventory" data-home-inventory aria-label="Project inventory"></div>
+    </div>
+    {%- else -%}
+    <div
+      id="{{ _slot_id }}"
+      class="{% if band.kind == 'blog' %}home-draft-list{% else %}home-card-grid{% endif %}"
       data-home-list
       data-tag-base="{{ _path }}"
     ></div>
+    {%- endif -%}
   </div>
 </section>

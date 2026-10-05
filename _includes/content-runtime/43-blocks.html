@@ -324,6 +324,43 @@
       ].join('');
     }
 
+    /* Compact inventory row for the home portfolio bench — thumb + name +
+     * status only. Field-backed; no tagline or tag cloud. */
+    function renderProjectInventoryRow(item, options) {
+      options = options || {};
+      var f = blockFields(item);
+      var fm = f.fm;
+      var href = options.href || '#';
+      var name = fm.project || f.title;
+
+      var row = document.createElement('article');
+      row.className = 'home-project-inventory-row group';
+
+      var media = renderPosterMedia(fm.thumbnail, name);
+      if (!media && fm.icon) {
+        media = '<div class="home-project-inventory-mark" aria-hidden="true">' +
+          '<span class="material-symbols-outlined">' + escapeHtml(fm.icon) + '</span></div>';
+      }
+
+      var html = '';
+      if (media) {
+        html += '<div class="home-project-inventory-media">' + media + '</div>';
+      }
+      html += '<div class="home-project-inventory-body">';
+      html += '<h3 class="home-project-inventory-title card-title">' +
+        '<a class="ledger-card-stretch" href="' + escapeAttr(href) + '">' +
+        escapeHtml(name) + '</a></h3>';
+      var meta = renderMetaStrip([
+        fm.label ? escapeHtml(fm.label) : '',
+        fm.status ? '<span class="ledger-status">' + escapeHtml(fm.status) + '</span>' : ''
+      ]);
+      if (meta) html += meta;
+      html += '</div>';
+
+      row.innerHTML = html;
+      return row;
+    }
+
     /* System card — the project shape. Carries the fields projects actually
      * have: label, status, and a repository link. */
     function renderSystemCard(item, options) {
@@ -335,8 +372,20 @@
 
       var card = document.createElement('article');
       card.className = 'ledger-system-card group';
+      if (options.className) card.className += ' ' + options.className;
 
-      var html = renderPosterMedia(fm.thumbnail, name);
+      var html = '';
+      if (options.frameCorners) {
+        html += '<span class="ledger-frame-corners" aria-hidden="true"></span>';
+      }
+      var poster = renderPosterMedia(fm.thumbnail, name);
+      if (poster) {
+        html += poster;
+      } else if (options.glyphFallback && fm.icon) {
+        html += '<div class="projects-plate projects-plate--mark" aria-hidden="true">' +
+          '<span class="material-symbols-outlined projects-plate-glyph">' +
+          escapeHtml(fm.icon) + '</span></div>';
+      }
       // Callers may supply their own strip parts; the default is whatever the
       // project declares about itself.
       var parts = options.metaParts || [

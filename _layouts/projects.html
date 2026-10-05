@@ -235,7 +235,10 @@ layout: shell
       html += '<a class="projects-lead-media" href="' + escAttr(href) + '" tabindex="-1">' +
         plateHtml(item, 'projects-plate--lead') + '</a>';
       html += '<div class="projects-lead-body">';
+      html += '<div class="projects-lead-rail">';
+      html += '<span class="ledger-chip home-featured-badge">Featured</span>';
       if (line) html += line;
+      html += '</div>';
       html += '<h2 class="projects-lead-title"><a href="' + escAttr(href) + '">' + esc(name) + '</a></h2>';
       if (fm.title && fm.title !== name) {
         html += '<p class="projects-lead-subtitle">' + esc(fm.title) + '</p>';

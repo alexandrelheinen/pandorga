@@ -206,6 +206,17 @@
   padding: var(--space-lg);
 }
 
+.projects-page .projects-lead-rail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm) var(--space-md);
+}
+
+.projects-page .projects-lead-rail .ledger-meta {
+  margin: 0;
+}
+
 .projects-page .projects-lead-title {
   font-family: var(--font-content-title);
   font-size: var(--type-card-lg);

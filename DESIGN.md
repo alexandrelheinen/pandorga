@@ -935,8 +935,9 @@ Letter-spacing in use, by frequency: `0.1em` (12), `0.08em` (10), `0.12em` (7),
   writing, rascunhos, systems, ideas graph. The featured band carries a 6rem ×
   3px `primary` rule at its top-left corner as a structural mark. The three
   writing cards take `primary` / `secondary` / `tertiary` 2px top rules in
-  rotation. The systems grid is a 12-column asymmetric pair — 7/5 then 5/7 —
-  from 1024px. Below 768px the hero portrait runs to the screen edge, pulled
+  rotation. The systems band is a specimen + inventory bench from 900px —
+  one large project plate (~7/12) beside a compact ledger rail (~5/12); both
+  keep 16:9 media. Below 768px the hero portrait runs to the screen edge, pulled
   out of the band's gutter by exactly `--gutter-mobile` on each side and losing
   its side hairlines, which at the edge would read as a frame cut off.
 * **Writing index.** Masthead over a hairline, then a `panelContrast` filter
@@ -947,9 +948,9 @@ Letter-spacing in use, by frequency: `0.1em` (12), `0.08em` (10), `0.12em` (7),
   rows beside a sticky marginalia column. Rows become two-column
   (`.rascunhos-row--illustrated`, a 7.5rem plate, 4rem on phones) only when an
   image is actually present.
-* **Projects.** A Tailwind `grid-cols-1 md:grid-cols-2` of system cards with
-  `align-items: start`, so a card without a poster does not stretch to match
-  one that has one.
+* **Projects.** A session-featured lead plate (with a Featured chip) over a
+  `grid-cols-1 md:grid-cols-2` of system cards with `align-items: start`, so a
+  card without a poster does not stretch to match one that has one.
 * **Sources.** `.listing-card-grid--sources`: one column, two from 768px,
   three from 1024px, posters at `16 / 9` — the video frame, which is what most
   of the collection links to. Filtering hides pre-rendered cards with a class

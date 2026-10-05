@@ -710,8 +710,8 @@ html[data-theme="light"] .home-hero-plate {
 .home-card-grid .ledger-card-title,
 .home-card-grid .card-title,
 .home-draft-card .ledger-card-title,
-.home-system-grid .ledger-card-title,
-.home-system-grid .card-title {
+.home-project-specimen .ledger-card-title,
+.home-project-inventory-title {
   font-family: var(--font-content-title);
   font-weight: var(--weight-title);
   font-synthesis: none;
@@ -943,45 +943,57 @@ html[data-theme="light"] .home-hero-plate {
   }
 }
 
-/* ── Engineering artifacts ──
-   Uniform dense cells (not the old 7/5 tension scale): four portfolio cards
-   on the home band were reading as oversized panels. Equal columns + a short
-   poster keep them catalogue-sized; the projects listing page is unchanged. */
-.home-system-grid {
+/* ── Engineering artifacts: specimen + inventory bench ──
+   One large specimen plate (~7/12) beside a compact ledger rail (~5/12).
+   Covers stay 16:9 — hard requirement for home project media. */
+.home-projects-bench {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-md);
-  align-items: stretch;
+  gap: var(--space-lg);
+  align-items: start;
 }
 
-@media (min-width: 700px) {
-  .home-system-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+@media (min-width: 900px) {
+  .home-projects-bench {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: var(--space-xl);
   }
 }
 
-.home-system-grid .ledger-system-card {
-  gap: var(--space-xs);
-  padding: var(--space-md);
+.home-project-specimen {
+  position: relative;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
 }
 
-.home-system-grid .ledger-system-card>.ledger-poster,
-.home-system-grid .ledger-system-card>.projects-plate {
+.home-project-specimen>.ledger-poster,
+.home-project-specimen>.projects-plate {
   width: auto;
-  margin: calc(var(--space-md) * -1) calc(var(--space-md) * -1) 0;
-  aspect-ratio: 2 / 1;
+  margin: calc(var(--space-lg) * -1) calc(var(--space-lg) * -1) 0;
+  aspect-ratio: 16 / 9;
 }
 
-.home-system-grid .ledger-system-card .ledger-card-title {
-  font-size: var(--type-card);
+.home-project-specimen .projects-plate--mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-panel-contrast);
+  color: var(--color-primary);
+}
+
+.home-project-specimen .projects-plate-glyph {
+  font-size: 3rem;
+}
+
+.home-project-specimen .ledger-card-title {
+  font-family: var(--font-content-title);
+  font-size: var(--type-card-lg);
+  font-weight: var(--weight-title);
+  font-synthesis: none;
   line-height: 1.2;
 }
 
-.home-system-grid .ledger-card-links {
-  row-gap: var(--space-sm);
-}
-
-.home-system-grid .ledger-card-copy {
+.home-project-specimen .ledger-card-copy {
   font-family: var(--font-body);
   font-size: var(--type-subtitle);
   font-weight: var(--weight-body);
@@ -989,9 +1001,106 @@ html[data-theme="light"] .home-hero-plate {
   color: var(--color-legend);
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
   overflow: hidden;
+}
+
+.home-project-specimen .ledger-card-links {
+  row-gap: var(--space-sm);
+}
+
+.home-project-inventory {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border-top: 1px solid var(--border-gentle-divider);
+}
+
+.home-project-inventory-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-md);
+  align-items: center;
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid var(--border-gentle-divider);
+  transition: background-color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.home-project-inventory-row:has(.home-project-inventory-media) {
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+}
+
+.home-project-inventory-row:hover,
+.home-project-inventory-row:focus-within {
+  background: var(--color-surface-high);
+}
+
+.home-band--contrast .home-project-inventory-row:hover,
+.home-band--contrast .home-project-inventory-row:focus-within {
+  background: var(--color-surface-high-contrast);
+}
+
+.home-project-inventory-media {
+  min-width: 0;
+}
+
+.home-project-inventory-media .ledger-poster,
+.home-project-inventory-mark {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--border-gentle-subtle);
+  background: var(--color-panel-contrast);
+}
+
+.home-project-inventory-media .ledger-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.home-project-inventory-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+}
+
+.home-project-inventory-mark .material-symbols-outlined {
+  font-size: 1.25rem;
+}
+
+.home-project-inventory-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  min-width: 0;
+}
+
+.home-project-inventory-title {
+  margin: 0;
+  font-family: var(--font-content-title);
+  font-size: var(--type-card);
+  font-weight: var(--weight-title);
+  font-synthesis: none;
+  line-height: 1.25;
+}
+
+.home-project-inventory-title a {
+  color: var(--color-on-surface);
+  text-decoration: none;
+}
+
+.home-project-inventory-row:hover .home-project-inventory-title a,
+.home-project-inventory-row:focus-within .home-project-inventory-title a {
+  color: var(--color-primary);
+}
+
+.home-project-inventory-row .ledger-meta {
+  margin: 0;
 }
 
 

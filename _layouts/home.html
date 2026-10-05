@@ -208,13 +208,38 @@ layout: shell
         entries = entries.sort(function (a, b) {
           return Number(a.sort_order || 0) - Number(b.sort_order || 0);
         });
+        var specimenSlot = section.querySelector('[data-home-specimen]');
+        var inventorySlot = section.querySelector('[data-home-inventory]');
         var systemTagHref = tagHrefFrom(list);
-        fill(list, entries.slice(0, limit), function (entry) {
-          return runtime.renderSystemCard(asItem(entry), {
-            href: entry.url || runtime.projectUrl(entry.slug),
-            tagHref: systemTagHref
-          });
-        }, 'Projects could not be loaded right now.');
+        var portfolio = entries.slice(0, limit);
+        if (!portfolio.length) {
+          runtime.Listing.showErrorState(list, 'Projects could not be loaded right now.');
+          return;
+        }
+        if (specimenSlot) {
+          specimenSlot.innerHTML = '';
+          specimenSlot.appendChild(runtime.renderSystemCard(asItem(portfolio[0]), {
+            href: portfolio[0].url || runtime.projectUrl(portfolio[0].slug),
+            tagHref: systemTagHref,
+            className: 'home-project-specimen ledger-card--edge-primary',
+            frameCorners: true,
+            glyphFallback: true
+          }));
+        }
+        var rest = portfolio.slice(1);
+        if (inventorySlot) {
+          if (!rest.length) {
+            inventorySlot.hidden = true;
+            inventorySlot.innerHTML = '';
+          } else {
+            inventorySlot.hidden = false;
+            fill(inventorySlot, rest, function (entry) {
+              return runtime.renderProjectInventoryRow(asItem(entry), {
+                href: entry.url || runtime.projectUrl(entry.slug)
+              });
+            }, 'Projects could not be loaded right now.');
+          }
+        }
         return;
       }
 
