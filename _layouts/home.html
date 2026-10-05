@@ -211,13 +211,15 @@ layout: shell
         var specimenSlot = section.querySelector('[data-home-specimen]');
         var inventorySlot = section.querySelector('[data-home-inventory]');
         var systemTagHref = tagHrefFrom(list);
-        var portfolio = entries.slice(0, limit);
+        /* Selector strip is sized for six icon buttons on mobile; take up to
+           six projects even when home.limit is lower. */
+        var portfolio = entries.slice(0, Math.max(limit, 6));
         if (!portfolio.length) {
           runtime.Listing.showErrorState(list, 'Projects could not be loaded right now.');
           return;
         }
         if (!specimenSlot || !inventorySlot) {
-          fill(list, portfolio, function (entry) {
+          fill(list, portfolio.slice(0, limit), function (entry) {
             return runtime.renderSystemCard(asItem(entry), {
               href: entry.url || runtime.projectUrl(entry.slug),
               tagHref: systemTagHref,
@@ -227,8 +229,16 @@ layout: shell
           return;
         }
 
-        var selectedSlug = portfolio[0].slug;
+        var featuredPick = runtime.pickFeatured(portfolio.map(asItem), {
+          storageKey: 'home-specimen-slug',
+          eligible: function () { return true; }
+        });
+        var selectedSlug = (featuredPick && featuredPick.slug) || portfolio[0].slug;
         var inventoryResizeObserver = null;
+
+        function entryBySlug(slug) {
+          return portfolio.filter(function (entry) { return entry.slug === slug; })[0] || portfolio[0];
+        }
 
         function syncInventoryHeight() {
           if (!window.matchMedia('(min-width: 900px)').matches) {
@@ -257,11 +267,12 @@ layout: shell
 
         function paintSpecimen(entry) {
           specimenSlot.innerHTML = '';
+          /* Corners live on .ledger-poster::after (the image plate), not on
+             the card — a second .ledger-frame-corners span doubled them. */
           specimenSlot.appendChild(runtime.renderSystemCard(asItem(entry), {
             href: entry.url || runtime.projectUrl(entry.slug),
             tagHref: systemTagHref,
             className: 'home-project-specimen ledger-card--edge-primary',
-            frameCorners: true,
             glyphFallback: true
           }));
           var specimen = specimenSlot.querySelector('.home-project-specimen');
@@ -276,6 +287,10 @@ layout: shell
         function paintInventory() {
           inventorySlot.hidden = false;
           inventorySlot.innerHTML = '';
+          inventorySlot.style.setProperty(
+            '--home-project-icon-count',
+            String(Math.min(portfolio.length, 6) || 1)
+          );
           portfolio.forEach(function (entry) {
             var row = runtime.renderProjectInventoryRow(asItem(entry), {
               selectable: true,
@@ -303,7 +318,7 @@ layout: shell
           window.requestAnimationFrame(syncInventoryHeight);
         }
 
-        paintSpecimen(portfolio[0]);
+        paintSpecimen(entryBySlug(selectedSlug));
         paintInventory();
         window.addEventListener('resize', syncInventoryHeight);
         return;

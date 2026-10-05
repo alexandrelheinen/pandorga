@@ -977,6 +977,27 @@ html[data-theme="light"] .home-hero-plate {
   width: auto;
   margin: calc(var(--space-md) * -1) calc(var(--space-md) * -1) 0;
   aspect-ratio: 16 / 9;
+  position: relative;
+}
+
+/* Glyph plates have no .ledger-poster::after — mirror the image corners. */
+.home-project-specimen>.projects-plate::after {
+  content: "";
+  --frame-corner-size: 0.7rem;
+  --frame-corner-thickness: 1px;
+  position: absolute;
+  inset: 0.3rem;
+  pointer-events: none;
+  z-index: 2;
+  background:
+    linear-gradient(var(--color-primary), var(--color-primary)) top left / var(--frame-corner-size) var(--frame-corner-thickness) no-repeat,
+    linear-gradient(var(--color-primary), var(--color-primary)) top left / var(--frame-corner-thickness) var(--frame-corner-size) no-repeat,
+    linear-gradient(var(--color-primary), var(--color-primary)) top right / var(--frame-corner-size) var(--frame-corner-thickness) no-repeat,
+    linear-gradient(var(--color-primary), var(--color-primary)) top right / var(--frame-corner-thickness) var(--frame-corner-size) no-repeat,
+    linear-gradient(var(--color-primary), var(--color-primary)) bottom left / var(--frame-corner-size) var(--frame-corner-thickness) no-repeat,
+    linear-gradient(var(--color-primary), var(--color-primary)) bottom left / var(--frame-corner-thickness) var(--frame-corner-size) no-repeat,
+    linear-gradient(var(--color-primary), var(--color-primary)) bottom right / var(--frame-corner-size) var(--frame-corner-thickness) no-repeat,
+    linear-gradient(var(--color-primary), var(--color-primary)) bottom right / var(--frame-corner-thickness) var(--frame-corner-size) no-repeat;
 }
 
 @media (max-width: 899px) {
@@ -984,10 +1005,64 @@ html[data-theme="light"] .home-hero-plate {
     display: flex;
     flex-direction: column;
     align-items: stretch;
+    gap: var(--space-md);
   }
 
   .home-project-specimen {
     max-width: none;
+  }
+
+  /* Icon strip under the specimen: equal buttons spanning the band width. */
+  .home-project-inventory {
+    display: grid;
+    grid-template-columns: repeat(var(--home-project-icon-count, 6), minmax(0, 1fr));
+    gap: var(--space-xs);
+    height: auto !important;
+    min-height: 0;
+    overflow: visible;
+    background: transparent;
+    border: 0;
+  }
+
+  .home-project-inventory-row {
+    display: block;
+    flex: none;
+    min-height: 0;
+    padding: 0;
+    border: 1px solid var(--border-gentle-divider);
+    background: var(--color-panel-contrast);
+    aspect-ratio: 1;
+  }
+
+  .home-project-inventory-row:last-child {
+    border-bottom: 1px solid var(--border-gentle-divider);
+  }
+
+  .home-project-inventory-body {
+    display: none;
+  }
+
+  .home-project-inventory-media {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+    border-right: 0;
+  }
+
+  .home-project-inventory-media .ledger-poster,
+  .home-project-inventory-mark {
+    aspect-ratio: 1;
+    height: 100%;
+  }
+
+  .home-project-inventory-media .ledger-poster::after {
+    display: none;
+  }
+
+  .home-project-inventory-row.is-selected {
+    border-color: var(--color-primary);
+    outline: 1px solid var(--color-primary);
+    outline-offset: -1px;
   }
 }
 
@@ -1131,6 +1206,14 @@ html[data-theme="light"] .home-hero-plate {
   align-items: center;
   justify-content: center;
   color: var(--color-primary);
+}
+
+.home-project-inventory-mark--initial {
+  font-family: var(--font-content-title);
+  font-size: var(--type-card);
+  font-weight: var(--weight-title);
+  line-height: 1;
+  color: var(--color-on-surface);
 }
 
 .home-project-inventory-mark .material-symbols-outlined {

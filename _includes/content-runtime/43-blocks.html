@@ -350,9 +350,10 @@
       }
 
       var media = renderPosterMedia(fm.thumbnail, name);
-      if (!media && fm.icon) {
-        media = '<div class="home-project-inventory-mark" aria-hidden="true">' +
-          '<span class="material-symbols-outlined">' + escapeHtml(fm.icon) + '</span></div>';
+      if (!media) {
+        var initial = String(name || '?').charAt(0).toUpperCase();
+        media = '<div class="home-project-inventory-mark home-project-inventory-mark--initial" aria-hidden="true">' +
+          escapeHtml(initial) + '</div>';
       }
 
       var html = '';
