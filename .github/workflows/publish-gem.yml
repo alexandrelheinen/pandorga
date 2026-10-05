@@ -3,21 +3,28 @@ name: publish-gem
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 jobs:
   push:
     runs-on: ubuntu-latest
+    # Must match the GitHub Environment name configured on RubyGems.org
+    # (Trusted Publishing → Environment: release).
+    environment: release
     permissions:
       contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.4.4"
 
       - name: Verify release tag matches Pandorga::VERSION
-        id: version
+        if: github.event_name == 'release'
         run: |
           tag="${GITHUB_REF_NAME}"
           version="$(ruby -e 'require_relative "lib/pandorga/version"; print Pandorga::VERSION')"
@@ -26,15 +33,5 @@ jobs:
             echo "::error::Release tag ${tag} does not match Pandorga::VERSION (${expected})"
             exit 1
           fi
-          echo "version=${version}" >> "${GITHUB_OUTPUT}"
 
-      - name: Build and push gem
-        env:
-          GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
-        run: |
-          if [ -z "${GEM_HOST_API_KEY}" ]; then
-            echo "::error::Missing repository secret RUBYGEMS_API_KEY"
-            exit 1
-          fi
-          gem build pandorga.gemspec
-          gem push "pandorga-${{ steps.version.outputs.version }}.gem"
+      - uses: rubygems/release-gem@v1

@@ -46,14 +46,26 @@ for the Pages + object-store order.
 
 `pandorga new` pins `gem "pandorga", "~> 1.2"`. Publishing is automated: when a
 GitHub Release is published, [`.github/workflows/publish-gem.yml`](../.github/workflows/publish-gem.yml)
-builds the gem and runs `gem push`, provided the tag matches
-`Pandorga::VERSION` (for example `v1.2.0`).
+pushes the gem via [Trusted Publishing](https://guides.rubygems.org/trusted-publishing/)
+(OIDC; no long-lived API key). The release tag must match `Pandorga::VERSION`
+(for example `v1.2.1`).
 
-Set a repository secret named `RUBYGEMS_API_KEY` (RubyGems → Settings → API
-keys, scope that can push gems). Until that secret exists, installs stay on the
-GitHub tag pin above.
+One-time setup on [RubyGems.org](https://rubygems.org):
 
-Manual publish (optional):
+1. Create a **pending** trusted publisher for gem name `pandorga`
+   ([pending trusted publishers](https://rubygems.org/profile/pending_trusted_publishers)):
+   - GitHub owner: `alexandrelheinen`
+   - Repository: `pandorga`
+   - Workflow filename: `publish-gem.yml`
+   - Environment: `release`
+2. Ensure the GitHub Environment `release` exists on this repo
+   (Settings → Environments).
+
+After the first successful push, the pending publisher becomes a normal
+trusted publisher for `pandorga`. Until then, installs stay on the GitHub tag
+pin above.
+
+Manual publish (optional, local MFA may apply):
 
 ```bash
 mise exec -- gem build pandorga.gemspec
