@@ -1,10 +1,10 @@
-# Studio fragment for the articles writing template.
+# Studio fragment for the blog writing template.
 # Refs: PLT-AC-3, docs/spec.md §5.5
 group: writing
 group_label: Writing
 needs_media: true
 collection:
-  label: Articles
+  label: Posts
   type: collection
   format: yaml-frontmatter
   filename: "{year}-{month}-{day}-{key}.md"
@@ -19,7 +19,7 @@ collection:
       label: Layout
       type: string
       hidden: true
-      default: article
+      default: post
     - name: key
       label: Key
       type: string
@@ -29,10 +29,6 @@ collection:
       label: Title
       type: string
       required: true
-    - name: description
-      label: Description
-      type: text
-      description: "Deck under the title and link-preview text."
     - name: date
       label: Date
       type: date
@@ -47,7 +43,7 @@ collection:
       options:
         multiple: true
         max: 3
-        values: [Writing, Research, Notes]
+        values: [Notes, Drafts, Ideas]
     - name: language
       label: Language
       type: select
@@ -59,7 +55,7 @@ collection:
       description: "HTTPS URL or /media/… path."
       options:
         media: images
-        path: content/media/images/covers/articles
+        path: content/media/images/covers/posts
         rename: safe
     - name: published
       label: Published

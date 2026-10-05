@@ -21,14 +21,18 @@ TESTS=(
   scripts/test/test-doctor.rb
   scripts/test/test-export.rb
   scripts/test/test-registry-home.rb
+  scripts/test/test-template-packages.rb
+  scripts/test/test-dual-template-instances.rb
   scripts/test/test-install-functions.rb
   scripts/test/test-no-personal-data.rb
   scripts/test/test-configuration-doc.rb
+  scripts/test/test-cv-export-contract.rb
   scripts/test/test-css-structure.rb
   scripts/test/test-form-control-theming.rb
   scripts/test/test-listing-filter-contract.rb
   scripts/test/test-studio-api-contract.rb
   scripts/test/test-studio-rewrite-api-contract.rb
+  scripts/test/test-studio-schema-composition.rb
   scripts/test/test-text-excerpt.rb
   scripts/test/test-git-chronology.rb
   scripts/test/test-math-row-breaks.rb

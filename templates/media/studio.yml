@@ -1,0 +1,58 @@
+# Studio fragment for the media (sources) template.
+# Refs: PLT-AC-3, docs/spec.md §5.5
+group: references
+group_label: References
+needs_media: true
+collection:
+  label: Sources
+  type: collection
+  format: yaml-frontmatter
+  filename: "{primary}.md"
+  operations:
+    delete: false
+  view:
+    primary: name
+    fields: [name, category, type, language]
+    list_meta_fields: [category, type, language]
+  fields:
+    - name: key
+      label: Citation key
+      type: string
+      description: "Only when writing cites this source."
+    - name: name
+      label: Name
+      type: string
+      required: true
+    - name: link
+      label: Link
+      type: string
+      required: true
+      description: "Public URL for the source."
+    - name: category
+      label: Category
+      type: select
+      options:
+        values: [Academic, Communication, Humor, Music, Professional]
+    - name: type
+      label: Type
+      type: select
+      options:
+        values: [document, podcast, website, youtube]
+    - name: language
+      label: Language
+      type: select
+      description: "Studio sorting only."
+      options:
+        values: [en_us, en_gb, pt_br, fr_fr]
+    - name: thumbnail
+      label: Thumbnail
+      type: image
+      description: "HTTPS URL or /media/… path."
+      options:
+        media: images
+        path: content/media/images/covers/sources
+        rename: safe
+    - name: description
+      component: markdown_body
+      label: Description
+      required: true

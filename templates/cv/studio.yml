@@ -1,0 +1,200 @@
+# Studio fragment for the CV template (jobs, products, profile data).
+# Refs: PLT-AC-3, docs/spec.md §5.5
+group: curriculum
+group_label: Curriculum
+needs_media: false
+collections:
+  jobs:
+    label: Jobs
+    type: collection
+    format: yaml-frontmatter
+    filename: "{primary}.md"
+    operations:
+      delete: false
+    view:
+      primary: position
+      fields: [company, position, department, engagement, start, end]
+      list_meta_fields: [company, engagement, start, end]
+    fields:
+      - name: position
+        label: Position
+        type: string
+        required: true
+      - name: company
+        label: Company
+        type: string
+        required: true
+      - name: location
+        label: Location
+        type: string
+      - name: start
+        label: Start
+        type: string
+      - name: end
+        label: End
+        type: string
+      - name: department
+        label: Department
+        type: string
+      - name: engagement
+        label: Engagement
+        type: select
+        required: true
+        options:
+          values: [permanent, fixed_term, founding, internship, research]
+      - name: products
+        label: Products
+        type: reference
+        description: "Products listed under this job."
+        options:
+          collection: products
+          multiple: true
+          search: "product,title,company"
+          value: "{primary}"
+          label: "{product} ({company})"
+      - name: body_public
+        component: markdown_body
+        label: Public body
+        description: "The only body that reaches the public CV page."
+      - name: body_extended
+        component: markdown_body
+        label: Extended body
+        description: "Extended CV only; not exported to the public site."
+  products:
+    label: Products
+    type: collection
+    format: yaml-frontmatter
+    filename: "{key}.md"
+    operations:
+      delete: false
+    view:
+      primary: product
+      fields: [company, product, start_date, end_date, key]
+      list_meta_fields: [company, start_date, end_date]
+    fields:
+      - name: layout
+        label: Layout
+        type: string
+        hidden: true
+        default: product
+      - name: key
+        label: Key
+        type: string
+        required: true
+        description: "URL slug (/products/key/) and citation handle."
+      - name: title
+        label: Title
+        type: string
+        required: true
+      - name: product
+        label: Product name
+        type: string
+        required: true
+      - name: company
+        label: Company
+        type: string
+        required: true
+      - name: start_date
+        label: Start date
+        type: string
+      - name: end_date
+        label: End date
+        type: string
+      - name: external_url
+        label: External URL
+        type: string
+      - name: redirects
+        label: Redirects
+        type: string
+        list: true
+      - name: body
+        component: markdown_body
+profile:
+  group: profile
+  group_label: Profile
+  files:
+    - name: contacts
+      label: Contact
+      type: file
+      path: content/collections/data/contacts.yml
+      format: yaml
+      list: true
+      fields:
+        - name: name
+          label: Name
+          type: string
+          required: true
+        - name: badge
+          label: Badge
+          type: string
+        - name: href
+          label: Link
+          type: string
+          required: true
+          description: "Full URL, or mailto:… for an address."
+        - name: icon
+          label: Icon
+          type: string
+    - name: education
+      label: Education
+      type: file
+      path: content/collections/data/education.yml
+      format: yaml
+      list: true
+      fields:
+        - name: degree
+          label: Degree
+          type: string
+          required: true
+        - name: institution
+          label: Institution
+          type: string
+          required: true
+        - name: location
+          label: Location
+          type: string
+        - name: start
+          label: Start
+          type: string
+        - name: end
+          label: End
+          type: string
+        - name: detail
+          label: Detail
+          type: text
+    - name: languages
+      label: Languages
+      type: file
+      path: content/collections/data/languages.yml
+      format: yaml
+      list: true
+      fields:
+        - name: name
+          label: Name
+          type: string
+          required: true
+        - name: level
+          label: Level
+          type: string
+    - name: skills
+      label: Skills
+      type: file
+      path: content/collections/data/skills.yml
+      format: yaml
+      fields:
+        - name: leadership
+          label: Leadership
+          type: string
+          list: true
+        - name: technical
+          label: Technical
+          type: object
+          list: true
+          fields:
+            - name: group
+              label: Group
+              type: string
+            - name: skills
+              label: Skills
+              type: string
+              list: true

@@ -1,0 +1,28 @@
+# Studio fragment for the network template.
+# Network derives from pages listed under `sources`; there is no collection
+# to edit. A page-chrome file keeps Studio aware the page is registered.
+# Refs: PLT-AC-3, docs/spec.md §5.5
+group: pages
+group_label: Pages
+view_only: true
+files:
+  - name: page_network
+    label: Network
+    type: file
+    path: content/pages/headers.yml
+    format: yaml
+    root_key: network
+    description: "Listing page chrome. The graph itself is derived from sources."
+    fields:
+      - name: title
+        label: Title
+        type: string
+      - name: accent
+        label: Accent
+        type: select
+        options:
+          values: [green, ochre, blue, slate]
+      - name: tags
+        label: Tags
+        type: string
+        list: true

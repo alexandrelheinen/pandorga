@@ -1,0 +1,66 @@
+# Studio fragment for the bibliography template.
+# Refs: PLT-AC-3, docs/spec.md §5.5
+group: references
+group_label: References
+collection:
+  label: Bibliography
+  type: collection
+  format: yaml
+  filename: "{primary}.yml"
+  operations:
+    delete: false
+  view:
+    primary: title
+    fields: [type, title, author, year]
+    list_meta_fields: [key]
+  fields:
+    - name: type
+      label: Type
+      type: select
+      default: misc
+      options:
+        values: [article, book, incollection, misc, techreport]
+    - name: title
+      label: Title
+      type: string
+    - name: author
+      label: Author
+      type: string
+      description: "Lastname, Firstname and Lastname2, Firstname2"
+    - name: year
+      label: Year
+      type: string
+    - name: url
+      label: URL
+      type: string
+    - name: doi
+      label: DOI
+      type: string
+      description: "Without URL prefix."
+    - name: journal
+      label: Journal
+      type: string
+    - name: publisher
+      label: Publisher
+      type: string
+    - name: institution
+      label: Institution
+      type: string
+    - name: howpublished
+      label: How published
+      type: string
+    - name: volume
+      label: Volume
+      type: string
+    - name: number
+      label: Number
+      type: string
+    - name: pages
+      label: Pages
+      type: string
+    - name: month
+      label: Month
+      type: string
+    - name: note
+      label: Note
+      type: text
