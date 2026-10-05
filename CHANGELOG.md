@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.3.3] — 2026-10-05
+
+### Changed
+
+- Home portfolio inventory is an index folio (number, thumb, title, project
+  icon) with a borderless specimen; drafting marks stay on the poster only
+- Specimen meta shows project tags instead of label/status
+- Mobile selector strip and session-sticky random specimen pick from 1.3.2
+  polish remain
+
 ## [1.3.2] — 2026-10-05
 
 ### Fixed
