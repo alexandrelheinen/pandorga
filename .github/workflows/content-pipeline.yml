@@ -1,0 +1,25 @@
+# Reusable content pipeline for consuming sites.
+# uses: <owner>/pandorga/.github/workflows/content-pipeline.yml@v1
+name: content-pipeline
+
+on:
+  workflow_call:
+    inputs:
+      content_root:
+        type: string
+        default: content
+      output_root:
+        type: string
+        default: _content_json
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4.4"
+          bundler-cache: true
+      - name: Export content JSON
+        run: bundle exec pandorga export ${{ inputs.content_root }} ${{ inputs.output_root }}

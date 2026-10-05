@@ -1,0 +1,77 @@
+title: "Full Pandorga Example"
+description: "All seven templates with a fictional persona."
+theme: pandorga
+plugins:
+  - pandorga
+  - jekyll-redirect-from
+
+pandorga:
+  identity:
+    name: "Ada Example"
+    short_name: "A. Example"
+    url: "https://example.org"
+    locale: en
+  content:
+    backend: static
+    base_url: ""
+  pages:
+    - key: cv
+      template: cv
+      layout: pandorga/articles
+      title: Curriculum Vitæ
+      path: /pages/cv/
+      collections: { jobs: jobs, products: products }
+      nav: { group: Profile, icon: article_person }
+      home: { band: hero }
+    - key: projects
+      template: portfolio
+      layout: pandorga/articles
+      title: Projects
+      collection: projects
+      path: /pages/projects/
+      detail: /projects/:slug/
+      nav: { group: Profile, icon: terminal }
+    - key: articles
+      template: articles
+      layout: pandorga/articles
+      title: Articles
+      collection: articles
+      path: /pages/articles/
+      detail: /articles/:slug/
+      nav: { group: Writing, icon: newsmode }
+      home: { featured: true, limit: 3 }
+    - key: blog
+      template: blog
+      layout: pandorga/articles
+      title: Drafts
+      collection: posts
+      path: /pages/blog/
+      detail: /posts/:slug/
+      nav: { group: Writing, icon: stylus_note }
+    - key: resources
+      template: media
+      layout: pandorga/articles
+      title: Sources
+      collection: resources
+      path: /pages/sources/
+      nav: { group: References, icon: media_link }
+    - key: network
+      template: network
+      layout: pandorga/articles
+      title: Network
+      sources: [articles, blog]
+      path: /pages/network/
+      nav: { group: References, icon: flowchart }
+    - key: bibliography
+      template: bibliography
+      layout: pandorga/articles
+      title: Bibliography
+      collection: bibliography
+      cited_by: [articles, blog]
+      path: /pages/bibliography/
+      nav: false
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor/
