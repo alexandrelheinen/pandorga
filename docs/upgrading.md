@@ -18,8 +18,11 @@ Read [CHANGELOG.md](../CHANGELOG.md) before you bump.
 Consumer sites should pin a release tag, not `main`:
 
 ```ruby
-# Gemfile
-gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v1.0.0"
+# Gemfile — RubyGems (preferred once published)
+gem "pandorga", "~> 1.1"
+
+# Or pin a GitHub release tag
+gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v1.1.0"
 ```
 
 After a bump, run `bundle update pandorga` and commit `Gemfile.lock`. Host
@@ -41,5 +44,13 @@ for the Pages + object-store order.
 
 ## RubyGems
 
-Git tags remain the supported install path. Publishing the gem to RubyGems is
-deferred (Phase 6 in [spec.md](spec.md)).
+From 1.1.0, `pandorga new` pins `gem "pandorga", "~> 1.1"`. Publish a built
+gem when you have a RubyGems API key:
+
+```bash
+mise exec -- gem build pandorga.gemspec
+mise exec -- gem push pandorga-1.1.0.gem
+```
+
+Until the gem appears on RubyGems, sites can keep the GitHub tag pin shown
+above. Android Studio remains a later minor (see [spec.md](spec.md) Phase 6).

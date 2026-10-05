@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0] — 2026-10-05
+
+### Added
+
+- `pandorga new PATH` scaffolds a site from `examples/minimal` (`gem "pandorga", "~> 1.1"`)
+- Listing runtimes read collection, listing path, and detail pattern from the registry page slot (dual template instances)
+
+### Changed
+
+- Generator injects `collection`, `listing_path`, `detail`, and `template` on listing pages
+- Pinning docs prefer the RubyGems form when the gem is published
+
 ## [1.0.0] — 2026-10-05
 
 ### Added

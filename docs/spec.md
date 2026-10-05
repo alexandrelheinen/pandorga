@@ -1,11 +1,11 @@
 # Platform and website separation migration plan
 
-Status: **v1.0 platform shipped**; Phase 6 items (`pandorga new`, RubyGems,
-Android Studio) deferred. Phase 0 spikes and §13 defaults are recorded in
+Status: **v1.1 ships `pandorga new` and registry-driven listing runtimes**.
+RubyGems publish is ready (`gem build` / `gem push`); Android Studio remains
+deferred. Phase 0 spikes and §13 defaults are recorded in
 [decisions.md](decisions.md) (`PLT-0.1`–`PLT-0.5`). Sites use the page registry
-plus Jekyll layouts today; full §5.3 template packages and Studio `studio.yml`
-coverage remain thin and are still evolving. The phase narrative below is the
-migration plan that produced this cut.
+plus Jekyll layouts today; full §5.3 template packages continue to evolve. The
+phase narrative below is the migration plan that produced this cut.
 
 This repository currently holds two mixed concepts. It contains a publishing platform, which includes a Jekyll shell, a browser runtime, an R2 exporter, the Studio, and testing gates. It also contains the website of a specific person, which includes content, a private CV, studies, visual identity, and Cloudflare configuration. This document outlines a plan to extract the platform into a public, polished, and documented repository. The `website` repository will remain as a content manager and specific site implementation that consumes the platform as a versioned dependency.
 
@@ -461,7 +461,9 @@ Output requirements state that production is served by the pinned version, and a
 
 ### Phase 6. After the cut
 
-Introduce a generic Android Studio application. Publish the gem on RubyGems. Implement `pandorga new` as a site generator based on the minimal example. Define criteria for `v1.0`, ensuring the registry and template APIs remain stable for two minor versions.
+- **Done in 1.1:** `pandorga new` from `examples/minimal`; listing runtimes read collection/path from the registry (dual instances).
+- **Ready in 1.1:** publish to RubyGems (`gem build pandorga.gemspec && gem push`).
+- **Still open:** generic Android Studio application; keep registry and template APIs stable across minors.
 
 ## 10. Versioning and cross-repository flow
 
