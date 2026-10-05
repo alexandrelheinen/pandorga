@@ -19,10 +19,10 @@ Consumer sites should pin a release tag, not `main`:
 
 ```ruby
 # Gemfile — RubyGems (preferred once published)
-gem "pandorga", "~> 1.2"
+gem "pandorga", "~> 1.3"
 
 # Or pin a GitHub release tag
-gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v1.2.4"
+gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v1.3.0"
 ```
 
 After a bump, run `bundle update pandorga` and commit `Gemfile.lock`. Host
@@ -44,11 +44,16 @@ for the Pages + object-store order.
 
 ## RubyGems
 
-`pandorga new` pins `gem "pandorga", "~> 1.2"`. Publishing is automated: when a
+`pandorga new` pins `gem "pandorga", "~> 1.3"`. Publishing is automated: when a
 GitHub Release is published, [`.github/workflows/publish-gem.yml`](../.github/workflows/publish-gem.yml)
 pushes the gem via [Trusted Publishing](https://guides.rubygems.org/trusted-publishing/)
 (OIDC; no long-lived API key). The release tag must match `Pandorga::VERSION`
-(for example `v1.2.4`).
+(for example `v1.3.0`).
+
+Site wrappers that `exec` the gem publish script **must** export
+`PANDORGA_SITE_ROOT` to the Jekyll site root. Without it, publish exits with an
+error instead of skipping `content/media` (Studio uploads would otherwise land
+on GitHub only).
 
 One-time setup on [RubyGems.org](https://rubygems.org):
 
@@ -67,7 +72,7 @@ Manual publish (optional, local MFA may apply):
 
 ```bash
 mise exec -- gem build pandorga.gemspec
-mise exec -- gem push pandorga-1.2.4.gem
+mise exec -- gem push pandorga-1.3.0.gem
 ```
 
 ## Android shell (1.2+)

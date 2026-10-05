@@ -5,7 +5,19 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+
+# When this script lives in an installed (or checked-out) gem, ROOT is the gem
+# tree — not the consumer site. Media sync must use the site root; without it
+# we used to skip content/media silently and leave Studio uploads on GitHub
+# only. Require an explicit site root whenever ROOT looks like the gem.
+if [ -z "${PANDORGA_SITE_ROOT:-}" ] && [ -f "$ROOT/pandorga.gemspec" ]; then
+  echo "error: PANDORGA_SITE_ROOT must be set when publish-content-to-object-store.sh runs from the pandorga gem." >&2
+  echo "hint: export PANDORGA_SITE_ROOT to the Jekyll site root before exec (site wrappers must set this)." >&2
+  exit 1
+fi
+
 SITE_ROOT="${PANDORGA_SITE_ROOT:-$ROOT}"
+SITE_ROOT="$(cd "$SITE_ROOT" && pwd)"
 EXPORT_ROOT="${1:-$SITE_ROOT/_content_json}"
 
 # Prefer S3_* names; fall back to R2_* for Cloudflare R2 callers.
@@ -55,6 +67,7 @@ sync_json_prefix() {
 
 echo "==> Publishing content JSON to bucket: ${S3_BUCKET}"
 echo "==> Endpoint: ${S3_ENDPOINT}"
+echo "==> Site root: ${SITE_ROOT}"
 sync_json_prefix collections
 sync_json_prefix data
 sync_json_prefix pages
@@ -67,12 +80,14 @@ aws s3 cp "$EXPORT_ROOT/manifest.json" "s3://${S3_BUCKET}/manifest.json" \
 
 MEDIA_ROOT="$SITE_ROOT/content/media"
 if [ -d "$MEDIA_ROOT" ]; then
-  echo "==> Sync media/"
+  echo "==> Sync media/ from ${MEDIA_ROOT}"
   aws s3 sync "$MEDIA_ROOT" "s3://${S3_BUCKET}/media" \
     --endpoint-url "$S3_ENDPOINT" \
     --delete \
     --size-only \
     --cache-control "public,max-age=31536000,immutable"
+else
+  echo "==> No content/media at ${MEDIA_ROOT} (skipping media sync)"
 fi
 
 echo "==> Object-store publish complete"

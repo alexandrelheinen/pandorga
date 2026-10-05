@@ -34,6 +34,7 @@ TESTS=(
   scripts/test/test-dual-template-instances.rb
   scripts/test/test-dual-template-runtime.rb
   scripts/test/test-install-functions.rb
+  scripts/test/test-publish-site-root.rb
   scripts/test/test-no-personal-data.rb
   scripts/test/test-configuration-doc.rb
   scripts/test/test-cv-export-contract.rb

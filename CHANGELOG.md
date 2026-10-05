@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.0] — 2026-10-05
+
+### Fixed
+
+- Object-store publish fails fast when `PANDORGA_SITE_ROOT` is unset and the
+  script runs from the pandorga gem (no more silent skip of `content/media`)
+- `pandorga publish` exports `PANDORGA_SITE_ROOT` even when delegating to a
+  site-local `publish-content-to-r2.sh` wrapper
+
 ## [1.2.4] — 2026-10-05
 
 ### Fixed

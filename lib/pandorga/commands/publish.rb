@@ -12,8 +12,9 @@ module Pandorga
         root = Pathname.new(argv[0] || Dir.pwd).expand_path
         site_script = root.join("scripts", "content", "publish-content-to-r2.sh")
         if site_script.file? && site_script.expand_path != gem_publish_script
+          env = ENV.to_h.merge("PANDORGA_SITE_ROOT" => root.to_s)
           Dir.chdir(root) do
-            exec("bash", site_script.to_s, *argv[1..])
+            exec(env, "bash", site_script.to_s, *argv[1..])
           end
         end
 
