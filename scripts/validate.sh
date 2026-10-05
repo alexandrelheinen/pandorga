@@ -8,7 +8,15 @@ cd "$ROOT"
 
 echo "== pandorga validate =="
 
-if command -v mise >/dev/null 2>&1; then
+# Prefer Bundler so gemspec deps (jekyll, …) resolve the same way in CI and
+# local checkouts. Plain `ruby` only sees the system/mise gem path.
+if [[ -f "${ROOT}/Gemfile.lock" ]] && command -v bundle >/dev/null 2>&1; then
+  if command -v mise >/dev/null 2>&1; then
+    RUBY=(mise exec -- bundle exec ruby)
+  else
+    RUBY=(bundle exec ruby)
+  fi
+elif command -v mise >/dev/null 2>&1; then
   RUBY=(mise exec -- ruby)
 else
   RUBY=(ruby)
