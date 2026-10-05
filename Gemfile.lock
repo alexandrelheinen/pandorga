@@ -1,11 +1,12 @@
 PATH
   remote: .
   specs:
-    pandorga (0.1.0.pre)
+    pandorga (1.2.0)
       jekyll (~> 4.3)
       jekyll-redirect-from (~> 0.16)
       jekyll-relative-links (~> 0.6)
       jekyll-scholar (~> 7.3)
+      ostruct (>= 0.6)
 
 GEM
   remote: https://rubygems.org/
@@ -142,6 +143,7 @@ GEM
       stringio
       time
       uri
+    ostruct (0.6.3)
     pathutil (0.16.2)
       forwardable-extended (~> 2.6)
     public_suffix (7.0.5)
