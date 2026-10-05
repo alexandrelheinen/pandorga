@@ -6,6 +6,23 @@ on:
   pull_request:
 
 jobs:
+  gitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install gitleaks
+        env:
+          GITLEAKS_VERSION: "8.24.2"
+        run: |
+          curl -sSfL \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            | tar -xz -C /usr/local/bin gitleaks
+          gitleaks version
+      - name: Scan for secrets (PLT-AC-1)
+        run: gitleaks detect --source . --config .gitleaks.toml --verbose --redact
+
   gates:
     runs-on: ubuntu-latest
     steps:

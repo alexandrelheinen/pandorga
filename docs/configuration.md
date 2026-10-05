@@ -1,7 +1,7 @@
 # Configuration reference
 
-Generated from the registry contract. Gate: keep in sync with
-`lib/pandorga/registry.rb` (`PLT-AC-11`).
+Generated from `lib/pandorga/registry/schema.yml`. Gate: keep in sync
+via `scripts/generate-configuration-doc.rb` (`PLT-AC-11`).
 
 ## `pandorga.identity`
 

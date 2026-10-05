@@ -1,0 +1,115 @@
+# Registry configuration schema for `pandorga:` in `_config.yml`.
+# Source of truth for docs/configuration.md (PLT-AC-11).
+# Validated at build time by PandorgaRegistry.validate! and related helpers.
+
+identity:
+  title: "`pandorga.identity`"
+  keys:
+    name:
+      type: string
+      required: true
+      notes: Title suffix, default author, BibTeX
+    short_name:
+      type: string
+      required: false
+      notes: Shorter `<title>` suffix
+    url:
+      type: string
+      required: false
+      notes: Site canonical URL
+    locale:
+      type: string
+      required: false
+      notes: Default `en`
+
+content:
+  title: "`pandorga.content`"
+  intro: |
+    Legacy `content_api_base_url` still works as a fallback for `base_url`.
+  keys:
+    backend:
+      type: "`static` \\| `r2` \\| `object_store` \\| `s3`"
+      notes: "`static` serves JSON from `_site`. The others use `base_url` as the public object-store origin"
+    base_url:
+      type: string
+      notes: Public content origin when backend is not `static`
+
+home:
+  title: "`pandorga.home`"
+  keys:
+    hero_art:
+      type: string
+      notes: Include path for hero decoration (default `page/hero-default.html`)
+
+taxonomies:
+  title: "`pandorga.taxonomies`"
+  prose: |
+    Closed tag vocabularies per collection (`tags`, `max`, `min`). Page-local
+    `pandorga.pages[].taxonomy` is also accepted when a collection has no top-level
+    entry.
+
+pages:
+  title: "`pandorga.pages[]`"
+  footer: |
+    Duplicate `key`, unknown `template`, or conflicting `path` fails the build.
+  keys:
+    key:
+      type: string
+      required: true
+      notes: Unique page id
+    template:
+      type: string
+      required: true
+      notes: One of `cv`, `articles`, `blog`, `media`, `network`, `bibliography`, `portfolio`
+    layout:
+      type: string
+      required: false
+      notes: Jekyll layout override (default from template)
+    collection:
+      key_label: "collection` / `collections"
+      type: string / map
+      required: "template-dependent"
+      notes: Content folders
+    path:
+      type: string
+      required: true
+      notes: Listing URL
+    detail:
+      type: string
+      required: false
+      notes: Detail route pattern
+    nav:
+      type: "map \\| `false`"
+      required: false
+      notes: "`{ group, icon }` or hide"
+    home:
+      type: "map \\| `false`"
+      required: false
+      notes: Home band options; omit for template defaults
+    taxonomy:
+      type: map
+      required: false
+      notes: Tag vocabulary for the page
+    accent:
+      type: string
+      required: false
+      notes: Page accent token
+    language:
+      type: string
+      required: false
+      notes: Listing / home band language
+  home_attributes:
+    title: "`home` attributes"
+    entries:
+      - key: "`band: hero`"
+        notes: Page feeds the hero (CV); not a separate band
+      - key: "`band: index` + `group`"
+        notes: Joins a shared index panel group
+      - key: "`featured`"
+        notes: Lead card for writing bands
+      - key: "`limit`"
+        notes: Max items in the band
+      - key: "`cta`"
+        notes: Listing CTA label (default `View all`)
+      - key: "`false`"
+        notes: Omit from the homepage

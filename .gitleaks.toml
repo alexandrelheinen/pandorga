@@ -1,0 +1,16 @@
+# Gitleaks config for pandorga CI (PLT-AC-1).
+# Intentional allowlists only — real secrets must still fail the scan.
+title = "pandorga"
+
+[extend]
+# Use the default gitleaks rule set.
+useDefault = true
+
+[allowlist]
+description = "Privacy-gate fixtures and extraction docs that mention blocked patterns on purpose"
+paths = [
+  '''(^|/)scripts/test/test-no-personal-data\.rb$''',
+  '''(^|/)docs/spec\.md$''',
+  '''(^|/)docs/decisions\.md$''',
+  '''(^|/)\.gitmodules$''',
+]

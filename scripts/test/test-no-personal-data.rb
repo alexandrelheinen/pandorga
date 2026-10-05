@@ -6,8 +6,8 @@ require "find"
 
 ROOT = Pathname.new(__dir__).join("../..").expand_path
 
-# The public repo URL may contain the GitHub owner; block everything else.
-REPO_URL_OK = %r{github\.com/alexandrelheinen/pandorga}
+# Public repo home (ADR-001) may appear as a URL or Bundler github: source.
+REPO_URL_OK = %r{(?:github\.com/)?alexandrelheinen/pandorga}
 
 PATTERNS = [
   [/pub-[0-9a-f]{32}\.r2\.dev/i, "r2 bucket URL"],

@@ -299,11 +299,18 @@ PRINT_ONLY_PAGE_FRAGMENTS = %w[
 # Private CV PDF sidebar only; the public CV page has no skills section.
 PRINT_ONLY_DATA_FILES = %w[skills.yml].freeze
 
-# Allowlist for public job JSON (PLT-AC-7). Anything else (body_extended,
-# body_single_page, …) never leaves the repository.
+# Allowlist for public CV collection JSON (PLT-AC-7). Anything else
+# (body_extended, body_single_page, contact secrets, …) never leaves the
+# repository.
 PUBLIC_JOB_EXPORT_FIELDS = %w[
-  title key company role start end location summary skills links
-  body_public published thumbnail description author
+  title key company role position start end location summary skills links
+  department engagement products body_public published thumbnail description
+  author
+].freeze
+
+PUBLIC_PRODUCT_EXPORT_FIELDS = %w[
+  title key product company start_date end_date external_url redirects
+  drop_cap layout published thumbnail description author
 ].freeze
 
 def load_writing_index_collections
@@ -324,12 +331,12 @@ WRITING_INDEX_COLLECTIONS_FALLBACK = {
 }.freeze
 
 def public_front_matter(front_matter, type)
-  if type == "job"
-    allowed = PUBLIC_JOB_EXPORT_FIELDS
-    return front_matter.select { |key, _| allowed.include?(key.to_s) }
-  end
-
-  if %w[article post].include?(type)
+  case type
+  when "job"
+    return front_matter.select { |key, _| PUBLIC_JOB_EXPORT_FIELDS.include?(key.to_s) }
+  when "product"
+    return front_matter.select { |key, _| PUBLIC_PRODUCT_EXPORT_FIELDS.include?(key.to_s) }
+  when "article", "post"
     return front_matter.reject { |key, _| %w[date last_updated].include?(key.to_s) }
   end
 
