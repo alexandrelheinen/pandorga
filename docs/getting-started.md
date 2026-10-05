@@ -1,13 +1,29 @@
 # Getting started
 
-Run the minimal example without a Cloudflare account (`PLT-AC-6`).
+Run a static-backend site without a Cloudflare account (`PLT-AC-6`).
 
 ## Prerequisites
 
 - Ruby 3.3+ (3.4.4 via `mise` recommended)
 - Bundler
 
-## Five commands
+## New site
+
+`pandorga new` copies `examples/minimal` (fictional Ada Example) and pins the
+gem at `~> 1.1`. Path and GitHub tag lines stay in the Gemfile as comments.
+
+```bash
+pandorga new my-site
+cd my-site
+bundle install
+bundle exec pandorga doctor
+bundle exec pandorga serve
+```
+
+Open `http://127.0.0.1:4000`. Content JSON is served from the same origin
+(`pandorga.content.backend: static`).
+
+## From a clone
 
 ```bash
 git clone https://github.com/alexandrelheinen/pandorga.git
@@ -16,16 +32,8 @@ bundle install
 cd examples/minimal && bundle install
 bundle exec pandorga export content _content_json
 bundle exec pandorga doctor .
-```
-
-Serve:
-
-```bash
 bundle exec pandorga serve
 ```
-
-Open `http://127.0.0.1:4000`. Content JSON is served from the same origin
-(`pandorga.content.backend: static`).
 
 ## Full example
 

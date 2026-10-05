@@ -6,7 +6,20 @@ and Studio. The kite frame — your site is the paper.
 Extracted from a personal site; this repository starts with a clean history
 and contains no owner identity. Configuration belongs to each consuming site.
 
-## Quickstart (minimal example)
+## Quickstart
+
+Scaffold a site (Ada Example defaults, `content.backend: static`):
+
+```bash
+gem install pandorga   # once 1.1 is on RubyGems; or use a local checkout
+pandorga new my-site
+cd my-site
+bundle install
+bundle exec pandorga doctor
+bundle exec pandorga serve
+```
+
+Or run the packaged minimal example from a clone:
 
 ```bash
 git clone https://github.com/alexandrelheinen/pandorga.git
@@ -20,7 +33,7 @@ bundle exec pandorga doctor examples/minimal
 mise exec -- ./scripts/validate.sh
 ```
 
-Serve locally (from a site directory that has a Gemfile):
+Serve from the example directory:
 
 ```bash
 cd examples/minimal
@@ -31,6 +44,7 @@ bundle exec pandorga serve
 
 | Command | Purpose |
 |---|---|
+| `pandorga new PATH` | Scaffold a site from `examples/minimal` |
 | `pandorga doctor` | Validate `pandorga:` config |
 | `pandorga export` | Content → JSON (`manifest.json` includes `schema_version`) |
 | `pandorga serve` | Export + `jekyll serve` |

@@ -19,10 +19,12 @@ export RUBYOPT="-I${ROOT}/lib${RUBYOPT:+ $RUBYOPT}"
 # Explicit allowlist — do not glob site-corpus tests copied during extraction.
 TESTS=(
   scripts/test/test-doctor.rb
+  scripts/test/test-new.rb
   scripts/test/test-export.rb
   scripts/test/test-registry-home.rb
   scripts/test/test-template-packages.rb
   scripts/test/test-dual-template-instances.rb
+  scripts/test/test-dual-template-runtime.rb
   scripts/test/test-install-functions.rb
   scripts/test/test-no-personal-data.rb
   scripts/test/test-configuration-doc.rb

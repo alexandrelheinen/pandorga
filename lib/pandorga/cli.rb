@@ -6,11 +6,13 @@ require_relative "commands/serve"
 require_relative "commands/publish"
 require_relative "commands/install_functions"
 require_relative "commands/studio_schema"
+require_relative "commands/new"
 
 module Pandorga
   # Dispatch for `exe/pandorga`.
   module CLI
     COMMANDS = {
+      "new" => Commands::New,
       "doctor" => Commands::Doctor,
       "export" => Commands::Export,
       "serve" => Commands::Serve,
@@ -47,6 +49,7 @@ module Pandorga
         pandorga #{Pandorga::VERSION} — static shell + JSON content platform
 
         Usage:
+          pandorga new PATH               Scaffold a site from the minimal example
           pandorga doctor                 Check site config and environment
           pandorga export [src] [dest]    Export content collections to JSON
           pandorga serve                  Local Jekyll serve with JSON re-export
