@@ -347,6 +347,7 @@
         row.setAttribute('role', 'button');
         row.setAttribute('tabindex', '0');
         row.setAttribute('aria-pressed', selected ? 'true' : 'false');
+        row.setAttribute('aria-label', name);
       }
 
       var media = renderPosterMedia(fm.thumbnail, name);
