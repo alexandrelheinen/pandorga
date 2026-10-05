@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.2.1] — 2026-10-05
+
+### Added
+
+- GitHub Actions workflow publishes the gem to RubyGems when a release is published (`RUBYGEMS_API_KEY`)
+
+### Fixed
+
+- Refresh root `Gemfile.lock` for the 1.2 path gemspec (CI frozen `bundle install`)
+- Run validate gates under `bundle exec` so Jekyll resolves in CI
+
 ## [1.2.0] — 2026-10-05
 
 ### Added
