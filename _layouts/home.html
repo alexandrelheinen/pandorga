@@ -234,42 +234,18 @@ layout: shell
           eligible: function () { return true; }
         });
         var selectedSlug = (featuredPick && featuredPick.slug) || portfolio[0].slug;
-        var inventoryResizeObserver = null;
+        var iconSlots = 6;
 
         function entryBySlug(slug) {
           return portfolio.filter(function (entry) { return entry.slug === slug; })[0] || portfolio[0];
-        }
-
-        function syncInventoryHeight() {
-          if (!window.matchMedia('(min-width: 900px)').matches) {
-            inventorySlot.style.height = '';
-            return;
-          }
-          var specimen = specimenSlot.querySelector('.home-project-specimen');
-          if (!specimen) {
-            inventorySlot.style.height = '';
-            return;
-          }
-          inventorySlot.style.height = Math.round(specimen.getBoundingClientRect().height) + 'px';
-        }
-
-        function watchSpecimen(specimen) {
-          if (inventoryResizeObserver) {
-            inventoryResizeObserver.disconnect();
-            inventoryResizeObserver = null;
-          }
-          if (!specimen || typeof ResizeObserver === 'undefined') return;
-          inventoryResizeObserver = new ResizeObserver(function () {
-            syncInventoryHeight();
-          });
-          inventoryResizeObserver.observe(specimen);
         }
 
         function paintSpecimen(entry) {
           specimenSlot.innerHTML = '';
           /* No card-level drafting corners / edge tick — markers live on the
              poster plate only, so they do not overlap the image. Meta strip
-             is suppressed; tags take that slot below the plate. */
+             is suppressed; tags take that slot below the plate. Specimen and
+             inventory sizes are CSS-fixed (no ResizeObserver). */
           specimenSlot.appendChild(runtime.renderSystemCard(asItem(entry), {
             href: entry.url || runtime.projectUrl(entry.slug),
             tagHref: systemTagHref,
@@ -277,22 +253,14 @@ layout: shell
             glyphFallback: true,
             metaParts: []
           }));
-          var specimen = specimenSlot.querySelector('.home-project-specimen');
-          watchSpecimen(specimen);
-          var poster = specimenSlot.querySelector('.ledger-poster img, .projects-plate');
-          if (poster && poster.tagName === 'IMG' && !poster.complete) {
-            poster.addEventListener('load', syncInventoryHeight, { once: true });
-          }
-          window.requestAnimationFrame(syncInventoryHeight);
         }
 
         function paintInventory() {
           inventorySlot.hidden = false;
           inventorySlot.innerHTML = '';
-          inventorySlot.style.setProperty(
-            '--home-project-icon-count',
-            String(Math.min(portfolio.length, 6) || 1)
-          );
+          /* Always reserve six mobile columns so one project does not stretch
+             a single giant button across the band. */
+          inventorySlot.style.setProperty('--home-project-icon-count', String(iconSlots));
           portfolio.forEach(function (entry, i) {
             var row = runtime.renderProjectInventoryRow(asItem(entry), {
               selectable: true,
@@ -318,12 +286,10 @@ layout: shell
             });
             inventorySlot.appendChild(row);
           });
-          window.requestAnimationFrame(syncInventoryHeight);
         }
 
         paintSpecimen(entryBySlug(selectedSlug));
         paintInventory();
-        window.addEventListener('resize', syncInventoryHeight);
         return;
       }
 
