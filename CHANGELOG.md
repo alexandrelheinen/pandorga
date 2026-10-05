@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.4] — 2026-10-05
+
+### Fixed
+
+- Home portfolio mobile inventory is a single row of project-icon buttons
+  (desktop index styles no longer override the phone layout)
+
 ## [1.3.3] — 2026-10-05
 
 ### Changed
