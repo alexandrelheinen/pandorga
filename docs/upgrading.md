@@ -44,16 +44,21 @@ for the Pages + object-store order.
 
 ## RubyGems
 
-`pandorga new` pins `gem "pandorga", "~> 1.2"`. Publish a built gem when you
-have a RubyGems API key:
+`pandorga new` pins `gem "pandorga", "~> 1.2"`. Publishing is automated: when a
+GitHub Release is published, [`.github/workflows/publish-gem.yml`](../.github/workflows/publish-gem.yml)
+builds the gem and runs `gem push`, provided the tag matches
+`Pandorga::VERSION` (for example `v1.2.0`).
+
+Set a repository secret named `RUBYGEMS_API_KEY` (RubyGems → Settings → API
+keys, scope that can push gems). Until that secret exists, installs stay on the
+GitHub tag pin above.
+
+Manual publish (optional):
 
 ```bash
 mise exec -- gem build pandorga.gemspec
 mise exec -- gem push pandorga-1.2.0.gem
 ```
-
-Until the gem appears on RubyGems, sites can keep the GitHub tag pin shown
-above.
 
 ## Android shell (1.2+)
 
