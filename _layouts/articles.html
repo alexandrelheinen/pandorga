@@ -2,7 +2,11 @@
 layout: shell
 ---
 
-<main class="writing-index{% if page.accent and page.accent != 'blue' %} page-accent--{{ page.accent }}{% endif %} relative max-w-7xl mx-auto px-4 sm:px-8 md:px-16 pt-10 pb-16">
+<main class="writing-index{% if page.accent and page.accent != 'blue' %} page-accent--{{ page.accent }}{% endif %} relative max-w-7xl mx-auto px-4 sm:px-8 md:px-16 pt-10 pb-16"
+      {% include page/listing-runtime-attrs.html
+         default_collection="articles"
+         default_path="/pages/articles/"
+         default_detail="/articles/:slug/" %}>
 
   {%- comment -%}
     Title, header tags and the optional standfirst all come from the
@@ -116,10 +120,17 @@ layout: shell
     var runtime = window.ContentRuntime;
     if (!runtime || !runtime.ListingFilter) return;
 
+    var configRoot = document.querySelector('[data-listing-collection]');
+    var collection = (configRoot && configRoot.getAttribute('data-listing-collection')) || 'articles';
+    var listingPath = (configRoot && configRoot.getAttribute('data-listing-path')) || '/pages/articles/';
+    var detailPattern = (configRoot && configRoot.getAttribute('data-listing-detail')) || '/articles/:slug/';
+    if (listingPath.slice(-1) !== '/') listingPath += '/';
+
     var listing = runtime.Listing;
     var perPage = parseInt('{{ site.posts_per_page | default: 6 }}', 10);
     var params = new URLSearchParams(window.location.search);
-    var selectedArticle = runtime.contentSlug('article');
+    var selectedArticle = runtime.contentSlug('article') ||
+      runtime.slugFromDetailPattern(window.location.pathname, detailPattern);
     var currentPage = Math.max(1, parseInt(params.get('page') || '1', 10));
 
     var grid = document.getElementById('articles-list');
@@ -133,7 +144,7 @@ layout: shell
     var detailRoot = document.getElementById('articles-detail');
     var detailSidebar = document.getElementById('articles-detail-sidebar');
     var detailMain = document.getElementById('articles-detail-main');
-    var pageHeader = document.querySelector('[data-content-page-header="articles"]');
+    var pageHeader = document.querySelector('[data-content-page-header="{{ page.key }}"]');
     var filterRoot = document.querySelector('[data-listing-filter-root]');
     var licenceEl = document.querySelector('[data-writing-licence]');
 
@@ -152,19 +163,23 @@ layout: shell
      * overwrite the stored slug and change what the home page leads with. */
     var featured = null;
 
+    function entryUrl(slug) {
+      return runtime.detailUrl(detailPattern, slug);
+    }
+
     function tagHref(tag) {
-      return '/pages/articles/?tag=' + encodeURIComponent(tag);
+      return listingPath + '?tag=' + encodeURIComponent(tag);
     }
 
     function loadArticles() {
-      return runtime.loadWritingIndex('articles');
+      return runtime.loadWritingIndex(collection);
     }
 
     function sortItems(a, b, sortKey) {
       if (sortKey === 'random') {
         var ak = (a && (a.slug || a.key)) || '';
         var bk = (b && (b.slug || b.key)) || '';
-        return runtime.sessionRandomCompare(ak, bk, 'articles');
+        return runtime.sessionRandomCompare(ak, bk, collection);
       }
       if (sortKey === 'updated') {
         var au = (a.front_matter && a.front_matter.last_updated) || a.last_updated || (a.front_matter && a.front_matter.date) || a.date || '';
@@ -297,7 +312,7 @@ layout: shell
     function renderLead(article) {
       if (!leadRoot || !article) return;
       var fm = article.front_matter || {};
-      var href = runtime.articleUrl(article.slug);
+      var href = entryUrl(article.slug);
       var thumbnail = thumbnailOf(article);
       var meta = runtime.renderMetaStrip([
         runtime.formatDate(fm.date, 'en'),
@@ -359,7 +374,7 @@ layout: shell
     function renderRow(article) {
       var fm = article.front_matter || {};
       var row = runtime.renderLedgerRow(article, {
-        href: runtime.articleUrl(article.slug),
+        href: entryUrl(article.slug),
         locale: 'en',
         tagHref: tagHref,
         ctaLabel: 'Read article',
@@ -424,8 +439,8 @@ layout: shell
         sidebarEl: detailSidebar,
         footerNav: {
           lang: lang,
-          previousUrl: index >= 0 && index < articles.length - 1 ? runtime.articleUrl(articles[index + 1].slug) : null,
-          nextUrl: index > 0 ? runtime.articleUrl(articles[index - 1].slug) : null
+          previousUrl: index >= 0 && index < articles.length - 1 ? entryUrl(articles[index + 1].slug) : null,
+          nextUrl: index > 0 ? entryUrl(articles[index - 1].slug) : null
         }
       });
     }
@@ -494,7 +509,7 @@ layout: shell
           runtime.adoptCanonicalDetailUrl(selected);
         }
         var slugToLoad = selected ? selected.slug : selectedArticle;
-        return runtime.loadCollectionItem('articles', slugToLoad).then(function (article) {
+        return runtime.loadCollectionItem(collection, slugToLoad).then(function (article) {
           return renderArticleDetail(article, allArticles);
         }).catch(function (error) {
           runtime.reportDetailLoadError(error, {

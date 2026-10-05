@@ -4,7 +4,11 @@ layout: shell
 {%- assign blog_locale = page.lang | default: site.pandorga.identity.locale | default: "en" -%}
 {%- assign blog_title = page.title | default: "Blog" -%}
 
-<main class="relative max-w-7xl mx-auto px-4 sm:px-8 md:px-16 pt-10 pb-16 rascunhos-main{% if page.accent and page.accent != 'blue' %} page-accent--{{ page.accent }}{% endif %}">
+<main class="relative max-w-7xl mx-auto px-4 sm:px-8 md:px-16 pt-10 pb-16 rascunhos-main{% if page.accent and page.accent != 'blue' %} page-accent--{{ page.accent }}{% endif %}"
+      {% include page/listing-runtime-attrs.html
+         default_collection="posts"
+         default_path="/pages/blog/"
+         default_detail="/posts/:slug/" %}>
 
   {%- comment -%}
     Masthead. The shard lives here rather than inside the shared page header
@@ -89,10 +93,17 @@ layout: shell
     var runtime = window.ContentRuntime;
     if (!runtime || !runtime.ListingFilter) return;
 
+    var configRoot = document.querySelector('[data-listing-collection]');
+    var collection = (configRoot && configRoot.getAttribute('data-listing-collection')) || 'posts';
+    var listingPath = (configRoot && configRoot.getAttribute('data-listing-path')) || '/pages/blog/';
+    var detailPattern = (configRoot && configRoot.getAttribute('data-listing-detail')) || '/posts/:slug/';
+    if (listingPath.slice(-1) !== '/') listingPath += '/';
+
     var listing = runtime.Listing;
     var perPage = parseInt('{{ site.posts_per_page | default: 6 }}', 10);
     var params = new URLSearchParams(window.location.search);
-    var selectedPost = runtime.contentSlug('post');
+    var selectedPost = runtime.contentSlug('post') ||
+      runtime.slugFromDetailPattern(window.location.pathname, detailPattern);
     var currentPage = Math.max(1, parseInt(params.get('page') || '1', 10));
 
     var grid = document.getElementById('posts-list');
@@ -104,7 +115,7 @@ layout: shell
     var detailSidebar = document.getElementById('blog-detail-sidebar');
     var detailMain = document.getElementById('blog-detail-main');
     var masthead = document.querySelector('[data-rascunhos-masthead]');
-    var pageHeader = document.querySelector('[data-content-page-header="blog"]');
+    var pageHeader = document.querySelector('[data-content-page-header="{{ page.key }}"]');
     var filterRoot = document.querySelector('[data-listing-filter-root]');
     var orderEl = document.querySelector('[data-rascunhos-order]');
     var tallyEl = document.querySelector('[data-rascunhos-tally]');
@@ -157,7 +168,7 @@ layout: shell
       if (sortKey === 'random') {
         var ak = (a && (a.slug || a.key)) || '';
         var bk = (b && (b.slug || b.key)) || '';
-        return runtime.sessionRandomCompare(ak, bk, 'posts');
+        return runtime.sessionRandomCompare(ak, bk, collection);
       }
       if (sortKey === 'updated') {
         var au = postUpdated(a) || postDate(a);
@@ -173,8 +184,12 @@ layout: shell
       return Array.isArray(list) ? list.filter(Boolean) : [];
     }
 
+    function entryUrl(slug) {
+      return runtime.detailUrl(detailPattern, slug);
+    }
+
     function tagHref(tag) {
-      return '/pages/blog/?tag=' + encodeURIComponent(tag);
+      return listingPath + '?tag=' + encodeURIComponent(tag);
     }
 
     function buildChipGroups(tagCounts) {
@@ -291,7 +306,7 @@ layout: shell
      * which is the real summary for this collection. */
     function renderEntry(post) {
       var fm = post.front_matter || {};
-      var href = runtime.postUrl(post.slug);
+      var href = entryUrl(post.slug);
 
       var row = runtime.renderLedgerRow(post, {
         href: href,
@@ -429,8 +444,8 @@ layout: shell
         sidebarEl: detailSidebar,
         footerNav: {
           lang: lang,
-          previousUrl: index >= 0 && index < posts.length - 1 ? runtime.postUrl(posts[index + 1].slug) : null,
-          nextUrl: index > 0 ? runtime.postUrl(posts[index - 1].slug) : null,
+          previousUrl: index >= 0 && index < posts.length - 1 ? entryUrl(posts[index + 1].slug) : null,
+          nextUrl: index > 0 ? entryUrl(posts[index - 1].slug) : null,
           showRandom: index <= 0
         }
       });
@@ -494,7 +509,7 @@ layout: shell
         .catch(function (error) { console.error(error); });
     }
 
-    runtime.loadWritingIndex('posts').then(function (posts) {
+    runtime.loadWritingIndex(collection).then(function (posts) {
       allPosts = posts.slice();
       assignFolios(allPosts);
 
@@ -504,7 +519,7 @@ layout: shell
           runtime.adoptCanonicalDetailUrl(selected);
         }
         var slugToLoad = selected ? selected.slug : selectedPost;
-        return runtime.loadCollectionItem('posts', slugToLoad).then(function (post) {
+        return runtime.loadCollectionItem(collection, slugToLoad).then(function (post) {
           return renderPostDetail(post, allPosts);
         }).catch(function (error) {
           runtime.reportDetailLoadError(error, {

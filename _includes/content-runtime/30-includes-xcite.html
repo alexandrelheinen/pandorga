@@ -33,24 +33,41 @@
       return null;
     }
 
+    /* Expand a registry detail pattern (`/articles/:slug/`) for a slug. */
+    function detailUrl(pattern, slug) {
+      var value = String(pattern || '');
+      if (!value) return '#';
+      return value.split(':slug').join(encodeURIComponent(slug));
+    }
+
+    /* Read a detail slug from the current path using a registry detail pattern. */
+    function slugFromDetailPattern(pathname, pattern) {
+      var value = String(pattern || '');
+      var marker = value.indexOf(':slug');
+      if (marker === -1) return null;
+      var prefix = normalizePathname(value.slice(0, marker));
+      if (!prefix || prefix === '/') return null;
+      return slugFromCleanPath(pathname, [prefix]);
+    }
+
     function articleUrl(slug) {
-      return '/articles/' + encodeURIComponent(slug) + '/';
+      return detailUrl('/articles/:slug/', slug);
     }
 
     function postUrl(slug) {
-      return '/posts/' + encodeURIComponent(slug) + '/';
+      return detailUrl('/posts/:slug/', slug);
     }
 
     function productUrl(slug) {
-      return '/products/' + encodeURIComponent(slug) + '/';
+      return detailUrl('/products/:slug/', slug);
     }
 
     function projectUrl(slug) {
-      return '/projects/' + encodeURIComponent(slug) + '/';
+      return detailUrl('/projects/:slug/', slug);
     }
 
     function resourceUrl(slug) {
-      return '/resources/' + encodeURIComponent(slug) + '/';
+      return detailUrl('/resources/:slug/', slug);
     }
 
     function xciteUrl(item) {

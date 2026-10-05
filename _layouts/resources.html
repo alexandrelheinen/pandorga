@@ -2,7 +2,10 @@
 layout: shell
 ---
 
-<main class="relative max-w-7xl mx-auto px-8 md:px-16 pt-10 pb-16">
+<main class="relative max-w-7xl mx-auto px-8 md:px-16 pt-10 pb-16"
+      {% include page/listing-runtime-attrs.html
+         default_collection="resources"
+         default_path="/pages/sources/" %}>
   {%- comment -%}
     The shards live here rather than inside the shared page header include,
     which every listing uses and which no single page may restyle — the same
@@ -36,6 +39,11 @@ layout: shell
 
     var runtime = window.ContentRuntime;
     if (!runtime || !runtime.ListingFilter) return;
+
+    var configRoot = document.querySelector('[data-listing-collection]');
+    var collection = (configRoot && configRoot.getAttribute('data-listing-collection')) || 'resources';
+    var listingPath = (configRoot && configRoot.getAttribute('data-listing-path')) || '/pages/sources/';
+    if (listingPath.slice(-1) !== '/') listingPath += '/';
 
     var listing = runtime.Listing;
     var params = new URLSearchParams(window.location.search);
@@ -184,14 +192,14 @@ layout: shell
     }
 
     function categoryHref(category) {
-      return window.location.pathname + '?category=' + encodeURIComponent(category);
+      return listingPath + '?category=' + encodeURIComponent(category);
     }
 
     function sortResources(a, b, sortKey) {
       if (sortKey === 'random') {
         var ak = a.slug || (a.front_matter && a.front_matter.name) || '';
         var bk = b.slug || (b.front_matter && b.front_matter.name) || '';
-        return runtime.sessionRandomCompare(ak, bk, 'resources');
+        return runtime.sessionRandomCompare(ak, bk, collection);
       }
       var na = String((a.front_matter && a.front_matter.name) || a.slug || '').toLowerCase();
       var nb = String((b.front_matter && b.front_matter.name) || b.slug || '').toLowerCase();
@@ -360,7 +368,7 @@ layout: shell
 
     listing.showLoadingState(grid, 'Loading sources...');
 
-    runtime.loadCollection('collections/resources', 'resources').then(function (resources) {
+    runtime.loadCollection('collections/' + collection, collection).then(function (resources) {
       allResources = resources.slice();
       grid.innerHTML = '';
       allCards = allResources.map(function (resource) {

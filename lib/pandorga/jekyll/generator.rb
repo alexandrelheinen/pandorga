@@ -10,6 +10,13 @@ module Pandorga
       safe true
       priority :high
 
+      # Template defaults when registry omits `detail` (English platform paths).
+      DEFAULT_DETAILS = {
+        "articles" => "/articles/:slug/",
+        "blog" => "/posts/:slug/",
+        "portfolio" => "/projects/:slug/"
+      }.freeze
+
       def generate(site)
         pages = PandorgaRegistry.pages(site.config)
         return if pages.empty?
@@ -41,16 +48,24 @@ module Pandorga
         path = entry["path"].to_s
         return if path.empty?
 
+        listing_path = path.end_with?("/") ? path : "#{path}/"
         rel_dir = path.sub(%r{\A/}, "").sub(%r{/\z}, "")
         page = ::Jekyll::PageWithoutAFile.new(site, site.source, rel_dir, "index.html")
         page.data["layout"] = PandorgaRegistry.layout_for(entry)
         page.data["key"] = entry["key"]
+        page.data["template"] = entry["template"] if entry["template"]
         page.data["title"] = entry["title"] if entry["title"]
         page.data["description"] = entry["description"] if entry["description"]
         page.data["accent"] = entry["accent"] if entry["accent"]
         page.data["badge"] = entry["badge"] if entry["badge"]
         page.data["lang"] = entry["language"] if entry["language"]
-        page.data["permalink"] = path.end_with?("/") ? path : "#{path}/"
+        page.data["permalink"] = listing_path
+        # listing_path is explicit: Jekyll reserves page.path for the source file.
+        page.data["listing_path"] = listing_path
+        page.data["collection"] = entry["collection"] if entry["collection"]
+        detail = entry["detail"].to_s
+        detail = DEFAULT_DETAILS[entry["template"].to_s].to_s if detail.empty?
+        page.data["detail"] = detail unless detail.empty?
         page.content = ""
         site.pages << page
       end

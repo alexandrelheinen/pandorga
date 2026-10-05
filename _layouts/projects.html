@@ -18,7 +18,11 @@ layout: shell
   have no data source and are not built.
 {%- endcomment -%}
 
-<main class="projects-page relative max-w-7xl mx-auto px-4 sm:px-8 md:px-16 pt-10 pb-16" id="projects-main">
+<main class="projects-page relative max-w-7xl mx-auto px-4 sm:px-8 md:px-16 pt-10 pb-16" id="projects-main"
+      {% include page/listing-runtime-attrs.html
+         default_collection="projects"
+         default_path="/pages/projects/"
+         default_detail="/projects/:slug/" %}>
 
   <div id="projects-page-header">
     {% include page/page-header.html key=page.key
@@ -64,7 +68,11 @@ layout: shell
     var esc = runtime.escapeHtml;
     var escAttr = runtime.escapeAttr;
 
-    var LISTING_URL = '/pages/projects/';
+    var configRoot = document.querySelector('[data-listing-collection]');
+    var collection = (configRoot && configRoot.getAttribute('data-listing-collection')) || 'projects';
+    var listingPath = (configRoot && configRoot.getAttribute('data-listing-path')) || '/pages/projects/';
+    var detailPattern = (configRoot && configRoot.getAttribute('data-listing-detail')) || '/projects/:slug/';
+    if (listingPath.slice(-1) !== '/') listingPath += '/';
 
     var listing = document.getElementById('projects-listing');
     var noteRoot = document.getElementById('projects-filter-note');
@@ -81,8 +89,13 @@ layout: shell
     var pageHeader = document.getElementById('projects-page-header');
 
     var params = new URLSearchParams(window.location.search);
-    var selectedProject = runtime.contentSlug('project');
+    var selectedProject = runtime.contentSlug('project') ||
+      runtime.slugFromDetailPattern(window.location.pathname, detailPattern);
     var selectedTag = (params.get('tag') || '').trim();
+
+    function entryUrl(slug) {
+      return runtime.detailUrl(detailPattern, slug);
+    }
 
     /* ── Field readers ──────────────────────────────────────────────────
        Each returns '' when its field is unset, so an absent field drops the
@@ -148,7 +161,7 @@ layout: shell
     }
 
     function tagHref(tag) {
-      return LISTING_URL + '?tag=' + encodeURIComponent(tag);
+      return listingPath + '?tag=' + encodeURIComponent(tag);
     }
 
     /* Outbound links, in the order a reader wants them: the code, the writing
@@ -208,7 +221,7 @@ layout: shell
        leads with one piece of work rather than seven equal thumbnails. */
     function renderLead(item) {
       var fm = item.front_matter || {};
-      var href = runtime.projectUrl(item.slug);
+      var href = entryUrl(item.slug);
       var name = projectName(item);
       var line = ledgerLine(fm, 'ledger-system-icon');
 
@@ -251,7 +264,7 @@ layout: shell
       var fm = item.front_matter || {};
       var period = periodText(fm);
       var card = runtime.renderSystemCard(item, {
-        href: runtime.projectUrl(item.slug),
+        href: entryUrl(item.slug),
         repoLabel: 'Source',
         articleLabel: 'Read the article',
         externalLabel: 'Visit',
@@ -309,7 +322,7 @@ layout: shell
         '<span class="projects-filter-note-label">Filtered by</span>' +
         '<span class="ledger-chip">' + esc(tag) + '</span>' +
         '<span class="projects-filter-note-count code-technical">' + count + ' of ' + total + '</span>' +
-        '<a class="ledger-cta" href="' + escAttr(LISTING_URL) + '"><span>Show all</span></a>' +
+        '<a class="ledger-cta" href="' + escAttr(listingPath) + '"><span>Show all</span></a>' +
         '</div>';
     }
 
@@ -474,7 +487,7 @@ layout: shell
       renderHero(item);
       await renderDossier(item);
 
-      var allItems = await runtime.loadWritingIndex('projects');
+      var allItems = await runtime.loadWritingIndex(collection);
       var sorted = allItems.slice().sort(bySortOrder);
       var index = sorted.findIndex(function (entry) { return entry.slug === item.slug; });
 
@@ -489,15 +502,15 @@ layout: shell
            which walked the register backwards. */
         footerNav: {
           lang: 'enus',
-          previousUrl: index > 0 ? runtime.projectUrl(sorted[index - 1].slug) : null,
-          nextUrl: index >= 0 && index < sorted.length - 1 ? runtime.projectUrl(sorted[index + 1].slug) : null
+          previousUrl: index > 0 ? entryUrl(sorted[index - 1].slug) : null,
+          nextUrl: index >= 0 && index < sorted.length - 1 ? entryUrl(sorted[index + 1].slug) : null
         }
       });
     }
 
     function loadListing() {
       showListing();
-      runtime.loadWritingIndex('projects').then(renderListing).catch(function (error) {
+      runtime.loadWritingIndex(collection).then(renderListing).catch(function (error) {
         console.error(error);
         state.textContent = 'Projects could not be loaded right now.';
         state.classList.remove('hidden');
@@ -505,7 +518,7 @@ layout: shell
     }
 
     if (selectedProject) {
-      runtime.loadCollectionItem('projects', selectedProject).then(function (item) {
+      runtime.loadCollectionItem(collection, selectedProject).then(function (item) {
         return renderProjectDetail(item);
       }).catch(function (error) {
         console.error(error);

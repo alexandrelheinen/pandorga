@@ -1,0 +1,8 @@
+{%- comment -%}
+  Registry-backed listing runtime config for inline page scripts.
+  Defaults keep English platform paths when a hand-authored page omits fields.
+{%- endcomment -%}
+{%- assign listing_collection = page.collection | default: include.default_collection -%}
+{%- assign listing_path = page.listing_path | default: page.permalink | default: include.default_path -%}
+{%- assign listing_detail = page.detail | default: include.default_detail -%}
+data-listing-collection="{{ listing_collection }}" data-listing-path="{{ listing_path }}" data-listing-detail="{{ listing_detail }}"
