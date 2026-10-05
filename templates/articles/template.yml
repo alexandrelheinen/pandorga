@@ -1,0 +1,21 @@
+name: articles
+collection_slots:
+  - name: collection
+    required: true
+    contract: writing
+detail: /articles/:slug/
+nav:
+  group: Writing
+home:
+  featured: true
+  limit: 3
+export_fields:
+  - title
+  - key
+  - date
+  - tags
+  - language
+  - thumbnail
+  - description
+  - author
+  - body

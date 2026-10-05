@@ -1,0 +1,38 @@
+title: "Minimal Pandorga Example"
+description: "Articles-only site using the static content backend."
+theme: pandorga
+plugins:
+  - pandorga
+  - jekyll-redirect-from
+
+pandorga:
+  identity:
+    name: "Ada Example"
+    url: "https://example.com"
+    locale: en
+  content:
+    backend: static
+    base_url: ""
+  pages:
+    - key: articles
+      template: articles
+      collection: articles
+      path: /pages/articles/
+      detail: /articles/:slug/
+      language: en
+      taxonomy:
+        tags: [Writing, Design]
+        max: 3
+        min: 1
+      nav:
+        group: Writing
+        icon: newsmode
+      home:
+        featured: true
+        limit: 3
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor/
+  - scripts/

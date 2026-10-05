@@ -1,0 +1,40 @@
+/* Pandorga default shell — minimal tokens for examples. Full Architectural
+   Ledger theme lands when DESIGN.md is imported from the extraction. */
+:root {
+  --color-bg: #f7f5f2;
+  --color-fg: #1c1917;
+  --color-accent: #0f766e;
+  --font-sans: "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: var(--color-bg);
+  color: var(--color-fg);
+  line-height: 1.5;
+}
+
+.shell-nav {
+  display: flex;
+  gap: 1.5rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-fg) 15%, transparent);
+}
+
+.shell-nav a {
+  color: var(--color-accent);
+}
+
+.home,
+.page-articles {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.home-band {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid color-mix(in srgb, var(--color-fg) 12%, transparent);
+}

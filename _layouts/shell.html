@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="{{ page.lang | default: site.pandorga.identity.locale | default: 'en' }}">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  {% assign identity_name = site.pandorga.identity.name | default: site.title %}
+  {% capture meta_title %}{% if page.title %}{{ page.title }} | {% endif %}{{ identity_name }}{% endcapture %}
+  <title>{{ meta_title | strip | escape_once }}</title>
+  <meta name="description" content="{{ page.description | default: site.description | escape_once }}" />
+  <link rel="stylesheet" href="/assets/css/base.css" />
+</head>
+<body>
+  <nav class="shell-nav" aria-label="Primary">
+    {% for group in site.data.pandorga_nav %}
+      <div class="nav-group">
+        <span class="nav-group-name">{{ group.name }}</span>
+        {% for item in group.items %}
+          <a href="{{ item.path }}">{{ item.title }}</a>
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </nav>
+  {{ content }}
+</body>
+</html>

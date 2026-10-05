@@ -1,0 +1,22 @@
+---
+layout: shell
+---
+<main class="home">
+  <header class="home-hero">
+    <h1>{{ site.pandorga.identity.name | default: site.title }}</h1>
+    {% if site.description %}<p>{{ site.description }}</p>{% endif %}
+  </header>
+  {% assign pages = site.pandorga.pages %}
+  {% if pages %}
+  <section class="home-bands">
+    {% for entry in pages %}
+      {% if entry.home == false %}{% continue %}{% endif %}
+      <article class="home-band" data-page-key="{{ entry.key }}">
+        <h2>{{ entry.title | default: entry.key }}</h2>
+        <p><a href="{{ entry.path }}">Open {{ entry.key }}</a></p>
+      </article>
+    {% endfor %}
+  </section>
+  {% endif %}
+  {{ content }}
+</main>

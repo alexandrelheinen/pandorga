@@ -6,7 +6,8 @@ _site_private/
 
 # Bundler / Python / Node tooling
 .bundle/
-vendor/
+vendor/bundle/
+/tmp/
 .venv/
 *.pyc
 *.egg-info/

@@ -1,0 +1,8 @@
+---
+layout: shell
+---
+<main class="page-articles" data-page-key="{{ page.key }}">
+  <h1>{{ page.title | default: "Articles" }}</h1>
+  <p class="page-note">Listing rendered from content JSON at runtime in full sites.</p>
+  <div id="content-root">{{ content }}</div>
+</main>

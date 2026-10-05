@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "pandorga"
+require "pandorga/cli"
+
+exit Pandorga::CLI.run(ARGV)

@@ -1,0 +1,13 @@
+collection:
+  label: Articles
+  fields:
+    - name: title
+      type: string
+      required: true
+    - name: key
+      type: string
+      required: true
+    - name: tags
+      type: tags
+    - name: body
+      type: markdown
