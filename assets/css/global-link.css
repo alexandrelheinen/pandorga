@@ -1,0 +1,94 @@
+/* Global link styling for all <a> tags */
+a {
+  color: var(--color-link);
+  text-decoration: none;
+  transition: color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+/* Underline on hover belongs to prose links only.
+ *
+ * `article a:hover` used to be in this list and was the reason card chrome —
+ * tag chips, "Read article", the repository/article/visit/details row on a
+ * project card — underlined under the pointer. Every card, row and system
+ * card is a `document.createElement('article')` (content-runtime/43-blocks),
+ * so that selector matched all of their links and none of their prose.
+ *
+ * It was not earning its place even for prose: an article or post body
+ * renders into `<div class="article-content">` inside a `<section>`, never
+ * inside an `<article>`, so `.article-content a:hover` is what actually
+ * underlines editorial links. Dropping `article a:hover` therefore removes
+ * the card underlines without touching a single prose link — and retires the
+ * `article h2/h3 a:hover` exception that existed only to cancel it for card
+ * titles, plus the chip exceptions that were being added one class at a time
+ * as each new piece of card chrome turned up underlined. */
+p a:hover,
+.post-content a:hover,
+.article-content a:hover,
+.description a:hover {
+  color: var(--color-link-hover);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1.5px;
+}
+
+/* Inline scholarly citations: 60% of body size, superscript */
+.article-content sup.citation-sup,
+.article-content sup:has(> a.citation) {
+  font-size: 0.6em;
+  vertical-align: super;
+  line-height: 1;
+}
+
+.article-content sup.citation-sup > a.citation,
+.article-content sup:has(> a.citation) > a.citation {
+  font-size: inherit;
+  vertical-align: baseline;
+  line-height: inherit;
+}
+
+.article-content sup.citation-sup.cite-missing {
+  color: var(--color-error);
+}
+
+/* Jekyll-Scholar / runtime references list */
+.article-references {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-gentle-divider);
+}
+
+.article-references h2 {
+  margin-bottom: 0.75rem;
+}
+
+.article-references ol.bibliography,
+.article-references ul.bibliography {
+  list-style-type: decimal;
+  list-style-position: inside;
+  padding-left: 0;
+  margin-left: 0;
+  margin-top: 0.5rem;
+}
+
+.article-references ol.bibliography li,
+.article-references ul.bibliography li {
+  margin-bottom: 0.8rem;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.article-references ol.bibliography li,
+.article-references ol.bibliography li>sup,
+.article-references ol.bibliography li>span,
+.article-references ul.bibliography li,
+.article-references ul.bibliography li>sup,
+.article-references ul.bibliography li>span {
+  font-size: 1em;
+  line-height: inherit;
+  vertical-align: baseline;
+}
+
+.article-references .bibliography a {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}

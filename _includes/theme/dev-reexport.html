@@ -1,0 +1,100 @@
+<div id="dev-reexport" class="contents">
+  <button id="dev-reexport-btn" type="button"
+    class="flex items-center justify-center w-7 h-7 p-1 border border-tertiary/40 hover:border-tertiary text-tertiary hover:bg-surface-container-low transition-colors duration-300 cursor-pointer shrink-0"
+    aria-label="Export content JSON"
+    title="Export">
+    <span id="dev-reexport-label" class="sr-only">Export</span>
+    <span id="dev-reexport-icon" class="material-symbols-outlined text-xl" aria-hidden="true">sync</span>
+  </button>
+  <button id="dev-open-studio-btn" type="button"
+    class="flex items-center justify-center w-7 h-7 p-1 border border-tertiary/40 hover:border-tertiary text-tertiary hover:bg-surface-container-low transition-colors duration-300 cursor-pointer shrink-0"
+    aria-label="Open Studio"
+    title="Open Studio"
+    data-studio-href="{{ site.baseurl }}/studio/">
+    <span class="sr-only">Open Studio</span>
+    <span class="material-symbols-outlined text-xl" aria-hidden="true">architecture</span>
+  </button>
+</div>
+<script>
+  (function () {
+    var openBtn = document.getElementById("dev-open-studio-btn");
+    if (openBtn) {
+      openBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        var href = openBtn.getAttribute("data-studio-href") || "/studio/";
+        window.open(href, "_blank");
+      });
+    }
+
+    var btn = document.getElementById("dev-reexport-btn");
+    var label = document.getElementById("dev-reexport-label");
+    var icon = document.getElementById("dev-reexport-icon");
+    if (!btn || !label || !icon) return;
+
+    var busy = false;
+
+    function forcePageRefresh() {
+      try {
+        var url = new URL(window.location.href);
+        url.searchParams.set("_refresh", String(Date.now()));
+        window.location.replace(url.toString());
+      } catch (err) {
+        window.location.reload();
+      }
+    }
+
+    btn.addEventListener("click", function (e) {
+      e.preventDefault();
+      if (busy) return;
+      busy = true;
+      btn.disabled = true;
+      btn.classList.add("is-busy");
+      btn.setAttribute("aria-busy", "true");
+
+      var originalText = label.textContent;
+      var originalIcon = icon.textContent;
+      var originalTitle = btn.title || "Export";
+
+      label.textContent = "Exporting";
+      btn.title = "Exporting...";
+      icon.textContent = "sync";
+
+      fetch("/__dev/reexport", {
+        method: "POST",
+        headers: { "Accept": "application/json" }
+      })
+        .then(function (response) {
+          return response.json().then(function (data) {
+            if (!response.ok || !data.ok) {
+              throw new Error((data && data.error) || ("Export failed: " + response.status));
+            }
+            return data;
+          });
+        })
+        .then(function () {
+          btn.classList.remove("is-busy");
+          icon.textContent = "check";
+          label.textContent = "Refreshed";
+          btn.title = "Refreshed!";
+          setTimeout(function () {
+            forcePageRefresh();
+          }, 200);
+        })
+        .catch(function (err) {
+          console.error("Local dev export error:", err);
+          btn.classList.remove("is-busy");
+          icon.textContent = "error";
+          label.textContent = "Failed";
+          btn.title = "Export failed";
+          setTimeout(function () {
+            icon.textContent = originalIcon;
+            label.textContent = originalText;
+            btn.title = originalTitle;
+            btn.disabled = false;
+            btn.removeAttribute("aria-busy");
+            busy = false;
+          }, 2500);
+        });
+    });
+  })();
+</script>

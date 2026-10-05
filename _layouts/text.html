@@ -1,0 +1,246 @@
+---
+layout: shell
+---
+{% comment %}
+  Detail view — private/studio build.
+
+  Public detail pages never reach this layout: every collection is
+  `output: false` in _config.yml and `content/` is excluded from the build, so
+  /articles/:slug/ and /posts/:slug/ are rewritten to the listing layouts and
+  assembled in the browser by _includes/content-runtime/50-detail.html. What
+  this file renders is the studio/private path only.
+
+  It is therefore written to emit *exactly* the class contract that
+  `buildTextSidebar` emits, so assets/css/ledger/detail.css styles both paths
+  from one set of rules — and so this markup doubles as the reference for the
+  three fields the runtime still has to learn to render (tags, dates, the
+  language pill).
+{% endcomment %}
+{% comment %}
+  Roughly half the corpus never declares `language`, so the UI language falls
+  back the same way the runtime's resolveTocLang does: posts are Portuguese,
+  everything else English. The pill below is *not* rendered from this fallback
+  — it binds to the declared field only.
+{% endcomment %}
+{% assign lang = page.language %}
+{% unless lang and lang != "" %}
+  {% if page.collection == "posts" %}{% assign lang = "ptbr" %}{% else %}{% assign lang = "enus" %}{% endif %}
+{% endunless %}
+{% assign t = site.data.translations %}
+
+{% assign back_url = "/#" %}
+{% if page.back_url %}
+  {% assign back_url = page.back_url %}
+{% elsif page.collection == "posts" %}
+  {% assign back_url = "/pages/blog/" %}
+{% elsif page.collection == "projects" %}
+  {% assign back_url = "/pages/projects/" %}
+{% elsif page.collection == "products" %}
+  {% assign back_url = "/pages/cv/#products" %}
+{% elsif page.collection == "articles" %}
+  {% assign back_url = "/pages/articles/" %}
+{% endif %}
+
+{% assign back_label = t.back[lang] %}
+{% if page.back_label %}
+  {% assign back_label = page.back_label %}
+{% elsif page.collection == "posts" %}{% assign back_label = t.back_to_drafts[lang] %}
+{% elsif page.collection == "projects" %}{% assign back_label = t.back_to_projects[lang] %}
+{% elsif page.collection == "products" %}{% assign back_label = t.back_to_cv[lang] %}
+{% elsif page.collection == "articles" %}{% assign back_label = t.back_to_articles[lang] %}
+{% endif %}
+
+{% comment %}Tag chips link back to the listing that filters on them.{% endcomment %}
+{% assign tag_base = nil %}
+{% if page.collection == "posts" %}{% assign tag_base = "/pages/blog/?tag=" %}
+{% elsif page.collection == "articles" %}{% assign tag_base = "/pages/articles/?tag=" %}
+{% elsif page.collection == "projects" %}{% assign tag_base = "/pages/projects/?tag=" %}
+{% endif %}
+
+{% assign lang_label = nil %}
+{% if page.language == "enus" %}{% assign lang_label = "EN" %}
+{% elsif page.language == "ptbr" %}{% assign lang_label = "PT" %}
+{% endif %}
+
+<div class="max-w-7xl mx-auto px-4 sm:px-8 md:px-16 py-12 text-page{% if page.accent and page.accent != '' and page.accent != 'blue' %} page-accent--{{ page.accent }}{% endif %}">
+  <div class="grid grid-cols-1 gap-8 lg:gap-12 items-start text-detail-grid">
+    <aside>
+      <div class="md:sticky md:top-32 text-detail-sidebar">
+        {% if page.collection == "posts" or page.collection == "articles" or page.layout == "product" or page.layout == "project" %}
+        <div class="article-sidebar-heading mb-8">
+          {% if page.icon %}
+          <span class="material-symbols-outlined text-5xl md:text-6xl text-secondary mb-4 block leading-none">{{ page.icon }}</span>
+          {% endif %}
+          <h1 class="text-title">{{ page.title }}</h1>
+          {% if page.collection == "posts" and page.thumbnail %}
+          <figure class="article-sidebar-thumbnail">
+            <img src="{{ page.thumbnail }}" alt="" loading="lazy">
+          </figure>
+          {% elsif page.description %}
+          <p class="article-sidebar-description">{{ page.description }}</p>
+          {% elsif page.layout == "project" and page.tagline %}
+          <p class="article-sidebar-description">{{ page.tagline }}</p>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        <div class="flex flex-col gap-6 text-tertiary font-label text-xs article-meta mb-8">
+          <div class="flex flex-col gap-2">
+            {% comment %}
+              Classification. `tags` replaced `category` on articles and posts;
+              an entry with no tags renders no chip row at all.
+            {% endcomment %}
+            {% if page.tags and page.tags.size > 0 %}
+            <div class="ledger-chip-row">
+              {% for tag in page.tags %}
+                {% if tag_base %}
+              <a class="ledger-chip" href="{{ tag_base }}{{ tag | url_encode }}">{{ tag }}</a>
+                {% else %}
+              <span class="ledger-chip">{{ tag }}</span>
+                {% endif %}
+              {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if page.collection == "posts" or page.collection == "articles" %}
+              {% include page/date_evolution.html stacked=true %}
+            {% endif %}
+
+            {% if page.layout == "product" %}
+              {% if page.company %}<span class="text-secondary font-bold">{{ page.company }}</span>{% endif %}
+              {% if page.product %}<span>{{ page.product }}</span>{% endif %}
+              {% if page.start_date %}<span>{{ page.start_date }}{% if page.status == "ongoing" or page.end_date == nil or page.end_date == "" %} – Ongoing{% elsif page.end_date %} – {{ page.end_date }}{% endif %}</span>{% endif %}
+            {% endif %}
+
+            {% if page.layout == "project" %}
+              {% if page.label %}<span class="text-tertiary font-bold">{{ page.label }}</span>{% endif %}
+              {% if page.start_date %}<span>{{ page.start_date }}{% if page.status == "ongoing" %} – Ongoing{% elsif page.end_date %} – {{ page.end_date }}{% endif %}</span>{% endif %}
+            {% endif %}
+          </div>
+
+          {% if layout.sidebar_extra %}
+            {{ layout.sidebar_extra }}
+          {% endif %}
+
+          {% if page.collection == "posts" or page.collection == "articles" or page.collection == "products" or page.collection == "projects" %}
+          <div class="detail-actions" data-detail-actions>
+            <a class="detail-action" href="{{ back_url }}" aria-label="Back">
+              <span class="material-symbols-outlined text-sm" aria-hidden="true">chevron_left</span>
+              <span class="detail-action-label">Back</span>
+            </a>
+            {% if page.collection == "posts" or page.collection == "articles" %}
+            <button type="button" class="detail-action" data-detail-share aria-label="Share">
+              <span class="material-symbols-outlined text-sm" aria-hidden="true">share</span>
+              <span class="detail-action-label">Share</span>
+            </button>
+            <button type="button" class="detail-action" data-detail-cite aria-label="Cite">
+              <span class="material-symbols-outlined text-sm" aria-hidden="true">format_quote</span>
+              <span class="detail-action-label">Cite</span>
+            </button>
+            {% if page.pdf_url %}
+            <a class="detail-action" href="{{ page.pdf_url }}" rel="noopener" target="_blank" aria-label="PDF">
+              <span class="material-symbols-outlined text-sm" aria-hidden="true">picture_as_pdf</span>
+              <span class="detail-action-label">PDF</span>
+            </a>
+            {% endif %}
+            {% endif %}
+            <div class="detail-type-size" data-prose-size>
+              <button type="button" class="detail-type-size-trigger" aria-haspopup="listbox" aria-expanded="false" aria-label="Reading size 0 pt">
+                <span class="material-symbols-outlined" aria-hidden="true">format_size</span>
+                <span class="detail-type-size-value" data-prose-size-label>0</span>
+                <span class="material-symbols-outlined detail-type-size-caret" aria-hidden="true">expand_more</span>
+              </button>
+              <div class="detail-type-size-menu" role="listbox" aria-label="Reading size" hidden>
+                <button type="button" class="detail-type-size-step" data-prose-offset="-4" role="option" aria-selected="false" aria-label="-4 pt" tabindex="-1">-4</button>
+                <button type="button" class="detail-type-size-step" data-prose-offset="-3" role="option" aria-selected="false" aria-label="-3 pt" tabindex="-1">-3</button>
+                <button type="button" class="detail-type-size-step" data-prose-offset="-2" role="option" aria-selected="false" aria-label="-2 pt" tabindex="-1">-2</button>
+                <button type="button" class="detail-type-size-step" data-prose-offset="-1" role="option" aria-selected="false" aria-label="-1 pt" tabindex="-1">-1</button>
+                <button type="button" class="detail-type-size-step" data-prose-offset="0" role="option" aria-selected="true" aria-label="0 pt" tabindex="-1">0</button>
+                <button type="button" class="detail-type-size-step" data-prose-offset="1" role="option" aria-selected="false" aria-label="+1 pt" tabindex="-1">+1</button>
+                <button type="button" class="detail-type-size-step" data-prose-offset="2" role="option" aria-selected="false" aria-label="+2 pt" tabindex="-1">+2</button>
+                <button type="button" class="detail-type-size-step" data-prose-offset="3" role="option" aria-selected="false" aria-label="+3 pt" tabindex="-1">+3</button>
+                <button type="button" class="detail-type-size-step" data-prose-offset="4" role="option" aria-selected="false" aria-label="+4 pt" tabindex="-1">+4</button>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </aside>
+
+    <div class="text-detail-main">
+      <div class="text-reading-column text-page-main" data-detail-view>
+        {% capture drop_cap_nl %}
+{% endcapture %}
+        {% assign drop_cap_body = content | strip | split: drop_cap_nl %}
+        {% assign drop_cap_first_line = "" %}
+        {% for drop_cap_line in drop_cap_body %}
+          {% assign drop_cap_trimmed = drop_cap_line | strip %}
+          {% if drop_cap_trimmed != "" %}
+            {% assign drop_cap_first_line = drop_cap_trimmed %}
+            {% break %}
+          {% endif %}
+        {% endfor %}
+        {% assign drop_cap_mark = "" %}
+        {% if page.drop_cap %}
+          {% assign drop_cap_lead = drop_cap_first_line | slice: 0, 1 %}
+          {% if drop_cap_lead != "#" %}
+            {% assign drop_cap_mark = " has-drop-cap" %}
+          {% endif %}
+        {% endif %}
+        <div class="article-content{{ drop_cap_mark }}" markdown="1">
+          {{ content }}
+        </div>
+
+        {% if page.tab %}
+        {% assign tab_data = site.data.tabs[page.tab] %}
+        {% include chord-tab.html tab=tab_data %}
+        {% endif %}
+      </div>
+
+      {% if page.collection == "posts" or page.collection == "articles" %}
+      <nav class="text-page-nav text-reading-column w-full" aria-label="Article navigation">
+        {% if page.previous %}
+        <a href="{{ page.previous.url }}">
+          <span class="material-symbols-outlined text-sm">arrow_left_alt</span>
+          {{ t.previous_text[lang] }}
+        </a>
+        {% else %}
+        <span></span>
+        {% endif %}
+        {% if page.next %}
+        <a href="{{ page.next.url }}">
+          {{ t.next_text[lang] }}
+          <span class="material-symbols-outlined text-sm">arrow_right_alt</span>
+        </a>
+        {% elsif page.collection == "posts" %}
+        <a href="#" id="random-post-link">
+          {{ t.random_text[lang] }}
+          <span class="material-symbols-outlined text-sm">shuffle</span>
+        </a>
+        {% else %}
+        <span></span>
+        {% endif %}
+      </nav>
+
+      <section class="article-cite-block text-reading-column w-full" data-article-cite-block>
+        <p class="article-cite-label font-label">{{ t.cite_this_text[lang] | default: "Cite this text" }}</p>
+        <div class="code-block" data-code-language="bibtex">
+          <div class="code-block-bar">
+            <span class="code-block-tab font-label">BibTeX</span>
+          </div>
+          <pre><code class="language-bibtex">@misc{% raw %}{{% endraw %}{{ page.slug | default: page.title | slugify }},
+  title = {% raw %}{{% endraw %}{{ page.title }}{% raw %}}{% endraw %},
+  author = {% raw %}{{% endraw %}{{ page.author | default: site.pandorga.identity.name | default: site.author }}{% raw %}}{% endraw %},{% if page.date %}
+  year = {% raw %}{{% endraw %}{{ page.date | date: "%Y" }}{% raw %}}{% endraw %},{% endif %}
+  url = {% raw %}{{% endraw %}{{ page.url | absolute_url }}{% raw %}}{% endraw %}
+{% raw %}}{% endraw %}</code></pre>
+        </div>
+      </section>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% include mathjax.html %}
+{% if page.mermaid %}{% include page/mermaid.html %}{% endif %}

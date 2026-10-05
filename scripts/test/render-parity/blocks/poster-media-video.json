@@ -1,0 +1,9 @@
+{
+  "name": "poster-media/video-downloads-nothing-until-asked",
+  "block": "renderPosterMedia",
+  "args": ["https://media.example/arco-city-race.mp4", "ARCO city race"],
+  "selectors": ["div.ledger-poster", "video"],
+  "forbidden": ["img"],
+  "contains": ["preload=\"none\"", "controls", "playsinline", "aria-label=\"ARCO city race\""],
+  "excludes": ["autoplay", "loop"]
+}

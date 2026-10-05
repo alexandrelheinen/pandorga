@@ -11,9 +11,9 @@ REPO_URL_OK = %r{github\.com/alexandrelheinen/pandorga}
 
 PATTERNS = [
   [/pub-[0-9a-f]{32}\.r2\.dev/i, "r2 bucket URL"],
-  [/pk_live_/, "live publishable key"],
-  [/sk_live_/, "live secret key"],
-  [/github_pat_/, "github pat"],
+  [/pk_live_[A-Za-z0-9_-]{16,}/, "live publishable key"],
+  [/sk_live_[A-Za-z0-9_-]{16,}/, "live secret key"],
+  [/github_pat_[A-Za-z0-9_]+/, "github pat"],
   [/Alexandre L\. Heinen/, "owner short name"],
   [/Alexandre Loeblein Heinen/, "owner full name"],
   [/alexandrelheinen\.pages\.dev/i, "pages domain"],
@@ -28,6 +28,7 @@ SKIP_DIRS = %w[
   .bundle
   node_modules
   .guidelines
+  .agents
 ].freeze
 
 # Migration spec documents the extraction source; .gitmodules points at the

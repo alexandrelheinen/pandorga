@@ -1,0 +1,19 @@
+{
+  "name": "archive-card/date-printed-once-by-default",
+  "block": "renderArchiveCard",
+  "args": [
+    {
+      "front_matter": {
+        "title": "Why I chose WSL",
+        "date": "2026-02-24",
+        "last_updated": "2026-08-22",
+        "description": "How a failed dual boot pushed me to WSL2."
+      }
+    },
+    { "href": "/articles/wsl/", "locale": "en", "ctaLabel": "Read article" }
+  ],
+  "selectors": ["div.ledger-meta"],
+  "forbidden": ["date-evolution"],
+  "contains": ["Feb 24, 2026"],
+  "excludes": ["Aug 22, 2026"]
+}

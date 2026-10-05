@@ -1,0 +1,27 @@
+---
+layout: text
+---
+
+{%- comment -%}
+  Project detail — private/studio build only.
+
+  The public project page is *not* this file. `content/` is excluded from the
+  build and the projects collection is `output: false`, so /projects/:slug/ is
+  a Cloudflare 200-rewrite onto the listing, which assembles the page in the
+  browser from `_layouts/projects.html`. That layout owns the portfolio
+  masthead, the dossier and the media treatment.
+
+  What is left for this file is the studio preview, which renders through
+  `_layouts/text.html` and therefore inherits the generic dossier chrome. The
+  wrapper below is the one hook that stylesheet-side parity needs: it lets
+  assets/css/ledger/projects.css give an editor's preview the same body
+  treatment the published page has — figures, release videos, Plotly frames,
+  Mermaid diagrams and tables on the full column rather than cropped to the
+  45rem prose measure. The chrome around it still differs, deliberately: a
+  second full implementation of the masthead here would be a second thing to
+  keep in step with no way to render it.
+{%- endcomment -%}
+
+<div class="projects-studio">
+{{ content }}
+</div>

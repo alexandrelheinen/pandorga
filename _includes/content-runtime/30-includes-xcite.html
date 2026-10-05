@@ -1,0 +1,105 @@
+{% raw %}
+    var xciteIndex = null;
+    var xciteIndexPromise = null;
+
+    function normalizePathname(pathname) {
+      var path = String(pathname || '');
+      if (!path || path === '/') return '/';
+      return path.replace(/\/+$/, '');
+    }
+
+    function slugFromCleanPath(pathname, prefixes) {
+      var path = normalizePathname(pathname);
+      for (var i = 0; i < prefixes.length; i++) {
+        var prefix = prefixes[i];
+        var re = new RegExp('^' + prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '/([^/]+)$');
+        var match = path.match(re);
+        if (match) return decodeURIComponent(match[1]);
+      }
+      return null;
+    }
+
+    function contentSlug(param) {
+      var params = new URLSearchParams(window.location.search);
+      var fromQuery = params.get(param);
+      if (fromQuery) return fromQuery;
+
+      var path = window.location.pathname;
+      if (param === 'article') return slugFromCleanPath(path, ['/articles']);
+      if (param === 'post') return slugFromCleanPath(path, ['/posts', '/blog']);
+      if (param === 'resource') return slugFromCleanPath(path, ['/resources']);
+      if (param === 'product') return slugFromCleanPath(path, ['/products']);
+      if (param === 'project') return slugFromCleanPath(path, ['/projects']);
+      return null;
+    }
+
+    function articleUrl(slug) {
+      return '/articles/' + encodeURIComponent(slug) + '/';
+    }
+
+    function postUrl(slug) {
+      return '/posts/' + encodeURIComponent(slug) + '/';
+    }
+
+    function productUrl(slug) {
+      return '/products/' + encodeURIComponent(slug) + '/';
+    }
+
+    function projectUrl(slug) {
+      return '/projects/' + encodeURIComponent(slug) + '/';
+    }
+
+    function resourceUrl(slug) {
+      return '/resources/' + encodeURIComponent(slug) + '/';
+    }
+
+    function xciteUrl(item) {
+      if (item.url) return item.url;
+      var slug = item.slug || '';
+      var type = item.type || item.collection || '';
+      if (type === 'article' || type === 'articles') return articleUrl(slug);
+      if (type === 'post' || type === 'posts') return postUrl(slug);
+      if (type === 'product' || type === 'products') return productUrl(slug);
+      if (type === 'project' || type === 'projects') return projectUrl(slug);
+      if (type === 'resource' || type === 'resources') return resourceUrl(slug);
+      return '#';
+    }
+
+    function xciteLabel(item) {
+      if (item.title) return item.title;
+      var fm = item.front_matter || {};
+      return fm.title || fm.name || fm.product || fm.project || item.slug || '';
+    }
+
+    function xciteHtml(key, index) {
+      var item = index[key];
+      if (!item) return '<span class="xcite-missing" title="Internal reference \'' + escapeAttr(key) + '\' not found">[' + escapeHtml(key) + '?]</span>';
+      return '<a href="' + escapeAttr(xciteUrl(item)) + '" class="xcite-ref" title="' + escapeAttr(xciteLabel(item)) + '">' + escapeHtml(xciteLabel(item)) + '</a>';
+    }
+
+    function ensureXciteIndex() {
+      if (xciteIndex) return Promise.resolve(xciteIndex);
+      if (!xciteIndexPromise) {
+        xciteIndexPromise = loadJson('data/writing_index.json').then(function (entries) {
+          var index = {};
+          (entries || []).forEach(function (item) {
+            var key = item && item.key;
+            if (key) index[key] = item;
+          });
+          xciteIndex = index;
+          return index;
+        }).catch(function (error) {
+          xciteIndexPromise = null;
+          throw error;
+        });
+      }
+      return xciteIndexPromise;
+    }
+
+    function resolveXcitePlaceholders(html, index) {
+      return String(html || '').replace(/%%CONTENT_RUNTIME_XCITE_([^%]+)%%/g, function (_, key) {
+        return xciteHtml(key, index);
+      });
+    }
+
+{% endraw %}

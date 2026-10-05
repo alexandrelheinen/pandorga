@@ -1,0 +1,3 @@
+{%- assign _xcite_all = site.articles | concat: site.posts | concat: site.projects | concat: site.products -%}
+{%- assign _xcite_entry = _xcite_all | where: "key", include.key | first -%}
+{%- if _xcite_entry -%}<a href="{{ _xcite_entry.url }}" class="xcite-ref" title="{{ _xcite_entry.title }}">{{ _xcite_entry.title }}</a>{%- else -%}<span class="xcite-missing" title="Internal reference '{{ include.key }}' not found">[{{ include.key }}?]</span>{%- endif -%}

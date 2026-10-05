@@ -1,0 +1,869 @@
+# Studio content schema (live CMS model for /studio/).
+# Spec: docs/features/studio.md
+# Hosted editor: https://example.com/studio/
+#
+# Field notes:
+# - Body fields use TipTap with autolink:false and atomic Liquid include blocks.
+# - Thumbnail / image fields accept HTTPS URLs or /media/… paths (hotlink OK).
+# - Calendar days use type date with format yyyy-MM-dd
+# - Form order: identity (key, title, description) → options → body last
+
+media:
+  name: media
+  label: Media
+  input: content/media
+  output: /media
+  categories: [image, video, plot]
+  rename: safe
+
+components:
+  markdown_body:
+    type: code
+    label: Body
+    description: "Markdown source (code editor). Paste Liquid {% include %} markers as-is — figures, citations, embeds. Do not use rich-text: its Editor mode rewrites URLs inside includes."
+    options:
+      format: markdown
+
+content:
+  - name: writing
+    label: Writing
+    type: group
+    items:
+      - name: posts
+        label: Rascunhos
+        type: collection
+        path: content/collections/posts
+        format: yaml-frontmatter
+        filename: "{year}-{month}-{day}-{key}.md"
+        operations:
+          delete: false
+        view:
+          primary: title
+          fields: [thumbnail, title, date, published, language, key]
+          list_meta_fields: [date, language]
+        fields:
+          - name: layout
+            label: Layout
+            type: string
+            hidden: true
+            default: post
+          - name: key
+            label: Key
+            type: string
+            required: true
+            description: "URL slug and Cite/Xcite handle. Also the filename stem: YYYY-MM-DD-key.md. ASCII kebab-case."
+          - name: title
+            label: Title
+            type: string
+            required: true
+            description: "Also becomes the deck title. The filename uses Key as YYYY-MM-DD-key (44 characters total for the key segment is a good ceiling)."
+          - name: date
+            label: Date
+            type: date
+            required: true
+            description: "Publication date, and the first half of the URL. Must match the YYYY-MM-DD in the filename. The Updated date is read from Git, never set here."
+            options:
+              format: yyyy-MM-dd
+              time: false
+          - name: tags
+            label: Tags
+            type: select
+            description: "Up to three, and none is a valid answer: only tag what the entry really is about."
+            options:
+              multiple: true
+              max: 3
+              values:
+                [
+                  arte,
+                  brasilidade,
+                  carme,
+                  devaneio,
+                  engraçadinho,
+                  música,
+                  pesquisa,
+                  provocação,
+                  técnico,
+                  trabalho,
+                ]
+          - name: language
+            label: Language
+            type: select
+            description: "Language of the page furniture only. Empty reads as Portuguese."
+            options:
+              values: [ptbr, enus, frfr, eses]
+          - name: thumbnail
+            label: Thumbnail
+            type: image
+            description: "Listing card, sidebar, and link previews. HTTPS URL or /media/… path. Optional upload under covers/posts/."
+            options:
+              media: images
+              path: content/media/images/covers/posts
+              rename: safe
+          - name: tab
+            label: Chord sheet
+            type: string
+            description: "Name of a file in content/collections/data/tabs without .yml."
+          - name: transcription
+            label: Transcription
+            type: string
+            description: "Name of a file in content/collections/data/transcriptions without .yml."
+          - name: published
+            label: Published
+            type: boolean
+            default: true
+            description: "Off keeps the rascunho out of the export altogether."
+          - name: drop_cap
+            label: Drop cap
+            type: boolean
+            description: "On draws the first letter of the opening paragraph large, across the line count in site config (drop_cap_lines)."
+          - name: redirects
+            label: Redirects
+            type: string
+            list: true
+            description: "Old paths that should 301 here (e.g. /posts/2026-03-02-mcmc)."
+          - name: body
+            component: markdown_body
+
+      - name: articles
+        label: Articles
+        type: collection
+        path: content/collections/articles
+        format: yaml-frontmatter
+        filename: "{year}-{month}-{day}-{key}.md"
+        operations:
+          delete: false
+        view:
+          primary: title
+          fields: [thumbnail, title, date, published, language, key]
+          list_meta_fields: [date, language]
+        fields:
+          - name: layout
+            label: Layout
+            type: string
+            hidden: true
+            default: article
+          - name: key
+            label: Key
+            type: string
+            required: true
+            description: "URL slug and Cite/Xcite handle. Also the filename stem: YYYY-MM-DD-key.md. ASCII kebab-case."
+          - name: title
+            label: Title
+            type: string
+            required: true
+            description: "Display title. The filename uses Key as YYYY-MM-DD-key."
+          - name: description
+            label: Description
+            type: text
+            description: "Deck under the title, card preview text, and OG description."
+          - name: date
+            label: Date
+            type: date
+            required: true
+            description: "Publication date; must match the YYYY-MM-DD in the filename."
+            options:
+              format: yyyy-MM-dd
+              time: false
+          - name: tags
+            label: Tags
+            type: select
+            description: "One to three."
+            options:
+              multiple: true
+              min: 1
+              max: 3
+              values:
+                [Aesthetics, AI, Data, DevOps, Mathematics, Robotics, Social]
+          - name: language
+            label: Language
+            type: select
+            description: "Language of the page furniture only. Empty reads as English."
+            options:
+              values: [ptbr, enus, frfr, eses]
+          - name: thumbnail
+            label: Thumbnail
+            type: image
+            description: "Portrait image, 3:4. HTTPS URL or /media/… path. Optional upload under covers/articles/."
+            options:
+              media: images
+              path: content/media/images/covers/articles
+              rename: safe
+          - name: mermaid
+            label: Has Mermaid diagrams
+            type: boolean
+            description: "On loads the diagram renderer for this page."
+          - name: drop_cap
+            label: Drop cap
+            type: boolean
+            description: "On draws the first letter of the opening paragraph large, across the line count in site config (drop_cap_lines)."
+          - name: published
+            label: Published
+            type: boolean
+            default: true
+            description: "Off keeps the article out of the export altogether."
+          - name: redirects
+            label: Redirects
+            type: string
+            list: true
+          - name: body
+            component: markdown_body
+
+  - name: sources_refs
+    label: References
+    type: group
+    items:
+      - name: resources
+        label: Sources
+        type: collection
+        path: content/collections/resources
+        format: yaml-frontmatter
+        filename: "{primary}.md"
+        operations:
+          delete: false
+        view:
+          primary: name
+          fields: [name, category, type, language]
+          list_meta_fields: [category, type, language]
+        fields:
+          - name: key
+            label: Citation key
+            type: string
+            description: "Only when an article cites this source through Cite/Xcite."
+          - name: name
+            label: Name
+            type: string
+            required: true
+          - name: link
+            label: Link
+            type: string
+            required: true
+            description: "youtube → youtube.com/youtu.be; spotify → open.spotify.com; pdf → ends in .pdf."
+          - name: category
+            label: Category
+            type: select
+            options:
+              values: [Academic, Communication, Humor, Music, Professional]
+          - name: type
+            label: Type
+            type: select
+            options:
+              values: [document, podcast, website, youtube]
+          - name: language
+            label: Language
+            type: select
+            description: "Studio sorting only; not shown on the site."
+            options:
+              values:
+                [en_au, en_ch, en_gb, en_hk, en_hu, en_it, en_us, fr_fr, pt_br]
+          - name: thumbnail
+            label: Thumbnail
+            type: image
+            description: "Source card image. HTTPS URL or /media/… path (hotlink OK in Studio list)."
+            options:
+              media: images
+              path: content/media/images/covers/sources
+              rename: safe
+          - name: description
+            component: markdown_body
+            label: Description
+            required: true
+            description: "The whole body of the card."
+
+      - name: bibliography
+        label: Bibliography
+        type: collection
+        path: content/collections/bibliography
+        format: yaml
+        filename: "{primary}.yml"
+        operations:
+          delete: false
+        view:
+          primary: title
+          fields: [type, title, author, year]
+          list_meta_fields: [key]
+        fields:
+          - name: type
+            label: Type
+            type: select
+            default: misc
+            options:
+              values: [article, book, incollection, misc, techreport]
+          - name: title
+            label: Title
+            type: string
+          - name: author
+            label: Author
+            type: string
+            description: "Lastname, Firstname and Lastname2, Firstname2"
+          - name: year
+            label: Year
+            type: string
+          - name: url
+            label: URL
+            type: string
+          - name: doi
+            label: DOI
+            type: string
+            description: "Without URL prefix."
+          - name: journal
+            label: Journal
+            type: string
+          - name: publisher
+            label: Publisher
+            type: string
+          - name: institution
+            label: Institution
+            type: string
+          - name: howpublished
+            label: How published
+            type: string
+          - name: volume
+            label: Volume
+            type: string
+          - name: number
+            label: Number
+            type: string
+          - name: pages
+            label: Pages
+            type: string
+          - name: month
+            label: Month
+            type: string
+          - name: note
+            label: Note
+            type: text
+
+  - name: portfolio
+    label: Portfolio
+    type: group
+    items:
+      - name: products
+        label: Products
+        type: collection
+        path: content/collections/products
+        format: yaml-frontmatter
+        filename: "{key}.md"
+        operations:
+          delete: false
+        view:
+          primary: product
+          fields: [company, product, start_date, end_date, key]
+          list_meta_fields: [company, start_date, end_date]
+        fields:
+          - name: layout
+            label: Layout
+            type: string
+            hidden: true
+            default: product
+          - name: key
+            label: Key
+            type: string
+            required: true
+            description: "URL slug (/products/key/) and Cite/Xcite handle. Also the filename: key.md. ASCII kebab-case."
+          - name: title
+            label: Title
+            type: string
+            required: true
+          - name: product
+            label: Product name
+            type: string
+            required: true
+            description: "Name on the CV card."
+          - name: company
+            label: Company
+            type: string
+            required: true
+          - name: start_date
+            label: Start date
+            type: string
+          - name: end_date
+            label: End date
+            type: string
+          - name: external_url
+            label: External URL
+            type: string
+          - name: redirects
+            label: Redirects
+            type: string
+            list: true
+          - name: drop_cap
+            label: Drop cap
+            type: boolean
+            description: "On draws the first letter of the opening paragraph large, across the line count in site config (drop_cap_lines)."
+          - name: body
+            component: markdown_body
+
+      - name: projects
+        label: Projects
+        type: collection
+        path: content/collections/projects
+        format: yaml-frontmatter
+        filename: "{key}.md"
+        operations:
+          delete: false
+        view:
+          primary: project
+          fields: [thumbnail, project, start_date, end_date, icon, key, status, sort_order]
+          list_meta_fields: [status, start_date, end_date]
+        fields:
+          - name: layout
+            label: Layout
+            type: string
+            hidden: true
+            default: project
+          - name: key
+            label: Key
+            type: string
+            required: true
+            description: "URL slug (/projects/key/) and Cite/Xcite handle. Also the filename: key.md. ASCII kebab-case."
+          - name: title
+            label: Title
+            type: string
+            required: true
+          - name: project
+            label: Project name
+            type: string
+            required: true
+          - name: tagline
+            label: Tagline
+            type: text
+          - name: start_date
+            label: Start date
+            type: string
+          - name: end_date
+            label: End date
+            type: string
+          - name: status
+            label: Status
+            type: select
+            options:
+              values: [ongoing, completed]
+          - name: label
+            label: Label
+            type: string
+            description: "Small caps line above the project name (e.g. Robotics)."
+          - name: icon
+            label: Icon
+            type: string
+            description: "Material Symbols name (e.g. memory, forest)."
+          - name: tags
+            label: Tags
+            type: string
+            list: true
+            description: "Chips along the bottom of the card; free text."
+          - name: thumbnail
+            label: Thumbnail
+            type: image
+            description: "Project card image. HTTPS URL or /media/… path. Optional upload under covers/projects/."
+            options:
+              media: images
+              path: content/media/images/covers/projects
+              rename: safe
+          - name: external_url
+            label: External URL
+            type: string
+          - name: article_url
+            label: Article URL
+            type: string
+          - name: github
+            label: GitHub URL
+            type: string
+          - name: sort_order
+            label: Sort order
+            type: number
+            description: "Lowest first in the listing."
+          - name: mermaid
+            label: Has Mermaid diagrams
+            type: boolean
+          - name: drop_cap
+            label: Drop cap
+            type: boolean
+            description: "On draws the first letter of the opening paragraph large, across the line count in site config (drop_cap_lines)."
+          - name: redirects
+            label: Redirects
+            type: string
+            list: true
+          - name: body
+            component: markdown_body
+
+      - name: jobs
+        label: Jobs
+        type: collection
+        path: content/collections/jobs
+        format: yaml-frontmatter
+        filename: "{primary}.md"
+        operations:
+          delete: false
+        view:
+          primary: position
+          fields: [company, position, department, engagement, start, end]
+          list_meta_fields: [company, engagement, start, end]
+        fields:
+          - name: position
+            label: Position
+            type: string
+            required: true
+          - name: company
+            label: Company
+            type: string
+            required: true
+          - name: location
+            label: Location
+            type: string
+          - name: start
+            label: Start
+            type: string
+          - name: end
+            label: End
+            type: string
+          - name: department
+            label: Department
+            type: string
+          - name: engagement
+            label: Engagement
+            type: select
+            required: true
+            description: "Classification only. Printed CV keeps permanent, fixed_term, and founding; internship and research stay on the site timeline."
+            options:
+              values: [permanent, fixed_term, founding, internship, research]
+          - name: products
+            label: Products
+            type: reference
+            description: "Products listed under this job on the CV."
+            options:
+              collection: products
+              multiple: true
+              search: "product,title,company"
+              value: "{primary}"
+              label: "{product} ({company})"
+          - name: body_public
+            component: markdown_body
+            label: Public body
+            description: "The only body that reaches the public CV page."
+          - name: body_extended
+            component: markdown_body
+            label: Extended body
+            description: "Extended CV PDF only; stripped from the public export."
+          - name: body_single_page
+            component: markdown_body
+            label: Single-page body
+            description: "Single-page CV PDF only; stripped from the public export."
+
+  - name: pages
+    label: Pages
+    type: group
+    items:
+      - name: page_home
+        label: Home
+        type: file
+        path: content/pages/headers.yml
+        format: yaml
+        root_key: index
+        description: "Home page detail, including how Sources, Network, and Bibliography are presented on the index band."
+        fields:
+          - name: title
+            label: Title
+            type: string
+          - name: kicker
+            label: Kicker
+            type: string
+          - name: note
+            label: Description
+            type: string
+            description: "Home band covering Sources, Network, and Bibliography presentation."
+      - name: page_cv
+        label: CV
+        type: file
+        path: content/pages/headers.yml
+        format: yaml
+        root_key: cv
+        fields:
+          - name: title
+            label: Title
+            type: string
+          - name: accent
+            label: Accent
+            type: select
+            options:
+              values: [green, ochre, blue, slate]
+          - name: tags
+            label: Tags
+            type: string
+            list: true
+      - name: page_articles
+        label: Articles
+        type: file
+        path: content/pages/headers.yml
+        format: yaml
+        root_key: articles
+        description: "Articles listing page chrome (title, kicker, note). Article entries live under Writing."
+        fields:
+          - name: title
+            label: Title
+            type: string
+            description: "Wrap words in *asterisks* for italic emphasis."
+          - name: kicker
+            label: Kicker
+            type: string
+          - name: note
+            label: Description
+            type: string
+          - name: accent
+            label: Accent
+            type: select
+            options:
+              values: [green, ochre, blue, slate]
+          - name: tags
+            label: Tags
+            type: string
+            list: true
+      - name: page_rascunhos
+        label: Rascunhos
+        type: file
+        path: content/pages/headers.yml
+        format: yaml
+        root_key: blog
+        description: "Rascunhos listing page chrome. Write these fields in Portuguese. Entries live under Writing."
+        fields:
+          - name: title
+            label: Title
+            type: string
+          - name: kicker
+            label: Kicker
+            type: string
+          - name: note
+            label: Description
+            type: string
+          - name: accent
+            label: Accent
+            type: select
+            options:
+              values: [green, ochre, blue, slate]
+          - name: tags
+            label: Tags
+            type: string
+            list: true
+      - name: page_sources
+        label: Sources
+        type: file
+        path: content/pages/headers.yml
+        format: yaml
+        root_key: resources
+        description: "Sources listing page chrome. Source cards live under References. Index-band copy is under Home."
+        fields:
+          - name: title
+            label: Title
+            type: string
+          - name: accent
+            label: Accent
+            type: select
+            options:
+              values: [green, ochre, blue, slate]
+          - name: tags
+            label: Tags
+            type: string
+            list: true
+      - name: page_network
+        label: Network
+        type: file
+        path: content/pages/headers.yml
+        format: yaml
+        root_key: network
+        description: "Network of Ideas page chrome. Index-band copy is under Home."
+        fields:
+          - name: title
+            label: Title
+            type: string
+          - name: accent
+            label: Accent
+            type: select
+            options:
+              values: [green, ochre, blue, slate]
+          - name: tags
+            label: Tags
+            type: string
+            list: true
+      - name: page_bibliography
+        label: Bibliography
+        type: file
+        path: content/pages/headers.yml
+        format: yaml
+        root_key: bibliography
+        description: "Bibliography listing page chrome. Cite keys live under References. Index-band copy is under Home."
+        fields:
+          - name: title
+            label: Title
+            type: string
+          - name: note
+            label: Description
+            type: string
+          - name: accent
+            label: Accent
+            type: select
+            options:
+              values: [green, ochre, blue, slate]
+          - name: tags
+            label: Tags
+            type: string
+            list: true
+
+  - name: cv_summary
+    label: CV Summary
+    type: group
+    items:
+      - name: cv_summary_public
+        label: Public
+        type: file
+        path: content/pages/cv/summary.md
+        format: raw
+        fields:
+          - name: body
+            component: markdown_body
+
+      - name: cv_summary_extended
+        label: Extended PDF
+        type: file
+        path: content/pages/cv/summary-extended.md
+        format: raw
+        fields:
+          - name: body
+            component: markdown_body
+
+      - name: cv_summary_single_page
+        label: Single-page PDF
+        type: file
+        path: content/pages/cv/summary-single-page.md
+        format: raw
+        fields:
+          - name: body
+            component: markdown_body
+
+  - name: presentation
+    label: Presentation
+    type: group
+    items:
+      - name: home_subtitle
+        label: Catch phrase
+        type: file
+        path: content/pages/home/subtitle.md
+        format: raw
+        fields:
+          - name: body
+            component: markdown_body
+
+      - name: cv_ai_practice
+        label: AI practice
+        type: file
+        path: content/pages/cv/ai-practice.md
+        format: raw
+        description: "Shared AI practice copy for both Extended PDF and Single-page PDF."
+        fields:
+          - name: body
+            component: markdown_body
+
+      - name: cv_disclaimer
+        label: Disclaimer
+        type: file
+        path: content/pages/cv/disclaimer.md
+        format: raw
+        fields:
+          - name: body
+            component: markdown_body
+
+  - name: profile
+    label: Profile
+    type: group
+    items:
+      - name: contacts
+        label: Contact
+        type: file
+        path: content/collections/data/contacts.yml
+        format: yaml
+        list: true
+        fields:
+          - name: name
+            label: Name
+            type: string
+            required: true
+          - name: badge
+            label: Badge
+            type: string
+            description: "Small caps line above the name."
+          - name: href
+            label: Link
+            type: string
+            required: true
+            description: "Full URL, or mailto:… for an address."
+          - name: icon
+            label: Icon
+            type: string
+            description: "Material Symbols name (e.g. group, code)."
+
+      - name: education
+        label: Education
+        type: file
+        path: content/collections/data/education.yml
+        format: yaml
+        list: true
+        fields:
+          - name: degree
+            label: Degree
+            type: string
+            required: true
+          - name: institution
+            label: Institution
+            type: string
+            required: true
+          - name: location
+            label: Location
+            type: string
+          - name: start
+            label: Start
+            type: string
+          - name: end
+            label: End
+            type: string
+          - name: detail
+            label: Detail
+            type: text
+
+      - name: languages
+        label: Languages
+        type: file
+        path: content/collections/data/languages.yml
+        format: yaml
+        list: true
+        fields:
+          - name: name
+            label: Name
+            type: string
+            required: true
+          - name: level
+            label: Level
+            type: string
+            description: "Printed in italics (e.g. Native, C1)."
+
+      - name: skills
+        label: Skills
+        type: file
+        path: content/collections/data/skills.yml
+        format: yaml
+        fields:
+          - name: leadership
+            label: Leadership
+            type: string
+            list: true
+            description: "Private CV PDF sidebar only."
+          - name: technical
+            label: Technical
+            type: object
+            list: true
+            description: "Private CV PDF sidebar only."
+            fields:
+              - name: group
+                label: Group
+                type: string
+              - name: skills
+                label: Skills
+                type: string
+                list: true

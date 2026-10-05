@@ -1,0 +1,9 @@
+---
+layout: shell
+---
+
+<main class="relative max-w-7xl mx-auto px-8 md:px-16 pt-10 pb-16{% if page.accent and page.accent != 'blue' %} page-accent--{{ page.accent }}{% endif %}">
+  {% include page/page-header.html key=page.key listing_filter=true filter_search=false spacer_class="mb-8"
+     filter_label="Filter by type" %}
+  {% include page/network-graph.html %}
+</main>

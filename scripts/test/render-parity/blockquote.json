@@ -1,0 +1,5 @@
+{
+  "name": "blockquote",
+  "markdown": "> A quoted line.",
+  "selectors": ["blockquote"]
+}

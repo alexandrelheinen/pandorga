@@ -1,0 +1,7 @@
+{
+  "name": "ansi reads the raw 0x1b byte as well as the printable spelling",
+  "block": "renderAnsiHtml",
+  "args": ["\u001b[36mcyan\u001b[0m"],
+  "contains": ["color:var(--ansi-6)", ">cyan</span>"],
+  "excludes": ["[36m"]
+}

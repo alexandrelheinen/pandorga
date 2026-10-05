@@ -1,0 +1,7 @@
+{
+  "name": "ansi 256-colour and truecolour selectors",
+  "block": "renderAnsiHtml",
+  "args": ["\\e[38;5;10mcube\\e[0m\\e[48;5;33mfill\\e[0m\\e[38;2;10;20;30mexact\\e[0m"],
+  "contains": ["color:var(--ansi-10)", "background-color:rgb(0, 135, 255)", "color:rgb(10, 20, 30)"],
+  "excludes": ["38;5", "48;5", "38;2"]
+}

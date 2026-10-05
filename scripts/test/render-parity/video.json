@@ -1,0 +1,5 @@
+{
+  "name": "video",
+  "markdown": "{% include video.html src=\"/media/videos/sample.mp4\" caption=\"Sample\" %}",
+  "selectors": ["figure", "video"]
+}

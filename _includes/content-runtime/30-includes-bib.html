@@ -1,0 +1,190 @@
+{% raw %}
+    var bibliographyIndex = null;
+    var bibliographyPromise = null;
+
+    function ensureBibliographyIndex() {
+      if (bibliographyIndex) return Promise.resolve(bibliographyIndex);
+      if (!bibliographyPromise) {
+        bibliographyPromise = loadJson('collections/bibliography/references.json').then(function (data) {
+          bibliographyIndex = data || {};
+          return bibliographyIndex;
+        }).catch(function (error) {
+          bibliographyPromise = null;
+          bibliographyIndex = {};
+          return bibliographyIndex;
+        });
+      }
+      return bibliographyPromise;
+    }
+
+    function bibField(entry, name) {
+      var fields = (entry && entry.fields) || {};
+      return String(fields[name] == null ? '' : fields[name]).trim();
+    }
+
+    function splitBibAuthors(raw) {
+      var authors = [];
+      var current = '';
+      var depth = 0;
+      var text = String(raw || '');
+      for (var i = 0; i < text.length; i++) {
+        var ch = text[i];
+        if (ch === '{') {
+          depth++;
+          current += ch;
+          continue;
+        }
+        if (ch === '}') {
+          depth--;
+          current += ch;
+          continue;
+        }
+        if (depth === 0 && text.slice(i, i + 5) === ' and ') {
+          if (current.trim()) authors.push(current.trim());
+          current = '';
+          i += 4;
+          continue;
+        }
+        current += ch;
+      }
+      if (current.trim()) authors.push(current.trim());
+      return authors;
+    }
+
+    function formatIeeeAuthor(name) {
+      var author = String(name || '').trim();
+      if (!author) return '';
+      if (author.charAt(0) === '{' && author.charAt(author.length - 1) === '}') {
+        return escapeHtml(author.slice(1, -1));
+      }
+      var parts = author.split(',');
+      if (parts.length < 2) return escapeHtml(author);
+      var last = parts[0].trim();
+      var first = parts.slice(1).join(',').trim();
+      var initials = first.split(/\s+/).filter(Boolean).map(function (word) {
+        return escapeHtml(word.charAt(0)) + '.';
+      }).join(' ');
+      return initials + ' ' + escapeHtml(last);
+    }
+
+    function formatIeeeAuthors(field) {
+      var authors = splitBibAuthors(field);
+      if (!authors.length) return '';
+      var formatted = authors.map(formatIeeeAuthor);
+      if (formatted.length === 1) return formatted[0];
+      if (formatted.length === 2) return formatted[0] + ' and ' + formatted[1];
+      return formatted.slice(0, -1).join(', ') + ', and ' + formatted[formatted.length - 1];
+    }
+
+    function formatIeeeEntry(entry, number) {
+      var type = (entry && entry.type) || 'misc';
+      var author = formatIeeeAuthors(bibField(entry, 'author'));
+      var title = bibField(entry, 'title');
+      var year = bibField(entry, 'year');
+      var url = bibField(entry, 'url');
+      var parts = [];
+
+      if (type === 'book') {
+        if (author) parts.push(author);
+        if (title) parts.push('<em>' + escapeHtml(title) + '</em>');
+        var publisher = bibField(entry, 'publisher');
+        var tail = [publisher, year].filter(Boolean).join(', ');
+        if (tail) parts.push(escapeHtml(tail) + '.');
+      } else if (type === 'article') {
+        if (author) parts.push(author + ',');
+        if (title) parts.push('"' + escapeHtml(title) + ',"');
+        var journal = bibField(entry, 'journal');
+        if (journal) parts.push('<em>' + escapeHtml(journal) + '</em>');
+        var meta = [];
+        var volume = bibField(entry, 'volume');
+        var issue = bibField(entry, 'number');
+        var pages = bibField(entry, 'pages').replace(/--/g, '\u2013');
+        if (volume) meta.push('vol. ' + escapeHtml(volume));
+        if (issue) meta.push('no. ' + escapeHtml(issue));
+        if (pages) meta.push('pp. ' + escapeHtml(pages));
+        if (meta.length) parts.push(meta.join(', ') + ',');
+        if (year) parts.push(escapeHtml(year) + '.');
+      } else if (type === 'techreport') {
+        if (author) parts.push(author + ',');
+        if (title) parts.push('"' + escapeHtml(title) + ',"');
+        var institution = bibField(entry, 'institution');
+        if (institution) parts.push(escapeHtml(institution) + ',');
+        if (year) parts.push(escapeHtml(year) + '.');
+      } else {
+        if (author) parts.push(author + ',');
+        if (title) parts.push('"' + escapeHtml(title) + ',"');
+        var howpublished = bibField(entry, 'howpublished');
+        if (howpublished) parts.push(escapeHtml(howpublished) + ',');
+        if (year) parts.push(escapeHtml(year) + '.');
+      }
+
+      var note = bibField(entry, 'note');
+      if (note) parts.push(escapeHtml(note) + '.');
+
+      var text = parts.join(' ');
+      if (url) {
+        text += ' [Online]. Available: ' + escapeHtml(url);
+      }
+      return text;
+    }
+
+    function scholarCiteHtml(key, number, bibIndex) {
+      if (!bibIndex || !bibIndex[key]) {
+        return "<sup class='citation-sup cite-missing' title='Bibliography entry &#39;" +
+          escapeAttr(key) + "&#39; not found'>[" + escapeHtml(key) + '?]</sup>';
+      }
+      // Single-quoted attrs so a cite can sit inside a double-quoted include attribute.
+      return "<sup class='citation-sup'><a href='#" + escapeAttr(key) + "' class='citation'>[" + number + ']</a></sup>';
+    }
+
+    function preprocessScholarCites(markdown, bibIndex) {
+      var citedKeys = [];
+      var keyToNumber = {};
+      var text = String(markdown || '').replace(/\{%-?\s*cite\s+([^%\s]+)[\s\S]*?-?%\}/g, function (_, rawKey) {
+        var key = String(rawKey || '').trim();
+        if (!key) return '';
+        if (!Object.prototype.hasOwnProperty.call(keyToNumber, key)) {
+          citedKeys.push(key);
+          keyToNumber[key] = citedKeys.length;
+        }
+        return scholarCiteHtml(key, keyToNumber[key], bibIndex);
+      });
+      return { text: text, citedKeys: citedKeys, keyToNumber: keyToNumber };
+    }
+
+    function referencesHeading(lang) {
+      var code = String(lang || '').toLowerCase();
+      if (code.indexOf('pt') === 0) return 'Referências';
+      return 'References';
+    }
+
+    function buildReferencesSection(citedKeys, bibIndex, lang) {
+      if (!citedKeys.length) return '';
+      var items = citedKeys.map(function (key, index) {
+        var number = index + 1;
+        var entry = bibIndex && bibIndex[key];
+        var body = entry ? formatIeeeEntry(entry, number) : escapeHtml(key) + ' (missing bibliography entry)';
+        return '<li><span id="' + escapeAttr(key) + '">[' + number + '] ' + body + '</span></li>';
+      }).join('');
+      return [
+        '<div class="article-references">',
+        '<h2 class="section-title">', escapeHtml(referencesHeading(lang)), '</h2>',
+        '<ol class="bibliography">', items, '</ol>',
+        '</div>'
+      ].join('');
+    }
+
+    function enhanceReferencesHtml(html) {
+      var root = document.createElement('div');
+      root.innerHTML = String(html || '');
+      root.querySelectorAll('.article-references .bibliography li').forEach(function (li) {
+        li.innerHTML = li.innerHTML.replace(/^(<(?:sup|span)\b[^>]*>)\[[0-9]+\]\s*/, '$1');
+        li.innerHTML = li.innerHTML.replace(
+          /(Available(?:\s+at)?):\s*(https?:\/\/[^\s<"]+)([.,;)\]]*)/g,
+          '$1: <a href="$2" target="_blank" rel="noopener noreferrer">$2</a>$3'
+        );
+      });
+      return root.innerHTML;
+    }
+
+{% endraw %}

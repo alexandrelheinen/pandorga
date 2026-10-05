@@ -1,0 +1,5 @@
+{
+  "name": "plotly",
+  "markdown": "{% include plotly.html src=\"/media/plots/test-chart.html\" caption=\"Test chart\" width=\"90\" height=\"480\" alt=\"Alt text\" %}",
+  "selectors": ["figure.plotly-figure", "iframe.plotly-embed-frame", "figcaption"]
+}

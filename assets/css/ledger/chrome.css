@@ -1,0 +1,118 @@
+/* Ledger page styles: site chrome. Owned by the shell; shared component rules
+   belong in assets/css/base.css under "Architectural Ledger blocks".
+
+   The mockups put the sections in a flat, always-visible rail rather than
+   beNewsreader a button. The links still come from _data/nav.yml, so the site keeps
+   one source of navigation; only the presentation changes. The Explore menu
+   stays for narrow viewports, where six links do not fit. */
+
+.site-wordmark-link {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  color: var(--color-on-surface);
+  line-height: 1;
+}
+
+/* The full name does not fit a phone bar alongside the theme toggle and the
+   Explore button — at 390px it ran 60px underneath them. Below the first
+   breakpoint the mark alone carries the link home, which is what it is for. */
+.site-wordmark {
+  display: none;
+  font-family: var(--font-title);
+  font-size: var(--type-dek);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+@media (min-width: 640px) {
+  .site-wordmark {
+    display: inline;
+  }
+}
+
+.site-rail {
+  display: none;
+  align-items: center;
+  gap: var(--space-lg);
+  min-width: 0;
+}
+
+.site-rail-link {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  font-family: var(--font-label);
+  font-size: var(--type-nav);
+  letter-spacing: 0.03em;
+  color: var(--color-on-surface-variant);
+  text-decoration: none;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-card);
+  white-space: nowrap;
+  transition: color var(--motion-duration-fast) var(--motion-ease-default),
+    border-color var(--motion-duration-fast) var(--motion-ease-default),
+    background-color var(--motion-duration-fast) var(--motion-ease-default),
+    box-shadow var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.site-rail-link:hover {
+  color: var(--color-on-surface);
+}
+
+/* Active section: editorial marker wash, matching section/page titles. */
+.site-rail-link.is-active {
+  color: var(--color-on-surface);
+  border-color: transparent;
+  box-shadow: none;
+  background: linear-gradient(104deg,
+      transparent 0.9%,
+      color-mix(in srgb, var(--color-primary) 18%, transparent) 2.4%,
+      color-mix(in srgb, var(--color-primary) 14%, transparent) 58%,
+      color-mix(in srgb, var(--color-primary) 5%, transparent) 98%);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+[data-theme="dark"] .site-rail-link.is-active {
+  background: linear-gradient(104deg,
+      transparent 0.9%,
+      color-mix(in srgb, var(--color-primary) 14%, transparent) 2.4%,
+      color-mix(in srgb, var(--color-primary) 10%, transparent) 58%,
+      color-mix(in srgb, var(--color-primary) 4%, transparent) 98%);
+  box-shadow: none;
+}
+
+/* The rail needs room for six labels before it earns its place; below that
+   the Explore menu carries the same links. */
+@media (min-width: 1024px) {
+  .site-rail {
+    display: flex;
+  }
+
+  #site-menu {
+    display: none;
+  }
+}
+
+/* Theme (and Explore on narrow viewports) share the rail's label size. */
+#theme-toggle .marginalia,
+#mobile-menu-btn .marginalia,
+#dev-reexport .marginalia {
+  font-size: var(--type-nav);
+}
+
+#dev-reexport-btn.is-busy #dev-reexport-icon {
+  animation: dev-reexport-spin 0.8s linear infinite;
+}
+
+@keyframes dev-reexport-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}

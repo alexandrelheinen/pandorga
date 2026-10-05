@@ -28,13 +28,19 @@ Gem::Specification.new do |spec|
       "exe/*",
       "_layouts/**/*",
       "_includes/**/*",
+      "_plugins/**/*",
+      "_data/**/*",
       "assets/**/*",
       "templates/**/*",
       "functions/**/*",
       "studio/**/*",
+      "studio-app/**/*",
+      "scripts/**/*",
       "examples/**/*",
+      "DESIGN.md",
       "LICENSE",
-      "README.md"
+      "README.md",
+      "CHANGELOG.md"
     ].select { |f| File.file?(f) }
   end
   spec.bindir = "exe"

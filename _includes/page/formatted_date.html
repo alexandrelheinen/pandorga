@@ -1,0 +1,15 @@
+{% assign lang = include.lang | default: page.language | default: "enus" %}
+{% assign date = include.date %}
+{% if lang == "enus" %}
+  {{ date | date: "%B %-d, %Y" }}
+{% else %}
+  {% assign m_idx = date | date: "%-m" | minus: 1 %}
+  {% assign month = site.data.translations.months[lang][m_idx] %}
+  {% assign day = date | date: "%-d" %}
+  {% assign year = date | date: "%Y" %}
+  {% if lang == "ptbr" or lang == "eses" %}
+    {{ day }} de {{ month }} de {{ year }}
+  {% elsif lang == "frfr" %}
+    {{ day }} {{ month }} {{ year }}
+  {% endif %}
+{% endif %}

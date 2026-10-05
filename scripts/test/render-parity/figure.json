@@ -1,0 +1,5 @@
+{
+  "name": "figure",
+  "markdown": "{% include figure.html src=\"/media/images/test.png\" caption=\"Test caption\" width=\"80\" alt=\"Alt text\" %}",
+  "selectors": ["figure", "img.figure-lightbox-trigger", "figcaption"]
+}

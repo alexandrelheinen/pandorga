@@ -1,0 +1,307 @@
+/* Ledger page styles: bibliography.
+   Follows Architectural Ledger tokens and styles from base.css and sources.css. */
+
+.bib-masthead {
+  position: relative;
+  z-index: 2;
+}
+
+.bib-header {
+  position: relative;
+  z-index: 1;
+}
+
+.bib-header .page-header-tags {
+  color: var(--color-primary);
+  opacity: 0.85;
+}
+
+.bib-masthead-shard {
+  top: calc(-1 * var(--space-2xl));
+  right: calc(-1 * var(--space-xl));
+  width: 16rem;
+  height: 9rem;
+  background: var(--color-secondary);
+}
+
+.bib-body {
+  position: relative;
+}
+
+.bib-body>.listing-card-grid,
+.bib-body>.bib-pagination {
+  position: relative;
+  z-index: 1;
+}
+
+.bib-foot-shard {
+  left: calc(-1 * var(--space-xl));
+  bottom: calc(-1 * var(--space-lg));
+  width: 14rem;
+  height: 8rem;
+  background: color-mix(in srgb, var(--color-primary) 70%, transparent);
+}
+
+@media (max-width: 1023px) {
+  .bib-masthead-shard {
+    top: calc(-1 * var(--space-xl));
+    right: calc(-1 * var(--space-lg));
+    width: 12rem;
+    height: 8rem;
+  }
+
+  .bib-foot-shard {
+    left: calc(-1 * var(--space-lg));
+    width: 10rem;
+    height: 7rem;
+  }
+}
+
+.bib-hidden {
+  display: none !important;
+}
+
+/* ── Grid ── */
+.listing-card-grid--bibliography {
+  --listing-grid-cols: 1;
+  display: grid;
+  gap: var(--space-lg);
+}
+
+@media (min-width: 768px) {
+  .listing-card-grid--bibliography {
+    --listing-grid-cols: 3;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* ── The Bibliography Card ── */
+.bib-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface-card);
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-ease-default),
+    border-color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.bib-card:hover {
+  background: var(--color-surface-high);
+  border-color: var(--border-gentle-hover);
+}
+
+.bib-card-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+}
+
+.bib-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.bib-facets {
+  --bib-facet-height: 1.65rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.bib-facet,
+.bib-facets .lang-pill {
+  display: inline-flex;
+  align-items: center;
+  height: var(--bib-facet-height);
+  padding: 0 var(--space-sm);
+  border: 1.5px solid color-mix(in srgb, currentColor 40%, var(--border-ink));
+  border-radius: var(--radius-card);
+  background: transparent;
+  white-space: nowrap;
+  font-family: var(--font-label);
+  font-size: var(--type-label);
+  font-weight: var(--weight-label);
+  letter-spacing: 0.03em;
+  line-height: 1;
+  color: var(--color-on-surface-variant);
+}
+
+.bib-facet--article {
+  color: var(--color-primary);
+}
+
+.bib-facet--book {
+  color: var(--color-secondary);
+}
+
+.bib-facet--report {
+  color: var(--color-tertiary);
+}
+
+.bib-facet--techreport {
+  color: var(--color-tertiary);
+}
+
+.bib-facet--news {
+  /* Hardcoded salmon colors for now, since punctual */
+  color: #b7756e;
+}
+
+.bib-key {
+  font-size: var(--type-label);
+  color: var(--color-on-surface-variant);
+  opacity: 0.8;
+}
+
+.bib-card-title {
+  margin: 0;
+  font-size: var(--type-card);
+  line-height: 1.25;
+  color: var(--color-on-surface);
+  overflow-wrap: anywhere;
+}
+
+.bib-card-title a {
+  text-decoration: none;
+  color: inherit;
+  transition: color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.bib-card-title a:hover {
+  color: var(--color-primary);
+}
+
+.bib-author {
+  font-size: calc(var(--type-meta) + 3pt);
+  line-height: 1.5;
+  margin-top: var(--space-xs);
+  color: var(--color-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+
+.bib-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--border-gentle-divider);
+}
+
+.bib-host {
+  color: var(--color-on-surface-variant);
+  text-transform: lowercase;
+  letter-spacing: 0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* ── Pagination ── */
+.bib-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-lg);
+  margin-top: var(--space-2xl);
+}
+
+.bib-pagination:empty {
+  margin-top: 0;
+}
+
+/* ── Year range filter ── */
+.bib-year-range-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+/* Match `.listing-filter-chip`: same face, size, and vertical padding. */
+.bib-year-input {
+  width: 5.5rem;
+  box-sizing: border-box;
+  padding: 0.35rem 0.55rem;
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+  background: transparent;
+  --listing-search-value: color-mix(in srgb, black 75%, white);
+  color: var(--listing-search-value);
+  -webkit-text-fill-color: var(--listing-search-value);
+  caret-color: var(--listing-search-value);
+  font-family: var(--font-label);
+  font-size: var(--type-label);
+  font-weight: var(--weight-label);
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  outline: none;
+}
+
+[data-theme="dark"] .bib-year-input {
+  --listing-search-value: var(--color-on-surface);
+}
+
+/* Specificity overrides to outrank Tailwind forms [type='number'] styles in dark mode */
+.listing-filter-panel .bib-year-input,
+.listing-filter .bib-year-input,
+.bib-year-range-group .bib-year-input,
+input.bib-year-input {
+  background: transparent;
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+  color: var(--listing-search-value);
+  -webkit-text-fill-color: var(--listing-search-value);
+  font-family: var(--font-label);
+  font-size: var(--type-label);
+  font-weight: var(--weight-label);
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  padding: 0.35rem 0.55rem;
+}
+
+.bib-year-input::placeholder {
+  font-family: var(--font-label);
+  font-size: var(--type-label);
+  font-weight: var(--weight-label);
+  letter-spacing: 0.02em;
+  color: color-mix(in srgb, var(--color-on-surface) 50%, var(--color-on-surface-variant));
+  -webkit-text-fill-color: color-mix(in srgb, var(--color-on-surface) 50%, var(--color-on-surface-variant));
+  opacity: 1;
+}
+
+.listing-filter-panel .bib-year-input:focus,
+.listing-filter .bib-year-input:focus,
+.bib-year-range-group .bib-year-input:focus,
+input.bib-year-input:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+  box-shadow: none;
+  border-color: var(--color-primary);
+}
+
+/* Hide the number spinner arrows */
+.bib-year-input::-webkit-inner-spin-button,
+.bib-year-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.bib-year-input {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.bib-year-sep {
+  user-select: none;
+}

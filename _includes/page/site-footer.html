@@ -1,0 +1,101 @@
+{%- comment -%}
+  Site footer. Lifted out of _layouts/shell.html so the shell holds the page
+  skeleton and the footer holds its own composition.
+
+  Five of the six mockups draw the same footer: a wide masthead, a colophon
+  with a typeset line, an index of external repositories, and a mono imprint
+  carrying coordinates and an edition number. Almost none of that has a field
+  beNewsreader it. What is left after the hard rule is three blocks over one
+  imprint, and every one of them reads a value that already exists:
+
+    Masthead  site.author + the home hero catch phrase
+    Pages     site.data.nav from pandorga.pages, resolved by `key`
+    Contact   contacts.yml, hydrated at runtime like the old footer
+    Imprint   site.author + site.content_license
+
+  A colophon block naming the four type roles was added and then removed at
+  the owner's request: the faces did have a field beNewsreader them, but the line
+  was not wanted in the footer. The mockup's edition number, paper stock and
+  press note have no field at all and were never drawn.
+
+  Dropped, with the reason, because no field backs them: RSS / Atom / plain
+  text index (jekyll-feed is not in _config.yml, so no feed is built), ORCID
+  and Google Scholar (no such field anywhere in the data), the geographic
+  coordinates, `EDITION IV.9.1`, `HASH:`, `VOL. IV`, and the mockup's bio
+  paragraph, which describes a different person.
+
+  Accepts `nav_active` — the page key the shell already resolved for the top
+  rail — so the footer marks the same live page rather than recomputing it.
+{%- endcomment -%}
+
+{%- assign footer_active = include.nav_active -%}
+{%- assign footer_license = site.content_license -%}
+
+<footer class="site-footer">
+  <span class="shard-accent site-footer-shard" aria-hidden="true"></span>
+  <span class="shard-accent shard-accent-beta site-footer-shard site-footer-shard--beta" aria-hidden="true"></span>
+
+  <div class="site-footer-inner max-w-7xl mx-auto px-4 sm:px-8 md:px-16">
+    <div class="site-footer-grid">
+
+      <div class="site-footer-block site-footer-masthead">
+        <a href="/" class="site-footer-wordmark-link" aria-label="{{ site.author }} – Home">
+          {% include theme/site-logo.html %}
+          <span class="site-footer-wordmark">{{ site.author }}</span>
+        </a>
+        {%- comment -%}
+          The same fragment the home hero mounts, so the line the site opens
+          with is the line it closes with, from one source.
+        {%- endcomment -%}
+        <div class="site-footer-bio font-label" data-content-fragment="home/subtitle"></div>
+      </div>
+
+      <nav class="site-footer-block site-footer-sections" aria-labelledby="site-footer-sections-heading">
+        <h2 class="site-footer-heading" id="site-footer-sections-heading">Pages</h2>
+        {%- comment -%}
+          One list per nav group, plus Bibliography as its own column — the
+          Explore menu stays three pairs, the footer adds the fourth list so
+          the bibliography is not buried under References.
+        {%- endcomment -%}
+        <div class="site-footer-columns">
+          {%- for footer_group in site.data.nav -%}
+          <ul class="site-footer-list">
+            {%- for footer_item in footer_group.pages -%}
+            {%- assign footer_page = site.pages | where: "key", footer_item.key | first -%}
+            {%- if footer_page -%}
+            <li><a href="{{ footer_page.url }}" class="site-footer-link{% if footer_active == footer_item.key %} is-current{% endif %}"{% if footer_active == footer_item.key %} aria-current="page"{% endif %}>{{ footer_page.title }}</a></li>
+            {%- endif -%}
+            {%- endfor -%}
+          </ul>
+          {%- endfor -%}
+          {%- assign bib_page = site.pages | where: "key", "bibliography" | first -%}
+          {%- if bib_page -%}
+          <ul class="site-footer-list">
+            <li><a href="{{ bib_page.url }}" class="site-footer-link{% if footer_active == 'bibliography' %} is-current{% endif %}"{% if footer_active == 'bibliography' %} aria-current="page"{% endif %}>{{ bib_page.title }}</a></li>
+          </ul>
+          {%- endif -%}
+        </div>
+      </nav>
+
+      <div class="site-footer-block site-footer-elsewhere">
+        <h2 class="site-footer-heading">Contact</h2>
+        {%- comment -%}
+          contacts.yml holds exactly two entries and is content, not shell, so
+          it arrives over the same runtime hydration the old footer used.
+        {%- endcomment -%}
+        <div class="site-footer-list site-footer-contacts" data-content-footer-contacts></div>
+      </div>
+
+    </div>
+
+    <p class="site-footer-imprint">
+      <span class="site-footer-imprint-item">© {{ 'now' | date: '%Y' }} {{ site.author }}</span>
+      {%- if footer_license and footer_license.id %}
+      <span class="site-footer-imprint-item">
+        <a href="{{ footer_license.page_path | default: '/pages/license/' }}" class="site-footer-imprint-link"
+          rel="license"{% if footer_license.name %} title="{{ footer_license.name }}"{% endif %}>{{ footer_license.id | replace: '-', ' ' }}</a>
+      </span>
+      {%- endif %}
+    </p>
+  </div>
+</footer>

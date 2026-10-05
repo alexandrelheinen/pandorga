@@ -1,0 +1,85 @@
+updated:
+  enus: "Updated"
+  ptbr: "Atualizado"
+  frfr: "Mis à jour"
+  eses: "Actualizado"
+published:
+  enus: "Published"
+  ptbr: "Publicado"
+  frfr: "Publié"
+  eses: "Publicado"
+months:
+  enus: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+  ptbr: ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"]
+  frfr: ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembro", "décembre"]
+  eses: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
+back:
+  enus: "Back"
+  ptbr: "Voltar"
+  frfr: "Retour"
+  eses: "Volver"
+back_to_drafts:
+  enus: "Back to drafts"
+  ptbr: "Voltar aos rascunhos"
+  frfr: "Retour aux brouillons"
+  eses: "Volver a los borradores"
+back_to_articles:
+  enus: "Back to articles"
+  ptbr: "Voltar aos artigos"
+  frfr: "Retour aux articles"
+  eses: "Volver a los artículos"
+back_to_portfolio:
+  enus: "Back to portfolio"
+  ptbr: "Voltar ao portfólio"
+  frfr: "Retour au portfolio"
+  eses: "Volver al portafolio"
+back_to_projects:
+  enus: "Back to projects"
+  ptbr: "Voltar aos projetos"
+  frfr: "Retour aux projets"
+  eses: "Volver a los proyectos"
+back_to_cv:
+  enus: "Back to CV"
+  ptbr: "Voltar ao CV"
+  frfr: "Retour au CV"
+  eses: "Volver al CV"
+previous_text:
+  enus: "Previous"
+  ptbr: "Anterior"
+  frfr: "Précédent"
+  eses: "Anterior"
+next_text:
+  enus: "Next"
+  ptbr: "Próximo"
+  frfr: "Suivant"
+  eses: "Siguiente"
+random_text:
+  enus: "Random"
+  ptbr: "Aleatório"
+  frfr: "Aléatoire"
+  eses: "Aleatorio"
+toc_title:
+  enus: "In this text"
+  ptbr: "Neste texto"
+  frfr: "Dans ce texte"
+  eses: "En este texto"
+cite_this_text:
+  enus: "Cite this text"
+  ptbr: "Citar este texto"
+  frfr: "Citer ce texte"
+  eses: "Citar este texto"
+related_texts:
+  enus: "Related texts"
+  ptbr: "Textos relacionados"
+  frfr: "Textes liés"
+  eses: "Textos relacionados"
+cites:
+  enus: "Cites"
+  ptbr: "Cita"
+  frfr: "Cite"
+  eses: "Cita"
+cited_by:
+  enus: "Cited by"
+  ptbr: "Citado por"
+  frfr: "Cité par"
+  eses: "Citado por"

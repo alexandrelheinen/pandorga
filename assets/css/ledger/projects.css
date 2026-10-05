@@ -1,0 +1,716 @@
+/* Ledger page styles: projects. Owned by the projects page; shared component
+   rules belong in assets/css/base.css under "Architectural Ledger blocks".
+
+   Scope note. Every ledger stylesheet is loaded on every page, so each rule is
+   scoped under `.projects-page` — the class on the <main> of _layouts/projects.html,
+   which wraps both the index and the client-rendered detail view.
+
+   Specificity note. The Tailwind Play CDN injects its utilities *after* this
+   file, so a one-class rule loses to any colliding utility already on the
+   element. The `.projects-page` prefix is what keeps these rules winning.
+
+   Colour note. No literal colour appears below. A hex would be right in one
+   palette and wrong in the other; every value comes from a theme custom
+   property, and both themes were rendered to confirm it.
+
+   This page is allowed to be denser and less generic than the rest of the
+   site: seven projects that change rarely, each with its own figures, videos,
+   plots, diagrams and tables. Depth beats uniformity here. What it is *not*
+   allowed to do is draw something no field backs — the mockup's metrics
+   strip, benchmark ledger and proof transcript are absent on purpose. */
+
+.projects-page .projects-masthead {
+  padding-bottom: var(--space-lg);
+  margin-bottom: var(--space-2xl);
+  border-bottom: 1px solid var(--border-gentle-divider);
+  box-shadow: 0 3px 0 -2px var(--border-gentle-faint);
+  position: relative;
+}
+
+.projects-page .projects-masthead::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -1.5px;
+  width: 3rem;
+  height: 2px;
+  background: var(--color-primary);
+}
+
+/* A project's own illustration is the loudest thing on the card, so the text
+   block below it gets a little more room to breathe.
+
+   Note the selector carries no page scope, and every ledger sheet is linked on
+   every page: this also lands on the home page's engineering band, which draws
+   the same system card. That is the right result in both places, but it means a
+   page sheet is styling another page's cards — the rule belongs in base.css
+   next to `.ledger-poster`. Left here, and recorded, rather than scoped to
+   `#projects-grid`, which would silently take the spacing off the home band. */
+.ledger-poster+.ledger-meta {
+  margin-top: var(--space-md);
+}
+
+.projects-page .projects-masthead-tags {
+  margin-top: var(--space-sm);
+  /* The page accent, not a fixed triad role. This line read green on a blue
+     page because it named --color-secondary directly; --color-primary is what
+     `.page-accent--*` rebinds, so the keywords follow whichever hue the page
+     is set in. */
+  color: var(--color-primary);
+  letter-spacing: 0.06em;
+}
+
+.projects-page .projects-state {
+  margin: var(--space-2xl) 0;
+  padding: var(--space-xl);
+  background: var(--color-surface-card);
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+}
+
+/* ══ Media plates ══
+   One frame for every picture on the page. A project with a `thumbnail`
+   shows it; one without shows its own `icon` glyph on the panel step. The
+   glyph variant is not a stand-in for a missing image — `icon` is set on all
+   seven projects and is already how the site marks a project — so a project
+   that publishes no imagery still reads as finished rather than as broken. */
+.projects-page .projects-plate {
+  position: relative;
+  overflow: hidden;
+}
+
+/* The shared poster removes itself when a hotlinked thumbnail 404s. Without
+   this the wrapper would survive as an empty band. */
+.projects-page .projects-plate:empty {
+  display: none;
+}
+
+.projects-page .projects-plate--mark {
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-panel-contrast);
+}
+
+.projects-page .projects-plate--mark::after {
+  content: "";
+  position: absolute;
+  right: -2.5rem;
+  bottom: -2.5rem;
+  width: 9rem;
+  height: 9rem;
+  clip-path: var(--shard-beta);
+  background: var(--color-tertiary);
+  opacity: var(--cubist-shard-opacity);
+  pointer-events: none;
+}
+
+.projects-page .material-symbols-outlined.projects-plate-glyph {
+  position: relative;
+  z-index: 1;
+  font-size: var(--type-display);
+  line-height: 1;
+  color: var(--color-primary);
+}
+
+.projects-page .projects-plate--lead .material-symbols-outlined.projects-plate-glyph,
+.projects-page .projects-plate--hero .material-symbols-outlined.projects-plate-glyph {
+  font-size: var(--type-display-lg);
+}
+
+/* The detail masthead is itself on the panel step, so a glyph plate there
+   needs the next surface up or it dissolves into its own background. */
+.projects-page .projects-hero-media .projects-plate--mark {
+  background: var(--color-surface-container);
+}
+
+/* ══ Filter note ══
+   The tag chips on every card link to `?tag=`, so the page answers that
+   query instead of leaving the affordance dead. Counts come from the index,
+   never from an authored number. */
+.projects-page .projects-filter-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xl);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-panel-contrast);
+  color: var(--color-on-surface-variant);
+}
+
+.projects-page .projects-filter-note-label {
+  font-family: var(--font-label);
+  letter-spacing: 0.12em;
+  font-size: var(--type-label);
+}
+
+.projects-page .projects-filter-note-count {
+  margin-left: auto;
+  font-size: var(--type-label);
+}
+
+/* ══ Lead plate ══
+   The first entry by the author's own `sort_order` opens the page at full
+   width. A portfolio leads with one piece of work; seven equal thumbnails
+   state that nothing here matters more than anything else. */
+.projects-page .projects-lead {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  background: var(--color-surface-card);
+  border: 1px solid var(--border-gentle-subtle);
+  border-left: 3px solid var(--color-primary);
+  margin-bottom: var(--space-3xl);
+  transition: border-color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.projects-page .projects-lead:hover {
+  border-color: var(--border-gentle-hover);
+  border-left-color: var(--color-primary);
+}
+
+.projects-page .projects-lead-shard {
+  right: -5rem;
+  top: -5rem;
+  width: 18rem;
+  height: 18rem;
+  background: var(--color-primary);
+}
+
+.projects-page .projects-lead-media {
+  position: relative;
+  display: block;
+  text-decoration: none;
+  /* Empty blueprint as texture beNewsreader the plate — not a second view mode. */
+  background-color: var(--color-panel-contrast);
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--color-outline) 10%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--color-outline) 10%, transparent) 1px, transparent 1px);
+  background-size: 1rem 1rem;
+}
+
+.projects-page .projects-lead-media .projects-plate,
+.projects-page .projects-lead-media .ledger-poster {
+  position: relative;
+  z-index: 1;
+}
+
+.projects-page .projects-lead-body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+}
+
+.projects-page .projects-lead-title {
+  font-family: var(--font-content-title);
+  font-size: var(--type-card-lg);
+  font-weight: var(--weight-title);
+  line-height: 1.25;
+  margin: var(--space-2xs) 0 0;
+}
+
+.projects-page .projects-lead-title a {
+  color: var(--color-on-surface);
+  text-decoration: none;
+  transition: color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.projects-page .projects-lead:hover .projects-lead-title a {
+  color: var(--color-primary);
+}
+
+/* The long official `title`, under the short `project` name. Two real fields,
+   not a name and a slogan. */
+.projects-page .projects-lead-subtitle,
+.projects-page .projects-hero-subtitle {
+  margin: 0;
+  color: var(--color-on-surface-variant);
+  letter-spacing: 0.02em;
+}
+
+.projects-page .projects-lead-copy {
+  margin: var(--space-xs) 0 0;
+  font-size: var(--type-body);
+  line-height: var(--leading-body);
+  color: var(--color-legend);
+  max-width: var(--reading-measure);
+}
+
+.projects-page .projects-lead .ledger-chip-row {
+  margin-top: var(--space-xs);
+}
+
+.projects-page .projects-lead-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--border-gentle-divider);
+}
+
+@media (min-width: 900px) {
+  .projects-page .projects-lead {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    align-items: stretch;
+  }
+
+  .projects-page .projects-lead-media,
+  .projects-page .projects-lead-media .projects-plate,
+  .projects-page .projects-lead-media .ledger-poster {
+    height: 100%;
+  }
+
+  /* Filling the column means the crop, not the ratio, decides the height. */
+  .projects-page .projects-lead-media .ledger-poster {
+    aspect-ratio: auto;
+    min-height: 13rem;
+  }
+
+  .projects-page .projects-lead-body {
+    justify-content: center;
+    padding: var(--space-xl) var(--space-2xl);
+  }
+
+  .projects-page .projects-lead-title {
+    font-size: var(--type-section);
+  }
+}
+
+/* ══ Index grid ══ */
+/* Explicit column counts rather than auto-fill: the page uses `px-8 md:px-16`,
+   so the content box jumps from 44rem to 40rem at exactly the tablet
+   breakpoint, and an auto-fill track that fits two columns at 767px drops to
+   one at 768px — the widest phone layout on the site. */
+.projects-page .projects-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-lg);
+  /* Cards stretch to the row. This used to be `align-items: start`, because a
+     project with no poster left a hole between its summary and its links; now
+     every project shows either its thumbnail or its glyph plate, so the row
+     aligns on both edges and the link row pins to the bottom of each card. */
+  align-items: stretch;
+}
+
+@media (min-width: 700px) {
+  .projects-page .projects-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .projects-page .projects-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* The shared system card pads its own body, which insets the poster from the
+   card edge and makes the picture look like an afterthought. Pulling it back
+   out by the same padding is one rule and leaves every other spacing in the
+   shared block alone. */
+.projects-page .ledger-system-card>.ledger-poster,
+.projects-page .ledger-system-card>.projects-plate {
+  width: auto;
+  margin: calc(var(--space-lg) * -1) calc(var(--space-lg) * -1) 0;
+}
+
+/* The glyph plate is this page's own shape, so it takes the same breathing
+   room the unscoped poster rule above gives every system card. */
+.projects-page .projects-plate+.ledger-meta {
+  margin-top: var(--space-md);
+}
+
+.projects-page .ledger-system-card .ledger-card-title {
+  font-size: var(--type-card-lg);
+  line-height: 1.15;
+}
+
+.projects-page .ledger-system-card .ledger-card-copy {
+  font-size: var(--type-subtitle);
+  line-height: var(--leading-body);
+  color: var(--color-legend);
+}
+
+/* ══ Repositories ══
+   The mockup closed on a source-code ledger. Its licence stamp, spec
+   download and commit hashes have nothing beNewsreader them; the repository rows
+   do — `github` is set on five of the seven projects. */
+.projects-page .projects-repos {
+  margin-top: var(--space-3xl);
+  padding-top: var(--space-2xl);
+  border-top: 1px solid var(--border-gentle-subtle);
+}
+
+/* One row per repository rather than a grid of cells. A grid leaves the last
+   row half empty whenever the count is not a multiple of the column count,
+   and five repositories never will be; a stack of rules always closes. */
+.projects-page .projects-repo-list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--border-gentle-subtle);
+}
+
+.projects-page .projects-repo {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--border-gentle-subtle);
+  color: var(--color-on-surface);
+  text-decoration: none;
+  transition: background-color var(--motion-duration-fast) var(--motion-ease-default), color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.projects-page .projects-repo:hover {
+  background: var(--color-surface-high);
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.projects-page .projects-repo-name {
+  font-family: var(--font-content-title);
+  font-size: var(--type-card);
+  font-weight: var(--weight-title);
+}
+
+.projects-page .projects-repo-path {
+  margin-left: auto;
+  font-size: var(--type-label);
+  color: var(--color-on-surface-variant);
+}
+
+.projects-page .projects-repo .ledger-cta-arrow {
+  color: var(--color-primary);
+}
+
+.projects-page .projects-repo:hover .ledger-cta-arrow {
+  transform: translateX(4px);
+}
+
+/* ══ Detail masthead ══
+   The generic detail view puts the title in the narrow third column, where
+   "Base Operating System for Sensors and Actuators" breaks over five lines
+   and the repository link never appears above the fold. A project leads with
+   its short `project` name, carries its long `title` underneath, and states
+   what it is before the reader scrolls. */
+.projects-page .projects-hero {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  background: var(--color-panel-contrast);
+  margin-bottom: var(--space-2xl);
+}
+
+.projects-page .projects-hero-shard {
+  right: -4rem;
+  bottom: -6rem;
+  width: 16rem;
+  height: 16rem;
+  background: var(--color-secondary);
+}
+
+.projects-page .projects-hero-body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-xl);
+}
+
+.projects-page .material-symbols-outlined.projects-hero-icon {
+  font-size: var(--type-card);
+  line-height: 1;
+  color: var(--color-primary);
+}
+
+.projects-page .projects-hero-title {
+  font-family: var(--font-content-title);
+  font-size: var(--type-title-lg);
+  font-weight: var(--weight-title);
+  line-height: 1.12;
+  margin: var(--space-sm) 0 0;
+  color: var(--color-on-surface);
+  text-wrap: balance;
+}
+
+.projects-page .projects-hero-subtitle {
+  font-size: var(--type-body);
+  line-height: 1.3;
+}
+
+.projects-page .projects-hero-standfirst {
+  margin: var(--space-md) 0 0;
+  font-size: var(--type-subtitle);
+  line-height: var(--leading-body);
+  color: var(--color-legend);
+  max-width: var(--reading-measure);
+}
+
+.projects-page .projects-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
+}
+
+.projects-page .projects-hero-actions .ledger-cta {
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-surface-card);
+  color: var(--color-on-surface);
+}
+
+.projects-page .projects-hero-actions .ledger-cta:hover {
+  background: var(--color-surface-high);
+  color: var(--color-primary);
+}
+
+/* The first action is whatever the project itself puts first — the source for
+   the libraries, the live site for Freshy and Fond de Terrasse — so the filled
+   button always points at the thing rather than at a page about the thing. */
+.projects-page .projects-hero-actions .ledger-cta:first-child {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.projects-page .projects-hero-actions .ledger-cta:first-child:hover {
+  background: var(--color-on-primary-fixed-variant);
+  color: var(--color-on-primary);
+}
+
+.projects-page .projects-hero-media {
+  position: relative;
+  z-index: 1;
+  display: flex;
+}
+
+/* A flex child sizes to its content, which on a phone shrank the glyph plate
+   to the width of the glyph. The plate always takes the column. */
+.projects-page .projects-hero-media .projects-plate {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (min-width: 900px) {
+  .projects-page .projects-hero {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    align-items: stretch;
+    min-height: 19rem;
+  }
+
+  .projects-page .projects-hero-body {
+    justify-content: center;
+    padding: var(--space-2xl);
+  }
+
+  .projects-page .projects-hero-title {
+    font-size: var(--type-display);
+  }
+
+  .projects-page .projects-hero-media .ledger-poster {
+    height: 100%;
+    aspect-ratio: auto;
+  }
+}
+
+/* ══ Dossier ══
+   The mockup's right-hand spec column — ARCH, STACK, SPEC — with the
+   fabricated rows replaced by what a project actually declares. */
+
+/* The dossier and the body take the shared detail tracks (ledger/detail.css),
+   which start at 768px. A project holds the split back to 1024px for the
+   reason recorded in the layout: at tablet width the dossier is narrow enough
+   to break a repository slug across three lines mid-word. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .projects-page .grid.text-detail-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.projects-page aside.projects-dossier-column {
+  /* The grid sets items-start, which shrinks the column to its own content
+     and leaves the sticky child no distance to travel. */
+  align-self: stretch;
+}
+
+.projects-page .projects-dossier-title {
+  margin: 0;
+  padding: var(--space-md) var(--space-md) var(--space-sm);
+  background: var(--color-surface-container-low);
+  font-family: var(--font-label);
+  font-size: var(--type-label-lg);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.projects-page .projects-dossier-rows {
+  margin: 0;
+  padding: 0 var(--space-md) var(--space-sm);
+  background: var(--color-surface-container-low);
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  font-variant-numeric: tabular-nums;
+}
+
+.projects-page .projects-dossier-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: var(--space-sm) 0;
+  border-top: 1px solid var(--border-gentle-faint);
+}
+
+.projects-page .projects-dossier-row dt {
+  font-family: var(--font-label);
+  font-size: var(--type-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-outline);
+}
+
+.projects-page .projects-dossier-row dd {
+  margin: 0;
+  color: var(--color-on-surface);
+  overflow-wrap: anywhere;
+}
+
+.projects-page .projects-dossier-row dd a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.projects-page .projects-dossier-row dd a:hover {
+  text-decoration: underline;
+}
+
+.projects-page .projects-dossier-row .ledger-chip-row {
+  margin-top: 0.15rem;
+}
+
+/* Below the desktop split the dossier is a full-width band above the prose,
+   so its rows run across instead of stacking into one tall column. */
+@media (max-width: 1023px) {
+  .projects-page .projects-dossier-rows {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: 0 var(--space-lg);
+    padding-bottom: var(--space-md);
+  }
+}
+
+/* The markup pins the column with Tailwind's `lg:top-32`, which is 8rem. The
+   CV register rail, the rascunhos marginalia and the detail dossier all park
+   at 7rem below the 78px sticky nav; one sticky offset for the site. The
+   compound selector supplies the specificity the utility would win on. */
+@media (min-width: 1024px) {
+  .projects-page aside>.projects-dossier {
+    top: 7rem;
+    max-height: calc(100vh - 9rem);
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+}
+
+/* ══ The body ══
+   Where the portfolio actually lives. Project bodies carry figures, release
+   videos, Plotly embeds, Mermaid architecture diagrams and GFM tables.
+
+   This page used to release the whole column from the 45rem reading measure
+   and then hand the measure back to a whitelist of text blocks, on the theory
+   that anything you look at rather than read should have the full column. In
+   practice that put every plate 18% wider than the prose at 1440px and 6%
+   wider at 1280px — wide enough to read as a broken edge, never wide enough
+   to read as a deliberate break out of the column, and different from how the
+   same figure, video and Plotly includes sit on every article. A project body
+   now keeps the site's measure like everything else, and a Mermaid diagram
+   too wide for it scrolls inside its own plate, which `.article-content
+   .mermaid` in article.css has always been set up to do.
+
+   The figure, video, Plotly and caption plates this page proved live in
+   assets/css/article.css and apply to every `.article-content` on the site,
+   so they are deliberately not repeated here. */
+
+/* Tables are authored GFM. The ledger treatment lives in detail.css; what is
+   added here is the full column and figures that line up. */
+.projects-page .article-content table,
+.article-content .projects-studio table {
+  width: 100%;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ══ Breakpoints ══ */
+@media (max-width: 899px) {
+  .projects-page .projects-hero-title {
+    font-size: var(--type-title);
+  }
+
+  .projects-page .projects-lead-title {
+    font-size: var(--type-title);
+  }
+
+  /* The hero stacks title-first: a reader who has just clicked into a project
+     needs to confirm where they are before being shown the picture. The index
+     lead is the opposite case, and already has its media first in the DOM. */
+  .projects-page .projects-hero {
+    gap: var(--space-lg);
+  }
+}
+
+@media (max-width: 640px) {
+
+  .projects-page .projects-lead-body,
+  .projects-page .projects-hero-body {
+    padding: var(--space-lg) var(--space-md);
+  }
+
+  .projects-page .projects-repo {
+    flex-wrap: wrap;
+  }
+
+  .projects-page .projects-repo-path {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  /* A wide GFM table cannot reflow below a phone's width, so it scrolls
+     inside its own column instead of pushing the page sideways. */
+  .projects-page .article-content table {
+    display: block;
+    overflow-x: auto;
+    width: 100%;
+  }
+}
+
+/* ── Project header line ──
+   The period, stack and status above a project name are marginalia — the
+   small-caps label voice the rest of the site uses for chrome — rather than
+   running body text. */
+.projects-page .ledger-meta,
+.projects-detail .ledger-meta {
+  font-family: var(--font-label);
+  font-size: var(--type-meta);
+  letter-spacing: 0.03em;
+}
+
+/* The glyph belongs to the name, so it sits on the name's own line instead of
+   floating in the line above, set a quarter larger than the name so it reads
+   as a mark rather than a stray letterform. A Material Symbol draws its ink
+   from just above the baseline to near the top of its em box, so aligning it
+   on the baseline pinned the glyph's bottom to the text's bottom and left the
+   whole mark riding above the name. The site-wide default in base.css
+   (`vertical-align: middle`) centers it on the name instead, which is why
+   this rule no longer sets one. */
+.material-symbols-outlined.projects-title-icon {
+  font-size: 1.25em;
+  line-height: 1;
+  margin-right: 0.4rem;
+  color: var(--color-primary);
+}

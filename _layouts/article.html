@@ -1,0 +1,27 @@
+---
+layout: text
+---
+
+{% comment %}Studio front-matter metadata only. Public article detail pages render via ContentRuntime. Bibliography below applies to private Jekyll builds.{% endcomment %}
+
+{{ content }}
+
+{% capture _scholar_refs %}{% bibliography --cited %}{% endcapture %}
+{% if _scholar_refs contains '<li>' %}
+  <div class="article-references">
+    <h2 class="section-title">References</h2>
+    {{ _scholar_refs }}
+  </div>
+{% endif %}
+
+<script>
+  (function () {
+    document.querySelectorAll('.article-references .bibliography li').forEach(function (li) {
+      li.innerHTML = li.innerHTML.replace(/^(<(?:sup|span)\b[^>]*>)\[[0-9]+\]\s*/, '$1');
+      li.innerHTML = li.innerHTML.replace(
+        /(Available(?:\s+at)?):\s*(https?:\/\/[^\s<"]+)([.,;)\]]*)/g,
+        '$1: <a href="$2" target="_blank" rel="noopener noreferrer">$2</a>$3'
+      );
+    });
+  })();
+</script>

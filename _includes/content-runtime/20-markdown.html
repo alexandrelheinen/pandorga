@@ -1,0 +1,264 @@
+{% raw %}
+    function preprocessWpBlockMath(markdown) {
+      return String(markdown || '').replace(
+        /<div\s+class="wp-block-math"[^>]*>\s*<math([^>]*)>[\s\S]*?<annotation\s+encoding="application\/x-tex">([\s\S]*?)<\/annotation>[\s\S]*?<\/math>\s*<\/div>/gi,
+        function (_, mathAttrs, tex) {
+          var trimmed = String(tex || '').trim();
+          if (!trimmed) return '';
+          // Prefer the MathML display attribute; CMS-exported block math is display="block".
+          var attrDisplay = /\bdisplay\s*=\s*["']block["']/i.test(String(mathAttrs || ''));
+          var useDisplay = attrDisplay
+            || /\\begin\{|\\(?:lim|int|sum|prod|frac)(?![a-zA-Z])|\\\\/.test(trimmed)
+            || trimmed.length > 72;
+          // CMS Markdown often eats \, \; \! \: (backslash + punctuation). Prefer
+          // letter-named spacing. Bare ";" left by a corrupted \; becomes \thinspace.
+          trimmed = trimmed.replace(/([A-Za-z0-9)}\]|])\s*;\s*(?=\\?[A-Za-z])/g, '$1\\thinspace ');
+          return useDisplay ? ('\n\n$$' + trimmed + '$$\n\n') : ('$' + trimmed + '$');
+        }
+      );
+    }
+
+    // Repair `\\` row breaks that editorial/CMS pipelines reduced to `\` or `\ `.
+    // Keep in sync with scripts/lib/normalize-display-math.mjs.
+    function normalizeDisplayMathTex(math) {
+      var text = String(math || '');
+      var rowEnv = 'align\\*?|aligned|gather\\*?|eqnarray\\*?|split|cases|matrix|bmatrix|pmatrix|vmatrix|Vmatrix|smallmatrix|array';
+      text = text.split('\n').map(function (line) {
+        var match = line.match(/(\\+)([ \t]*)$/);
+        if (!match) return line;
+        if (match[1].length % 2 === 0) return line;
+        return line.slice(0, line.length - match[0].length) + match[1] + '\\' + match[2];
+      }).join('\n');
+      text = text.replace(new RegExp('\\\\begin\\{(' + rowEnv + ')\\}([\\s\\S]*?)\\\\end\\{\\1\\}', 'g'), function (full, env, body) {
+        var fixed = body.replace(/(^|[^\\])\\([ \t]+)/g, function (_, prefix, ws) {
+          return prefix + '\\\\' + ws;
+        });
+        return '\\begin{' + env + '}' + fixed + '\\end{' + env + '}';
+      });
+      return text;
+    }
+
+    function protectMath(markdown) {
+      var store = [];
+      var protectedText = String(markdown || '');
+
+      protectedText = protectedText.replace(/\$\$([\s\S]+?)\$\$/g, function (_, math) {
+        var token = '@@CONTENT_RUNTIME_MATH_' + store.length + '@@';
+        store.push({ display: true, math: normalizeDisplayMathTex(math) });
+        return token;
+      });
+      protectedText = protectedText.replace(/\\\[([\s\S]+?)\\\]/g, function (_, math) {
+        var token = '@@CONTENT_RUNTIME_MATH_' + store.length + '@@';
+        store.push({ display: true, math: normalizeDisplayMathTex(math) });
+        return token;
+      });
+      protectedText = protectedText.replace(/\\\(([\s\S]+?)\\\)/g, function (_, math) {
+        var token = '@@CONTENT_RUNTIME_MATH_' + store.length + '@@';
+        store.push({ display: false, math: math });
+        return token;
+      });
+      protectedText = protectedText.replace(/(^|[^\\$])\$(?!\$)([^\$\n]+?)\$(?!\$)/g, function (match, prefix, math) {
+        var token = '@@CONTENT_RUNTIME_MATH_' + store.length + '@@';
+        store.push({ display: false, math: math });
+        return prefix + token;
+      });
+
+      return { text: protectedText, store: store };
+    }
+
+    function restoreMath(html, store) {
+      store.forEach(function (entry, index) {
+        var replacement = entry.display ? ('$$' + entry.math + '$$') : ('$' + entry.math + '$');
+        html = html.split('@@CONTENT_RUNTIME_MATH_' + index + '@@').join(replacement);
+      });
+      return unwrapDisplayMath(html);
+    }
+
+    function unwrapDisplayMath(html) {
+      return String(html || '')
+        .replace(/<p>\s*(\$\$[\s\S]*?\$\$)\s*<\/p>/g, '<div class="math-display">$1</div>')
+        .replace(/<p>\s*(\\\[[\s\S]*?\\\])\s*<\/p>/g, '<div class="math-display">$1</div>');
+    }
+
+    function hasMarkdownAttr(openTag) {
+      return /\bmarkdown\s*=\s*["']1["']/i.test(String(openTag || ''));
+    }
+
+    function parseInlineMarkdown(markdown) {
+      var prepared = preprocessWpBlockMath(String(markdown || '').trim());
+      var math = protectMath(prepared);
+      var html;
+      if (window.marked && typeof window.marked.parse === 'function') {
+        html = window.marked.parse(math.text, { gfm: true, breaks: false });
+      } else {
+        html = '<p>' + escapeHtml(math.text).replace(/\n/g, ' ') + '</p>';
+      }
+      return restoreMath(html, math.store);
+    }
+
+    function renderPoemHtml(inner) {
+      var stanzas = String(inner || '').replace(/^\s+|\s+$/g, '').split(/\n\s*\n/);
+      var parts = ['<div class="poem">'];
+      stanzas.forEach(function (stanza) {
+        var text = stanza.trim();
+        if (!text) return;
+        // One paragraph per stanza/refrain; single newlines are verse lines (pre-line in CSS).
+        parts.push('<p>' + escapeHtml(text) + '</p>');
+      });
+      parts.push('</div>');
+      return parts.join('');
+    }
+
+    function preprocessMarkdownDivs(markdown) {
+      var text = String(markdown || '');
+      text = text.replace(/<div\s+([^>]*class="[^"]*\barticle-note\b[^"]*"[^>]*)>([\s\S]*?)<\/div>/gi, function (match, openTag, inner) {
+        if (!hasMarkdownAttr(openTag)) return match;
+        return '<div class="article-note">' + parseInlineMarkdown(inner) + '</div>';
+      });
+      text = text.replace(/<div\s+([^>]*class="[^"]*\bpoem\b[^"]*"[^>]*)>([\s\S]*?)<\/div>/gi, function (match, openTag, inner) {
+        if (!hasMarkdownAttr(openTag)) return match;
+        return renderPoemHtml(inner);
+      });
+      return text;
+    }
+
+    function renderMarkdown(markdown, options) {
+      options = options || {};
+      var prepared = preprocessLiquid(markdown, options.xciteIndex);
+      prepared = preprocessWpBlockMath(prepared);
+      prepared = preprocessMarkdownDivs(prepared);
+      var math = protectMath(prepared);
+      var html;
+      if (window.marked && typeof window.marked.parse === 'function') {
+        html = window.marked.parse(math.text, { gfm: true, breaks: false });
+      } else {
+        html = math.text
+          .split(/\n\s*\n/)
+          .map(function (block) { return block.trim(); })
+          .filter(Boolean)
+          .map(function (block) { return '<p>' + escapeHtml(block).replace(/\n/g, '<br>') + '</p>'; })
+          .join('');
+      }
+      html = restoreMath(html, math.store);
+      if (options.citedKeys && options.citedKeys.length) {
+        html += buildReferencesSection(options.citedKeys, options.bibIndex, options.lang);
+      }
+      if (options.citedKeys && options.citedKeys.length) {
+        html = enhanceReferencesHtml(html);
+      }
+      return html;
+    }
+
+    async function waitForMathJax() {
+      var mj = window.MathJax;
+      if (!mj) return false;
+      if (mj.startup && mj.startup.promise) {
+        try {
+          await mj.startup.promise;
+        } catch (error) {
+          console.error(error);
+          return false;
+        }
+      }
+      return typeof mj.typesetPromise === 'function';
+    }
+
+    async function typesetMath(root) {
+      try {
+        if (!(await waitForMathJax())) return;
+        await window.MathJax.typesetPromise(root ? [root] : undefined);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    var mermaidReady = null;
+
+    /* Mermaid bakes its palette into the SVG at render time, so a diagram
+       drawn under one theme keeps those colours when the reader switches.
+       That is why diagrams showed pale nodes and cluster backgrounds on a
+       dark page. The config is rebuilt from the live custom properties on
+       every draw, and every diagram is redrawn when the theme changes. */
+    function mermaidConfig() {
+      return {
+        startOnLoad: false,
+        theme: 'base',
+        darkMode: document.documentElement.getAttribute('data-theme') === 'dark',
+        themeVariables: {
+          fontFamily: themeFont(),
+          background: themeColor('background', '#ffffff'),
+          mainBkg: themeColor('surface', '#f1f1ef'),
+          primaryColor: themeColor('surface', '#f1f1ef'),
+          primaryTextColor: themeColor('on-surface', '#1b1c15'),
+          primaryBorderColor: themeColor('outline-variant', '#c4ccc6'),
+          secondaryColor: themeColor('panel-contrast', '#f7f7f5'),
+          secondaryTextColor: themeColor('on-surface', '#1b1c15'),
+          secondaryBorderColor: themeColor('outline-variant', '#c4ccc6'),
+          tertiaryColor: themeColor('surface-high', '#e8e8e4'),
+          tertiaryTextColor: themeColor('on-surface', '#1b1c15'),
+          tertiaryBorderColor: themeColor('outline-variant', '#c4ccc6'),
+          lineColor: themeColor('outline', '#6b7569'),
+          textColor: themeColor('on-surface', '#1b1c15'),
+          nodeBorder: themeColor('outline-variant', '#c4ccc6'),
+          nodeTextColor: themeColor('on-surface', '#1b1c15'),
+          clusterBkg: themeColor('panel-contrast', '#f7f7f5'),
+          clusterBorder: themeColor('outline-variant', '#c4ccc6'),
+          titleColor: themeColor('on-surface', '#1b1c15'),
+          edgeLabelBackground: themeColor('background', '#ffffff'),
+          labelBackground: themeColor('background', '#ffffff'),
+          labelTextColor: themeColor('on-surface', '#1b1c15'),
+          fontSize: '14px'
+        },
+        flowchart: {
+          diagramPadding: 16,
+          padding: 16,
+          subGraphTitleMargin: { top: 8, bottom: 0 }
+        }
+      };
+    }
+
+    function ensureMermaid() {
+      if (window.mermaid) return Promise.resolve(window.mermaid);
+      if (mermaidReady) return mermaidReady;
+      mermaidReady = import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs')
+        .then(function (mod) {
+          window.mermaid = mod.default;
+          window.mermaid.initialize(mermaidConfig());
+          return window.mermaid;
+        })
+        .catch(function (error) {
+          mermaidReady = null;
+          throw error;
+        });
+      return mermaidReady;
+    }
+
+    /* Rendering replaces the node's text with an SVG, so the source is kept on
+       the element to make a redraw possible. */
+    function redrawMermaid() {
+      if (!window.mermaid) return;
+      var nodes = Array.prototype.slice.call(document.querySelectorAll('.mermaid'))
+        .filter(function (node) { return node.dataset.mermaidSource; });
+      if (!nodes.length) return;
+      nodes.forEach(function (node) {
+        node.removeAttribute('data-processed');
+        node.innerHTML = '';
+        node.textContent = node.dataset.mermaidSource;
+      });
+      window.mermaid.initialize(mermaidConfig());
+      if (typeof window.mermaid.run === 'function') {
+        window.mermaid.run({ nodes: nodes }).catch(function (error) {
+          console.error('Mermaid redraw failed:', error);
+        });
+      }
+    }
+
+    document.addEventListener('shell-theme-change', redrawMermaid);
+
+    function translate(key, lang) {
+      var table = (window.ContentRuntimeConfig && window.ContentRuntimeConfig.translations) || {};
+      var bucket = table[key] || {};
+      return bucket[lang] || bucket.enus || '';
+    }
+
+{% endraw %}

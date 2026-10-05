@@ -1,0 +1,10 @@
+{
+  "name": "youtube-short",
+  "markdown": "{% include youtube-short.html src=\"abc123\" src2=\"def456\" %}",
+  "selectors": [
+    "figure",
+    "article-youtube-short",
+    "article-youtube-short--pair",
+    "iframe"
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "name": "system-card/full",
+  "block": "renderSystemCard",
+  "args": [
+    {
+      "slug": "arco",
+      "front_matter": {
+        "project": "ARCO",
+        "thumbnail": "/media/projects/arco.png",
+        "label": "Simulation",
+        "status": "Ongoing",
+        "tagline": "A city-scale race replayed from telemetry.",
+        "tags": [
+          "Systems"
+        ],
+        "github": "https://github.com/example/arco",
+        "article_url": "/articles/arco/",
+        "external_url": "https://arco.example"
+      }
+    },
+    {
+      "href": "/projects/arco/"
+    }
+  ],
+  "selectors": [
+    "article.ledger-system-card",
+    "div.ledger-poster",
+    "img",
+    "div.ledger-meta",
+    "span.ledger-status",
+    "h3.ledger-card-title",
+    "a.ledger-card-stretch",
+    "p.ledger-card-copy",
+    "div.ledger-chip-row",
+    "div.ledger-card-links"
+  ],
+  "contains": [
+    ">Repository<",
+    ">Article<",
+    ">Visit<",
+    ">ARCO<",
+    ">Simulation"
+  ],
+  "counts": {
+    "ledger-meta-sep": 1,
+    "ledger-cta": 3
+  }
+}

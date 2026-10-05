@@ -1,0 +1,417 @@
+---
+layout: shell
+---
+
+<main class="relative max-w-7xl mx-auto px-4 sm:px-8 md:px-16 pt-10 pb-16">
+  <div class="bib-masthead">
+    <span class="shard-accent bib-masthead-shard" aria-hidden="true"></span>
+    {% include page/page-header.html key=page.key listing_filter=true spacer_class="mb-8"
+       header_class="bib-header mb-10 md:mb-12"
+       filter_label="Filter"
+       filter_placeholder="Search authors, titles, years, keys…" %}
+  </div>
+
+  <section class="scroll-mt-28 bib-body" id="bibliography">
+    <div class="listing-card-grid listing-card-grid--bibliography" id="bib-grid">
+      <p class="font-body text-on-surface-variant italic col-span-full">Loading bibliography...</p>
+      <section id="no-results" class="col-span-full py-16 hidden">
+        <p class="font-body text-on-surface-variant italic">Nothing matches these filters yet.</p>
+      </section>
+    </div>
+    <div id="bib-pagination" class="bib-pagination"></div>
+    <span class="shard-accent shard-accent-beta bib-foot-shard" aria-hidden="true"></span>
+  </section>
+</main>
+
+<script>
+  (function () {
+    'use strict';
+
+    var runtime = window.ContentRuntime;
+    if (!runtime || !runtime.ListingFilter) return;
+
+    var listing = runtime.Listing;
+    var params = new URLSearchParams(window.location.search);
+    var grid = document.getElementById('bib-grid');
+    var noResults = document.getElementById('no-results');
+    var pagination = document.getElementById('bib-pagination');
+    var filterRoot = document.querySelector('[data-listing-filter-root]');
+    var pageSize = 18;
+    var currentPage = 1;
+    var allItems = [];
+    var allCards = [];
+    var filterUi = null;
+
+    var TYPE_LABELS = {
+      article: 'Article',
+      book: 'Book',
+      news: 'News',
+      web: 'Web',
+      techreport: 'Tech Report',
+      incollection: 'Chapter',
+      report: 'Report',
+      misc: 'Misc',
+    };
+
+    var TYPE_OPTIONS = [
+      { value: 'article', label: 'Academic Articles' },
+      { value: 'book', label: 'Books' },
+      { value: 'report', label: 'Reports & Data' },
+      { value: 'news', label: 'News & Magazines' },
+      { value: 'misc', label: 'Web & Misc' }
+    ];
+
+    if (!grid) return;
+
+    function typeLabel(type) {
+      return TYPE_LABELS[type] || type || 'Reference';
+    }
+
+    function detectLanguage(item) {
+      var f = (item && item.fields) || {};
+      if (f.language) return f.language;
+      if (f.lang) return f.lang;
+      var text = (f.title || '') + ' ' + (f.note || '');
+      text = text.toLowerCase();
+      var hasPt = /\b(não|violência|migração|casamento|pesquisa|sobre|tribunal|revista|cerca|impunidade|dados)\b/.test(text);
+      if (hasPt) return 'pt';
+      var hasFr = /\b(étude|français|société|revue|capoeira|d’un|d\'un)\b/.test(text);
+      if (hasFr) return 'fr';
+      return '';
+    }
+
+    function renderTypeFacet(type) {
+      var label = typeLabel(type);
+      return '<span class="bib-facet bib-facet--type bib-facet--' + runtime.escapeAttr(type) + '">' +
+        runtime.escapeHtml(label) + '</span>';
+    }
+
+    function renderYearFacet(year) {
+      if (!year) return '';
+      return '<span class="bib-facet bib-facet--year">' + runtime.escapeHtml(year) + '</span>';
+    }
+
+    function renderFacets(item) {
+      var f = item.fields || {};
+      var chips = [
+        renderTypeFacet(item.type),
+        renderYearFacet(f.year)
+      ];
+      var detectedLang = detectLanguage(item);
+      if (detectedLang) {
+        chips.push(runtime.renderLangPill(detectedLang, { allowUnknown: true }));
+      }
+      return '<div class="bib-facets">' + chips.join('') + '</div>';
+    }
+
+    function linkHost(url) {
+      var val = String(url || '').trim();
+      if (!val) return '';
+      return val.replace(/^https?:\/\//i, '').replace(/^www\./i, '').split(/[/?#]/)[0];
+    }
+
+    function renderCard(item) {
+      var card = document.createElement('article');
+      card.className = 'ledger-card bib-card group';
+      card.dataset.key = item.key;
+      card.dataset.type = item.type;
+      card.dataset.year = item.fields.year || '';
+
+      var f = item.fields || {};
+      var link = f.url || '';
+
+      var html = '<div class="ledger-card-body bib-card-body">';
+      html += '<div class="bib-card-top">';
+      html += renderFacets(item);
+      html += '<span class="bib-key code-technical" title="Citation key">[' + runtime.escapeHtml(item.key) + ']</span>';
+      html += '</div>';
+
+      var displayTitle = f.title || f.author || item.key;
+      html += '<h3 class="card-title ledger-card-title bib-card-title">';
+      if (link) {
+        html += '<a href="' + runtime.escapeAttr(link) + '" target="_blank" rel="noopener noreferrer">' +
+          runtime.escapeHtml(displayTitle) + '</a>';
+      } else {
+        html += runtime.escapeHtml(displayTitle);
+      }
+      html += '</h3>';
+
+      var authorLine = runtime.formatIeeeAuthors(runtime.bibField(item, 'author'));
+      if (authorLine) {
+        html += '<div class="bib-author font-body text-on-surface-variant">' + authorLine + '</div>';
+      }
+
+      if (link) {
+        html += '<div class="ledger-card-foot bib-card-foot">';
+        html += '<span class="bib-host code-technical">' + runtime.escapeHtml(linkHost(link)) + '</span>';
+        html += runtime.renderCtaLink(link, 'Open link');
+        html += '</div>';
+      }
+
+      html += '</div>';
+      card.innerHTML = html;
+
+      Array.prototype.forEach.call(card.querySelectorAll('a[href^="http"]'), function (anchor) {
+        anchor.target = '_blank';
+        anchor.rel = 'noopener noreferrer';
+      });
+
+      return card;
+    }
+
+    var yearFrom = null;
+    var yearTo = null;
+    var currentSort = 'random';
+
+    function buildChipGroups() {
+      return [
+        {
+          key: 'type',
+          label: 'Type',
+          options: [{ value: null, label: 'All types' }].concat(TYPE_OPTIONS)
+        },
+        {
+          key: 'sort',
+          label: 'Sort by',
+          options: [
+            { value: 'random', label: 'Random' },
+            { value: 'year', label: 'Year' },
+            { value: 'title', label: 'Title' },
+            { value: 'author', label: 'Author' }
+          ]
+        }
+      ];
+    }
+
+    function matchesYearRange(yearStr) {
+      if (yearFrom === null && yearTo === null) return true;
+      var y = parseInt(yearStr, 10);
+      if (!y || isNaN(y)) return false;
+      if (yearFrom !== null && y < yearFrom) return false;
+      if (yearTo !== null && y > yearTo) return false;
+      return true;
+    }
+
+    function sortKey(item, field) {
+      var f = item.fields || {};
+      if (field === 'title') return (f.title || '').toLowerCase();
+      if (field === 'author') return (f.author || '').toLowerCase();
+      // year descending by default
+      return '';
+    }
+
+    function visibleItems(state) {
+      var sortField = state.sort || currentSort || 'random';
+      function sortBibliographyItems(a, b, s) {
+        var sf = s || sortField;
+        if (sf === 'random') {
+          var ka = a.key || (a.fields && a.fields.title) || '';
+          var kb = b.key || (b.fields && b.fields.title) || '';
+          return runtime.sessionRandomCompare(ka, kb, 'bibliography');
+        }
+        if (sf === 'year') {
+          var ya = parseInt(a.fields.year, 10) || 0;
+          var yb = parseInt(b.fields.year, 10) || 0;
+          if (yb !== ya) return yb - ya;
+          return a.key.localeCompare(b.key);
+        }
+        var ka = sortKey(a, sf);
+        var kb = sortKey(b, sf);
+        if (ka !== kb) return ka.localeCompare(kb);
+        return a.key.localeCompare(b.key);
+      }
+
+      var filtered = runtime.ListingFilter.filterItems(allItems, state, {
+        sortItems: sortBibliographyItems
+      });
+
+      return filtered.filter(function (item) {
+        return matchesYearRange(item.fields.year);
+      });
+    }
+
+    function renderPagination(state, totalPages) {
+      if (!pagination) return;
+      pagination.innerHTML = '';
+      if (totalPages <= 1) return;
+      var prev = document.createElement('button');
+      prev.type = 'button';
+      prev.textContent = 'Previous';
+      prev.disabled = currentPage === 1;
+      prev.className = 'pagination-nav-btn';
+      prev.onclick = function () {
+        currentPage -= 1;
+        renderPage(state);
+        window.scrollTo({ top: grid.offsetTop - 120, behavior: 'smooth' });
+      };
+      var label = document.createElement('span');
+      label.className = 'pagination-count';
+      label.textContent = currentPage + ' / ' + totalPages;
+      var next = document.createElement('button');
+      next.type = 'button';
+      next.textContent = 'Next';
+      next.disabled = currentPage === totalPages;
+      next.className = prev.className;
+      next.onclick = function () {
+        currentPage += 1;
+        renderPage(state);
+        window.scrollTo({ top: grid.offsetTop - 120, behavior: 'smooth' });
+      };
+      pagination.append(prev, label, next);
+    }
+
+    function renderPage(state) {
+      currentSort = state.sort || currentSort || 'random';
+      allCards.forEach(function (card) { card.classList.add('bib-hidden'); });
+      var visible = visibleItems(state);
+      var cardsByKey = Object.create(null);
+      allCards.forEach(function (card) { cardsByKey[card.dataset.key] = card; });
+
+      var matchingCards = visible.map(function (item) {
+        return cardsByKey[item.key];
+      }).filter(Boolean);
+
+      if (noResults) noResults.classList.toggle('hidden', matchingCards.length !== 0);
+
+      var totalPages = Math.max(1, Math.ceil(matchingCards.length / pageSize));
+      if (currentPage > totalPages) currentPage = totalPages;
+      var pageCards = matchingCards.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+      pageCards.forEach(function (card) {
+        grid.appendChild(card);
+        card.classList.remove('bib-hidden');
+      });
+
+      renderPagination(state, totalPages);
+    }
+
+    function buildYearRangeUi() {
+      var panel = filterRoot && filterRoot.querySelector('[data-listing-filter-chips]');
+      if (!panel) return;
+      var group = document.createElement('div');
+      group.className = 'listing-filter-group bib-year-range-group';
+      var label = document.createElement('p');
+      label.className = 'listing-filter-group-label font-label text-on-surface-variant';
+      label.textContent = 'Year range';
+      group.appendChild(label);
+      var row = document.createElement('div');
+      row.className = 'bib-year-range-row';
+
+      function makeInput(placeholder, initial) {
+        var inp = document.createElement('input');
+        inp.type = 'number';
+        inp.className = 'bib-year-input font-label';
+        inp.placeholder = placeholder;
+        inp.min = '1900';
+        inp.max = '2100';
+        inp.autocomplete = 'off';
+        if (initial) inp.value = initial;
+        return inp;
+      }
+
+      var fromInput = makeInput('From', params.get('from') || '');
+      var toInput = makeInput('To', params.get('to') || '');
+      var sep = document.createElement('span');
+      sep.className = 'bib-year-sep font-label text-on-surface-variant';
+      sep.textContent = '–';
+      row.appendChild(fromInput);
+      row.appendChild(sep);
+      row.appendChild(toInput);
+      group.appendChild(row);
+      panel.appendChild(group);
+
+      yearFrom = fromInput.value ? parseInt(fromInput.value, 10) : null;
+      yearTo = toInput.value ? parseInt(toInput.value, 10) : null;
+
+      function onYearChange() {
+        var f = fromInput.value.trim();
+        var t = toInput.value.trim();
+        yearFrom = f ? parseInt(f, 10) : null;
+        yearTo = t ? parseInt(t, 10) : null;
+        if (yearFrom !== null && isNaN(yearFrom)) yearFrom = null;
+        if (yearTo !== null && isNaN(yearTo)) yearTo = null;
+        currentPage = 1;
+        renderPage(filterUi.getState());
+        syncYearUrl();
+      }
+
+      var debounceTimer = null;
+      function debounced() {
+        if (debounceTimer) clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(onYearChange, 400);
+      }
+      fromInput.addEventListener('input', debounced);
+      toInput.addEventListener('input', debounced);
+    }
+
+    function syncYearUrl() {
+      var p = new URLSearchParams(window.location.search);
+      p.delete('from');
+      p.delete('to');
+      if (yearFrom !== null) p.set('from', String(yearFrom));
+      if (yearTo !== null) p.set('to', String(yearTo));
+      var qs = p.toString();
+      var next = window.location.pathname + (qs ? '?' + qs : '');
+      var current = window.location.pathname + window.location.search;
+      if (next !== current) history.replaceState(null, '', next);
+    }
+
+    function initFilter() {
+      filterUi = runtime.ListingFilter.create({
+        root: filterRoot,
+        initialQuery: params.get('q') || '',
+        initialType: params.get('type') || null,
+        initialSort: params.get('sort') || 'random',
+        defaultSort: 'random',
+        chipGroups: buildChipGroups(),
+        onChange: function (state) {
+          currentPage = 1;
+          renderPage(state);
+        }
+      });
+
+      buildYearRangeUi();
+      if (filterRoot) filterRoot.hidden = false;
+      renderPage(filterUi.getState());
+    }
+
+    listing.showLoadingState(grid, 'Loading bibliography...');
+
+    runtime.ensureBibliographyIndex().then(function (data) {
+      var entries = [];
+      Object.keys(data || {}).forEach(function (k) {
+        var it = data[k];
+        var f = it.fields || {};
+        var parts = [k, it.type || ''];
+        Object.keys(f).forEach(function (fk) {
+          if (f[fk]) parts.push(String(f[fk]));
+        });
+        entries.push({
+          key: k,
+          type: it.type || 'misc',
+          fields: f,
+          haystack: parts.join(' ').toLowerCase()
+        });
+      });
+
+      // Sort by year descending, then key
+      entries.sort(function (a, b) {
+        var ya = parseInt(a.fields.year, 10) || 0;
+        var yb = parseInt(b.fields.year, 10) || 0;
+        if (yb !== ya) return yb - ya;
+        return a.key.localeCompare(b.key);
+      });
+
+      allItems = entries;
+      grid.innerHTML = '';
+      allCards = allItems.map(function (item) {
+        return renderCard(item);
+      });
+      allCards.forEach(function (card) { grid.appendChild(card); });
+      if (noResults) grid.appendChild(noResults);
+      initFilter();
+    }).catch(function (error) {
+      console.error(error);
+      listing.showErrorState(grid, 'Bibliography could not be loaded right now.');
+    });
+  })();
+</script>

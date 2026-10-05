@@ -1,0 +1,94 @@
+<div id="theme-toggle" class="relative flex items-center shrink-0">
+  <button id="theme-toggle-btn" type="button"
+    class="flex items-center justify-center w-7 h-7 p-1 text-on-surface-variant hover:text-primary transition-colors duration-300"
+    aria-label="Theme"
+    title="Theme"
+    aria-haspopup="true" aria-expanded="false" aria-controls="theme-toggle-menu">
+    <span class="sr-only">Theme</span>
+    <span id="theme-toggle-icon" class="material-symbols-outlined text-xl" aria-hidden="true">light_mode</span>
+    <span id="theme-toggle-state" class="sr-only">current: light</span>
+  </button>
+  <div id="theme-toggle-menu"
+    class="hidden absolute right-0 top-full mt-1 min-w-[9.5rem] py-1 bg-surface border border-gentle-subtle shadow-sm z-50"
+    role="menu" aria-label="Choose color theme">
+    <button type="button" role="menuitemradio" data-theme-choice="light"
+      class="theme-choice w-full flex items-center gap-2.5 px-3 py-2 text-left font-body text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors leading-none">
+      <span class="material-symbols-outlined text-lg shrink-0 flex items-center justify-center" aria-hidden="true">light_mode</span>
+      <span class="inline-flex items-center leading-none">Light</span>
+    </button>
+    <button type="button" role="menuitemradio" data-theme-choice="dark"
+      class="theme-choice w-full flex items-center gap-2.5 px-3 py-2 text-left font-body text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors leading-none">
+      <span class="material-symbols-outlined text-lg shrink-0 flex items-center justify-center" aria-hidden="true">dark_mode</span>
+      <span class="inline-flex items-center leading-none">Dark</span>
+    </button>
+    <button type="button" role="menuitemradio" data-theme-choice="system"
+      class="theme-choice w-full flex items-center gap-2.5 px-3 py-2 text-left font-body text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors leading-none">
+      <span class="material-symbols-outlined text-lg shrink-0 flex items-center justify-center" aria-hidden="true">routine</span>
+      <span class="inline-flex items-center leading-none">System</span>
+    </button>
+  </div>
+</div>
+<script>
+  (function () {
+    var icons = { light: "light_mode", dark: "dark_mode", system: "routine" };
+    // The visible "Theme" word is the accessible name now; this only appends
+    // the current choice for screen readers.
+    var states = { light: "current: light", dark: "current: dark", system: "current: system" };
+
+    function syncToggle() {
+      var theme = window.ShellTheme;
+      if (!theme) return;
+      var active = theme.active;
+      var iconEl = document.getElementById("theme-toggle-icon");
+      var stateEl = document.getElementById("theme-toggle-state");
+      if (iconEl) iconEl.textContent = icons[active] || icons.light;
+      if (stateEl) stateEl.textContent = states[active] || states.light;
+      document.querySelectorAll(".theme-choice").forEach(function (el) {
+        var choice = el.getAttribute("data-theme-choice");
+        var selected = choice === active;
+        el.setAttribute("aria-checked", String(selected));
+        el.classList.toggle("text-primary", selected);
+        el.classList.toggle("font-semibold", selected);
+        el.classList.toggle("bg-surface-container-low", selected);
+      });
+    }
+
+    function init() {
+      var btn = document.getElementById("theme-toggle-btn");
+      var menu = document.getElementById("theme-toggle-menu");
+      if (!btn || !menu || !window.ShellTheme) return;
+
+      syncToggle();
+
+      btn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var open = !menu.classList.contains("hidden");
+        menu.classList.toggle("hidden", open);
+        btn.setAttribute("aria-expanded", String(!open));
+      });
+
+      menu.querySelectorAll(".theme-choice").forEach(function (el) {
+        el.addEventListener("click", function () {
+          var choice = el.getAttribute("data-theme-choice");
+          window.ShellTheme.setTheme(choice);
+          syncToggle();
+          menu.classList.add("hidden");
+          btn.setAttribute("aria-expanded", "false");
+        });
+      });
+
+      document.addEventListener("click", function () {
+        menu.classList.add("hidden");
+        btn.setAttribute("aria-expanded", "false");
+      });
+
+      document.addEventListener("shell-theme-change", syncToggle);
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", init);
+    } else {
+      init();
+    }
+  })();
+</script>

@@ -1,0 +1,38 @@
+{% comment %}
+chord-tab.html
+Exibe uma cifra estruturada em N colunas monoespaçadas, usando toda a largura disponível.
+Cada coluna respeita o limite de 79 caracteres por linha.
+Uso: {% include chord-tab.html tab=tab_data %}
+Onde tab_data tem:
+intro: "linha de acordes do intro (opcional)"
+sections:
+- label: "rótulo da seção (opcional)"
+content: |
+linhas de cifra/letra
+{% endcomment %}
+
+<div class="chord-tab-container mt-16 mb-8"
+  style="width: 100%; box-sizing: border-box; padding-left: 0; padding-right: 0;">
+  <h2>Cifra</h2>
+
+  {% if include.tab.intro %}
+  <div class="mt-3 mb-6">
+    <pre class="font-mono text-tertiary text-[0.8em] leading-relaxed whitespace-pre m-0 p-0 bg-transparent border-0">{{ include.tab.intro }}</pre>
+  </div>
+  {% endif %}
+
+  <div class="mt-4 font-mono text-[0.8em] grid gap-x-2"
+    style="display: grid; grid-template-columns: repeat(auto-fill, min(79ch, 100%)); gap: 0 0.5rem; width: 100%;">
+    {% for section in include.tab.sections %}
+    <div style="overflow-y: auto;">
+      {% if section.label and section.label != '' %}
+      <div class="font-body text-[0.9em] uppercase tracking-widest text-tertiary mb-[0.35rem]">
+        {{ section.label }}</div>
+      {% endif %}
+      <pre
+        class="m-0 p-0 bg-transparent border-0 whitespace-pre overflow-x-auto leading-[1.55] text-on-surface">{{ section.content }}</pre>
+      <hr class="border-0 border-t border-gentle-divider my-[1.55em]" />
+    </div>
+    {% endfor %}
+  </div>
+</div>

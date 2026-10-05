@@ -1,0 +1,208 @@
+{% raw %}
+
+    function frontMatterHaystack(item) {
+      var fm = (item && item.front_matter) || item || {};
+      var parts = [];
+      Object.keys(fm).forEach(function (key) {
+        var val = fm[key];
+        if (val == null || val === '') return;
+        if (Array.isArray(val)) {
+          parts.push(val.join(' '));
+          return;
+        }
+        if (typeof val === 'object') return;
+        parts.push(String(val));
+      });
+      if (item && item.slug) parts.push(String(item.slug));
+      if (item && item.key) parts.push(String(item.key));
+      return parts.join(' ').toLowerCase();
+    }
+
+    function matchesFrontMatterQuery(item, query) {
+      var q = String(query || '').trim().toLowerCase();
+      if (!q) return true;
+      return frontMatterHaystack(item).indexOf(q) !== -1;
+    }
+
+    var ListingFilter = {
+      frontMatterHaystack: frontMatterHaystack,
+      matchesFrontMatterQuery: matchesFrontMatterQuery,
+
+      create: function (options) {
+        options = options || {};
+        var root = options.root;
+        if (!root) return null;
+
+        var trigger = root.querySelector('[data-listing-filter-trigger]');
+        var panel = root.querySelector('[data-listing-filter-panel]');
+        var input = root.querySelector('[data-listing-filter-q]');
+        var chipsRoot = root.querySelector('[data-listing-filter-chips]');
+        var state = {
+          q: String(options.initialQuery || '').trim(),
+          tag: options.initialTag || options.initialCategory || null,
+          medium: options.initialMedium || null,
+          sort: options.initialSort || options.defaultSort || 'updated',
+          type: options.initialType || null
+        };
+        var onChange = typeof options.onChange === 'function' ? options.onChange : function () {};
+        var chipGroups = options.chipGroups || [];
+
+        function setExpanded(open) {
+          if (!trigger || !panel) return;
+          trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+          panel.hidden = !open;
+        }
+
+        function renderChips() {
+          if (!chipsRoot) return;
+          chipsRoot.innerHTML = '';
+          chipGroups.forEach(function (group) {
+            if (!group.options || !group.options.length) return;
+            var section = document.createElement('div');
+            section.className = 'listing-filter-group';
+            if (group.label) {
+              var heading = document.createElement('p');
+              heading.className = 'listing-filter-group-label font-label text-on-surface-variant';
+              heading.textContent = group.label;
+              section.appendChild(heading);
+            }
+            var row = document.createElement('div');
+            row.className = 'listing-filter-chips';
+            row.setAttribute('role', 'group');
+            if (group.label) row.setAttribute('aria-label', group.label);
+            group.options.forEach(function (option) {
+              var btn = document.createElement('button');
+              btn.type = 'button';
+              btn.className = 'listing-filter-chip font-body';
+              btn.dataset.filterKey = group.key;
+              btn.dataset.filterValue = option.value == null ? '' : String(option.value);
+              if (option.swatch) {
+                btn.innerHTML = '<span class="listing-filter-swatch ' + option.swatch + '" aria-hidden="true"></span>' +
+                  escapeHtml(option.label);
+              } else {
+                btn.textContent = option.label;
+              }
+              var active = state[group.key] === option.value ||
+                (option.value === null && (state[group.key] == null || state[group.key] === ''));
+              if (active) btn.classList.add('is-active');
+              // Without this the active filter is conveyed by colour alone.
+              btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+              btn.addEventListener('click', function () {
+                state[group.key] = option.value;
+                if (group.key !== 'q') state.q = input ? input.value.trim() : state.q;
+                renderChips();
+                syncUrl();
+                onChange(state);
+              });
+              row.appendChild(btn);
+            });
+            section.appendChild(row);
+            chipsRoot.appendChild(section);
+          });
+        }
+
+        function syncUrl() {
+          if (options.syncUrl === false) return;
+          var p = new URLSearchParams(window.location.search);
+          ['q', 'tag', 'category', 'medium', 'sort', 'type', 'categoria', 'language', 'ano', 'page'].forEach(function (key) {
+            p.delete(key);
+          });
+          if (state.q) p.set('q', state.q);
+          if (state.tag) p.set(options.tagParam || options.categoryParam || 'tag', state.tag);
+          if (state.medium) p.set('medium', state.medium);
+          if (state.type) p.set('type', state.type);
+          if (state.sort && state.sort !== (options.defaultSort || 'updated')) p.set('sort', state.sort);
+          var qs = p.toString();
+          var next = window.location.pathname + (qs ? '?' + qs : '');
+          var current = window.location.pathname + window.location.search;
+          if (next !== current) history.replaceState(null, '', next);
+        }
+
+        function applyQueryFromInput() {
+          state.q = input ? input.value.trim() : '';
+          renderChips();
+          syncUrl();
+          onChange(state);
+        }
+
+        if (input) {
+          input.value = state.q;
+          var debounceMs = typeof options.searchDebounceMs === 'number' ? options.searchDebounceMs : 300;
+          var debounceTimer = null;
+          input.addEventListener('input', function () {
+            if (debounceTimer) clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(applyQueryFromInput, debounceMs);
+          });
+          input.addEventListener('keydown', function (ev) {
+            if (ev.key === 'Enter') {
+              ev.preventDefault();
+              if (debounceTimer) clearTimeout(debounceTimer);
+              applyQueryFromInput();
+            }
+          });
+        }
+
+        if (trigger && panel) {
+          trigger.addEventListener('click', function () {
+            setExpanded(panel.hidden);
+          });
+        }
+
+        document.addEventListener('click', function (ev) {
+          if (!root || root.hidden) return;
+          if (root.contains(ev.target)) return;
+          setExpanded(false);
+        });
+
+        renderChips();
+
+        return {
+          root: root,
+          getState: function () { return Object.assign({}, state); },
+          setVisible: function (visible) {
+            root.hidden = !visible;
+            if (!visible) setExpanded(false);
+          },
+          applyQueryFromInput: applyQueryFromInput,
+          refreshChipGroups: function (nextGroups) {
+            chipGroups = nextGroups || [];
+            renderChips();
+          }
+        };
+      },
+
+      filterItems: function (items, state, options) {
+        options = options || {};
+        state = state || {};
+        var list = (items || []).slice();
+        list = list.filter(function (item) {
+          if (!matchesFrontMatterQuery(item, state.q)) return false;
+          if (state.tag) {
+            var fm = item.front_matter || {};
+            var itemTags = fm.tags || item.tags;
+            if (Array.isArray(itemTags) && itemTags.length) {
+              // An entry carries several tags; matching any one of them keeps it.
+              if (itemTags.indexOf(state.tag) === -1) return false;
+            } else {
+              // Resources still classify on a single category axis.
+              var cat = fm.category || item.category || '';
+              if (cat !== state.tag) return false;
+            }
+          }
+          if (state.medium && typeof options.mediumKey === 'function') {
+            if (options.mediumKey(item) !== state.medium) return false;
+          }
+          if (state.type) {
+            var nodeType = (item.collection || item.type || '').toString();
+            if (nodeType !== state.type) return false;
+          }
+          return true;
+        });
+        if (typeof options.sortItems === 'function') {
+          list.sort(function (a, b) { return options.sortItems(a, b, state.sort); });
+        }
+        return list;
+      }
+    };
+
+{% endraw %}

@@ -1,0 +1,529 @@
+---
+layout: shell
+---
+
+<main class="relative max-w-7xl mx-auto px-4 sm:px-8 md:px-16 pt-10 pb-16 rascunhos-main{% if page.accent and page.accent != 'blue' %} page-accent--{{ page.accent }}{% endif %}">
+
+  {%- comment -%}
+    Masthead. The shard lives here rather than inside the shared page header
+    include, which every listing uses and which no single page may restyle.
+  {%- endcomment -%}
+  <div class="rascunhos-masthead" data-rascunhos-masthead>
+    <span class="shard-accent rascunhos-shard" aria-hidden="true"></span>
+    {% include page/page-header.html key=page.key
+       header_class="rascunhos-header" %}
+  </div>
+
+  <div id="blog-listing" class="rascunhos-body">
+    {%- comment -%}
+      The sidebar is the one /pages/articles/ carries, in Portuguese: keyword
+      box, the facets as a list, and the licence. Same markup, same classes,
+      same controller — the filter that used to sit in a strip across the
+      masthead now lives here, which is what makes the two writing listings
+      one design rather than two that happen to share a corpus.
+    {%- endcomment -%}
+    <aside class="writing-rail listing-filter" data-listing-filter-root hidden>
+      <button type="button" class="writing-rail-trigger listing-filter-trigger"
+              data-listing-filter-trigger aria-expanded="false"
+              aria-controls="rascunhos-filter-panel">
+        <span class="material-symbols-outlined" aria-hidden="true">filter_list</span>
+        <span class="font-label writing-rail-trigger-label">Filtrar</span>
+      </button>
+
+      <div id="rascunhos-filter-panel" class="writing-rail-panel" data-listing-filter-panel hidden>
+        <p class="listing-filter-group-label font-label text-on-surface-variant">Busca</p>
+        <label class="writing-rail-search">
+          <span class="sr-only">Buscar nas entradas</span>
+          <input type="search" class="listing-filter-search writing-rail-input font-body"
+                 data-listing-filter-q placeholder="Título, resumo, marca…" autocomplete="off">
+          <span class="material-symbols-outlined writing-rail-search-icon" aria-hidden="true">search</span>
+        </label>
+        <div data-listing-filter-chips></div>
+      </div>
+
+      {%- comment -%}
+        Citation and reuse. Filled from the export manifest's licence record
+        and nothing else — no declared licence, no block.
+      {%- endcomment -%}
+      <section class="writing-rail-licence" data-writing-licence hidden></section>
+    </aside>
+
+    <div class="rascunhos-ledger">
+      {%- comment -%}
+        Both halves of this line are read off the live index: the ordering is
+        the active sort, the tally is the length of the filtered list. Neither
+        is a standing claim about the archive.
+      {%- endcomment -%}
+      <div class="rascunhos-ledger-head">
+        <span data-rascunhos-order></span>
+        <span data-rascunhos-tally></span>
+      </div>
+
+      <div class="rascunhos-entries" id="posts-list">
+        <section id="empty-state" class="rascunhos-state">
+          <p class="font-body text-on-surface-variant italic">Carregando textos...</p>
+        </section>
+        <section id="no-results" class="rascunhos-state hidden">
+          <p class="font-body text-on-surface-variant italic">Nada corresponde a estes filtros.</p>
+        </section>
+      </div>
+
+      <div id="pagination-controls" class="rascunhos-pagination hidden" aria-label="Páginas do blog"></div>
+    </div>
+  </div>
+
+  <div id="blog-detail" class="hidden">
+    <div class="grid grid-cols-1 gap-8 lg:gap-12 items-start text-detail-grid">
+      <aside id="blog-detail-sidebar"></aside>
+      <div id="blog-detail-main"></div>
+    </div>
+  </div>
+
+</main>
+{% include mathjax.html %}
+
+<script>
+  (function () {
+    'use strict';
+
+    var runtime = window.ContentRuntime;
+    if (!runtime || !runtime.ListingFilter) return;
+
+    var listing = runtime.Listing;
+    var perPage = parseInt('{{ site.posts_per_page | default: 6 }}', 10);
+    var params = new URLSearchParams(window.location.search);
+    var selectedPost = runtime.contentSlug('post');
+    var currentPage = Math.max(1, parseInt(params.get('page') || '1', 10));
+
+    var grid = document.getElementById('posts-list');
+    var emptyState = document.getElementById('empty-state');
+    var noResults = document.getElementById('no-results');
+    var controls = document.getElementById('pagination-controls');
+    var listingRoot = document.getElementById('blog-listing');
+    var detailRoot = document.getElementById('blog-detail');
+    var detailSidebar = document.getElementById('blog-detail-sidebar');
+    var detailMain = document.getElementById('blog-detail-main');
+    var masthead = document.querySelector('[data-rascunhos-masthead]');
+    var pageHeader = document.querySelector('[data-content-page-header="blog"]');
+    var filterRoot = document.querySelector('[data-listing-filter-root]');
+    var orderEl = document.querySelector('[data-rascunhos-order]');
+    var tallyEl = document.querySelector('[data-rascunhos-tally]');
+    var licenceEl = document.querySelector('[data-writing-licence]');
+
+    var allPosts = [];
+    var filterUi = null;
+
+    /* Folio number by slug. Assigned once over the whole log, oldest first, so
+     * an entry keeps the number it was written under no matter which filter,
+     * sort or page it is being looked at through. A number that changed when
+     * you pressed a chip would be a row index dressed up as a fact. */
+    var folioBySlug = Object.create(null);
+
+    var SORT_LABELS = {
+      published: 'Ordem: data de escrita',
+      updated: 'Ordem: última revisão',
+      random: 'Ordem: aleatória'
+    };
+
+    var MONTH_FORMAT = new Intl.DateTimeFormat('pt-BR', {
+      month: 'long',
+      year: 'numeric'
+    });
+
+    function postDate(post) {
+      return String((post.front_matter && post.front_matter.date) || post.date || '');
+    }
+
+    function postUpdated(post) {
+      return String((post.front_matter && post.front_matter.last_updated) || post.last_updated || '');
+    }
+
+    /* Two entries share 2026-03-23, so date alone is not a total order and the
+     * folio numbers would shuffle between loads. The slug settles it. */
+    function chronologically(a, b) {
+      var byDate = postDate(a).localeCompare(postDate(b));
+      return byDate !== 0 ? byDate : String(a.slug || '').localeCompare(String(b.slug || ''));
+    }
+
+    function assignFolios(posts) {
+      posts.slice().sort(chronologically).forEach(function (post, index) {
+        folioBySlug[post.slug] = index + 1;
+      });
+    }
+
+    function sortItems(a, b, sortKey) {
+      if (sortKey === 'random') {
+        var ak = (a && (a.slug || a.key)) || '';
+        var bk = (b && (b.slug || b.key)) || '';
+        return runtime.sessionRandomCompare(ak, bk, 'posts');
+      }
+      if (sortKey === 'updated') {
+        var au = postUpdated(a) || postDate(a);
+        var bu = postUpdated(b) || postDate(b);
+        var byUpdated = String(bu).localeCompare(String(au));
+        return byUpdated !== 0 ? byUpdated : chronologically(b, a);
+      }
+      return chronologically(b, a);
+    }
+
+    function postTags(post) {
+      var list = (post.front_matter && post.front_matter.tags) || [];
+      return Array.isArray(list) ? list.filter(Boolean) : [];
+    }
+
+    function tagHref(tag) {
+      return '/pages/blog/?tag=' + encodeURIComponent(tag);
+    }
+
+    function buildChipGroups(tagCounts) {
+      var tags = Object.keys(tagCounts).sort(function (a, b) {
+        return a.localeCompare(b, 'pt-BR');
+      });
+      // The count next to each tag is the number of entries that tag would
+      // return, so the deck never offers a filter that leads nowhere.
+      return [
+        {
+          key: 'tag',
+          label: 'Forma',
+          options: [{ value: null, label: 'Todas (' + allPosts.length + ')' }].concat(tags.map(function (tag) {
+            return { value: tag, label: tag + ' (' + tagCounts[tag] + ')' };
+          }))
+        },
+        {
+          key: 'sort',
+          label: 'Ordenar por',
+          options: [
+            { value: 'published', label: 'Data de escrita' },
+            { value: 'updated', label: 'Última revisão' },
+            { value: 'random', label: 'Aleatória' }
+          ]
+        }
+      ];
+    }
+
+    function visiblePosts(state) {
+      return runtime.ListingFilter.filterItems(allPosts, state, { sortItems: sortItems });
+    }
+
+    function renderLedgerHead(state, shown) {
+      if (orderEl) orderEl.textContent = SORT_LABELS[state.sort] || SORT_LABELS.published;
+      if (!tallyEl) return;
+      var total = allPosts.length;
+      var word = total === 1 ? 'entrada' : 'entradas';
+      tallyEl.textContent = shown === total
+        ? total + ' ' + word
+        : shown + ' de ' + total + ' ' + word;
+    }
+
+    /* ── Notebook furniture ──────────────────────────────────────────────
+     * Two devices, both read straight off `date`: the run of months and the
+     * folio number. The months carry the rhythm on their own — a jump from
+     * Agosto de 2022 to Março de 2021 already says how long the pause was, so
+     * nothing spells it out. Nothing here counts words, estimates a reading
+     * time or names a place. */
+
+    function monthKey(value) {
+      return String(value).slice(0, 7);
+    }
+
+    function monthLabel(value) {
+      var parts = String(value).slice(0, 10).split('-').map(Number);
+      if (parts.length !== 3 || parts.some(isNaN)) return '';
+      var label = MONTH_FORMAT.format(new Date(parts[0], parts[1] - 1, parts[2]));
+      return label.charAt(0).toUpperCase() + label.slice(1);
+    }
+
+    function band(className) {
+      var el = document.createElement('div');
+      el.className = 'rascunhos-band' + className;
+      el.setAttribute('data-dynamic-post', 'true');
+      var body = document.createElement('div');
+      body.className = 'rascunhos-band-body';
+      el.appendChild(body);
+      return { root: el, body: body };
+    }
+
+    function renderMonthHeading(value) {
+      var label = monthLabel(value);
+      if (!label) return;
+      var parts = band('rascunhos-month');
+      var heading = document.createElement('h3');
+      heading.className = 'rascunhos-month-label';
+      heading.textContent = label;
+      parts.body.appendChild(heading);
+      grid.insertBefore(parts.root, noResults);
+    }
+
+    /* The entry's ledger line: folio, written, revised.
+     *
+     * The shared block builds it as date plus the language pill, which on this
+     * page says only that a Portuguese notebook is in Portuguese — every entry
+     * carries the same [PT] and it distinguishes nothing. The three facts that
+     * do belong to an entry are its number in the log, the day it was written
+     * and the day it was last rewritten, so the strip is rebuilt with those.
+     * The revision is derived from body edits alone, so it marks a rewrite and
+     * not a change of tag.
+     *
+     * Rebuilt through renderMetaStrip rather than edited in place, because
+     * that is what drops a separator along with the part it separates: an
+     * entry never revised ends after its date, not on a dangling slash. */
+    function entryMeta(post) {
+      var fm = post.front_matter || {};
+      var folio = folioBySlug[post.slug];
+      var updated = postUpdated(post);
+      var revised = updated && updated.slice(0, 10) !== String(fm.date || '').slice(0, 10)
+        ? '<span class="rascunhos-revision">Revisto em ' +
+          runtime.escapeHtml(runtime.formatDate(updated, 'pt-BR')) + '</span>'
+        : '';
+
+      return runtime.renderMetaStrip([
+        // A figure in a column, which is the remaining case for monospace.
+        folio ? '<span class="rascunhos-folio code-technical">#' +
+          String(folio).padStart(2, '0') + '</span>' : '',
+        runtime.escapeHtml(runtime.formatDate(fm.date, 'pt-BR')),
+        revised
+      ]);
+    }
+
+    /* One ledger entry. The shared block carries the date, the title, the tag
+     * chips and the body preview — posts almost never declare a `description`,
+     * so runtime.listingPreview falls through to the exported body excerpt,
+     * which is the real summary for this collection. */
+    function renderEntry(post) {
+      var fm = post.front_matter || {};
+      var href = runtime.postUrl(post.slug);
+
+      var row = runtime.renderLedgerRow(post, {
+        href: href,
+        locale: 'pt-BR',
+        tagHref: tagHref
+      });
+      row.classList.add('rascunhos-row', 'rascunhos-band');
+      row.setAttribute('data-dynamic-post', 'true');
+
+      // The mockup files the classification top-right, opposite the ledger
+      // line, and drops the read-more link in favour of the title being the
+      // link. Lift the chips out of the footer rather than forking the shared
+      // block, and swap the strip for this page's three facts.
+      var head = row.querySelector('.ledger-row-head');
+      var meta = head && head.querySelector('.ledger-meta');
+      if (meta) meta.outerHTML = entryMeta(post);
+      var foot = row.querySelector('.ledger-row-foot');
+      var chips = foot && foot.querySelector('.ledger-chip-row');
+      if (head && chips) {
+        head.appendChild(chips);
+        foot.remove();
+      }
+
+      var body = document.createElement('div');
+      body.className = 'rascunhos-band-body';
+      while (row.firstChild) body.appendChild(row.firstChild);
+
+      // Thumbnails are set on almost every exported post, so the entry can
+      // afford a small plate to scan by. It is pasted in, not a hero: cropped
+      // small and desaturated, clearing only under the cursor. If the remote
+      // image fails, the row loses the column instead of gaining a
+      // placeholder.
+      if (fm.thumbnail) {
+        var media = document.createElement('div');
+        media.className = 'rascunhos-row-media';
+        var img = document.createElement('img');
+        img.src = runtime.buildUrl(fm.thumbnail);
+        // Decorative: the title next to it already names the entry.
+        img.alt = '';
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        img.addEventListener('error', function () {
+          media.remove();
+          row.classList.remove('rascunhos-row--illustrated');
+        });
+        media.appendChild(img);
+        body.insertBefore(media, body.firstChild);
+        row.classList.add('rascunhos-row--illustrated');
+      }
+
+      row.appendChild(body);
+      grid.insertBefore(row, noResults);
+    }
+
+    function renderListing(state) {
+      Array.from(grid.querySelectorAll('[data-dynamic-post]')).forEach(function (el) { el.remove(); });
+      if (emptyState && emptyState.parentNode) emptyState.remove();
+
+      var visible = visiblePosts(state);
+      renderLedgerHead(state, visible.length);
+
+      if (visible.length === 0) {
+        if (noResults) noResults.classList.remove('hidden');
+        if (controls) controls.classList.add('hidden');
+        return;
+      }
+
+      if (noResults) noResults.classList.add('hidden');
+      var totalPages = Math.ceil(visible.length / perPage);
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      var offset = (currentPage - 1) * perPage;
+      var page = visible.slice(offset, offset + perPage);
+      var previous = offset > 0 ? visible[offset - 1] : null;
+      var first = true;
+      var getEffectiveDate = function (p) {
+        if (!p) return '';
+        return state.sort === 'published' ? postDate(p) : (postUpdated(p) || postDate(p));
+      };
+
+      page.forEach(function (post) {
+        var date = getEffectiveDate(post);
+        var prevDate = getEffectiveDate(previous);
+        if (first || monthKey(date) !== monthKey(prevDate)) {
+          renderMonthHeading(date);
+        }
+        renderEntry(post);
+        previous = post;
+        first = false;
+      });
+
+      listing.renderPagination(controls, currentPage, totalPages, { prev: 'Anterior', next: 'Próximo' });
+    }
+
+    function showListing() {
+      if (listingRoot) listingRoot.classList.remove('hidden');
+      if (detailRoot) detailRoot.classList.add('hidden');
+      if (masthead) masthead.classList.remove('hidden');
+      if (pageHeader) pageHeader.classList.remove('hidden');
+      if (filterUi) filterUi.setVisible(true);
+      if (detailMain) detailMain.innerHTML = '';
+      if (detailSidebar) detailSidebar.innerHTML = '';
+      runtime.removeRuntimeBackLink();
+      runtime.removeArticleToc();
+    }
+
+    async function renderPostDetail(post, posts) {
+      if (listingRoot) listingRoot.classList.add('hidden');
+      if (masthead) masthead.classList.add('hidden');
+      if (pageHeader) pageHeader.classList.add('hidden');
+      if (filterUi) filterUi.setVisible(false);
+      if (detailRoot) detailRoot.classList.remove('hidden');
+
+      var fm = post.front_matter || {};
+      var lang = fm.language || 'ptbr';
+
+      if (detailSidebar) {
+        detailSidebar.innerHTML = runtime.buildTextSidebar({
+          frontMatter: fm,
+          fallbackTitle: post.slug,
+          dateHtml: runtime.renderDateEvolution(fm.date, fm.last_updated, 'pt-BR', {
+            publishedLabel: runtime.translate('published', lang),
+            updatedLabel: runtime.translate('updated', lang)
+          })
+        });
+      }
+
+      var index = (posts || []).findIndex(function (item) { return item.slug === post.slug; });
+
+      await runtime.renderRuntimeDetailSection({
+        detailAttribute: 'data-dynamic-post-detail',
+        bodyMarkdown: post.body_markdown,
+        frontMatter: fm,
+        mainColumn: detailMain,
+        sidebarEl: detailSidebar,
+        footerNav: {
+          lang: lang,
+          previousUrl: index >= 0 && index < posts.length - 1 ? runtime.postUrl(posts[index + 1].slug) : null,
+          nextUrl: index > 0 ? runtime.postUrl(posts[index - 1].slug) : null,
+          showRandom: index <= 0
+        }
+      });
+    }
+
+    function initFilter() {
+      // One chip per tag actually in use, so the deck never offers a filter
+      // that would return nothing.
+      var tagCounts = allPosts.reduce(function (acc, post) {
+        postTags(post).forEach(function (tag) {
+          acc[tag] = (acc[tag] || 0) + 1;
+        });
+        return acc;
+      }, {});
+
+      filterUi = runtime.ListingFilter.create({
+        root: filterRoot,
+        initialQuery: params.get('q') || '',
+        initialTag: params.get('tag') || params.get('categoria') || params.get('category') || null,
+        // Default order: data de escrita.
+        initialSort: params.get('sort') || 'published',
+        defaultSort: 'published',
+        tagParam: 'tag',
+        chipGroups: buildChipGroups(tagCounts),
+        onChange: function (state) {
+          currentPage = 1;
+          renderListing(state);
+        }
+      });
+      if (filterRoot) filterRoot.hidden = false;
+      renderListing(filterUi.getState());
+    }
+
+    /* Citation and reuse, the rail's last group. Every word is the exported
+     * licence record; the page states no terms of its own, and a manifest
+     * without a licence leaves no block. Twin of the articles copy — the two
+     * listings wear the same sidebar, each in its own language. */
+    function mountLicence(manifest) {
+      if (!licenceEl) return;
+      var licence = manifest && manifest.content_license;
+      if (!licence || !licence.name) return;
+
+      var parts = ['<span class="writing-rail-licence-label font-label">Licenciamento &amp; reutilização</span>'];
+      var named = licence.id ? licence.name + ' (' + licence.id + ')' : licence.name;
+      parts.push('<p class="writing-rail-licence-copy font-body">Textos publicados sob ' +
+        runtime.escapeHtml(named) + '.</p>');
+      if (licence.rights_holder) {
+        parts.push('<p class="writing-rail-licence-copy font-body">Atribuição a ' +
+          runtime.escapeHtml(licence.rights_holder) + '.</p>');
+      }
+      var href = licence.page_path || licence.url;
+      if (href) parts.push(runtime.renderCtaLink(href, 'Termos da licença'));
+
+      licenceEl.innerHTML = parts.join('');
+      licenceEl.hidden = false;
+    }
+
+    function mountRailLicence() {
+      return runtime.loadJson('manifest.json')
+        .then(mountLicence)
+        .catch(function (error) { console.error(error); });
+    }
+
+    runtime.loadWritingIndex('posts').then(function (posts) {
+      allPosts = posts.slice();
+      assignFolios(allPosts);
+
+      var selected = selectedPost && runtime.resolveWritingAlias(allPosts, selectedPost);
+      if (selectedPost) {
+        if (selected && selected.slug && selected.slug !== selectedPost) {
+          runtime.adoptCanonicalDetailUrl(selected);
+        }
+        var slugToLoad = selected ? selected.slug : selectedPost;
+        return runtime.loadCollectionItem('posts', slugToLoad).then(function (post) {
+          return renderPostDetail(post, allPosts);
+        }).catch(function (error) {
+          runtime.reportDetailLoadError(error, {
+            emptyState: emptyState,
+            grid: grid,
+            noResults: noResults,
+            message: 'This post could not be loaded right now.'
+          });
+        });
+      }
+
+      showListing();
+      initFilter();
+      return mountRailLicence();
+    }).catch(function (error) {
+      console.error(error);
+      if (emptyState) {
+        emptyState.querySelector('p').textContent = 'Não foi possível carregar os textos agora.';
+      }
+    });
+  })();
+</script>

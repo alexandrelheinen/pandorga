@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Single verification entry point (local == CI). Refs: integration.md
+# Platform gates that run against the gem / fixtures / examples.
+# Content-corpus gates stay on the consuming site (website).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -15,8 +16,34 @@ fi
 
 export RUBYOPT="-I${ROOT}/lib${RUBYOPT:+ $RUBYOPT}"
 
+# Explicit allowlist — do not glob site-corpus tests copied during extraction.
+TESTS=(
+  scripts/test/test-doctor.rb
+  scripts/test/test-export.rb
+  scripts/test/test-install-functions.rb
+  scripts/test/test-no-personal-data.rb
+  scripts/test/test-configuration-doc.rb
+  scripts/test/test-css-structure.rb
+  scripts/test/test-form-control-theming.rb
+  scripts/test/test-listing-filter-contract.rb
+  scripts/test/test-studio-api-contract.rb
+  scripts/test/test-studio-rewrite-api-contract.rb
+  scripts/test/test-text-excerpt.rb
+  scripts/test/test-git-chronology.rb
+  scripts/test/test-math-row-breaks.rb
+  scripts/test/test-detail-render-parity.rb
+  scripts/test/test-absent-field-absent-element.rb
+  scripts/test/test-home-band-art.rb
+  scripts/test/test-r2-json-sync.rb
+  scripts/test/test-writing-slug-limits.rb
+)
+
 failed=0
-for test in scripts/test/test-*.rb; do
+for test in "${TESTS[@]}"; do
+  if [[ ! -f "$test" ]]; then
+    echo "-- ${test} (missing, skip)"
+    continue
+  fi
   echo "-- ${test}"
   if ! "${RUBY[@]}" "$test"; then
     failed=1

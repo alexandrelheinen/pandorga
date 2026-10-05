@@ -1,0 +1,5 @@
+{
+  "name": "ongoing-product",
+  "markdown": "{% include ongoing-product.html %}\n\nProduct description follows.",
+  "selectors": ["ongoing-product-badge"]
+}

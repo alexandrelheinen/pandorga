@@ -1,0 +1,18 @@
+{%- comment -%}
+  CV register section: a title rail that sticks beside the entry column while
+  the entries scroll past it. Every section of the CV page is the same shape,
+  so the shell lives here rather than being retyped five times.
+
+  Parameters:
+    title        — section heading (required)
+    content      — pre-captured section body (required)
+    id           — anchor id, e.g. "products" for the product back-link
+    body_class   — extra classes on the entry column
+{%- endcomment -%}
+<section class="cv-register"{% if include.id %} id="{{ include.id }}"{% endif %}>
+  <div class="cv-register-rail">
+    <h2 class="section-title cv-register-title">{{ include.title }}</h2>
+    <span class="cv-register-rule" aria-hidden="true"></span>
+  </div>
+  <div class="cv-register-body{% if include.body_class %} {{ include.body_class }}{% endif %}">{{ include.content }}</div>
+</section>

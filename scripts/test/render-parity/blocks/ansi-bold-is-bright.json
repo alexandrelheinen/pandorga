@@ -1,0 +1,7 @@
+{
+  "name": "ansi bold takes the bright twin",
+  "block": "renderAnsiHtml",
+  "args": ["\\e[1;31mbold red\\e[0m\\e[1mbold default"],
+  "contains": ["color:var(--ansi-9)", "font-weight:700", "color:var(--ansi-fg-bold)"],
+  "excludes": ["color:var(--ansi-1)"]
+}

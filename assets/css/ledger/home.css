@@ -1,0 +1,1488 @@
+/* Ledger page styles: home. Owned by the home page; shared component rules
+   belong in assets/css/base.css under "Architectural Ledger blocks".
+
+   The page is a stack of full-bleed bands that alternate on the surface
+   ladder (background -> panel-contrast). Depth is tonal: no shadows, no
+   radii, no hex literals — a hardcoded colour would break one of the two
+   themes. */
+
+/* ── Bands ── */
+.home-ledger {
+  display: block;
+  width: 100%;
+}
+
+.home-band {
+  position: relative;
+  width: 100%;
+  padding-block: var(--space-2xl);
+  background-color: transparent;
+  border-bottom: 1px solid var(--border-gentle);
+}
+
+.home-band--hero {
+  background-color: var(--color-background);
+}
+
+.home-band--contrast {
+  background-color: var(--color-panel-contrast);
+  background-image: none;
+}
+
+.home-band:last-child {
+  border-bottom: 0;
+}
+
+.home-band-inner {
+  max-width: 80rem;
+  margin-inline: auto;
+  padding-inline: var(--gutter-mobile);
+}
+
+@media (min-width: 768px) {
+  .home-band {
+    padding-block: var(--space-3xl);
+  }
+
+  .home-band-inner {
+    padding-inline: var(--gutter);
+  }
+}
+
+/* Structural edge: the short rule the mockup runs along the top-left of the
+   featured band, marking it as the page's first statement after the hero. */
+.home-band--ruled::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6rem;
+  height: 3px;
+  background: var(--color-primary);
+}
+
+/* ── Hero ── */
+/* The band was 3rem above the name and 4.5rem below, which read as the block
+   sitting low in its own space. Equal above and below, at 60% of the larger
+   of the two, so the masthead is centred in the air around it. On desktop the
+   photograph matches the copy column height at 3:4; on a phone it is 4:3
+   full-bleed. */
+.home-band--hero {
+  padding-block: 2.7rem;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.home-band--hero .home-band-inner {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Hero Pandorga (atelier kite + ribbon) ──
+   Full painting restored; the wrapper opacity keeps it beNewsreader the copy. */
+.home-hero-pandorga {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  opacity: 0.42;
+}
+
+.home-hero-pandorga-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+@media (max-width: 639px) {
+  .home-hero-pandorga {
+    opacity: 0.28;
+  }
+}
+
+/* Ambient pool beNewsreader the hero.
+ *
+ * Same weight as the earlier primary-container bloom, but keyed to neutral
+ * ink/outline so it stays grey paper depth instead of a blue spotlight. */
+.home-band--hero::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -18%;
+  right: 8%;
+  width: min(38rem, 60%);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+      color-mix(in srgb, var(--color-outline) 22%, transparent) 0%,
+      color-mix(in srgb, var(--color-on-surface) 8%, transparent) 42%,
+      transparent 72%);
+  filter: blur(52px);
+  pointer-events: none;
+}
+
+[data-theme="dark"] .home-band--hero::before {
+  background: radial-gradient(circle,
+      color-mix(in srgb, var(--color-on-surface) 10%, transparent) 0%,
+      color-mix(in srgb, var(--color-outline) 8%, transparent) 50%,
+      transparent 70%);
+  filter: blur(60px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .home-band--hero::before {
+    transition: opacity var(--motion-duration-slow, 400ms) var(--motion-ease-default);
+  }
+}
+
+.home-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-xl);
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .home-hero {
+    /* Copy content height sets the flex line. Portrait stretches to that
+       height; aspect-ratio then sets W = 3/4 × H. Children are taken out of
+       flow so the photo's intrinsic box cannot inflate the line or collapse
+       the copy. */
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: var(--space-2xl);
+  }
+
+  .home-hero-copy {
+    flex: 1 1 auto;
+    min-width: min(100%, 20rem);
+  }
+
+  .home-hero-portrait {
+    position: relative;
+    flex: 0 0 auto;
+    align-self: stretch;
+    width: auto;
+    height: auto;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    min-width: 0;
+    min-height: 0;
+    max-width: none;
+    justify-self: unset;
+  }
+
+  .home-hero-plate-wrap {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    flex: none;
+  }
+
+  .home-hero-plate {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+    flex: none;
+  }
+
+  .home-hero-plate img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+  }
+}
+
+.home-hero-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-width: 0;
+  container-type: inline-size;
+}
+
+.home-hero-tagline {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin: 0 0 var(--space-sm);
+  color: var(--color-on-surface);
+  font-family: var(--font-label);
+  font-size: var(--type-label-lg);
+  font-weight: var(--weight-label);
+  letter-spacing: 0.03em;
+  line-height: 1.35;
+  max-width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .home-hero-tagline {
+    font-size: calc(var(--type-label-lg) + 2pt);
+  }
+}
+
+.home-hero-tagline::after {
+  content: "";
+  flex: 1 1 auto;
+  height: 0;
+  border-top: 1px dashed color-mix(in srgb, var(--color-outline) 45%, transparent);
+  min-width: 1.5rem;
+}
+
+.home-hero-tagline p {
+  margin: 0;
+}
+
+/* Name spans the copy column (container query on .home-hero-copy). The floor
+   is the band-title step — Articles, Rascunhos, Projects — so a phone does
+   not drop the name to the card size to keep it on one line. From 640px the
+   floor follows `.section-title` up to `--type-section-lg`. Wider columns
+   still grow toward `--type-page-lg`. */
+.home-hero-title {
+  font-family: var(--font-title);
+  font-weight: 400;
+  font-size: clamp(var(--type-section), calc(100cqi * 0.92 / 14.5), var(--type-page-lg));
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--color-on-surface);
+  font-synthesis: none;
+  font-optical-sizing: auto;
+  margin: 0 0 var(--space-xl);
+  max-width: 100%;
+}
+
+@media (max-width: 767px) {
+  .home-hero-title {
+    white-space: normal;
+  }
+}
+
+@media (min-width: 640px) {
+  .home-hero-title {
+    font-size: clamp(var(--type-section-lg), calc(100cqi * 0.92 / 14.5), var(--type-page-lg));
+  }
+}
+
+@media (min-width: 768px) {
+  .home-hero-title {
+    white-space: nowrap;
+  }
+}
+
+.home-hero-given,
+.home-hero-family {
+  display: inline;
+}
+
+.home-hero-family {
+  color: var(--color-primary);
+}
+
+.home-hero-summary {
+  max-width: var(--reading-measure, 45rem);
+  color: var(--color-on-surface);
+  line-height: var(--leading-body);
+}
+
+.home-hero-summary p {
+  margin: 0 0 var(--space-md);
+}
+
+.home-hero-summary p:last-child {
+  margin-bottom: 0;
+}
+
+.home-hero-portrait {
+  position: relative;
+  width: 100%;
+  max-width: 16rem;
+  justify-self: end;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.home-hero-plate-wrap {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.home-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
+  position: relative;
+}
+
+/* Primary hero CTA: a small lift on hover — tactile without box-shadow. */
+.home-hero-cta {
+  transition: color var(--motion-duration-fast) var(--motion-ease-default),
+    border-color var(--motion-duration-fast) var(--motion-ease-default),
+    background-color var(--motion-duration-fast) var(--motion-ease-default),
+    transform var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.home-hero-cta:hover {
+  transform: translateY(-2px);
+}
+
+.home-hero-cta:active {
+  transform: translateY(0);
+}
+
+/* ── Portrait plate ──
+   Beside the copy on a wide page the plate is portrait (3:4): its height
+   matches the left column and the width is W = 3/4 × H. Edge-to-edge on a
+   phone it is landscape (4:3) from the band width. */
+.home-hero-plate {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  overflow: hidden;
+  aspect-ratio: 3 / 4;
+  /* Black in both themes: the photograph fades in over this, so a theme
+     canvas here would read as the wrong picture arriving late. */
+  background: black;
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+  width: 100%;
+  flex: 0 0 auto;
+  min-height: 0;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-on-surface) 10%, transparent);
+}
+
+@media (max-width: 767px) {
+  .home-hero-plate {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+:root:not([data-theme="dark"]) .home-hero-plate,
+html[data-theme="light"] .home-hero-plate {
+  border-width: 1px;
+  border-color: var(--border-ink);
+}
+
+[data-theme="dark"] .home-hero-plate {
+  box-shadow: none;
+}
+
+/* Silk facet beNewsreader the portrait — restored; the Borders pass had hidden it. */
+.home-hero-shard {
+  top: -2.25rem;
+  right: -2rem;
+  width: 15rem;
+  height: 15rem;
+  background: var(--color-primary);
+  opacity: var(--cubist-shard-opacity-strong, 16%);
+  z-index: 0;
+}
+
+@media (max-width: 1023px) {
+  .home-hero-shard {
+    width: 11rem;
+    height: 11rem;
+    top: -1.5rem;
+    right: -1.25rem;
+  }
+}
+
+@media (max-width: 1023px) {
+  .home-hero-portrait::before {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    top: 55%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 140%;
+    height: 120%;
+    border-radius: 50%;
+    background: radial-gradient(circle,
+        color-mix(in srgb, var(--color-outline) 18%, transparent) 0%,
+        color-mix(in srgb, var(--color-on-surface) 7%, transparent) 45%,
+        transparent 72%);
+    filter: blur(40px);
+    pointer-events: none;
+  }
+
+  [data-theme="dark"] .home-hero-portrait::before {
+    background: radial-gradient(circle,
+        color-mix(in srgb, var(--color-on-surface) 12%, transparent) 0%,
+        transparent 70%);
+  }
+}
+
+.home-hero-plate img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 52% 18%;
+  display: block;
+  filter: saturate(1.05) contrast(0.98);
+  opacity: 0;
+  transition: opacity var(--motion-duration-slow) var(--motion-ease-default),
+    transform var(--motion-duration-slow) var(--motion-ease-default),
+    filter var(--motion-duration-slow) var(--motion-ease-default),
+    mix-blend-mode var(--motion-duration-base) var(--motion-ease-default);
+}
+
+.home-hero-plate img.is-shown {
+  opacity: 1;
+}
+
+.home-hero-plate:hover img {
+  transform: scale(1.02);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .home-hero-plate img,
+  .home-hero-plate:hover img {
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ── Section banners ──
+   Atelier plate edge: a denser hairline, a longer accent rule, and a short
+   vertical tick so each band reads as a ruled plate rather than a soft fade. */
+.home-band:not(.home-band--hero) .ledger-section-banner {
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--border-gentle);
+  box-shadow: 0 4px 0 -3px var(--border-gentle-faint);
+  position: relative;
+}
+
+.home-band:not(.home-band--hero) .ledger-section-banner::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -2px;
+  width: 4rem;
+  height: 3px;
+  background: var(--color-primary);
+}
+
+.home-band:not(.home-band--hero) .ledger-section-banner::after {
+  content: "";
+  position: absolute;
+  left: 4.35rem;
+  top: -4px;
+  width: 1px;
+  height: 7px;
+  background: color-mix(in srgb, var(--color-primary) 55%, var(--color-outline));
+}
+
+.home-section-aside {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  max-width: 30rem;
+}
+
+/* The aside sits at the end of the banner, so its contents align to that same
+   edge — button and copy on one axis. Aligning the button left while the copy
+   ran right made every band look like a zigzag. */
+@media (min-width: 768px) {
+  .home-section-aside {
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  .home-section-aside .ledger-cta {
+    align-self: flex-end;
+  }
+}
+
+/* The lead column of a banner holds the kicker, the title and the note, all
+   three filled from content/pages/headers.yml. It has to be able to
+   shrink: the banner is a flex row and the aside beside it is sized by its
+   button, so without this the note pushes the button off the line. */
+.ledger-section-banner .ledger-section-lead {
+  min-width: 0;
+}
+
+/* One line under the title saying what the band holds. It is prose rather than
+   a chrome label, so it takes the body face and the reading measure instead of
+   the uppercase treatment `.ledger-section-note` carries in base.css — that
+   one is the right-hand tally at the end of a banner, which is a different
+   thing standing in a different place.
+
+   The element is removed outright when the field is empty (see
+   hydrateHomeSections), so this margin never opens a gap of its own. */
+.home-section-note {
+  margin: var(--space-sm) 0 0;
+  max-width: var(--reading-measure, 45rem);
+  color: var(--color-on-surface-variant);
+}
+
+/* ── Featured article band ── */
+/* The lead is a panel, not a row.
+   It used to be three bare columns sitting on the band background, which is
+   the same ground the three cards below it stand on: nothing about it said it
+   was the piece the band leads with, and a reader scanning down met four
+   equal entries. It now takes the card rung of the surface ladder, is fenced
+   by the same hairline every other panel on the site carries, and opens on a
+   rule in the primary — the structural edge this page already uses on
+   `.home-band--ruled` — so the eye stops at the top of it. The image inside is
+   inset by the panel's own padding rather than running to the band edge, which
+   is the other half of the promotion: the lead contains its picture, the cards
+   below are contained by theirs.
+
+   Everything here is ladder tokens and the gentle border family; the site
+   ships a light and a dark palette, so a literal colour would be wrong in one
+   of them.
+
+   The three type terms below are custom properties because the plate in the
+   third column is measured against them rather than given a size of its own —
+   see --home-featured-plate-height and `.home-featured .ledger-poster`. */
+.home-featured {
+  --home-featured-title-size: var(--type-card-lg);
+  --home-featured-title-line: 1.25;
+  --home-featured-copy-line: var(--leading-body);
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-md);
+  align-items: stretch;
+  background: var(--color-surface-card);
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+  border-top: 2px solid var(--color-primary);
+  padding: var(--space-md) var(--space-lg);
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-ease-default),
+    border-color var(--motion-duration-fast) var(--motion-ease-default);
+  margin-bottom: var(--space-lg);
+}
+
+/* The hover rung, same as `.ledger-card` takes: the panel is one link target
+   end to end, so the whole surface answers. */
+.home-featured:hover {
+  background: var(--color-surface-high);
+  border-color: color-mix(in srgb, var(--color-primary) 55%, var(--border-gentle-hover));
+  border-top-color: var(--color-primary);
+}
+
+[data-theme="dark"] .home-featured:hover {
+  border-color: color-mix(in srgb, var(--color-primary) 40%, var(--border-gentle-hover));
+  border-top-color: var(--color-primary);
+}
+
+@media (min-width: 900px) {
+  .home-featured {
+    --home-featured-title-size: var(--type-section);
+    padding: var(--space-lg);
+  }
+
+  .home-featured.home-featured--illustrated {
+    grid-template-columns: minmax(0, 1fr) 13.5rem;
+    gap: var(--space-xl);
+  }
+}
+
+@media (min-width: 1280px) {
+  .home-featured.home-featured--illustrated {
+    grid-template-columns: minmax(0, 1fr) 15rem;
+  }
+}
+
+/* Shards on the featured panel, which carried none: the one card the home
+   page leads with was also the only one on the band with no footing in the
+   cubist half of the identity.
+
+   The pair is placed around the poster rather than across the card, because
+   the poster is opaque and a shard beNewsreader it is a shard nobody sees. The
+   alpha takes the top-left, over the index column, where there is nothing but
+   chrome and air. The beta takes the bottom-right and comes out from *under*
+   the poster into the strip below it, which is the same move the index band
+   makes with its own plates.
+
+   Hues are the two the home band does not already spend: the index panels
+   below run secondary and primary, so this pair runs tertiary and secondary,
+   and neither repeats the corner its neighbor uses. Shards are absolutely
+   positioned, so they are not grid items and the three-column template is
+   untouched. */
+.home-featured-shard {
+  left: -3rem;
+  top: -3.5rem;
+  width: 11rem;
+  height: 11rem;
+  background: var(--color-tertiary);
+}
+
+.home-featured-shard--beta {
+  left: auto;
+  right: -3rem;
+  top: auto;
+  bottom: -4rem;
+  width: 13rem;
+  height: 13rem;
+  background: var(--color-secondary);
+}
+
+/* Below the two-column layout the panel is short and the columns stack, so a
+   shard sized for the wide card reaches the title.
+
+   The beta restates `top`/`left` as `auto`. It carries both class names, so
+   the rule above also matches it, and an override that gives it a `bottom`
+   without taking back the `top` leaves it with all four offsets set — at
+   which point top and left win and the pair collapses into one corner. */
+@media (max-width: 1023px) {
+  .home-featured-shard {
+    width: 8rem;
+    height: 8rem;
+    top: -2.5rem;
+    left: -2.5rem;
+  }
+
+  .home-featured-shard--beta {
+    width: 9rem;
+    height: 9rem;
+    top: auto;
+    left: auto;
+    bottom: -3rem;
+    right: -2.5rem;
+  }
+}
+
+/* The columns sit clear of both. */
+.home-featured> :not(.shard-accent) {
+  position: relative;
+  z-index: 1;
+}
+
+.home-featured-lead {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-xs);
+  min-width: 0;
+  max-width: var(--reading-measure, 45rem);
+}
+
+.home-featured-rail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs) var(--space-md);
+  margin-bottom: 0;
+}
+
+.home-featured-rail .ledger-meta {
+  margin: 0;
+}
+
+.home-featured-badge {
+  flex: 0 0 auto;
+}
+
+.home-featured-title {
+  margin: 0;
+  font-family: var(--font-content-title);
+  font-size: var(--home-featured-title-size);
+  font-weight: var(--weight-title);
+  font-synthesis: none;
+  line-height: var(--home-featured-title-line);
+}
+
+/* Home article / rascunho / project cards — content-title voice, not display. */
+.home-card-grid .ledger-card-title,
+.home-card-grid .card-title,
+.home-draft-card .ledger-card-title,
+.home-system-grid .ledger-card-title,
+.home-system-grid .card-title {
+  font-family: var(--font-content-title);
+  font-weight: var(--weight-title);
+  font-synthesis: none;
+}
+
+.home-featured-title a {
+  color: var(--color-on-surface);
+  text-decoration: none;
+  transition: color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.home-featured:hover .home-featured-title a {
+  color: var(--color-primary);
+}
+
+.home-featured-copy {
+  margin: 0;
+  max-width: var(--reading-measure, 45rem);
+  font-family: var(--font-body);
+  font-size: var(--type-subtitle);
+  font-weight: var(--weight-body);
+  line-height: var(--home-featured-copy-line);
+  color: var(--color-legend);
+}
+
+.home-featured-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-top: auto;
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--border-gentle-divider);
+}
+
+.home-featured-foot .home-featured-cta {
+  margin-left: auto;
+  padding: 0.35rem var(--space-md);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-weight: var(--weight-label);
+}
+
+.home-featured-foot .home-featured-cta:hover {
+  background: color-mix(in srgb, var(--color-primary) 85%, var(--color-on-surface));
+  color: var(--color-on-primary);
+  text-decoration: none;
+}
+
+.home-featured-foot .home-featured-cta>span:not(.ledger-cta-arrow):not(.ledger-cta-icon),
+.home-featured-foot .home-featured-cta:hover>span:not(.ledger-cta-arrow):not(.ledger-cta-icon) {
+  text-decoration: none;
+}
+
+/* ── Writing cards ── */
+.home-card-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-lg);
+}
+
+@media (min-width: 768px) {
+  .home-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .home-card-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* The archive card prints the publication date twice — once in the meta strip
+   and once in the footer's date evolution. On a three-card preview the strip
+   is enough; the full history stays on the writing index. */
+.home-card-grid .ledger-card-foot .date-evolution {
+  display: none;
+}
+
+.home-card-grid .ledger-card-foot {
+  justify-content: flex-end;
+}
+
+/* A top rule per card, rotating through the palette triad, is what gives the
+   grid its ledger rhythm in the mockup. */
+.home-card-grid .ledger-card {
+  border-top-width: 2px;
+  border-top-style: solid;
+  border-top-color: var(--color-primary);
+}
+
+.home-card-grid .ledger-card:nth-child(2) {
+  border-top-color: var(--color-secondary);
+}
+
+.home-card-grid .ledger-card:nth-child(3) {
+  border-top-color: var(--color-tertiary);
+}
+
+/* ── Rascunhos: dropped sheets ──
+   Four compact cards rather than four full-width text rows: the poster is
+   visible at every breakpoint now (it used to hide below 640px), each card
+   keeps a small fixed tilt for the "dropped on the desk" feel, and the
+   whole band reads as shorter for the same four entries. Tertiary is the
+   hue "posts" already carries everywhere else on this page (the Network of
+   Ideas arcs and legend both key rascunhos to it), so the band's accent
+   reuses that variable instead of a new one. */
+.home-draft-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-md);
+}
+
+@media (min-width: 1024px) {
+  .home-draft-list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-lg);
+  }
+}
+
+.home-draft-card {
+  overflow: hidden;
+  border-top-width: 2px;
+  border-top-style: solid;
+  border-top-color: var(--color-tertiary);
+  transform: rotate(0deg);
+  transition: transform var(--motion-duration-fast) var(--motion-ease-default),
+    background-color var(--motion-duration-fast) var(--motion-ease-default),
+    border-color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+/* A handful of fixed degrees per grid position — not a JS random() — so the
+   tilt is identical on every render and every screenshot. */
+.home-draft-list>*:nth-child(4n + 1) {
+  transform: rotate(-1.2deg);
+}
+
+.home-draft-list>*:nth-child(4n + 2) {
+  transform: rotate(0.9deg);
+}
+
+.home-draft-list>*:nth-child(4n + 3) {
+  transform: rotate(-0.7deg);
+}
+
+.home-draft-list>*:nth-child(4n) {
+  transform: rotate(1.1deg);
+}
+
+.home-draft-card:hover,
+.home-draft-card:focus-within {
+  transform: rotate(0deg);
+}
+
+.home-draft-card .ledger-card-body {
+  padding: var(--space-md);
+  gap: var(--space-xs);
+}
+
+/* Up from 1rem. The four dropped sheets are the only place on the home page
+   where a card title sat at body size, so the band read as a footnote to the
+   articles above it rather than as its own section. */
+.home-draft-card .ledger-card-title {
+  font-size: var(--type-card);
+  line-height: 1.3;
+}
+
+.home-draft-card .ledger-meta {
+  font-family: var(--font-mono);
+  font-size: var(--type-mono);
+  font-weight: 400;
+}
+
+.home-draft-card .ledger-card-copy {
+  font-family: var(--font-body);
+  font-size: var(--type-subtitle);
+  font-weight: var(--weight-body);
+  line-height: var(--leading-body);
+  color: var(--color-legend);
+  /* Fill the surplus the equal-height grid hands the body. `height: 0` with
+     `flex: 1` gives the paragraph a definite block size from the flex
+     allocation, so line-clamp/overflow clip against that height instead of
+     growing past the ellipsis (the old flex:1 + clamp:2 bug that left text
+     after "…" and sliced mid-glyph at the card edge). */
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.home-draft-card .ledger-card-foot .ledger-cta {
+  font-size: var(--type-cta);
+}
+
+/* Hover/focus zoom on the poster image only, the card clips it via the
+   overflow: hidden above so the scale never blows out the card bounds. */
+.home-draft-card .ledger-poster img,
+.home-draft-card .ledger-poster video {
+  transition: transform var(--motion-duration-slow) var(--motion-ease-default);
+}
+
+.home-draft-card:hover .ledger-poster img,
+.home-draft-card:hover .ledger-poster video,
+.home-draft-card:focus-within .ledger-poster img,
+.home-draft-card:focus-within .ledger-poster video {
+  transform: scale(1.04);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .home-draft-card,
+  .home-draft-card .ledger-poster img,
+  .home-draft-card .ledger-poster video {
+    transition: none;
+  }
+}
+
+/* ── Engineering artifacts ── */
+.home-system-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-lg);
+  /* Used to be align-items: start, to stop a short-summary card from being
+     stretched into its neighbor's poster height with empty card under its
+     links. Left at the grid's default (stretch) now instead: `.ledger-card`
+     and `.ledger-system-card` are already flex columns whose body grows
+     (`.ledger-card-copy {  flex: 1 }`) and whose footer is pinned to the
+     bottom (`.ledger-card-foot {  margin-top: auto }` in base.css), so the
+     extra height a short card gets from stretch reads as intentional air
+     above a bottom-anchored footer rather than as a dead gap under it. */
+}
+
+@media (min-width: 768px) {
+  .home-system-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Asymmetric pairs — 7/5 then 5/7 — are the "tension scale" of the mockup,
+   and they keep two video posters from sitting at identical widths. */
+@media (min-width: 1024px) {
+  .home-system-grid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: var(--space-xl);
+  }
+
+  .home-system-grid>*:nth-child(4n + 1),
+  .home-system-grid>*:nth-child(4n) {
+    grid-column: span 7;
+  }
+
+  .home-system-grid>*:nth-child(4n + 2),
+  .home-system-grid>*:nth-child(4n + 3) {
+    grid-column: span 5;
+  }
+}
+
+.home-system-grid .ledger-card-links {
+  row-gap: var(--space-sm);
+}
+
+.home-system-grid .ledger-card-copy {
+  font-family: var(--font-body);
+  font-size: var(--type-subtitle);
+  font-weight: var(--weight-body);
+  color: var(--color-legend);
+}
+
+
+@media (min-width: 768px) {}
+
+/* ── Profile band, hero plate scale, section action order ──
+   Appended after the parallel page work; see the redesign PR. */
+
+/* The portrait sits at the end of its grid column so its right edge meets
+   the edge every band below aligns to. Cap lives on the earlier
+   `.home-hero-portrait` rule (Borders Edition). */
+.home-profile-summary {
+  max-width: var(--reading-measure);
+}
+
+.home-profile-summary p {
+  margin-bottom: var(--space-md);
+}
+
+.home-profile-summary p:last-child {
+  margin-bottom: 0;
+}
+
+/* ── Reference band: Sources + Network of Ideas ──────────────────────────
+   Two destinations in one band, each a card whose poster is a plate drawn
+   from that section's own content by the export and fetched at runtime.
+   The plate sits one step *below* the card on the surface ladder, the way
+   the mockup recesses its diagram panels: card -> background, no shadow.
+
+   Every stroke and fill is a custom property, because the two SVGs are
+   injected inline precisely so that a theme flip repaints them. A hex here,
+   or an <img>, would be correct in one palette and wrong in the other.
+   The figure is hidden until the markup lands, so a plate that never arrives
+   leaves the panel with its title and its link rather than an empty frame. */
+
+/* Ambient pool beNewsreader the pair. Dark palette only, for the reason set out
+   above the hero's.
+ *
+ * The two panels sat side by side with a visible seam and nothing beNewsreader
+ * them. One pool centred on that seam, beNewsreader both, lights the pair as a
+ * single object rather than giving each panel an opening of its own. Held at
+ * 5% against the hero's 7%: at equal strength the page reads as having two
+ * openings, and only one of them is where it starts.
+ *
+ * Centred is right here and nowhere else — the seam is the thing being lit,
+ * so the offset is vertical instead, which is what keeps the pool partly
+ * outside the band it backs. `.home-band` already carries `position:
+ * relative`; `isolation: isolate` is what stops `z-index: -1` escaping beNewsreader
+ * the page background. */
+.home-band--index {
+  isolation: isolate;
+}
+
+[data-theme="dark"] .home-band--index::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -8%;
+  left: 50%;
+  width: min(72rem, 100%);
+  height: 116%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(ellipse,
+      color-mix(in srgb, var(--color-primary) 5%, transparent) 0%,
+      transparent 70%);
+  filter: blur(70px);
+  pointer-events: none;
+}
+
+.home-index-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-xl);
+}
+
+@media (min-width: 900px) {
+  .home-index-split {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-xl);
+  }
+}
+
+.home-index-panel {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: 0 0 var(--space-lg);
+  background: var(--color-surface-card-contrast);
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-ease-default),
+    border-color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.home-index-panel:hover {
+  background: var(--color-surface-high-contrast);
+  border-color: var(--border-gentle-hover);
+}
+
+/* The plates are line-art, so the cubist half of the identity had no footing
+   on this band at all. One shard per panel, the canonical polygons across
+   the set, rotating hue the way every other shard on the site does.
+ *
+ * They sit in the foot of the panel, under the title and the link: the plate
+ * above carries an opaque background, so a shard beNewsreader it would be a shard
+ * nobody sees. `overflow: hidden` on the panel above keeps the negative
+ * offsets out of the document scroll width, and the shared utility already
+ * unmounts both below 640px. */
+.home-index-shard {
+  right: -3rem;
+  bottom: -3.5rem;
+  width: 11rem;
+  height: 11rem;
+  background: var(--color-secondary);
+}
+
+.home-index-shard--beta {
+  right: auto;
+  left: -3rem;
+  bottom: -3.5rem;
+  width: 11rem;
+  height: 11rem;
+  background: var(--color-primary);
+}
+
+.home-index-shard--gamma {
+  right: -3rem;
+  bottom: -3.5rem;
+  width: 11rem;
+  height: 11rem;
+  background: var(--color-tertiary);
+}
+
+/* Between the shard cut-off and the layout each panel is the full
+   band wide on small screens, so a shard sized for half of it stops being a corner accent. */
+@media (max-width: 899px) {
+
+  .home-index-shard,
+  .home-index-shard--beta,
+  .home-index-shard--gamma {
+    width: 8rem;
+    height: 8rem;
+    bottom: -2.5rem;
+  }
+}
+
+.home-index-panel:not(:has(.home-index-plate)) {
+  padding-top: var(--space-xl);
+}
+
+/* The title and the link have to sit clear of the shard beNewsreader them. The
+   plate is excluded because it is the one child that must stay full-bleed,
+   and the shard because it is the thing being sat clear of. */
+.home-index-panel> :not(.home-index-plate):not(.shard-accent) {
+  position: relative;
+  z-index: 1;
+  margin-inline: var(--space-lg);
+}
+
+.home-index-note {
+  margin: 0;
+  font-size: var(--type-body);
+  line-height: 1.5;
+  flex: 1 1 auto;
+}
+
+.home-index-title {
+  margin: 0;
+  font-size: var(--type-card);
+}
+
+@media (min-width: 1024px) {
+  .home-index-title {
+    font-size: var(--type-card-lg);
+  }
+}
+
+/* ── The plate ── */
+.home-index-plate {
+  align-self: stretch;
+  margin: 0;
+  background: var(--color-background);
+  border-bottom: 1px solid var(--border-gentle-subtle);
+}
+
+/* The legend is not optional: the drawing has no labels, so the colour key
+   is the only thing that says which mark is which. The tally beside it is
+   counted from the content by the generator — see the script header. */
+.home-index-plate-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm) var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--border-gentle-divider);
+  font-family: var(--font-label);
+  font-size: var(--type-label);
+  letter-spacing: 0.04em;
+  color: var(--color-on-surface-variant);
+}
+
+.home-index-legend {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.home-index-key {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.home-index-swatch {
+  display: inline-block;
+  width: 0.6rem;
+  height: 0.6rem;
+  flex-shrink: 0;
+  background: var(--color-outline);
+}
+
+.home-index-tally {
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  letter-spacing: 0.04em;
+  text-transform: none;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-on-surface-variant);
+}
+
+.home-index-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  padding: var(--space-md) var(--space-sm) var(--space-sm);
+}
+
+/* ── Shared plate furniture ── */
+/* Hairlines stay hairlines: the viewBox is scaled down hard on a phone, and
+   without this the rules fade to a half-pixel smudge. */
+.home-index-art line,
+.home-index-art path,
+.home-index-art rect {
+  vector-effect: non-scaling-stroke;
+}
+
+.home-index-art line,
+.home-index-art path {
+  fill: none;
+}
+
+/* ── Network of Ideas: the metric card ── */
+/* The plate used to draw the whole graph, and at this size fifty entries under
+   ninety theme threads came out as a smudge. It reports the graph instead:
+   three counts in the display serif over one bar that splits them by what kind
+   of writing they are, which is the only quantity here that needs a colour.
+
+   The numerals are SVG text, so they scale with the panel rather than sitting
+   at one size. That is the point: they are the drawing. The label register does
+   not scale, which is why the legend and the tally stayed in HTML. */
+.home-index-metric {
+  font-family: var(--font-title);
+  font-size: var(--type-page);
+  fill: var(--color-on-surface);
+}
+
+.home-index-metric-label {
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-label) - 2pt);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  fill: var(--color-on-surface-variant);
+}
+
+.home-index-divider {
+  stroke: var(--border-gentle-divider);
+  stroke-width: 1;
+}
+
+.home-index-spine-rule {
+  stroke: var(--color-outline-variant);
+  stroke-width: 1;
+}
+
+.home-index-spine--articles {
+  fill: var(--color-primary);
+}
+
+.home-index-spine--posts {
+  fill: var(--color-tertiary);
+}
+
+.home-index-swatch--articles {
+  background: var(--color-primary);
+}
+
+.home-index-swatch--posts {
+  background: var(--color-tertiary);
+}
+
+/* ── Sources: the unit field ── */
+/* One square per source, packed into its collection. Medium colour is the
+   Sources page's own signal (--color-res-*), repeated here so the plate and
+   the grid it opens agree on what a video looks like.
+
+   The tiles are filled rather than outlined. A 32px square is small enough
+   that the colour reads as a tint of the block rather than as a shout, and
+   an outline at this size would spend most of the tile on its own border. */
+.home-index-unit {
+  fill: var(--color-outline);
+  fill-opacity: 0.8;
+}
+
+.home-index-unit--youtube,
+.home-index-swatch--youtube {
+  fill: var(--color-res-youtube);
+  background: var(--color-res-youtube);
+}
+
+.home-index-unit--podcast,
+.home-index-swatch--podcast {
+  fill: var(--color-res-podcast);
+  background: var(--color-res-podcast);
+}
+
+.home-index-unit--website,
+.home-index-swatch--website {
+  fill: var(--color-primary);
+  background: var(--color-primary);
+}
+
+.home-index-shelf {
+  stroke: var(--color-outline-variant);
+  stroke-width: 1;
+  stroke-opacity: 0.6;
+}
+
+/* The collection names are the one thing the old drawing never said. They
+   take the plate head's label treatment so the two lines of type in the
+   plate read as one voice. */
+.home-index-collection {
+  font-family: var(--font-mono);
+  font-size: calc(var(--type-meta) + 2pt);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  fill: var(--color-on-surface-variant);
+}
+
+/* ── Hero, merged with the profile ──
+   The CV band that used to follow the hero is folded into it: one masthead
+   that names the person, says what he does and offers the full record, rather
+   than a name band followed by a summary band saying the same thing twice. */
+
+.home-hero-summary {
+  max-width: var(--reading-measure);
+  margin-top: 0;
+  font-size: var(--type-body);
+  line-height: var(--leading-body);
+  color: var(--color-on-surface);
+}
+
+.home-hero-summary p {
+  margin-bottom: var(--space-md);
+}
+
+.home-hero-summary p:last-child {
+  margin-bottom: 0;
+}
+
+/* ── Featured article poster ──
+   Image stretches to match content height, with object-fit: cover cropping. */
+.home-featured .ledger-poster {
+  height: 100%;
+  min-height: 8rem;
+  border: 1.5px solid var(--border-ink);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-on-surface) 10%, transparent);
+}
+
+:root:not([data-theme="dark"]) .home-featured .ledger-poster,
+html[data-theme="light"] .home-featured .ledger-poster {
+  border-width: 1px;
+  border-color: var(--border-ink);
+}
+
+.home-featured .ledger-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.home-featured .ledger-poster::after {
+  inset: 0.4rem;
+  --frame-corner-size: 0.85rem;
+}
+
+@media (max-width: 899px) {
+  .home-featured-lead {
+    order: 1;
+  }
+
+  .home-featured .ledger-poster {
+    order: 2;
+    height: 11rem;
+  }
+}
+
+/* ── Hero portrait, full-bleed on a phone ──
+   On a phone the hero is one column and the portrait is the only element that
+   can carry the screen's full width, so it runs edge to edge instead of being
+   inset like the copy above it. The pull is exactly the gutter the band pads
+   with — the same --gutter-mobile token, mirrored on both sides — so the plate
+   ends flush with the viewport and adds no scrollable width; this must stay
+   below 768px, which is where .home-band-inner swaps that token for --gutter.
+   The side hairlines go with it: a border pinned to the screen edge reads as a
+   frame cut off rather than as the plate's edge. Orientation still owns the
+   crop; object-fit: cover re-crops the image inside the wider box. */
+@media (max-width: 767px) {
+  .home-hero-portrait {
+    max-width: none;
+    width: calc(100% + (2 * var(--gutter-mobile)));
+    margin-inline: calc(-1 * var(--gutter-mobile));
+  }
+
+  .home-hero-plate {
+    max-width: none;
+    width: 100%;
+    border-inline: 0;
+  }
+}
+
+/* ── Hero portrait between phone and desktop ──
+   Keep the plate modest; the 3:4 crop applies from tablet up. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .home-hero-portrait {
+    max-width: 14rem;
+  }
+}
+
+/* ── Bibliography stats plate ── */
+#home-bib-panel .home-index-plate {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+#home-bib-panel .home-index-plate-head {
+  flex: 0 0 auto;
+}
+
+#home-bib-panel .home-index-tally {
+  flex-basis: 100%;
+}
+
+.bib-stat-table {
+  width: 100%;
+  border-collapse: collapse;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0 0 var(--space-md);
+}
+
+.bib-stat-table tbody {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-top: auto;
+}
+
+.bib-stat-table tr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.bib-stat-table td {
+  padding: var(--space-xs) var(--space-md);
+  font-family: var(--font-label);
+  font-size: var(--type-label);
+  letter-spacing: 0.03em;
+  color: var(--color-on-surface-variant);
+  border-bottom: 1px solid var(--border-gentle-subtle);
+}
+
+.bib-stat-table tr:last-child td {
+  border-bottom: none;
+}
+
+.bib-stat-count {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-on-surface);
+}

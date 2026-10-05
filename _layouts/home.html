@@ -1,22 +1,473 @@
 ---
 layout: shell
 ---
-<main class="home">
-  <header class="home-hero">
-    <h1>{{ site.pandorga.identity.name | default: site.title }}</h1>
-    {% if site.description %}<p>{{ site.description }}</p>{% endif %}
-  </header>
-  {% assign pages = site.pandorga.pages %}
-  {% if pages %}
-  <section class="home-bands">
-    {% for entry in pages %}
-      {% if entry.home == false %}{% continue %}{% endif %}
-      <article class="home-band" data-page-key="{{ entry.key }}">
-        <h2>{{ entry.title | default: entry.key }}</h2>
-        <p><a href="{{ entry.path }}">Open {{ entry.key }}</a></p>
-      </article>
-    {% endfor %}
+
+{%- comment -%}
+  Home — Architectural Ledger / Reimagined Borders.
+
+  Six full-bleed bands alternating on the surface ladder: hero, featured
+  article, writing, rascunhos, systems, ideas graph. Every band renders from a
+  field that already exists; the mockup's counters, reading times, reference
+  codes and desk notes have no backing field and are not drawn.
+
+  The tagline and author name lead the copy column. The name grows with
+  that column up to the page-title step, and on a phone it does not drop
+  below the band titles (Articles, Rascunhos, Projects). The portrait is a
+  narrower plate stretched to the
+  same height as the copy. The plate starts black, with no photograph. Each
+  page load fades in one image from content/media/images/hero/ once that
+  file has loaded (docs/features/hero-portraits.md).
+
+  The three listing bands are filled in the browser from
+  `_content_json/data/writing_index.json` by the shared blocks in
+  `content-runtime/43-blocks.html`. Filter routes travel as data attributes so
+  the script below stays free of Liquid.
+
+  Every band introduces itself with a kicker, a title and a one-line note, and
+  none of the three is written here: they are editorial copy, they belong to
+  whoever writes the site rather than to whoever changes this layout, and they
+  arrive at runtime from `content/pages/headers.yml` through
+  `hydrateHomeSections()` in `content-runtime/60-fragments.html`. Each band
+  names the entry it reads by page key and marks its slots; a field left empty
+  in that file takes its element out of the page. The title is the same field
+  the listing page's own header reads, so the two can never drift apart.
+{%- endcomment -%}
+
+{%- assign _identity_name = site.pandorga.identity.name | default: site.author -%}
+{%- assign _name_parts = _identity_name | split: " " -%}
+{%- assign _name_given = _name_parts | first -%}
+{%- assign _name_family = _name_parts | slice: 1, 8 | join: " " -%}
+{%- assign _articles_page = site.pages | where: "key", "articles" | first -%}
+{%- assign _blog_page = site.pages | where: "key", "blog" | first -%}
+{%- assign _projects_page = site.pages | where: "key", "projects" | first -%}
+{%- assign _network_page = site.pages | where: "key", "network" | first -%}
+{%- assign _bibliography_page = site.pages | where: "key", "bibliography" | first -%}
+{%- assign _cv_page = site.pages | where: "key", "cv" | first -%}
+
+<main class="home-ledger">
+
+  <section class="home-band home-band--hero">
+    <!-- Planos sobrepostos de ateliê — composição inspirada no OG card -->
+    <div class="home-hero-pandorga" aria-hidden="true">
+      {% include page/hero-pandorga.html %}
+    </div>
+    <div class="home-band-inner">
+      <div class="home-hero">
+        <div class="home-hero-copy">
+          <div id="home-subtitle-content" class="home-hero-tagline font-label"
+            data-content-fragment="home/subtitle"></div>
+          <h1 class="home-hero-title">
+            <span class="home-hero-given">{{ _name_given }}</span>{%- if _name_family != "" %} <span class="home-hero-family">{{ _name_family }}</span>{%- endif %}
+          </h1>
+          <div id="home-cv-summary" class="home-hero-summary font-body"
+            data-content-fragment="cv/summary"></div>
+          <div class="home-hero-actions">
+            <a class="ledger-cta ledger-cta--emphasis home-hero-cta" href="{{ _cv_page.url | default: '/pages/cv/' }}">
+              <span>Curriculum Vitæ</span>
+              <span class="material-symbols-outlined ledger-cta-arrow" aria-hidden="true">chevron_right</span>
+            </a>
+            <span data-content-hero-contacts></span>
+          </div>
+        </div>
+        <div class="home-hero-portrait">
+          <span class="shard-accent home-hero-shard" aria-hidden="true"></span>
+          <div class="home-hero-plate-wrap">
+            <span class="ledger-frame-crosshairs" aria-hidden="true"></span>
+            <figure class="home-hero-plate">
+              <img alt="" width="1200" height="800" data-content-hero-portrait />
+              <span class="ledger-frame-corners" aria-hidden="true"></span>
+            </figure>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
-  {% endif %}
-  {{ content }}
+
+  <section id="home-writing" class="home-band page-accent--green">
+    <div class="home-band-inner">
+      <div class="ledger-section-banner" data-content-home-section="articles">
+        <div class="ledger-section-lead">
+          <span class="ledger-kicker" data-content-section-kicker></span>
+          <h2 class="section-title" data-content-section-title></h2>
+          <p class="home-section-note font-body" data-content-section-note></p>
+        </div>
+        <div class="home-section-aside">
+          <a class="ledger-cta" href="{{ _articles_page.url }}">
+            <span>All articles</span>
+            <span class="material-symbols-outlined ledger-cta-arrow" aria-hidden="true">chevron_right</span>
+          </a>
+        </div>
+      </div>
+      <div id="home-featured-slot" data-tag-base="{{ _articles_page.url }}"></div>
+      <div id="home-articles-grid" class="home-card-grid" data-tag-base="{{ _articles_page.url }}"></div>
+    </div>
+  </section>
+
+  <section id="home-drafts" class="home-band home-band--contrast page-accent--ochre" lang="pt-BR">
+    <div class="home-band-inner">
+      <div class="ledger-section-banner" data-content-home-section="blog">
+        <div class="ledger-section-lead">
+          <span class="ledger-kicker" data-content-section-kicker></span>
+          <h2 class="section-title" data-content-section-title></h2>
+          <p class="home-section-note font-body" data-content-section-note></p>
+        </div>
+        <div class="home-section-aside">
+          <a class="ledger-cta" href="{{ _blog_page.url }}">
+            <span>Ver todos os rascunhos</span>
+            <span class="material-symbols-outlined ledger-cta-arrow" aria-hidden="true">chevron_right</span>
+          </a>
+        </div>
+      </div>
+      <div id="home-drafts-ledger" class="home-draft-list" data-tag-base="{{ _blog_page.url }}"></div>
+    </div>
+  </section>
+
+  <section id="home-systems" class="home-band">
+    <div class="home-band-inner">
+      <div class="ledger-section-banner" data-content-home-section="projects">
+        <div class="ledger-section-lead">
+          <span class="ledger-kicker" data-content-section-kicker></span>
+          <h2 class="section-title" data-content-section-title></h2>
+          <p class="home-section-note font-body" data-content-section-note></p>
+        </div>
+        <div class="home-section-aside">
+          <a class="ledger-cta" href="{{ _projects_page.url }}">
+            <span>All projects</span>
+            <span class="material-symbols-outlined ledger-cta-arrow" aria-hidden="true">chevron_right</span>
+          </a>
+        </div>
+      </div>
+      <div id="home-systems-grid" class="home-system-grid" data-tag-base="{{ _projects_page.url }}"></div>
+    </div>
+  </section>
+
+  {%- comment -%}
+    Sources and the Network of Ideas share one band. Both are the apparatus
+    beNewsreader the writing rather than writing itself, and neither carries enough
+    weight to hold a band alone, which is also how they sat before.
+
+    Each half opens with a plate drawn from that section's own content by the
+    export, fetched and injected here at runtime: the citation graph the network
+    page renders, and the medium/category distribution of the shelf. The plate
+    used to be generated markup committed into this file, which went stale on
+    every Studio save because a content push does not rebuild the shell. It is
+    a content object now, so its counts follow the corpus on their own. See
+    docs/features/home-band-art.md.
+  {%- endcomment -%}
+  {%- assign _sources_page = site.pages | where: "key", "resources" | first -%}
+  <section id="home-index" class="home-band home-band--contrast home-band--index">
+    <div class="home-band-inner">
+      <div class="ledger-section-banner" data-content-home-section="index">
+        <div class="ledger-section-lead">
+          <span class="ledger-kicker" data-content-section-kicker></span>
+          <h2 class="section-title" data-content-section-title></h2>
+          <p class="home-section-note font-body" data-content-section-note></p>
+        </div>
+      </div>
+      <div class="home-index-split">
+
+        <article class="home-index-panel">
+          <span class="shard-accent home-index-shard" aria-hidden="true"></span>
+          <figure class="home-index-plate" data-content-band-art="sources" hidden></figure>
+          <h3 class="section-title home-index-title">{{ _sources_page.title }}</h3>
+          <a class="ledger-cta" href="{{ _sources_page.url }}">
+            <span>All sources</span>
+            <span class="material-symbols-outlined ledger-cta-arrow" aria-hidden="true">chevron_right</span>
+          </a>
+        </article>
+
+        <article class="home-index-panel">
+          <span class="shard-accent shard-accent-beta home-index-shard home-index-shard--beta" aria-hidden="true"></span>
+          <figure class="home-index-plate" data-content-band-art="network" hidden></figure>
+          <h3 class="section-title home-index-title">{{ _network_page.title }}</h3>
+          <a class="ledger-cta" href="{{ _network_page.url }}">
+            <span>Open the graph</span>
+            <span class="material-symbols-outlined ledger-cta-arrow" aria-hidden="true">chevron_right</span>
+          </a>
+        </article>
+
+        <article class="home-index-panel" id="home-bib-panel">
+          <span class="shard-accent home-index-shard home-index-shard--gamma" aria-hidden="true"></span>
+          <figure class="home-index-plate" id="home-bib-plate" hidden></figure>
+          <h3 class="section-title home-index-title">{{ _bibliography_page.title | default: "Bibliography" }}</h3>
+          <a class="ledger-cta" href="{{ _bibliography_page.url | default: '/pages/bibliography/' }}">
+            <span>Full catalog</span>
+            <span class="material-symbols-outlined ledger-cta-arrow" aria-hidden="true">chevron_right</span>
+          </a>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
 </main>
+
+<script>
+  {% raw %}
+  (function () {
+    'use strict';
+
+    var runtime = window.ContentRuntime;
+    if (!runtime) return;
+
+    var ARTICLE_CARDS = 3;
+    var DRAFT_ROWS = 4;
+    var SYSTEM_CARDS = 4;
+
+    /* The shared blocks read `front_matter`; `writing_index.json` is flat and
+       is the only export that carries `poster` and `language`. Mirroring the
+       entry into `front_matter` keeps both true without a second fetch per
+       item. */
+    function asItem(entry) {
+      return {
+        slug: entry.slug,
+        key: entry.key,
+        url: entry.url,
+        collection: entry.collection,
+        date: entry.date,
+        last_updated: entry.last_updated,
+        front_matter: entry
+      };
+    }
+
+    function byDateDesc(a, b) {
+      return String(b.date || '').localeCompare(String(a.date || ''));
+    }
+
+    /* Tag chips filter the matching listing page. The route comes from the
+       container so this script never needs Liquid. */
+    function tagHrefFrom(element) {
+      var base = element && element.getAttribute('data-tag-base');
+      if (!base) return null;
+      return function (tag) {
+        return base + '?tag=' + encodeURIComponent(tag);
+      };
+    }
+
+    function dropPlateOnError(scope, frame, illustratedClass) {
+      var image = frame && frame.querySelector('img');
+      if (!image) return;
+      image.addEventListener('error', function () {
+        frame.remove();
+        scope.classList.remove(illustratedClass);
+      });
+    }
+
+    function renderFeatured(entry, tagHref) {
+      var href = entry.url || runtime.articleUrl(entry.slug);
+      var wrap = document.createElement('article');
+      var thumbnail = entry.thumbnail;
+      wrap.className = 'home-featured' + (thumbnail ? ' home-featured--illustrated' : '');
+      var summary = runtime.listingPreview(asItem(entry));
+      var meta = runtime.renderMetaStrip([runtime.formatDate(entry.date, 'en')]);
+      var chips = runtime.renderTagChips(entry.tags, { hrefFor: tagHref });
+      var cta = runtime.renderCtaLink(href, 'Read article', { className: 'home-featured-cta' });
+      wrap.innerHTML = [
+        '<span class="shard-accent home-featured-shard" aria-hidden="true"></span>',
+        '<span class="shard-accent shard-accent-beta home-featured-shard home-featured-shard--beta" aria-hidden="true"></span>',
+        '<div class="home-featured-lead">',
+        '<div class="home-featured-rail">',
+        '<span class="ledger-chip home-featured-badge">Featured</span>',
+        meta || '',
+        '</div>',
+        '<h2 class="card-title home-featured-title"><a href="',
+        runtime.escapeAttr(href), '">', runtime.escapeHtml(entry.title || entry.slug),
+        '</a></h2>',
+        summary ? '<p class="home-featured-copy font-body">' + runtime.escapeHtml(summary) + '</p>' : '',
+        (chips || cta) ? '<div class="home-featured-foot">' + chips + cta + '</div>' : '',
+        '</div>',
+        thumbnail ? runtime.renderPosterMedia(runtime.buildUrl(thumbnail), entry.title || entry.slug) : ''
+      ].join('');
+      if (thumbnail) {
+        dropPlateOnError(wrap, wrap.querySelector('.ledger-poster'), 'home-featured--illustrated');
+      }
+      return wrap;
+    }
+
+    /* Folio number by slug, assigned over the whole log oldest first. The
+       rascunhos page numbers its entries by their place in the log, and three
+       rows lifted onto the home page carry the numbers they have there —
+       #29 on the newest entry says the notebook is twenty-nine deep, which is
+       the one thing a three-row extract otherwise cannot say. Same rule as the
+       listing: dates decide, slug breaks the tie, nothing is counted. */
+    function draftFolios(posts) {
+      var folios = Object.create(null);
+      posts.slice().sort(function (a, b) {
+        var byDate = String(a.date || '').localeCompare(String(b.date || ''));
+        return byDate !== 0 ? byDate : String(a.slug || '').localeCompare(String(b.slug || ''));
+      }).forEach(function (entry, index) {
+        folios[entry.slug] = index + 1;
+      });
+      return folios;
+    }
+
+    /* Dropped-sheet card: poster on top (visible at every breakpoint, unlike
+       the old text-only row below tablet width), title, excerpt, date and
+       folio underneath. The tilt and the hover zoom are pure CSS
+       (.home-draft-card in ledger/home.css) so this only has to build the
+       card markup. A dead poster still degrades the same way
+       renderPosterMedia always does: its inline onerror removes the plate,
+       and the card simply falls back to typography. */
+    function renderDraftCard(entry, folio) {
+      var href = entry.url || runtime.postUrl(entry.slug);
+      var f = asItem(entry);
+      var preview = runtime.listingPreview(f);
+
+      // A Portuguese notebook does not need to tell a reader it is in
+      // Portuguese, so the strip carries the folio and the date rather than
+      // the default date + language pill.
+      var metaParts = [];
+      if (folio) {
+        metaParts.push('<span class="code-technical">#' + String(folio).padStart(2, '0') + '</span>');
+      }
+      metaParts.push(runtime.formatDate(entry.date, 'pt-BR'));
+      var meta = runtime.renderMetaStrip(metaParts);
+
+      var card = document.createElement('article');
+      card.className = 'ledger-card home-draft-card group';
+      card.innerHTML = [
+        runtime.renderPosterMedia(entry.thumbnail, entry.title || entry.slug),
+        '<div class="ledger-card-body">',
+        meta,
+        '<h3 class="card-title ledger-card-title"><a href="', runtime.escapeAttr(href), '">',
+        runtime.escapeHtml(entry.title || entry.slug), '</a></h3>',
+        preview ? '<p class="ledger-card-copy font-body">' +
+          runtime.escapeHtml(preview) + '</p>' : '',
+        '<div class="ledger-card-foot">', runtime.renderCtaLink(href, 'Ler rascunho'), '</div>',
+        '</div>'
+      ].join('');
+      return card;
+    }
+
+    function fill(element, items, render, emptyMessage) {
+      if (!element) return;
+      if (!items.length) {
+        runtime.Listing.showErrorState(element, emptyMessage);
+        return;
+      }
+      var fragment = document.createDocumentFragment();
+      items.forEach(function (item) { fragment.appendChild(render(item)); });
+      element.innerHTML = '';
+      element.appendChild(fragment);
+    }
+
+    var featuredSlot = document.getElementById('home-featured-slot');
+    var articlesGrid = document.getElementById('home-articles-grid');
+    var draftsLedger = document.getElementById('home-drafts-ledger');
+    var systemsGrid = document.getElementById('home-systems-grid');
+
+    runtime.loadJson('data/writing_index.json').then(function (entries) {
+      var index = Array.isArray(entries) ? entries : [];
+
+      /* No `featured` field exists, so the newest article leads the band and
+         the grid picks up from the one after it. */
+      var articles = index.filter(function (e) { return e.collection === 'articles'; }).sort(byDateDesc);
+      var featured = runtime.pickFeatured(articles.map(asItem));
+      var featuredSlug = null;
+      if (featuredSlot && featured) {
+        var featuredEntry = articles.filter(function (a) { return a.slug === featured.slug; })[0];
+        featuredSlug = featuredEntry && featuredEntry.slug;
+        featuredSlot.innerHTML = '';
+        featuredSlot.appendChild(renderFeatured(featuredEntry, tagHrefFrom(featuredSlot)));
+      }
+      /* Whatever leads the band drops out of the grid beneath it: the pick is
+         no longer the newest entry, so slicing from the front would print it
+         twice. */
+      var rest = articles.filter(function (a) { return a.slug !== featuredSlug; });
+      if (articlesGrid) {
+        var articleTagHref = tagHrefFrom(articlesGrid);
+        fill(articlesGrid, rest.slice(0, ARTICLE_CARDS), function (entry) {
+          return runtime.renderArchiveCard(asItem(entry), {
+            href: entry.url || runtime.articleUrl(entry.slug),
+            locale: 'en',
+            ctaLabel: 'Read article',
+            tagHref: articleTagHref,
+            /* Every article that declares a language declares English, and
+               seven declare none at all, so the pill was the same word
+               wherever it appeared and absent on the cards beside it — it
+               told a reader nothing about the card it was on and left the
+               grid's meta line ragged. The rascunhos rows below drop theirs
+               for the mirror-image reason. Only the date is left, so it
+               carries the strip alone. */
+            metaParts: [runtime.formatDate(entry.date, 'en')]
+          });
+        }, 'Articles could not be loaded right now.');
+      }
+
+      if (draftsLedger) {
+        var posts = index.filter(function (e) { return e.collection === 'posts'; }).sort(byDateDesc);
+        var folios = draftFolios(posts);
+        fill(draftsLedger, posts.slice(0, DRAFT_ROWS), function (entry) {
+          return renderDraftCard(entry, folios[entry.slug]);
+        }, 'Os textos não puderam ser carregados agora.');
+      }
+
+      if (systemsGrid) {
+        var systemTagHref = tagHrefFrom(systemsGrid);
+        var projects = index.filter(function (e) { return e.collection === 'projects'; })
+          .sort(function (a, b) { return Number(a.sort_order || 0) - Number(b.sort_order || 0); });
+        fill(systemsGrid, projects.slice(0, SYSTEM_CARDS), function (entry) {
+          return runtime.renderSystemCard(asItem(entry), {
+            href: entry.url || runtime.projectUrl(entry.slug),
+            tagHref: systemTagHref
+          });
+        }, 'Projects could not be loaded right now.');
+      }
+    }).catch(function (error) {
+      console.error(error);
+      runtime.Listing.showErrorState(articlesGrid, 'Articles could not be loaded right now.');
+      runtime.Listing.showErrorState(draftsLedger, 'Os textos não puderam ser carregados agora.');
+      runtime.Listing.showErrorState(systemsGrid, 'Projects could not be loaded right now.');
+    });
+
+    /* ── Bibliography plate: stats by type ── */
+    var bibPlate = document.getElementById('home-bib-plate');
+    if (bibPlate) {
+      runtime.ensureBibliographyIndex().then(function (data) {
+        var counts = {};
+        var total = 0;
+        var years = [];
+        Object.keys(data || {}).forEach(function (k) {
+          var entry = data[k];
+          var type = (entry && entry.type) || 'misc';
+          counts[type] = (counts[type] || 0) + 1;
+          total++;
+          var y = parseInt((entry.fields || {}).year, 10);
+          if (y && !isNaN(y)) years.push(y);
+        });
+        if (!total) return;
+        years.sort();
+        var typeLabels = {
+          article: 'Academic Articles',
+          book: 'Books',
+          techreport: 'Tech Reports',
+          incollection: 'Chapters',
+          news: 'News & Magazines',
+          report: 'Reports & Data',
+          misc: 'Web & Misc'
+        };
+        var typeOrder = ['article', 'book', 'techreport', 'incollection', 'news', 'report', 'misc'];
+        var rows = typeOrder.filter(function (t) { return counts[t]; }).map(function (t) {
+          return '<tr>' +
+            '<td class="bib-stat-type">' + runtime.escapeHtml(typeLabels[t] || t) + '</td>' +
+            '<td class="bib-stat-count">' + counts[t] + '</td>' +
+            '</tr>';
+        }).join('');
+        var spanLabel = years.length
+          ? runtime.escapeHtml(String(years[0])) + '\u2013' + runtime.escapeHtml(String(years[years.length - 1]))
+          : '';
+        bibPlate.innerHTML =
+          '<figcaption class="home-index-plate-head">' +
+            '<span class="home-index-legend"><span class="home-index-key">' +
+              total + ' references</span></span>' +
+            (spanLabel ? '<span class="home-index-tally">' + spanLabel + '</span>' : '') +
+          '</figcaption>' +
+          '<table class="bib-stat-table">' +
+            '<tbody>' + rows + '</tbody>' +
+          '</table>';
+        bibPlate.hidden = false;
+      }).catch(function () {});
+    }
+  })();
+  {% endraw %}
+</script>

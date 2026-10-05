@@ -1,0 +1,41 @@
+{% assign _header_key = include.key | default: page.key %}
+
+<header class="{{ include.header_class | default: 'mb-10 md:mb-12' }}" data-content-page-header="{{ _header_key }}">
+  <div class="page-header-row{% if include.listing_filter %} page-header-row--with-filter{% endif %}">
+    <div class="page-header-primary">
+      <span data-content-header-eyebrow class="{{ include.eyebrow_class | default: 'font-label text-sm text-secondary block mb-4 hidden' }}" hidden></span>
+
+      <h1 class="page-header-title font-title{% if include.title_class %} {{ include.title_class }}{% endif %}">
+        <span data-content-header-title class="italic">Loading...</span>
+      </h1>
+
+      <span data-content-header-tags class="{{ include.tags_class | default: 'page-header-tags font-label text-tertiary mt-4 block hidden' }}" hidden></span>
+
+      <p data-content-header-standfirst class="{{ include.standfirst_class | default: 'page-header-standfirst font-body text-on-surface-variant hidden' }}" hidden></p>
+    </div>
+
+    {% if include.listing_filter %}
+    <div class="listing-filter" data-listing-filter-root hidden>
+      <button type="button" class="listing-filter-trigger" data-listing-filter-trigger aria-expanded="false" aria-controls="listing-filter-panel-{{ _header_key }}">
+        <span class="material-symbols-outlined" aria-hidden="true">filter_list</span>
+        <span class="font-body listing-filter-trigger-label">{{ include.filter_label | default: 'Filter' }}</span>
+      </button>
+      <div id="listing-filter-panel-{{ _header_key }}" class="listing-filter-panel" data-listing-filter-panel hidden>
+        {% unless include.filter_search == false %}
+        <label class="listing-filter-search-label">
+          <span class="sr-only">{{ include.filter_search_label | default: 'Search entry metadata' }}</span>
+          <input type="search" class="listing-filter-search font-body" data-listing-filter-q
+                 placeholder="{{ include.filter_placeholder | default: 'Match anything in the entry metadata…' }}"
+                 autocomplete="off">
+        </label>
+        {% endunless %}
+        <div data-listing-filter-chips></div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  {% if include.spacer_class %}
+  <div class="{{ include.spacer_class }}"></div>
+  {% endif %}
+</header>

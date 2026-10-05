@@ -1,0 +1,7 @@
+{
+  "name": "ansi basic colour",
+  "block": "renderAnsiHtml",
+  "args": ["\\e[31mred\\e[0m plain"],
+  "contains": ["color:var(--ansi-1)", ">red</span>", " plain"],
+  "excludes": ["\\e[", "[31m", "[0m"]
+}

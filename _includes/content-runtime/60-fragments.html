@@ -1,0 +1,567 @@
+{% raw %}
+    function assertManifestSchema(manifest) {
+      var expected = (window.ContentRuntimeConfig && window.ContentRuntimeConfig.expectedSchemaVersion) || 1;
+      var version = manifest && manifest.schema_version;
+      // Legacy manifests without schema_version are treated as version 1 during migration.
+      if (version == null) version = 1;
+      if (Number(version) !== Number(expected)) {
+        throw new Error(
+          'Unsupported content schema_version ' + version +
+          ' (shell expects ' + expected + '). Redeploy content or the shell together.'
+        );
+      }
+    }
+
+    async function listPaths(collection, manifestKey) {
+      var manifestResponse = await fetch(buildUrl('manifest.json'));
+      if (manifestResponse.ok) {
+        var manifest = await manifestResponse.json();
+        assertManifestSchema(manifest);
+        var files = manifest.files && manifest.files[manifestKey];
+        if (Array.isArray(files)) return files;
+      }
+
+      var response = await fetch(buildUrl('?prefix=' + collection + '/'));
+      if (!response.ok) throw new Error('Bucket listing failed: ' + response.status);
+      var xml = await response.text();
+      var doc = new DOMParser().parseFromString(xml, 'application/xml');
+      var re = new RegExp('^' + collection.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '/.+\\.json$');
+      return Array.from(doc.getElementsByTagName('Key'))
+        .map(function (node) { return node.textContent; })
+        .filter(function (path) { return re.test(path); });
+    }
+
+    var jsonCache = Object.create(null);
+    var collectionCache = Object.create(null);
+
+    async function loadCollection(collection, manifestKey) {
+      var cacheKey = String(collection) + '\0' + String(manifestKey || '');
+      if (collectionCache[cacheKey]) return collectionCache[cacheKey];
+      collectionCache[cacheKey] = (async function () {
+        var paths = await listPaths(collection, manifestKey);
+        var items = await Promise.all(paths.map(function (path) {
+          return fetch(buildUrl(path)).then(function (response) {
+            // Skip missing keys so a stale manifest cannot blank Rascunhos,
+            // Articles, or xcite resolution for the rest of the collection.
+            if (response.status === 404) {
+              console.warn('Skipping missing content object', path);
+              return null;
+            }
+            if (!response.ok) throw new Error('Content fetch failed: ' + path);
+            return response.json();
+          });
+        }));
+        return items.filter(Boolean).map(hydrateFrontMatter).filter(function (item) {
+          var includeUnpublished = !!(window.ContentRuntimeConfig && window.ContentRuntimeConfig.includeUnpublished);
+          if (includeUnpublished) return true;
+          return !(item.front_matter && item.front_matter.published === false);
+        });
+      })().catch(function (error) {
+        delete collectionCache[cacheKey];
+        throw error;
+      });
+      return collectionCache[cacheKey];
+    }
+
+    async function loadJson(path) {
+      var key = String(path || '');
+      if (jsonCache[key]) return jsonCache[key];
+      jsonCache[key] = fetch(buildUrl(path)).then(function (response) {
+        if (!response.ok) throw new Error('Content JSON fetch failed: ' + path);
+        return response.json();
+      }).catch(function (error) {
+        delete jsonCache[key];
+        throw error;
+      });
+      return jsonCache[key];
+    }
+
+    var textCache = Object.create(null);
+
+    async function loadText(path) {
+      var key = String(path || '');
+      if (textCache[key]) return textCache[key];
+      textCache[key] = fetch(buildUrl(path)).then(function (response) {
+        if (!response.ok) throw new Error('Content asset fetch failed: ' + path);
+        return response.text();
+      }).catch(function (error) {
+        delete textCache[key];
+        throw error;
+      });
+      return textCache[key];
+    }
+
+    function loadCollectionItem(collection, slug) {
+      return loadJson('collections/' + collection + '/' + slug + '.json').then(hydrateFrontMatter);
+    }
+
+    function writingIndexAsListingItem(entry) {
+      entry = entry || {};
+      return {
+        slug: entry.slug,
+        key: entry.key,
+        url: entry.url,
+        type: entry.type,
+        collection: entry.collection,
+        date: entry.date,
+        last_updated: entry.last_updated,
+        aliases: Array.isArray(entry.aliases) ? entry.aliases : [],
+        front_matter: {
+          title: entry.title,
+          category: entry.category,
+          description: entry.description,
+          excerpt: entry.excerpt,
+          thumbnail: entry.thumbnail,
+          language: entry.language,
+          date: entry.date,
+          last_updated: entry.last_updated,
+          company: entry.company,
+          product: entry.product,
+          project: entry.project,
+          tagline: entry.tagline,
+          start_date: entry.start_date,
+          end_date: entry.end_date,
+          sort_order: entry.sort_order,
+          status: entry.status,
+          label: entry.label,
+          icon: entry.icon,
+          tags: entry.tags,
+          external_url: entry.external_url,
+          article_url: entry.article_url,
+          github: entry.github,
+          key: entry.key
+        }
+      };
+    }
+
+    function loadWritingIndex(filterCollection) {
+      return loadJson('data/writing_index.json').then(function (entries) {
+        var items = (entries || []).map(writingIndexAsListingItem);
+        if (!filterCollection) return items;
+        return items.filter(function (item) {
+          return item.collection === filterCollection || item.type === filterCollection;
+        });
+      });
+    }
+
+    function stripDatedSlugPrefix(slug) {
+      return String(slug || '').replace(/^(?:\d{4}-\d{2}-\d{2}-|\d{8}-)/, '');
+    }
+
+    function resolveWritingAlias(entries, slug) {
+      if (!slug) return null;
+      var items = entries || [];
+      var exact = items.find(function (item) { return item.slug === slug; });
+      if (exact) return exact;
+
+      var aliased = items.find(function (item) {
+        return Array.isArray(item.aliases) && item.aliases.indexOf(slug) !== -1;
+      });
+      if (aliased) return aliased;
+
+      var stripped = stripDatedSlugPrefix(slug);
+      if (stripped && stripped !== slug) {
+        return items.find(function (item) { return item.key === stripped; }) || null;
+      }
+      return null;
+    }
+
+    function adoptCanonicalDetailUrl(entry) {
+      if (!entry || !entry.url) return;
+      var current = normalizePathname(window.location.pathname);
+      var target = normalizePathname(entry.url);
+      if (current !== target) {
+        history.replaceState(null, '', entry.url);
+      }
+    }
+
+    function stripSingleParagraph(html) {
+      var value = String(html || '').trim();
+      var match = value.match(/^<p(?:\s[^>]*)?>([\s\S]*)<\/p>$/i);
+      return match ? match[1].trim() : value;
+    }
+
+    function pageFragmentPath(relativePath) {
+      var value = String(relativePath || '').trim().replace(/^\/+/, '').replace(/^pages\//, '');
+      if (!value) return '';
+      if (!/\.json$/i.test(value)) value = value + '.json';
+      return 'pages/' + value;
+    }
+
+    function mountMarkdownFragment(relativePath, elementOrId, options) {
+      options = options || {};
+      var el = typeof elementOrId === 'string' ? document.getElementById(elementOrId) : elementOrId;
+      if (!el) return Promise.resolve();
+      var loadingText = options.loadingText || 'Loading...';
+      el.innerHTML = '<p class="font-body text-on-surface-variant italic">' + escapeHtml(loadingText) + '</p>';
+      return loadJson(pageFragmentPath(relativePath)).then(function (fragment) {
+        el.innerHTML = renderMarkdown(fragment.body_markdown || '');
+      }).catch(function (error) {
+        console.error(error);
+        el.innerHTML = '<p class="font-body text-on-surface-variant italic">' + escapeHtml(options.errorText || 'Content could not be loaded right now.') + '</p>';
+      });
+    }
+
+    /* Page titles and home band introductions both come from the one
+     * `content/pages/headers.yml`, exported to pages/headers.json and keyed by
+     * page key. loadJson caches by path, so the page header hydrator and the
+     * home band hydrator share a single fetch on the home page.
+     */
+    var PAGE_HEADERS_PATH = 'pages/headers.json';
+
+    function loadPageHeaders() {
+      return loadJson(PAGE_HEADERS_PATH).then(function (data) {
+        return data && typeof data === 'object' ? data : {};
+      });
+    }
+
+    function hydratePageHeader(root) {
+      if (!root) return Promise.resolve();
+      var pageKey = root.getAttribute('data-content-page-header');
+      if (!pageKey) return Promise.resolve();
+      var titleEl = root.querySelector('[data-content-header-title]');
+      var eyebrowEl = root.querySelector('[data-content-header-eyebrow]');
+      var tagsEl = root.querySelector('[data-content-header-tags]');
+      var standfirstEl = root.querySelector('[data-content-header-standfirst]');
+      return loadPageHeaders().then(function (headers) {
+        var data = headers[pageKey];
+        if (titleEl) {
+          var title = data && data.title;
+          if (title) {
+            titleEl.innerHTML = stripSingleParagraph(parseInlineMarkdown(String(title)));
+          }
+        }
+        if (eyebrowEl && data && data.eyebrow) {
+          eyebrowEl.textContent = data.eyebrow;
+          eyebrowEl.hidden = false;
+          eyebrowEl.classList.remove('hidden');
+        }
+        // Tags are field-backed like every other slot: an absent list, an
+        // empty one, or one holding nothing but blanks leaves the line hidden
+        // rather than printing a row of separators.
+        if (tagsEl && data) {
+          var tags = (Array.isArray(data.tags) ? data.tags : [])
+            .map(function (tag) { return tag == null ? '' : String(tag).trim(); })
+            .filter(Boolean);
+          if (tags.length) {
+            tagsEl.textContent = tags.join('. ');
+            tagsEl.hidden = false;
+            tagsEl.classList.remove('hidden');
+          }
+        }
+        // Optional standfirst. Absent on most headers today, so the element
+        // stays hidden rather than collapsing to an empty paragraph.
+        if (standfirstEl && data && data.standfirst) {
+          standfirstEl.innerHTML = stripSingleParagraph(
+            parseInlineMarkdown(String(data.standfirst))
+          );
+          standfirstEl.hidden = false;
+          standfirstEl.classList.remove('hidden');
+        }
+      }).catch(function (error) {
+        console.error(error);
+        if (titleEl) {
+          titleEl.textContent = 'Page header could not be loaded right now.';
+        }
+      });
+    }
+
+    /* Home band introductions, from content/pages/headers.yml — the same file
+     * and the same entries the page headers read, which is why a band title
+     * and its listing page's title are never written twice.
+     *
+     * Each band on the home page declares which entry it reads by page key
+     * (`data-content-home-section="articles"`) and marks the three slots it can
+     * fill. A slot whose field is absent or empty is taken out of the document
+     * rather than left standing empty: an editor who deletes a note gets no
+     * note, no gap and no stand-in, which is the same rule the layouts follow
+     * for every other field. The same happens when the fetch fails, so a band
+     * never keeps a half-filled banner on screen.
+     *
+     * Titles carry the `*italic*` convention the page headers use, so they go
+     * through the same parseInlineMarkdown/stripSingleParagraph pair as
+     * hydratePageHeader's title rather than a second markup rule.
+     */
+    function fillHomeSectionSlot(el, value, inline) {
+      if (!el) return;
+      var text = value == null ? '' : String(value).trim();
+      if (!text) {
+        el.remove();
+        return;
+      }
+      if (inline) {
+        el.innerHTML = stripSingleParagraph(parseInlineMarkdown(text));
+      } else {
+        el.textContent = text;
+      }
+      el.hidden = false;
+      el.classList.remove('hidden');
+    }
+
+    function applyHomeSection(root, section) {
+      section = section || {};
+      fillHomeSectionSlot(root.querySelector('[data-content-section-kicker]'), section.kicker, false);
+      fillHomeSectionSlot(root.querySelector('[data-content-section-title]'), section.title, true);
+      fillHomeSectionSlot(root.querySelector('[data-content-section-note]'), section.note, true);
+      /* Page accent from headers.yml (`accent: green|ochre`). Applied on the
+       * home band so the section title marker, CTAs and chips follow the same
+       * hue as the listing page. Blue is the site default — no class. */
+      var accent = String(section.accent || '').trim().toLowerCase();
+      var band = root.closest('section') || root;
+      ['green', 'ochre'].forEach(function (name) {
+        band.classList.toggle('page-accent--' + name, accent === name);
+      });
+    }
+
+    function hydrateHomeSections() {
+      var roots = Array.prototype.slice.call(
+        document.querySelectorAll('[data-content-home-section]')
+      );
+      if (!roots.length) return Promise.resolve();
+      return loadPageHeaders().then(function (sections) {
+        roots.forEach(function (root) {
+          applyHomeSection(root, sections[root.getAttribute('data-content-home-section')]);
+        });
+      }).catch(function (error) {
+        console.error(error);
+        roots.forEach(function (root) { applyHomeSection(root, null); });
+      });
+    }
+
+    /* The home page's reference band opens each panel with a plate drawn from
+     * that section's own content by the export (docs/features/home-band-art.md).
+     * The markup arrives as an SVG document and is injected inline, never as an
+     * <img>: every stroke and fill in it is a custom property, and an external
+     * document cannot see the palette the page is currently wearing.
+     *
+     * The plate's caption is counted, not written, so it travels on the root
+     * element as data attributes and is lifted back out into HTML here. Text
+     * left inside the viewBox would scale with the panel; the label register
+     * has one size and keeps it.
+     */
+    function bandArtPath(name) {
+      return 'data/band-art-' + String(name || '').replace(/[^a-z0-9-]/gi, '') + '.svg';
+    }
+
+    function renderBandArtCaption(svg) {
+      var legend = (svg.getAttribute('data-band-legend') || '').split(',').filter(Boolean);
+      var tally = svg.getAttribute('data-band-tally') || '';
+      if (!legend.length && !tally) return '';
+      var keys = legend.map(function (entry) {
+        var parts = entry.split(':');
+        return '<span class="home-index-key"><span class="home-index-swatch home-index-swatch--' +
+          escapeAttr(parts[0]) + '" aria-hidden="true"></span>' + escapeHtml(parts[1] || '') + '</span>';
+      }).join('');
+      return '<figcaption class="home-index-plate-head">' +
+        '<span class="home-index-legend">' + keys + '</span>' +
+        '<span class="home-index-tally">' + escapeHtml(tally) + '</span>' +
+        '</figcaption>';
+    }
+
+    function mountBandArt(el) {
+      var name = el.getAttribute('data-content-band-art');
+      if (!name) return Promise.resolve();
+      return loadText(bandArtPath(name)).then(function (markup) {
+        el.innerHTML = markup;
+        var svg = el.querySelector('svg');
+        if (!svg) return;
+        el.insertAdjacentHTML('afterbegin', renderBandArtCaption(svg));
+        el.hidden = false;
+      }).catch(function (error) {
+        console.error(error);
+      });
+    }
+
+    function hydrateBandArt() {
+      return Promise.all(
+        Array.prototype.slice.call(document.querySelectorAll('[data-content-band-art]')).map(mountBandArt)
+      );
+    }
+
+    var contactsCache = null;
+    var contactsPromise = null;
+
+    function ensureContacts() {
+      if (contactsCache) return Promise.resolve(contactsCache);
+      if (!contactsPromise) {
+        contactsPromise = loadJson('data/contacts.json').then(function (data) {
+          contactsCache = Array.isArray(data) ? data : [];
+          return contactsCache;
+        }).catch(function (error) {
+          console.error(error);
+          contactsPromise = null;
+          contactsCache = [];
+          return contactsCache;
+        });
+      }
+      return contactsPromise;
+    }
+
+    function renderProfessionalConnection(contact) {
+      var href = contact.href || '#';
+      var isMailto = href.indexOf('mailto:') === 0;
+      var targetRel = isMailto ? '' : ' target="_blank" rel="noopener"';
+      return [
+        '<a href="', escapeAttr(href), '"', targetRel,
+        ' class="group flex h-full items-center gap-3 no-underline">',
+        '<div class="w-12 h-12 rounded-[9999px] bg-surface-container-highest flex items-center justify-center group-hover:bg-primary-container transition-colors">',
+        '<span class="material-symbols-outlined text-on-surface group-hover:text-on-primary-container">',
+        escapeHtml(contact.icon || ''),
+        '</span></div><div>',
+        '<span class="block marginalia text-tertiary">',
+        escapeHtml(contact.badge || ''),
+        '</span><span class="font-label text-on-surface">',
+        escapeHtml(contact.name || ''),
+        '</span></div></a>'
+      ].join('');
+    }
+
+    function renderHeroContact(contact) {
+      var href = contact.href || '#';
+      var isMailto = href.indexOf('mailto:') === 0;
+      var targetRel = isMailto ? '' : ' target="_blank" rel="noopener"';
+      return [
+        '<a href="', escapeAttr(href), '"', targetRel,
+        ' class="ledger-cta ledger-cta--emphasis ledger-cta--emphasis-alt home-hero-cta">',
+        '<span class="material-symbols-outlined ledger-cta-icon" aria-hidden="true">',
+        escapeHtml(contact.icon || ''),
+        '</span><span>', escapeHtml(contact.name || ''), '</span></a>'
+      ].join('');
+    }
+
+    function renderFooterContact(contact) {
+      var href = contact.href || '#';
+      var isMailto = href.indexOf('mailto:') === 0;
+      var targetRel = isMailto ? '' : ' target="_blank" rel="noopener"';
+      return [
+        '<a href="', escapeAttr(href), '"', targetRel,
+        ' class="marginalia text-on-surface-variant hover:text-primary transition-all duration-300">',
+        escapeHtml(contact.name || ''),
+        '</a>'
+      ].join('');
+    }
+
+    function hydrateContacts() {
+      var grids = document.querySelectorAll('[data-content-contacts]');
+      var footers = document.querySelectorAll('[data-content-footer-contacts]');
+      var heroSlots = document.querySelectorAll('[data-content-hero-contacts]');
+      if (!grids.length && !footers.length && !heroSlots.length) return Promise.resolve();
+      return ensureContacts().then(function (contacts) {
+        grids.forEach(function (el) {
+          el.innerHTML = contacts.map(renderProfessionalConnection).join('');
+        });
+        footers.forEach(function (el) {
+          el.innerHTML = contacts.map(renderFooterContact).join('');
+        });
+        heroSlots.forEach(function (el) {
+          el.outerHTML = contacts.map(renderHeroContact).join('');
+        });
+      });
+    }
+
+    // Home hero plate. pages/home/portraits.json lists every image in
+    // content/media/images/hero/. One entry is chosen per document load.
+    // A file that fails to load is skipped. The plate stays black until one
+    // pool file has loaded, and stays black when every entry fails.
+    function heroPortraitEntries(data) {
+      var list = Array.isArray(data) ? data : [];
+      var entries = [];
+      var i;
+      for (i = 0; i < list.length; i++) {
+        var entry = list[i];
+        if (!entry || typeof entry !== 'object' || Array.isArray(entry)) continue;
+        var src = typeof entry.src === 'string' ? entry.src.trim() : '';
+        if (!src) continue;
+        var alt = typeof entry.alt === 'string' ? entry.alt.trim() : '';
+        entries.push({ src: src, alt: alt });
+      }
+      return entries;
+    }
+
+    function pickHeroPortrait(entries, random) {
+      if (!entries || !entries.length) return null;
+      var roll = typeof random === 'function' ? random() : Math.random();
+      if (typeof roll !== 'number' || !(roll >= 0) || roll >= 1) return entries[0];
+      return entries[Math.floor(roll * entries.length)];
+    }
+
+    function applyHeroPortrait(img, chosen) {
+      var nextSrc = resolveAssetUrl(chosen.src);
+      var nextAlt = chosen.alt || '';
+      if (!nextSrc) return Promise.resolve(false);
+      if (img.getAttribute('src') === nextSrc) {
+        img.alt = nextAlt;
+        img.classList.add('is-shown');
+        return Promise.resolve(true);
+      }
+      return new Promise(function (resolve) {
+        var probe = new Image();
+        probe.onload = function () {
+          img.src = nextSrc;
+          img.alt = nextAlt;
+          img.classList.add('is-shown');
+          resolve(true);
+        };
+        probe.onerror = function () {
+          resolve(false);
+        };
+        probe.src = nextSrc;
+      });
+    }
+
+    function showHeroPortrait(img, entries) {
+      var chosen = pickHeroPortrait(entries, Math.random);
+      if (!chosen) return Promise.resolve();
+      var start = entries.indexOf(chosen);
+      var ordered = entries.slice(start).concat(entries.slice(0, start));
+      var index = 0;
+      function next() {
+        if (index >= ordered.length) return Promise.resolve();
+        var entry = ordered[index];
+        index += 1;
+        return applyHeroPortrait(img, entry).then(function (ok) {
+          if (ok) return;
+          return next();
+        });
+      }
+      return next();
+    }
+
+    function hydrateHeroPortrait() {
+      var img = document.querySelector('[data-content-hero-portrait]');
+      if (!img) return Promise.resolve();
+      return loadJson('pages/home/portraits.json').then(function (data) {
+        return showHeroPortrait(img, heroPortraitEntries(data));
+      }).catch(function (error) {
+        console.error(error);
+      });
+    }
+
+    function hydratePageFragments() {
+      document.querySelectorAll('[data-content-page-header]').forEach(function (el) {
+        hydratePageHeader(el);
+      });
+      document.querySelectorAll('[data-content-fragment]').forEach(function (el) {
+        var path = el.getAttribute('data-content-fragment');
+        if (!path) return;
+        mountMarkdownFragment(path, el, {
+          loadingText: el.getAttribute('data-content-loading') || 'Loading...',
+          errorText: el.getAttribute('data-content-error') || 'Content could not be loaded right now.'
+        });
+      });
+      hydrateHomeSections();
+      hydrateBandArt();
+      hydrateContacts();
+      hydrateHeroPortrait();
+    }
+
+    function schedulePageFragmentHydration() {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', hydratePageFragments);
+      } else {
+        hydratePageFragments();
+      }
+    }
+
+    schedulePageFragmentHydration();
+{% endraw %}

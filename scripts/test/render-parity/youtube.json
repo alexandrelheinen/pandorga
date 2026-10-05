@@ -1,0 +1,8 @@
+{
+  "name": "youtube",
+  "markdown": "{% include youtube.html id=\"dQw4w9WgXcQ\" caption=\"Test video\" %}",
+  "selectors": [
+    "figure",
+    "iframe"
+  ]
+}

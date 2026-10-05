@@ -1,0 +1,26 @@
+{
+  "name": "website-studio",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@clerk/clerk-js": "^6.36.0",
+    "@tiptap/core": "^3.31.4",
+    "@tiptap/extension-color": "^3.31.4",
+    "@tiptap/extension-link": "^3.31.4",
+    "@tiptap/extension-placeholder": "^3.31.4",
+    "@tiptap/extension-text-style": "^3.31.4",
+    "@tiptap/pm": "^3.31.4",
+    "@tiptap/starter-kit": "^3.31.4",
+    "js-yaml": "^4.1.0",
+    "marked": "^15.0.7"
+  },
+  "devDependencies": {
+    "vite": "^6.2.0"
+  }
+}

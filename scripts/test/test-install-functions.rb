@@ -24,7 +24,7 @@ unless api.file?
   exit 1
 end
 stamp = DEST.join("functions/.pandorga-version")
-unless stamp.file? && stamp.read.include?("0.1.0")
+unless stamp.file? && stamp.read.match?(/\d+\.\d+\.\d+/)
   warn "FAIL test-install-functions: version stamp missing"
   exit 1
 end

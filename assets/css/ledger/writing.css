@@ -1,0 +1,754 @@
+/* Ledger page styles: writing. Owned by the writing page; shared component rules
+   belong in assets/css/base.css under "Architectural Ledger blocks".
+
+   Every ledger stylesheet is loaded on every page, so each rule here is scoped
+   to markup only the writing listings emit: .writing-index for the articles
+   page, and the .writing-rail block at the foot of this file, which is the one
+   sidebar both writing listings wear. Colours come from the theme custom
+   properties only: a literal hex would be correct in one palette and wrong in
+   the other. */
+
+/* Page accent: `.page-accent--green` is defined once in base.css and
+   applied on `<main class="writing-index page-accent--green">`. */
+
+.writing-index .writing-masthead {
+  padding-bottom: var(--space-lg);
+  margin-bottom: var(--space-xl);
+  border-bottom: 1px solid var(--border-gentle-divider);
+  box-shadow: 0 3px 0 -2px var(--border-gentle-faint);
+  position: relative;
+}
+
+.writing-index .writing-masthead::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -1.5px;
+  width: 3rem;
+  height: 2px;
+  background: var(--color-primary);
+}
+
+
+
+.writing-index .writing-masthead-tags {
+  margin-top: var(--space-sm);
+  /* The page accent, not a fixed role: Articles happens to read green, but
+     the tag line should follow whatever `.page-accent--*` sets. */
+  color: var(--color-primary);
+  letter-spacing: 0.06em;
+}
+
+/* ══ Featured panel ══
+   The first entry of the current selection that carries a thumbnail, given
+   the panel step of the surface ladder and the full gutter. Two columns when
+   there is an image and one when there is not, so the panel never reserves
+   space for a plate that does not exist. */
+.writing-index .writing-lead {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: var(--space-xl);
+  padding: var(--space-lg);
+  background: var(--color-panel-contrast);
+}
+
+@media (min-width: 1024px) {
+  .writing-index .writing-lead {
+    padding: var(--space-lg) var(--space-xl);
+  }
+}
+
+/* The mockup filled the right of this panel with a fabricated proof figure.
+   A shard bleeding off the corner holds that weight instead.
+
+   This used to be a single 19rem wedge at the top right, stood down whenever
+   the entry carried a thumbnail — and the panel picks the first entry that
+   *has* a thumbnail, so the condition was always true and the shard never
+   rendered on a built page. It is a pair now, placed around the plate rather
+   than instead of it.
+
+   The alpha sits bottom left, under the foot of the copy, the one corner the
+   plate never reaches at any width. The beta is a true corner accent at the
+   top right: it is offset far enough up that its visible part is the triangle
+   above the plate's top edge, and it tucks beNewsreader the plate as it descends
+   rather than fighting it. Neither corner repeats the home panel's pair, and
+   the hues are the only two this page has — `.page-accent--green` rebinds
+   primary onto secondary, so green and ochre is the whole palette here. */
+.writing-index .writing-lead-shard {
+  left: -3.5rem;
+  bottom: -4rem;
+  width: 12rem;
+  height: 12rem;
+  background: var(--color-primary);
+}
+
+.writing-index .writing-lead-shard--beta {
+  left: auto;
+  right: -4rem;
+  bottom: auto;
+  top: -5rem;
+  width: 10rem;
+  height: 10rem;
+  background: var(--color-tertiary);
+}
+
+.writing-index .writing-lead-inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: var(--space-lg);
+}
+
+/* On a phone the plate leads the panel, at a width that still leaves the title
+   on the first screen. From the tablet up it moves beside the prose and grows
+   with the column. */
+@media (max-width: 719px) {
+  .writing-index .writing-lead--illustrated .writing-lead-media {
+    order: -1;
+    max-width: 100%;
+    height: 11rem;
+  }
+}
+
+@media (min-width: 720px) {
+  .writing-index .writing-lead--illustrated .writing-lead-inner {
+    grid-template-columns: minmax(0, 1fr) 11rem;
+    align-items: stretch;
+  }
+}
+
+/* The plate stretches to match the content height, so the panel's height is a
+   function of the prose beside it. */
+@media (min-width: 900px) {
+  .writing-index .writing-lead--illustrated .writing-lead-inner {
+    grid-template-columns: minmax(0, 1fr) 13.5rem;
+    gap: var(--space-xl);
+    align-items: stretch;
+  }
+}
+
+@media (min-width: 1280px) {
+  .writing-index .writing-lead--illustrated .writing-lead-inner {
+    grid-template-columns: minmax(0, 1fr) 15rem;
+    align-items: stretch;
+  }
+}
+
+.writing-index .writing-lead-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  max-width: var(--reading-measure, 45rem);
+}
+
+/* Featured chip and the date strip share one ledger line when they fit. */
+.writing-index .writing-lead-rail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm) var(--space-md);
+}
+
+.writing-index .writing-lead-rail .ledger-meta {
+  margin: 0;
+}
+
+/* Thin accent rule under the meta strip — monograph category cue. */
+.writing-index .writing-lead-category-bar {
+  width: 4rem;
+  height: 2px;
+  margin: var(--space-xs) 0 var(--space-sm);
+  background: var(--color-primary);
+}
+
+.writing-index .writing-lead-featured {
+  flex: 0 0 auto;
+}
+
+.writing-index .writing-lead-title {
+  font-family: var(--font-content-title);
+  font-weight: var(--weight-title);
+  font-synthesis: none;
+  margin: 0;
+}
+
+.writing-index .writing-lead-title a {
+  color: var(--color-on-surface);
+  text-decoration: none;
+  transition: color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.writing-index .writing-lead:hover .writing-lead-title a,
+.writing-index .writing-lead-title a:hover {
+  color: var(--color-primary);
+}
+
+.writing-index .writing-lead-copy {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--type-body);
+  font-weight: var(--weight-body);
+  line-height: var(--leading-body);
+  color: var(--color-legend);
+}
+
+/* The foot spreads: tags on the left, action aligned to the right. */
+.writing-index .writing-lead-foot {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-top: auto;
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--border-gentle-divider);
+}
+
+.writing-index .writing-lead-foot .writing-lead-cta {
+  margin-left: auto;
+  padding: 0.35rem var(--space-md);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-weight: var(--weight-label);
+}
+
+.writing-index .writing-lead-cta:hover {
+  background: color-mix(in srgb, var(--color-primary) 85%, var(--color-on-surface));
+  color: var(--color-on-primary);
+  text-decoration: none;
+}
+
+.writing-index .writing-lead-cta>span:not(.ledger-cta-arrow):not(.ledger-cta-icon),
+.writing-index .writing-lead-cta:hover>span:not(.ledger-cta-arrow):not(.ledger-cta-icon) {
+  text-decoration: none;
+}
+
+/* Portrait plate. The frame is square-cornered like everything else, sits one
+   step below the panel it is on, and crops rather than letterboxes: a plate
+   with bars around it would read as a mistake at this size. */
+.writing-index .writing-lead-media {
+  display: flex;
+  height: 100%;
+}
+
+.writing-index .writing-lead-media .ledger-poster {
+  width: 100%;
+  height: 100%;
+  min-height: 8rem;
+  background: var(--color-surface-container-lowest);
+  /* Same plate dialect as home featured / hero portrait. */
+  border: 1.5px solid var(--border-ink);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-on-surface) 10%, transparent);
+}
+
+:root:not([data-theme="dark"]) .writing-index .writing-lead-media .ledger-poster,
+html[data-theme="light"] .writing-index .writing-lead-media .ledger-poster {
+  border-width: 1px;
+}
+
+.writing-index .writing-lead-media .ledger-poster::after {
+  inset: 0.4rem;
+  --frame-corner-size: 0.85rem;
+}
+
+.writing-index .writing-lead-media .ledger-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.9) contrast(1.02);
+  transition: filter var(--motion-duration-base) var(--motion-ease-default), transform var(--motion-duration-slow) var(--motion-ease-default);
+}
+
+.writing-index .writing-lead:hover .ledger-poster img {
+  filter: saturate(1.02) contrast(1);
+  transform: scale(1.02);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .writing-index .writing-lead:hover .ledger-poster img {
+    transform: none;
+  }
+}
+
+/* The revision date is the quieter half of the ledger line: it explains the
+   default order without competing with the publication date. */
+.writing-index .writing-revised {
+  color: color-mix(in srgb, var(--color-on-surface-variant) 78%, transparent);
+}
+
+/* ══ Archive and rail ══
+   The mockup's nine/three split, with the filter in the column it filled with
+   invented marginalia. */
+.writing-index .writing-body {
+  display: block;
+}
+
+@media (min-width: 1024px) {
+  .writing-index .writing-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 16rem;
+    gap: var(--space-2xl);
+    align-items: start;
+  }
+
+  .writing-index .writing-main {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+  }
+
+  .writing-index .writing-rail {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}
+
+@media (min-width: 1280px) {
+  .writing-index .writing-body {
+    grid-template-columns: minmax(0, 1fr) 18rem;
+  }
+}
+
+/* Archive head: the ordering and the tally, both read off the live list. */
+.writing-index .writing-archive-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-sm) var(--space-md);
+  padding-bottom: var(--space-sm);
+  margin-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--border-gentle-subtle);
+}
+
+.writing-index .writing-archive-title {
+  margin: 0;
+  color: var(--color-on-surface);
+  font-weight: var(--weight-label);
+  letter-spacing: 0.08em;
+  font-size: var(--type-label-lg);
+}
+
+.writing-index .writing-archive-note,
+.writing-index .writing-archive-tally {
+  color: var(--color-on-surface-variant);
+  letter-spacing: 0.04em;
+  font-size: var(--type-meta);
+}
+
+.writing-index .writing-archive-tally {
+  margin-left: auto;
+}
+
+.writing-index .writing-archive {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.writing-index .writing-archive-state {
+  max-width: var(--reading-measure, 45rem);
+  padding: var(--space-xl);
+  background: var(--color-surface-card);
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+}
+
+.writing-index .writing-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-lg);
+  margin-top: var(--space-2xl);
+}
+
+.writing-index .writing-pagination.hidden {
+  display: none;
+}
+
+/* ── Rows ──
+   A hairline rule on the reading side turns the run of slabs into a ledger:
+   the entry the pointer is on gains the brand edge, the rest stay quiet. */
+.writing-index .ledger-row {
+  border: 1.5px solid var(--border-ink);
+  border-left: 3px solid transparent;
+  border-radius: var(--radius-card);
+  transition: background-color var(--motion-duration-fast) var(--motion-ease-default), border-color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.writing-index .ledger-row:hover {
+  border-color: var(--border-ink);
+  border-left-color: var(--color-secondary);
+}
+
+/* Archive row blurbs — same reading size as the featured lead copy. */
+.writing-index .ledger-row-copy {
+  font-size: var(--type-body);
+  line-height: var(--leading-body);
+}
+
+.writing-index .ledger-row-foot {
+  margin-top: var(--space-xs);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-gentle-divider);
+}
+
+/* An entry that declares a thumbnail keeps its plate on the reading side's
+   right, so the titles of illustrated and plain entries stay on one edge. */
+.writing-index .writing-row--illustrated {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 6.5rem;
+  column-gap: var(--space-lg);
+  align-items: start;
+}
+
+.writing-index .writing-row-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+.writing-index .writing-row--illustrated>.ledger-poster {
+  aspect-ratio: 3 / 4;
+  background: var(--color-surface-container-lowest);
+  border: 1px solid var(--border-gentle-faint);
+}
+
+.writing-index .writing-row--illustrated .ledger-poster img {
+  filter: saturate(0.88) contrast(1.02);
+  transition: filter var(--motion-duration-base) var(--motion-ease-default);
+}
+
+.writing-index .writing-row--illustrated:hover .ledger-poster img {
+  filter: saturate(1.02) contrast(1);
+}
+
+/* Below the tablet breakpoint the plate would take a third of the title's
+   measure. Same call as the shards: decoration goes, the entry stays whole. */
+@media (max-width: 639px) {
+  .writing-index .writing-row--illustrated {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .writing-index .writing-row--illustrated>.ledger-poster {
+    display: none;
+  }
+}
+
+/* global-link.css underlines any <a> hovered inside an <article>, which would
+   fuzz the chips and the directional links inside a ledger row. */
+.writing-index a.ledger-chip:hover,
+.writing-index .ledger-cta:hover {
+  text-decoration: none;
+}
+
+/* ══ Filter rail ══
+   Above 1024px the panel is always open and the trigger is not rendered;
+   below it the same markup is the shared disclosure. */
+.writing-rail {
+  margin-bottom: var(--space-xl);
+}
+
+.writing-rail[hidden] {
+  display: none;
+}
+
+.writing-rail-trigger {
+  margin-bottom: var(--space-sm);
+}
+
+.writing-rail-trigger-label {
+  font-size: var(--type-meta);
+  letter-spacing: 0.06em;
+}
+
+.writing-rail-panel {
+  padding: var(--space-md);
+  background: var(--color-surface-card);
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+}
+
+@media (min-width: 1024px) {
+
+  /* Default listing pattern: filter rail stays under the site nav while the
+     archive scrolls. Cap height so long tag lists scroll inside the ribbon. */
+  .writing-rail {
+    --listing-sticky-top: 5.5rem;
+    position: sticky;
+    top: var(--listing-sticky-top);
+    margin-bottom: 0;
+    max-height: calc(100vh - var(--listing-sticky-top) - var(--space-xl));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--color-surface-card);
+    padding: var(--space-lg);
+    border: 1.5px solid var(--border-ink);
+    border-radius: var(--radius-card);
+  }
+
+  .home-band--contrast .writing-rail,
+  .rascunhos-main .writing-rail {
+    background: var(--color-surface-card);
+  }
+
+  .writing-rail-trigger {
+    display: none;
+  }
+
+  /* The controller toggles [hidden] on the panel for the disclosure form of
+     this rail. In the rail form the panel is the rail. */
+  .writing-rail-panel,
+  .writing-rail-panel[hidden] {
+    display: block;
+    padding: 0;
+    background: none;
+    border: 0;
+  }
+}
+
+/* Keyword box: full width of the rail, with the search glyph inside it. Its
+   heading matches the facet headings below, so the rail reads as three
+   labelled groups rather than a box with two lists under it. */
+.writing-rail-panel>.listing-filter-group-label {
+  margin: 0 0 var(--space-sm);
+  padding-bottom: var(--space-xs);
+  border-bottom: 1px solid var(--border-gentle-faint);
+  color: var(--color-on-surface-variant);
+  font-family: var(--font-label);
+  font-size: var(--type-label-lg);
+  font-weight: var(--weight-label);
+  letter-spacing: 0.04em;
+}
+
+.writing-rail-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--space-lg);
+}
+
+/* A query is words, not notation: whatever is typed here is the same prose
+   that is being searched for. Monospace is reserved for code and for figures
+   that have to line up in a column, so the field keeps the body face — which
+   is what the `font-body` class already on the input asks for, and what this
+   rule used to override. */
+.writing-rail-search .writing-rail-input {
+  width: 100%;
+  padding: 0.45rem 2.1rem 0.45rem 0.7rem;
+  background: var(--color-background);
+  color: var(--color-on-surface);
+  border: 1px solid var(--border-gentle-subtle);
+  font-family: var(--font-body);
+  font-size: calc(var(--type-subtitle) - 1pt);
+  font-weight: var(--weight-body);
+}
+
+.writing-rail-search .writing-rail-input::placeholder {
+  font-family: var(--font-body);
+  font-size: calc(var(--type-subtitle) - 1pt);
+  font-weight: var(--weight-body);
+}
+
+.writing-rail-search-icon.material-symbols-outlined {
+  position: absolute;
+  right: 0.45rem;
+  font-size: var(--type-card);
+  color: var(--color-on-surface-variant);
+  pointer-events: none;
+}
+
+/* Facets read as a list, not as a row of tabs: one line per tag, the count
+   beside its name, and the active line marked on its left edge. */
+.writing-rail .listing-filter-group+.listing-filter-group {
+  margin-top: var(--space-lg);
+}
+
+.writing-rail .listing-filter-group-label {
+  margin: 0 0 var(--space-sm);
+  padding-bottom: var(--space-xs);
+  border-bottom: 1px solid var(--border-gentle-faint);
+  color: var(--color-on-surface-variant);
+  font-family: var(--font-label);
+  font-size: var(--type-label-lg);
+  font-weight: var(--weight-label);
+  letter-spacing: 0.04em;
+}
+
+.writing-rail .listing-filter-chips {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+}
+
+.writing-rail .listing-filter-chip {
+  justify-content: flex-start;
+  padding: 0.4rem 0.5rem;
+  background: none;
+  border: 0;
+  border-left: 2px solid transparent;
+  color: var(--color-on-surface-variant);
+  font-family: var(--font-label);
+  font-size: var(--type-label-lg);
+  font-weight: var(--weight-label);
+  letter-spacing: 0.03em;
+  line-height: 1.2;
+  text-align: left;
+}
+
+.writing-rail .listing-filter-chip:hover {
+  background: var(--color-surface-high);
+  border-left-color: var(--color-outline-variant);
+  color: var(--color-on-surface);
+}
+
+/* The active state is carried by the page accent, the tinted fill and the rule
+   on the left edge. Cabin (label role) can take real weight; colour still does
+   the selected cue so the rail stays quiet. `--color-primary` follows
+   `.page-accent--*` (green on Articles, ochre on Rascunhos), so the same rail
+   markup does not stay locked to secondary. */
+.writing-rail .listing-filter-chip.is-active {
+  background: color-mix(in srgb, var(--color-primary) 8%, transparent);
+  border-left-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* ── Licence ──
+   The last group in the rail, and the only one that is not a control: the
+   terms the archive beside it is published under. Every word of it is the
+   exported licence record, so the block exists only when the manifest
+   declares one — the rail has three labelled groups with it and two without.
+   It is rendered flush with the facet headings above so the rail still reads
+   as one column of labelled groups rather than a filter with a note stuck
+   underneath. */
+.writing-rail-licence {
+  margin-top: var(--space-xl);
+}
+
+.writing-rail-licence[hidden] {
+  display: none;
+}
+
+.writing-rail-licence-label {
+  display: block;
+  margin: 0 0 var(--space-sm);
+  padding-bottom: var(--space-xs);
+  border-bottom: 1px solid var(--border-gentle-faint);
+  color: var(--color-on-surface-variant);
+  font-family: var(--font-label);
+  font-size: var(--type-label);
+  font-weight: var(--weight-label);
+  letter-spacing: 0.04em;
+}
+
+.writing-rail-licence-copy {
+  margin: 0 0 var(--space-xs);
+  color: var(--color-on-surface-variant);
+  font-size: var(--type-meta);
+  line-height: 1.5;
+}
+
+.writing-rail-licence .ledger-cta {
+  margin-top: var(--space-sm);
+  font-size: var(--type-cta);
+}
+
+/* ── Licence, a colophon rather than a preamble ──
+   On the disclosure form the rail stacks above the archive, which put the
+   reuse terms between the reader and the writing they describe. Nothing about
+   a licence needs reading first, so below 1024px it goes where a colophon
+   belongs: after the entries and after the pager.
+
+   It cannot simply be reordered, because it is a child of the rail rather
+   than a sibling of the archive. So the rail's own box dissolves and its
+   three children become items of the stacked body — `display: contents`, the
+   same move the sources page makes on its chip rows. `:not([hidden])` keeps
+   the dissolve off the rail until the controller mounts it; without it a
+   higher-specificity `display: contents` would beat `.writing-rail[hidden]`
+   and leak the Filter button onto an unmounted page.
+
+   The licence stays a note either way: no card fill, no frame, nothing that
+   would read as a panel to get past. */
+@media (max-width: 1023px) {
+
+  .writing-index .writing-body,
+  .rascunhos-body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .writing-index .writing-body>.writing-rail:not([hidden]),
+  .rascunhos-body>.writing-rail:not([hidden]) {
+    display: contents;
+  }
+
+  .writing-index .writing-main,
+  .rascunhos-body>.rascunhos-ledger {
+    order: 1;
+  }
+
+  .writing-rail-licence {
+    order: 2;
+    margin-top: var(--space-xl);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--border-gentle-subtle);
+  }
+
+  /* The dissolved rail took its margin-bottom with it, so the space between
+     the filter and the archive passes to whichever child is last on screen:
+     the panel when the disclosure is open, the trigger when it is shut. */
+  .writing-rail-panel {
+    margin-bottom: var(--space-xl);
+  }
+
+  .writing-rail:has(> .writing-rail-panel[hidden]) .writing-rail-trigger {
+    margin-bottom: var(--space-xl);
+  }
+}
+
+@media (min-width: 1024px) {
+  .writing-rail-licence {
+    padding-left: 0;
+    border-left: 0;
+  }
+}
+
+/* Between the 640px shard cut-off and the desktop layout the panel is narrow
+   enough that a shard sized for the wide card reaches the middle of it: at
+   768px the 19rem one this started as ran straight through the lead headline.
+   Back to corner accents. The CV dossier and the rascunhos masthead carry the
+   same correction. Both corners are restated, not just the size, because the
+   base rule sets one of `top`/`bottom` and `left`/`right` to `auto` on the
+   beta and a size-only override would leave the pair half-placed: the beta
+   carries both class names, so the alpha rule matches it too, and an element
+   left with all four offsets set resolves to top and left, which drops the
+   pair into a single corner. */
+@media (max-width: 1023px) {
+  .writing-index .writing-lead-shard {
+    left: -2.5rem;
+    bottom: -3rem;
+    width: 8.5rem;
+    height: 8.5rem;
+  }
+
+  .writing-index .writing-lead-shard--beta {
+    left: auto;
+    bottom: auto;
+    right: -3rem;
+    top: -3.5rem;
+    width: 7.5rem;
+    height: 7.5rem;
+  }
+}
+
+/* Pagination count face/size live on `.pagination-count` in base.css. */
+
+/* global-link.css underlines any <a> hovered inside an <article>, which would
+   fuzz the chips and the directional links inside a ledger row. */
+.writing-index a.ledger-chip:hover,
+.writing-index .ledger-cta:hover {
+  text-decoration: none;
+}

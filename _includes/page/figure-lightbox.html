@@ -1,0 +1,102 @@
+<!-- Shared figure lightbox: one overlay per page (shell). See docs/content/elements.md -->
+<div id="figure-lightbox" class="figure-lightbox" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="Enlarged figure">
+  <div class="figure-lightbox-backdrop" data-lightbox-close tabindex="-1"></div>
+  <div class="figure-lightbox-panel">
+    <button type="button" class="figure-lightbox-close" data-lightbox-close aria-label="Close">
+      <span class="material-symbols-outlined" aria-hidden="true">close</span>
+    </button>
+    <img class="figure-lightbox-img" alt="" />
+    <p class="figure-lightbox-caption" hidden></p>
+  </div>
+</div>
+<script>
+  (function () {
+    var root = document.getElementById('figure-lightbox');
+    if (!root) return;
+
+    var imgEl = root.querySelector('.figure-lightbox-img');
+    var captionEl = root.querySelector('.figure-lightbox-caption');
+    var closeBtn = root.querySelector('.figure-lightbox-close');
+    var lastTrigger = null;
+    var open = false;
+
+    function setOpen(isOpen) {
+      open = isOpen;
+      root.hidden = !isOpen;
+      root.setAttribute('aria-hidden', String(!isOpen));
+      document.documentElement.classList.toggle('figure-lightbox-open', isOpen);
+      document.body.classList.toggle('figure-lightbox-open', isOpen);
+    }
+
+    function closeLightbox() {
+      if (!open) return;
+      setOpen(false);
+      if (imgEl) {
+        imgEl.removeAttribute('src');
+        imgEl.alt = '';
+      }
+      if (captionEl) {
+        captionEl.textContent = '';
+        captionEl.hidden = true;
+      }
+      if (lastTrigger && typeof lastTrigger.focus === 'function') {
+        try { lastTrigger.focus(); } catch (e) { /* ignore */ }
+      }
+      lastTrigger = null;
+    }
+
+    function openLightbox(trigger) {
+      if (!trigger || !imgEl) return;
+      var src = trigger.getAttribute('src');
+      if (!src) return;
+      lastTrigger = trigger;
+      imgEl.src = src;
+      imgEl.alt = trigger.getAttribute('alt') || '';
+      var caption = trigger.getAttribute('data-lightbox-caption') || '';
+      if (captionEl) {
+        if (caption) {
+          captionEl.textContent = caption;
+          captionEl.hidden = false;
+        } else {
+          captionEl.textContent = '';
+          captionEl.hidden = true;
+        }
+      }
+      setOpen(true);
+      if (closeBtn) closeBtn.focus();
+    }
+
+    function isTrigger(el) {
+      return el && el.classList && el.classList.contains('figure-lightbox-trigger');
+    }
+
+    document.addEventListener('click', function (event) {
+      var closeTarget = event.target.closest('[data-lightbox-close]');
+      if (closeTarget && open) {
+        event.preventDefault();
+        closeLightbox();
+        return;
+      }
+      var trigger = event.target.closest('img.figure-lightbox-trigger');
+      if (isTrigger(trigger)) {
+        event.preventDefault();
+        openLightbox(trigger);
+      }
+    });
+
+    document.addEventListener('keydown', function (event) {
+      if (open && event.key === 'Escape') {
+        event.preventDefault();
+        closeLightbox();
+        return;
+      }
+      if (!open && (event.key === 'Enter' || event.key === ' ')) {
+        var trigger = event.target;
+        if (isTrigger(trigger)) {
+          event.preventDefault();
+          openLightbox(trigger);
+        }
+      }
+    });
+  })();
+</script>

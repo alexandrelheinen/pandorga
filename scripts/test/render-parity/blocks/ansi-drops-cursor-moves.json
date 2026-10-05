@@ -1,0 +1,7 @@
+{
+  "name": "ansi drops non-SGR sequences rather than printing them",
+  "block": "renderAnsiHtml",
+  "args": ["\\e[20A\\e[43Cshifted\\e[K"],
+  "contains": ["shifted"],
+  "excludes": ["[20A", "[43C", "[K"]
+}

@@ -1,0 +1,24 @@
+{% if include.lemma %}
+{% assign _locale = include.locale | default: '' | strip | downcase %}
+{% assign _label = include.country | default: include.meta | default: _locale %}
+<article class="sov-card{% if _locale != '' %} sov-card--{{ _locale }}{% endif %}" role="listitem">
+  <div class="sov-card__head">
+    {% if _locale != '' %}
+    <span class="sov-card__flag" title="{{ _label | escape }}"><span class="fi fi-{{ _locale }}" role="img" aria-label="{{ _label | escape }}"></span></span>
+    {% endif %}
+    {% if include.meta and include.meta != '' %}
+    <span class="sov-card__meta">{{ include.meta | escape }}</span>
+    {% endif %}
+  </div>
+  <p class="sov-card__lemma">{{ include.lemma | escape }}</p>
+  {% if include.def and include.def != '' %}
+  <div class="sov-card__def">{{ include.def | strip | newline_to_br }}</div>
+  {% endif %}
+  {% if include.note and include.note != '' %}
+  <p class="sov-card__note">{{ include.note }}</p>
+  {% endif %}
+  {% if include.source and include.source != '' %}
+  <p class="sov-card__cite">{{ include.source | escape }}, s.v. &ldquo;{{ include.lemma | escape }},&rdquo;{% if include.url and include.url != '' %} <a href="{{ include.url }}">{% if include.link_label and include.link_label != '' %}{{ include.link_label | escape }}{% else %}{{ include.url | escape }}{% endif %}</a>{% endif %}{% if include.accessed and include.accessed != '' %}, accessed {{ include.accessed | escape }}{% endif %}.{% if include.cite_extra and include.cite_extra != '' %} {{ include.cite_extra | escape }}{% endif %}</p>
+  {% endif %}
+</article>
+{% endif %}

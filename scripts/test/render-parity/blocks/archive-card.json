@@ -1,0 +1,32 @@
+{
+  "name": "archive-card/full",
+  "block": "renderArchiveCard",
+  "args": [
+    {
+      "slug": "wsl",
+      "front_matter": {
+        "title": "Why I chose WSL",
+        "date": "2026-02-24",
+        "last_updated": "2026-08-22",
+        "language": "enus",
+        "tags": ["Engineering", "Systems", "Craft"],
+        "description": "How a failed dual boot pushed me to WSL2."
+      }
+    },
+    { "href": "/articles/wsl/", "locale": "en", "ctaLabel": "Read article", "tagLimit": 2 }
+  ],
+  "selectors": [
+    "article.ledger-card",
+    "div.ledger-card-body",
+    "div.ledger-meta",
+    "span.lang-pill",
+    "h3.ledger-card-title",
+    "p.ledger-card-copy",
+    "div.ledger-chip-row",
+    "div.ledger-card-foot",
+    "a.ledger-cta"
+  ],
+  "contains": ["data-dynamic-article=\"true\"", "href=\"/articles/wsl/\"", ">Why I chose WSL<"],
+  "excludes": ["Craft"],
+  "counts": { "ledger-chip": 2, "ledger-meta-sep": 1 }
+}

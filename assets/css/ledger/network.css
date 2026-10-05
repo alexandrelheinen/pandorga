@@ -1,0 +1,106 @@
+/* Ledger page styles: network of ideas. Owned by the network page; shared
+   component rules belong in assets/css/base.css under "Architectural Ledger
+   blocks".
+
+   The graph itself is styled in _includes/page/network-graph.html, beside the
+   markup and the D3 that emits it. This sheet holds one thing that sheet has
+   no business holding: the ambient pool, which is a site-wide design device
+   with a palette gate and a calibrated opacity, not a property of the graph.
+   Every ledger sheet is linked on every page, so both selectors here are
+   scoped to markup only this page emits. */
+
+/* ── The ambient pools ──
+   Three depth treatments on this page: articles (forest / secondary),
+   posts/rascunhos (ochre / tertiary), and projects (slate / primary). Each
+   marks where that kind of content concentrates in the settled D3 layout.
+
+   Both pools are drawn inside the SVG between the background rect and the zoom
+   group, tracking their respective clusters in screen space. */
+.network-pool {
+  display: inline;
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+/* Light palette defaults */
+.network-pool-core {
+  stop-color: var(--color-primary-container);
+  stop-opacity: 0.45;
+}
+
+.network-pool-edge {
+  stop-color: var(--color-primary-container);
+  stop-opacity: 0;
+}
+
+.network-pool-core--articles {
+  stop-color: var(--color-secondary-container);
+  stop-opacity: 0.45;
+}
+
+.network-pool-edge--articles {
+  stop-color: var(--color-secondary-container);
+  stop-opacity: 0;
+}
+
+.network-pool-core--posts {
+  stop-color: var(--color-tertiary-container);
+  stop-opacity: 0.45;
+}
+
+.network-pool-edge--posts {
+  stop-color: var(--color-tertiary-container);
+  stop-opacity: 0;
+}
+
+.network-pool-core--projects {
+  stop-color: var(--color-primary-container);
+  stop-opacity: 0.45;
+}
+
+.network-pool-edge--projects {
+  stop-color: var(--color-primary-container);
+  stop-opacity: 0;
+}
+
+/* Dark palette overrides — triad aliases so page-accent--ochre cannot
+   collapse the articles pool into the posts ochre. */
+[data-theme="dark"] .network-pool-core {
+  stop-color: var(--triad-primary);
+  stop-opacity: 0.11;
+}
+
+[data-theme="dark"] .network-pool-edge {
+  stop-color: var(--triad-primary);
+  stop-opacity: 0;
+}
+
+[data-theme="dark"] .network-pool-core--articles {
+  stop-color: var(--triad-secondary);
+  stop-opacity: 0.12;
+}
+
+[data-theme="dark"] .network-pool-edge--articles {
+  stop-color: var(--triad-secondary);
+  stop-opacity: 0;
+}
+
+[data-theme="dark"] .network-pool-core--posts {
+  stop-color: var(--triad-tertiary);
+  stop-opacity: 0.10;
+}
+
+[data-theme="dark"] .network-pool-edge--posts {
+  stop-color: var(--triad-tertiary);
+  stop-opacity: 0;
+}
+
+[data-theme="dark"] .network-pool-core--projects {
+  stop-color: var(--triad-primary);
+  stop-opacity: 0.11;
+}
+
+[data-theme="dark"] .network-pool-edge--projects {
+  stop-color: var(--triad-primary);
+  stop-opacity: 0;
+}

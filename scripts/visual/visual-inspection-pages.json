@@ -1,0 +1,113 @@
+{
+  "_comment": [
+    "Pages screenshotted by .github/workflows/visual-inspection.yml.",
+    "scripts/visual/build-site-pages-json.js appends the latest article and post,",
+    "so detail views for those two collections need no entry here.",
+    "scripts/test/test-visual-inspection-pages.rb checks every url resolves.",
+    "The harness (scripts/visual/take-screenshots.js) takes only { id, name, url },",
+    "navigates once and captures fullPage at 1440x1200. It cannot seed",
+    "localStorage or emulate prefers-color-scheme, so every capture is the",
+    "default light palette; dark mode has to be reviewed by hand until the",
+    "harness grows a theme option. Query strings do pass through, which is how",
+    "the filtered listing states below are reached."
+  ],
+  "site": [
+    {
+      "id": "home",
+      "name": "Home",
+      "url": "/"
+    },
+    {
+      "id": "cv",
+      "name": "Curriculum Vitæ",
+      "url": "/pages/cv/"
+    },
+    {
+      "id": "blog",
+      "name": "Blog (Rascunhos)",
+      "url": "/pages/blog/"
+    },
+    {
+      "id": "blog-filtered",
+      "name": "Blog (Rascunhos) — tag filter applied",
+      "url": "/pages/blog/?tag=provoca%C3%A7%C3%A3o"
+    },
+    {
+      "id": "articles",
+      "name": "Articles",
+      "url": "/pages/articles/"
+    },
+    {
+      "id": "articles-filtered",
+      "name": "Articles — tag filter applied",
+      "url": "/pages/articles/?tag=DevOps"
+    },
+    {
+      "id": "articles-searched",
+      "name": "Articles — keyword box in use",
+      "url": "/pages/articles/?q=robot"
+    },
+    {
+      "id": "projects",
+      "name": "Projects",
+      "url": "/pages/projects/"
+    },
+    {
+      "id": "resources",
+      "name": "Sources",
+      "url": "/pages/sources/"
+    },
+    {
+      "id": "resources-filtered",
+      "name": "Sources — category and medium filters applied",
+      "url": "/pages/sources/?category=Academic&medium=youtube"
+    },
+    {
+      "id": "network",
+      "name": "Network of Ideas",
+      "url": "/pages/network/"
+    },
+    {
+      "id": "bibliography",
+      "name": "Bibliography",
+      "url": "/pages/bibliography/"
+    },
+    {
+      "id": "license",
+      "name": "License",
+      "url": "/pages/license/"
+    },
+    {
+      "id": "project-detail",
+      "name": "Project detail (ARCO — poster, tags, repository link)",
+      "url": "/projects/arco/"
+    },
+    {
+      "id": "project-detail-no-media",
+      "name": "Project detail (Bossa — no poster)",
+      "url": "/projects/bossa/"
+    },
+    {
+      "id": "product-detail",
+      "name": "Product detail (Parrot ANAFI Ai)",
+      "url": "/products/parrot-anafi-ai/"
+    },
+    {
+      "id": "not-found",
+      "name": "404",
+      "url": "/404.html"
+    }
+  ],
+  "cv": [
+    {
+      "id": "cv-extended",
+      "name": "CV — Extended (PDF layout)",
+      "url": "/cv-extended/"
+    },
+    {
+      "id": "cv-single-page",
+      "name": "CV — Single Page (PDF layout)",
+      "url": "/cv-single-page/"
+    }
+  ]
+}

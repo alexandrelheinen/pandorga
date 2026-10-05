@@ -1,0 +1,55 @@
+{% include theme/theme-context.liquid %}
+{% assign font_title = sf.title | default: "Lora" %}
+{% assign font_subtitle = sf.subtitle | default: "Lato" %}
+{% assign font_label = sf.label | default: "Ysabeau SC" %}
+{% assign font_body = sf.body | default: "Newsreader" %}
+{% assign font_mono = sf.mono %}
+{% assign font_code = sf.code %}
+{% assign font_cv_body = sf.cv_body %}
+{% assign title_slug = font_title | replace: ' ', '+' %}
+{% assign subtitle_slug = font_subtitle | replace: ' ', '+' %}
+{% assign label_slug = font_label | replace: ' ', '+' %}
+{% assign body_slug = font_body | replace: ' ', '+' %}
+{% assign mono_slug = font_mono | replace: ' ', '+' %}
+{% assign code_slug = font_code | replace: ' ', '+' %}
+{% assign cv_body_slug = font_cv_body | replace: ' ', '+' %}
+{% assign title_spec = sf.google_title_spec | default: "ital,wght@0,400;0,500;0,700;1,400;1,500" %}
+{% assign subtitle_spec = sf.google_subtitle_spec | default: "ital,wght@0,300;0,400;0,500;0,700;1,400;1,500" %}
+{% assign label_spec = sf.google_label_spec | default: "ital,wght@0,400;0,500;0,700;1,400;1,500" %}
+{% assign body_spec = sf.google_body_spec | default: "ital,wght@0,300;0,400;0,500;0,700;1,400;1,500;1,700" %}
+{% assign mono_spec = sf.google_mono_spec | default: "wght@400;500;700" %}
+{% assign code_spec = sf.google_code_spec | default: "wght@300;400;500;600;700" %}
+{% assign cv_body_spec = sf.google_cv_body_spec | default: "wght@300;400;500;600;700" %}
+{% comment %}
+  Build the Google Fonts URL without repeating a family. Title is always
+  requested. Body / label / subtitle / mono / code append only when their
+  family name differs from ones already on the URL.
+{% endcomment %}
+{% assign fonts_href = "https://fonts.googleapis.com/css2?family=" | append: title_slug | append: ":" | append: title_spec %}
+{% unless font_label == font_title %}
+  {% assign fonts_href = fonts_href | append: "&family=" | append: label_slug | append: ":" | append: label_spec %}
+{% endunless %}
+{% unless font_body == font_title or font_body == font_label %}
+  {% assign fonts_href = fonts_href | append: "&family=" | append: body_slug | append: ":" | append: body_spec %}
+{% endunless %}
+{% if font_mono and font_mono != '' %}
+  {% unless font_mono == font_title or font_mono == font_label or font_mono == font_body %}
+    {% assign fonts_href = fonts_href | append: "&family=" | append: mono_slug | append: ":" | append: mono_spec %}
+  {% endunless %}
+{% endif %}
+{% if font_code and font_code != '' %}
+  {% unless font_code == font_title or font_code == font_label or font_code == font_body or font_code == font_mono %}
+    {% assign fonts_href = fonts_href | append: "&family=" | append: code_slug | append: ":" | append: code_spec %}
+  {% endunless %}
+{% endif %}
+{% if font_subtitle != font_body and font_subtitle != font_label and font_subtitle != font_title %}
+  {% assign fonts_href = fonts_href | append: "&family=" | append: subtitle_slug | append: ":" | append: subtitle_spec %}
+{% endif %}
+{% if font_cv_body and font_cv_body != '' %}
+  {% unless font_cv_body == font_title or font_cv_body == font_label or font_cv_body == font_body or font_cv_body == font_subtitle %}
+    {% assign fonts_href = fonts_href | append: "&family=" | append: cv_body_slug | append: ":" | append: cv_body_spec %}
+  {% endunless %}
+{% endif %}
+{% assign fonts_href = fonts_href | append: "&display=swap" %}
+<link rel="preload" as="style" href="{{ fonts_href }}" />
+<link href="{{ fonts_href }}" rel="stylesheet" />

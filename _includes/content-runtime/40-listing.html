@@ -1,0 +1,225 @@
+{% raw %}
+    function extractExcerptText(root) {
+      var parts = [];
+      var skipTags = { script: true, style: true, iframe: true, svg: true, hr: true, noscript: true, video: true };
+      var blockTags = { p: true, li: true, blockquote: true, tr: true, pre: true, td: true, th: true, dd: true, dt: true };
+
+      function lastChar() {
+        return parts.length ? parts[parts.length - 1].slice(-1) : '';
+      }
+
+      function ensureSpace() {
+        if (parts.length && lastChar() && !/\s/.test(lastChar())) {
+          parts.push(' ');
+        }
+      }
+
+      function append(text) {
+        if (text) parts.push(text);
+      }
+
+      function hasClass(node, name) {
+        return node.classList && node.classList.contains(name);
+      }
+
+      function visit(node) {
+        if (!node) return;
+        if (node.nodeType === Node.TEXT_NODE) {
+          append(node.textContent);
+          return;
+        }
+        if (node.nodeType !== Node.ELEMENT_NODE) return;
+
+        var tag = node.tagName.toLowerCase();
+
+        if (skipTags[tag]) return;
+
+        if (tag === 'div' && hasClass(node, 'article-references')) return;
+
+        if (tag === 'br') {
+          ensureSpace();
+          return;
+        }
+
+        if (tag === 'img') {
+          var alt = (node.getAttribute('alt') || '').trim();
+          if (alt) {
+            ensureSpace();
+            append(alt);
+            ensureSpace();
+          }
+          return;
+        }
+
+        if (tag === 'pre') {
+          ensureSpace();
+          var codeText = (node.textContent || '').replace(/\s+/g, ' ').trim();
+          if (codeText) append(codeText);
+          ensureSpace();
+          return;
+        }
+
+        if (tag === 'figcaption') {
+          ensureSpace();
+          Array.prototype.forEach.call(node.childNodes, visit);
+          ensureSpace();
+          return;
+        }
+
+        if (/^h[1-6]$/.test(tag)) {
+          ensureSpace();
+          var heading = (node.textContent || '').trim();
+          if (heading) {
+            append(heading.replace(/:+\s*$/, '') + ': ');
+          }
+          return;
+        }
+
+        var isBlock = !!blockTags[tag];
+
+        if (isBlock) ensureSpace();
+
+        Array.prototype.forEach.call(node.childNodes, visit);
+
+        if (isBlock) ensureSpace();
+      }
+
+      visit(root);
+      return parts.join('')
+        .replace(/%%CONTENT_RUNTIME_XCITE_[^%]+%%/g, '')
+        .replace(/\$\$[\s\S]*?\$\$/g, ' ')
+        .replace(/\$[^$\n]+\$/g, ' ')
+        .replace(/\\\[[\s\S]*?\\\]/g, ' ')
+        .replace(/\\\([\s\S]*?\\\)/g, ' ')
+        .replace(/\{%-?[\s\S]*?-?%\}/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function textExcerpt(markdown) {
+      var html = renderMarkdown(markdown);
+      var el = document.createElement('div');
+      el.innerHTML = html;
+      var text = extractExcerptText(el);
+      return text.length > 220 ? text.slice(0, 217).trim() + '...' : text;
+    }
+
+    function listingPreview(item) {
+      var fm = (item && item.front_matter) || {};
+      var editorial = String(fm.description || '').trim();
+      if (editorial) return editorial;
+      var excerpt = String(fm.excerpt || '').trim();
+      if (excerpt) return excerpt;
+      return textExcerpt((item && item.body_markdown) || '');
+    }
+
+    function formatDate(value, locale) {
+      if (!value) return '';
+      var parts = String(value).slice(0, 10).split('-').map(Number);
+      if (parts.length !== 3 || parts.some(isNaN)) return value;
+      return new Intl.DateTimeFormat(locale || 'en', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      }).format(new Date(parts[0], parts[1] - 1, parts[2]));
+    }
+
+    function chronologySortKey(item) {
+      var fm = item.front_matter || {};
+      var primary = item.last_updated || fm.last_updated || item.date || fm.date || '';
+      var tiebreaker = item.date || fm.date || item.slug || '';
+      return String(primary) + '\0' + String(tiebreaker);
+    }
+
+    function getSessionRandomSeed(namespace) {
+      var key = 'listing-random-seed-' + (namespace || 'global');
+      var seed = null;
+      try {
+        seed = window.sessionStorage.getItem(key);
+        if (!seed) {
+          seed = String(Math.random()) + '-' + Date.now();
+          window.sessionStorage.setItem(key, seed);
+        }
+      } catch (e) {
+        seed = 'static-seed';
+      }
+      return seed;
+    }
+
+    function hashString(str) {
+      var h = 2166136261 >>> 0;
+      for (var i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+      h += h << 13;
+      h ^= h >>> 7;
+      h += h << 3;
+      h ^= h >>> 17;
+      h += h << 5;
+      return h >>> 0;
+    }
+
+    function sessionRandomCompare(aKey, bKey, namespace) {
+      var seed = getSessionRandomSeed(namespace);
+      var ha = hashString(seed + ':' + aKey);
+      var hb = hashString(seed + ':' + bKey);
+      if (ha !== hb) return ha < hb ? -1 : 1;
+      return String(aKey).localeCompare(String(bKey));
+    }
+
+    function dateKey(value) {
+      if (value == null || value === '') return '';
+      return String(value).slice(0, 10);
+    }
+
+    function renderDateEvolution(date, lastUpdated, locale, options) {
+      options = options || {};
+      var created = formatDate(date, locale);
+      var updated = formatDate(lastUpdated, locale);
+      var hasUpdate = dateKey(lastUpdated) && dateKey(lastUpdated) !== dateKey(date);
+      if (!created && !(hasUpdate && updated)) return '';
+      var align = options.align === 'right' ? ' items-end' : '';
+      var gap = options.gap || 'gap-1';
+      var metaClass = options.metaClass ? ' ' + options.metaClass : '';
+      var nowrap = options.nowrap === false ? '' : ' whitespace-nowrap';
+      var publishedTitle = options.publishedLabel || 'Published';
+      var updatedTitle = options.updatedLabel || 'Updated';
+      var html = '<div class="date-evolution flex flex-col ' + gap + align + metaClass + '">';
+      if (created) {
+        html += '<span class="' + nowrap.trim() + '"' + (options.showLabels ? '' : ' title="' + escapeAttr(publishedTitle) + '"') + '>';
+        if (options.showLabels) html += escapeHtml(publishedTitle) + ': ';
+        html += escapeHtml(created) + '</span>';
+      }
+      if (hasUpdate && updated) {
+        html += '<span class="opacity-60' + nowrap + '"' + (options.showLabels ? '' : ' title="' + escapeAttr(updatedTitle) + '"') + '>';
+        if (options.showLabels) html += escapeHtml(updatedTitle) + ': ';
+        html += escapeHtml(updated) + '</span>';
+      }
+      html += '</div>';
+      return html;
+    }
+
+    function renderCardMetaBlock(category) {
+      if (!category) return '';
+      return [
+        '<div class="card-meta-block">',
+        '<span class="card-meta px-2 py-0.5 border border-gentle text-tertiary">',
+        escapeHtml(category),
+        '</span></div>'
+      ].join('');
+    }
+
+    function renderCardFooterDates(date, lastUpdated, locale, options) {
+      options = options || {};
+      return renderDateEvolution(date, lastUpdated, locale, {
+        align: 'right',
+        gap: options.gap || 'gap-0.5',
+        publishedLabel: options.publishedLabel,
+        updatedLabel: options.updatedLabel,
+        showLabels: options.showLabels,
+        metaClass: 'card-meta text-on-surface-variant'
+      });
+    }
+
+{% endraw %}

@@ -1,0 +1,393 @@
+---
+layout: shell
+---
+
+<main class="cv-page{% if page.accent and page.accent != 'blue' %} page-accent--{{ page.accent }}{% endif %} max-w-7xl mx-auto px-4 sm:px-8 md:px-16 pt-10 pb-16 min-h-screen">
+    <div id="cv-page-header">
+        <div class="cv-dossier">
+            <span class="shard-accent cv-dossier-shard" aria-hidden="true"></span>
+            <span class="shard-accent shard-accent-beta cv-dossier-shard cv-dossier-shard--beta" aria-hidden="true"></span>
+            <div class="cv-dossier-inner">
+                {% include page/page-header.html
+                    key=page.key
+                    header_class="cv-dossier-head"
+                    tags_class="cv-dossier-tags code-technical hidden"
+                    standfirst_class="cv-dossier-standfirst font-body hidden" %}
+                <div class="cv-dossier-aside">
+                    <div class="cv-contact-cta" id="contact">
+                        <span class="cv-contact-cta-label">Contact</span>
+                        {% include page/professional-connections.html wrapper_class="cv-contacts" %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="cv-disclaimer" class="cv-disclaimer-box">
+        <span class="material-symbols-outlined cv-dossier-note-icon" aria-hidden="true">info</span>
+        <div class="cv-dossier-note font-body" data-content-fragment="cv/disclaimer">
+            <p class="font-body text-on-surface-variant italic">Loading...</p>
+        </div>
+    </div>
+
+    <div id="cv-listing">
+        {% capture cv_summary %}
+        <div class="cv-summary font-body" data-content-fragment="cv/summary">
+            <p class="font-body text-on-surface-variant italic">Loading...</p>
+        </div>
+        {% endcapture %}
+        {% include cv/cv-box.html id="summary" title="Summary" content=cv_summary %}
+
+        {% capture cv_experience %}
+        <div id="cv-experience-list" class="cv-entry-stack">
+            <p class="font-body text-on-surface-variant italic">Loading experience...</p>
+        </div>
+        {% endcapture %}
+        {% include cv/cv-box.html id="experience" title="Experience" content=cv_experience %}
+
+        {% capture cv_products %}
+        <div id="cv-products-grid" class="cv-product-grid">
+            <p class="font-body text-on-surface-variant italic">Loading products...</p>
+        </div>
+        {% endcapture %}
+        {% include cv/cv-box.html id="products" title="Products" content=cv_products %}
+
+        {% capture cv_education %}
+        <div id="cv-education-list" class="cv-entry-stack">
+            <p class="font-body text-on-surface-variant italic">Loading education...</p>
+        </div>
+        {% endcapture %}
+        {% include cv/cv-box.html id="education" title="Education" content=cv_education %}
+
+        {% capture cv_languages %}
+        <div id="cv-languages-list" class="cv-language-list">
+            <p class="font-body text-on-surface-variant italic">Loading languages...</p>
+        </div>
+        {% endcapture %}
+        {% include cv/cv-box.html id="languages" title="Languages" content=cv_languages %}
+
+        {% include page/timeline-section.html %}
+    </div>
+
+    <div id="cv-detail" class="hidden">
+        <div class="grid grid-cols-1 gap-8 lg:gap-12 items-start text-detail-grid">
+            <aside id="cv-detail-sidebar"></aside>
+            <div id="cv-detail-main"></div>
+        </div>
+    </div>
+</main>
+
+<script>
+    (function () {
+        'use strict';
+
+        var runtime = window.ContentRuntime;
+        if (!runtime) return;
+
+        var experienceList = document.getElementById('cv-experience-list');
+        var educationList = document.getElementById('cv-education-list');
+        var languagesList = document.getElementById('cv-languages-list');
+        var productsGrid = document.getElementById('cv-products-grid');
+        var listing = document.getElementById('cv-listing');
+        var detail = document.getElementById('cv-detail');
+        var detailSidebar = document.getElementById('cv-detail-sidebar');
+        var detailMain = document.getElementById('cv-detail-main');
+        var pageHeader = document.getElementById('cv-page-header');
+        var disclaimer = document.getElementById('cv-disclaimer');
+        var selectedProduct = runtime.contentSlug('product');
+
+        var EN_DASH = '–';
+
+        function isProductOngoing(fm) {
+            fm = fm || {};
+            if (fm.status === 'ongoing') return true;
+            return !String(fm.end_date || '').trim();
+        }
+
+        function formatProductPeriod(fm) {
+            fm = fm || {};
+            if (!fm.start_date) return '';
+            if (isProductOngoing(fm)) return String(fm.start_date) + ' ' + EN_DASH + ' Ongoing';
+            return String(fm.start_date) + ' ' + EN_DASH + ' ' + fm.end_date;
+        }
+
+        /* An open-ended range is a fact about the role, not a missing field:
+           jobs and degrees both write the end date only once it exists. */
+        function formatSpan(start, end, openLabel) {
+            var from = String(start || '').trim();
+            var to = String(end || '').trim();
+            if (!from) return to;
+            return from + ' ' + EN_DASH + ' ' + (to || openLabel);
+        }
+
+        function compareProductsByEndDate(a, b) {
+            var afm = (a && a.front_matter) || {};
+            var bfm = (b && b.front_matter) || {};
+            var aOngoing = isProductOngoing(afm);
+            var bOngoing = isProductOngoing(bfm);
+            if (aOngoing !== bOngoing) return aOngoing ? -1 : 1;
+            if (aOngoing && bOngoing) {
+                return String(bfm.start_date || '').localeCompare(String(afm.start_date || ''));
+            }
+            return String(bfm.end_date || '').localeCompare(String(afm.end_date || ''));
+        }
+
+        /* Register entry: the one card shape the CV repeats. The label line
+           names the organisation and the unit inside it, the display line
+           names the post held there, and every part disappears when its
+           field is empty rather than leaving a dangling separator. */
+        function renderEntry(parts) {
+            var el = document.createElement('article');
+            el.className = 'cv-entry';
+
+            var ident = [];
+            if (parts.lead) {
+                ident.push('<span class="cv-entry-lead card-meta">' +
+                    runtime.escapeHtml(parts.lead) + '</span>');
+            }
+            /* The separator is punctuation between two fields, so it needs
+               both of them: one job declares no department, and its label
+               line has to stop after the company. */
+            if (parts.unit) {
+                if (ident.length) {
+                    ident.push('<span class="cv-entry-sep" aria-hidden="true">&#8250;</span>');
+                }
+                ident.push('<span class="cv-entry-unit card-meta">' +
+                    runtime.escapeHtml(parts.unit) + '</span>');
+            }
+
+            var head = [
+                ident.length ? '<div class="cv-entry-ident">' + ident.join('') + '</div>' : '',
+                parts.span ? '<span class="cv-entry-span code-technical">' +
+                    runtime.escapeHtml(parts.span) + '</span>' : ''
+            ].join('');
+
+            var html = [
+                head ? '<div class="cv-entry-head">' + head + '</div>' : '',
+                parts.title ? '<h3 class="card-title cv-entry-title">' +
+                    runtime.escapeHtml(parts.title) + '</h3>' : '',
+                parts.place ? '<div class="cv-entry-place font-body">' +
+                    runtime.escapeHtml(parts.place) + '</div>' : '',
+                parts.bodyHtml ? '<div class="cv-entry-copy font-body">' + parts.bodyHtml + '</div>' : '',
+                parts.footHtml || ''
+            ].join('');
+
+            el.innerHTML = html;
+            return el;
+        }
+
+        function renderJob(job, productMap) {
+            var fm = job.front_matter || {};
+            var description = fm.body_public
+                ? runtime.renderMarkdown(fm.body_public)
+                : runtime.renderMarkdown(job.body_markdown);
+
+            /* Role to product linkage. The chips carry the product name, so
+               the href lookup is keyed by the label the chip shows. */
+            var hrefByLabel = {};
+            var labels = (Array.isArray(fm.products) ? fm.products : [])
+                .filter(Boolean)
+                .map(function (productKey) {
+                    var product = productMap[productKey];
+                    var label = (product && product.front_matter && product.front_matter.product) || productKey;
+                    hrefByLabel[label] = runtime.productUrl(product ? product.slug : productKey);
+                    return label;
+                });
+            var chips = runtime.renderTagChips(labels, {
+                hrefFor: function (label) { return hrefByLabel[label] || '#'; }
+            });
+            var foot = chips
+                ? '<div class="cv-entry-foot"><span class="cv-entry-foot-label card-meta">Products</span>' +
+                  chips + '</div>'
+                : '';
+
+            return renderEntry({
+                lead: fm.company,
+                unit: fm.department,
+                span: formatSpan(fm.start, fm.end, 'Present'),
+                title: fm.position,
+                place: fm.location,
+                bodyHtml: description,
+                footHtml: foot
+            });
+        }
+
+        /* A school has no department, and the campus is what tells two
+           entries of the same institution apart, so the location takes the
+           unit slot a job gives its department. */
+        function renderEducation(entry) {
+            return renderEntry({
+                lead: entry.institution,
+                unit: entry.location,
+                span: formatSpan(entry.start, entry.end, 'Ongoing'),
+                title: entry.degree,
+                bodyHtml: entry.detail
+                    ? '<p>' + runtime.escapeHtml(entry.detail) + '</p>'
+                    : ''
+            });
+        }
+
+        function renderLanguage(entry) {
+            var el = document.createElement('div');
+            el.className = 'cv-language';
+            el.innerHTML = [
+                '<span class="cv-language-name font-body">' + runtime.escapeHtml(entry.name || '') + '</span>',
+                '<span class="cv-language-rule" aria-hidden="true"></span>',
+                '<span class="cv-language-level code-technical">' + runtime.escapeHtml(entry.level || '') + '</span>'
+            ].join('');
+            return el;
+        }
+
+        function renderProduct(product, opts) {
+            opts = opts || {};
+            var fm = product.front_matter || {};
+            var card = document.createElement('article');
+            card.className = 'cv-product group';
+            card.setAttribute('data-dynamic-product', 'true');
+
+            var productUrl = runtime.productUrl(product.slug);
+            var productName = fm.product || fm.title || product.slug;
+            var period = formatProductPeriod(fm);
+            /* Several products carry the same string in `product` and
+               `title`; printing it twice reads as a rendering fault. */
+            var subtitle = fm.title && fm.title !== productName ? fm.title : '';
+
+            card.innerHTML = [
+                '<div class="cv-product-head">',
+                fm.company ? '<span class="cv-product-company card-meta">' +
+                    runtime.escapeHtml(fm.company) + '</span>' : '<span></span>',
+                period ? '<time class="cv-product-span code-technical">' +
+                    runtime.escapeHtml(period) + '</time>' : '',
+                '</div>',
+                '<h3 class="card-title cv-product-title"><a href="' + runtime.escapeAttr(productUrl) + '">' +
+                    runtime.escapeHtml(productName) + '</a></h3>',
+                subtitle ? '<p class="cv-product-copy font-body">' + runtime.escapeHtml(subtitle) + '</p>' : '',
+                '<div class="cv-product-foot">' + runtime.renderCtaLink(productUrl, 'Details') + '</div>'
+            ].join('');
+            return card;
+        }
+
+        function showListing() {
+            if (listing) listing.classList.remove('hidden');
+            if (detail) detail.classList.add('hidden');
+            if (pageHeader) pageHeader.classList.remove('hidden');
+            if (disclaimer) disclaimer.classList.remove('hidden');
+            if (detailMain) detailMain.innerHTML = '';
+            if (detailSidebar) detailSidebar.innerHTML = '';
+            runtime.removeRuntimeBackLink();
+        }
+
+        async function renderProductDetail(item) {
+            var fm = item.front_matter || {};
+            if (!fm.layout) fm.layout = 'product';
+
+            if (listing) listing.classList.add('hidden');
+            if (pageHeader) pageHeader.classList.add('hidden');
+            if (disclaimer) disclaimer.classList.add('hidden');
+            if (detail) detail.classList.remove('hidden');
+
+            if (detailSidebar) {
+                detailSidebar.innerHTML = runtime.buildTextSidebar({
+                    frontMatter: fm,
+                    fallbackTitle: item.slug
+                });
+            }
+
+            var allItems = await runtime.loadWritingIndex('products');
+            var sorted = allItems.slice().sort(compareProductsByEndDate);
+            var index = sorted.findIndex(function (entry) { return entry.slug === item.slug; });
+
+            await runtime.renderRuntimeDetailSection({
+                detailAttribute: 'data-dynamic-product-detail',
+                bodyMarkdown: item.body_markdown,
+                frontMatter: fm,
+                mainColumn: detailMain,
+                footerNav: {
+                    lang: 'enus',
+                    previousUrl: index >= 0 && index < sorted.length - 1 ? runtime.productUrl(sorted[index + 1].slug) : null,
+                    nextUrl: index > 0 ? runtime.productUrl(sorted[index - 1].slug) : null
+                }
+            });
+        }
+
+        function loadListing() {
+            showListing();
+
+            if (experienceList) {
+                runtime.Listing.showLoadingState(experienceList, 'Loading experience...');
+                Promise.all([
+                    runtime.loadCollection('collections/jobs', 'jobs'),
+                    runtime.loadCollection('collections/products', 'products')
+                ]).then(function (results) {
+                    var jobs = results[0];
+                    var productMap = {};
+                    results[1].forEach(function (product) {
+                        var key = product.key || (product.front_matter && product.front_matter.key) || product.slug;
+                        productMap[key] = product;
+                        productMap[product.slug] = product;
+                    });
+                    experienceList.innerHTML = '';
+                    jobs.sort(function (a, b) {
+                        var as = (a.front_matter && a.front_matter.start) || '';
+                        var bs = (b.front_matter && b.front_matter.start) || '';
+                        return String(bs).localeCompare(String(as));
+                    }).forEach(function (job) {
+                        experienceList.appendChild(renderJob(job, productMap));
+                    });
+                }).catch(function (error) {
+                    console.error(error);
+                    runtime.Listing.showErrorState(experienceList, 'Experience could not be loaded right now.');
+                });
+            }
+
+            if (educationList) {
+                runtime.Listing.showLoadingState(educationList, 'Loading education...');
+                runtime.loadJson('data/education.json').then(function (entries) {
+                    educationList.innerHTML = '';
+                    entries.forEach(function (entry) { educationList.appendChild(renderEducation(entry)); });
+                }).catch(function (error) {
+                    console.error(error);
+                    runtime.Listing.showErrorState(educationList, 'Education could not be loaded right now.');
+                });
+            }
+
+            if (languagesList) {
+                runtime.Listing.showLoadingState(languagesList, 'Loading languages...');
+                runtime.loadJson('data/languages.json').then(function (entries) {
+                    languagesList.innerHTML = '';
+                    entries.forEach(function (entry) { languagesList.appendChild(renderLanguage(entry)); });
+                }).catch(function (error) {
+                    console.error(error);
+                    runtime.Listing.showErrorState(languagesList, 'Languages could not be loaded right now.');
+                });
+            }
+
+            if (productsGrid) {
+                runtime.Listing.showLoadingState(productsGrid, 'Loading products...');
+                runtime.loadWritingIndex('products').then(function (products) {
+                    productsGrid.innerHTML = '';
+                    var ordered = products.slice().sort(compareProductsByEndDate);
+                    ordered.forEach(function (product) {
+                        productsGrid.appendChild(renderProduct(product));
+                    });
+                }).catch(function (error) {
+                    console.error(error);
+                    runtime.Listing.showErrorState(productsGrid, 'Products could not be loaded right now.');
+                });
+            }
+        }
+
+        if (selectedProduct) {
+            runtime.loadCollectionItem('products', selectedProduct).then(function (item) {
+                return renderProductDetail(item);
+            }).catch(function (error) {
+                console.error(error);
+                loadListing();
+                if (productsGrid) runtime.Listing.showErrorState(productsGrid, 'This product could not be loaded right now.');
+            });
+            return;
+        }
+
+        loadListing();
+    })();
+</script>

@@ -1,0 +1,120 @@
+# Brazilian Ledger — light theme (production default).
+# Add sibling files (e.g. dark.yml) and set shell_theme.active in _config.yml to switch palettes.
+#
+# 2026-09 vivid pass (second cut): slate / forest / ochre chroma raised again
+# so brand ink reads on white paper without grey wash. Canvas and cards stay
+# pure white; contrast bands are near-white paper rhythm (Stitch "Editorial
+# Detour" intent, without adopting its alabaster #fcf9f6 canvas). Card margins
+# use a darker outline_variant so hairlines read closer to Stitch paper rules.
+
+colors:
+  primary: "#1c5a7a"
+  secondary: "#287445"
+  tertiary: "#746f30"
+  primary_container: "#a8c5d4"
+  secondary_container: "#b4d4c0"
+  tertiary_container: "#d0ceb0"
+  on_primary_container: "#0a1419"
+  on_secondary_container: "#0c1710"
+  on_tertiary_container: "#17160c"
+  chart_project: "#6fb387"
+
+neutrals:
+  on_surface: "#000000"
+  on_surface_variant: "#5e5d59"
+  on_background: "#000000"
+  # Hairlines. Every border in the build is an opacity step of
+  # `outline_variant`. Stitch-like paper rules need a mid-grey base so the
+  # opacity ladder does not vanish on white cards. Neutral grey — no cream
+  # warmth and no slate cast in the fills.
+  outline: "#5c5c5c"
+  outline_variant: "#b8b8b8"
+  # Architectural Ledger ladder — white paper edition.
+  #
+  # Canvas is pure white. Depth is hairline + a near-neutral grey panel band
+  # for alternating rhythm. Cards rest transparent (panel/canvas shows
+  # through; shards stay visible) and only take a fill on hover. Cream washed
+  # ochre into the page; the blue-grey step still read as slate — this ladder
+  # is practically grey (equal RGB) so highlights stay quiet paper.
+  #
+  # Canvas (#ffffff) -> Panel contrast (#f4f4f4) -> Card (transparent)
+  # -> Hover (#ebebeb). Contrast-band cards stay transparent too, so they
+  # never cut a white plate out of the grey band.
+  background: "#ffffff"
+  background_secondary: "#f4f4f4"
+  panel_contrast: "#f4f4f4"
+  surface_card: "#ffffff"
+  surface_card_contrast: "#f4f4f4"
+  surface_high: "#ebebeb"
+  surface_high_contrast: "#e2e2e2"
+  surface: "#ffffff"
+  surface_container_low: "#f4f4f4"
+  surface_container: "#ebebeb"
+  surface_container_high: "#e2e2e2"
+  surface_variant: "#d8d8d8"
+
+links:
+  default: "#1c5a7a"
+  hover: "#2a6f92"
+
+# Fonts, motion, and geometry live in shared.yml — colour themes do not
+# redeclare them.
+
+# Static tokens shared across Tailwind and scoped CSS (not derived from the brand triad).
+static:
+  on_primary: "#ffffff"
+  on_secondary: "#ffffff"
+  on_tertiary: "#ffffff"
+  surface_container_lowest: "#ffffff"
+  surface_dim: "#d8d8d8"
+  inverse_primary: "#a4c8da"
+  inverse_surface: "#000000"
+  inverse_on_surface: "#ffffff"
+  primary_fixed: "#a8c5d4"
+  primary_fixed_dim: "#7fa8bc"
+  secondary_fixed: "#b4d4c0"
+  secondary_fixed_dim: "#6fb387"
+  tertiary_fixed: "#d0ceb0"
+  tertiary_fixed_dim: "#c0bc90"
+  on_primary_fixed: "#0a1419"
+  on_primary_fixed_variant: "#163040"
+  on_secondary_fixed: "#0c1710"
+  on_secondary_fixed_variant: "#24382a"
+  on_tertiary_fixed: "#17160c"
+  on_tertiary_fixed_variant: "#3a381c"
+  error: "#ba1a1a"
+  on_error: "#ffffff"
+  error_container: "#ffdad6"
+  on_error_container: "#93000a"
+  res_youtube: "#c62828"
+  res_podcast: "#2e7d32"
+  res_doc: "#b45309"
+
+# Detail-page sidebar thumbnail. Light had no block of its own and fell through
+# to _config.yml, whose #eeeeee plate and grey scrim are cold neutrals from
+# before the ramp was warmed (DESIGN.md known inconsistency 14). Same three
+# keys as dark.yml; width, opacity and the filters still fall through.
+#
+# The plate sits a step below the card because a photo is inset into the page,
+# not lifted off it, and the scrim runs from card-white down to deep paper so
+# the image settles onto the sheet instead of floating. Dark can afford 0.35 /
+# 0.45 on its scrim; a light scrim that heavy would wash the photograph out,
+# which is the failure this palette pass exists to undo.
+sidebar_thumbnail:
+  background: "#ebebeb"
+  overlay_gradient_start: "rgba(255, 255, 255, 0.18)"
+  overlay_gradient_end: "rgba(226, 226, 226, 0.28)"
+
+# Timeline lane palette — a categorical scale for the CV chart, not part of
+# the UI triad. Six kinds of event are drawn at once and have to be told
+# apart, so this is the one place the site carries more than three inks.
+# Held separately from `colors:` on purpose: a `.page-accent--*` class
+# rebinds --color-primary, and the CV reads green, but a green chart is an
+# unreadable chart. Same hues as before, chroma raised with the triad.
+timeline:
+  employment: "#1c5a7a"   # petrol — the triad primary, the anchor lane
+  education: "#287445"    # forest — triad secondary
+  product: "#906c2a"      # tobacco — deepened off the ochre tertiary
+  project: "#534da1"      # indigo
+  article: "#a95031"      # terracotta
+  post: "#478576"         # sage teal

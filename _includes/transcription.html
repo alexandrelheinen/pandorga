@@ -1,0 +1,80 @@
+{% comment %}
+  transcription.html
+  Exibe uma transcrição estruturada, com até 4 personagens (cores definidas por ordem de aparição).
+  Uso: {% include transcription.html transcription=page.transcription youtube_id='fpmZiY24U0k' %}
+  Ou para usar um arquivo em _data:
+  {% assign transcription_data = site.data.transcriptions[page.transcription].transcription %}
+  {% include transcription.html transcription=transcription_data youtube_id='fpmZiY24U0k' %}
+  Também suporta url e image para thumbnail:
+  {% include transcription.html transcription=transcription_data url='https://...' image='https://...' %}
+
+  Speaker labels are title-cased at render time (Patrícia, not PATRÍCIA) so
+  ALL-CAPS source data still reads as dialogue names rather than shouting.
+{% endcomment %}
+
+{% assign color_palette = "primary,secondary,tertiary,outline" | split: "," %}
+{% assign speakers = "" | split: "," %}
+
+{%- for line in include.transcription -%}
+  {%- assign char_val = line.character | default: "" | strip -%}
+  {%- unless speakers contains line.character or char_val == "" -%}
+    {%- assign speakers = speakers | push: line.character -%}
+  {%- endunless -%}
+{%- endfor -%}
+
+<div class="mt-16 mb-8">
+  <hr class="border-t border-gentle-divider mb-6">
+  {% if include.youtube_id %}
+    <div class="mb-2">
+      {% include youtube.html id=include.youtube_id %} <!-- Exibe o vídeo do YouTube -->  
+      <span class="font-label text-xs text-on-surface-variant">Transcrição do vídeo</span>
+    </div>
+  {% elsif include.url and include.image %}
+    <div class="mb-2 block">
+      <a href="{{ include.url }}" target="_blank" rel="noopener">
+        <img src="{{ include.image }}" alt="Thumbnail" class="w-full h-[12vw] object-cover rounded shadow" />
+      </a>
+      <span class="block mt-2 font-label text-xs text-on-surface-variant">Transcrição da obra</span>
+    </div>
+  {% else %}
+    <span class="font-label text-xs text-on-surface-variant">Transcrição</span>
+  {% endif %}
+</div>
+
+<div class="transcription-block space-y-4">
+  {%- assign last_scene = nil -%}
+  {%- for line in include.transcription -%}
+    {%- assign char_val = line.character | default: "" | strip -%}
+    <div class="flex items-start gap-0 w-full" style="justify-content: flex-start;">
+      {% if line.timestamp and line.timestamp != '' %}
+        <span class="font-mono text-xs text-on-surface-variant whitespace-nowrap"
+          style="flex-basis:15%; flex-shrink:0; flex-grow:0; max-width:15%; text-align: left; align-self: flex-start;">[{{ line.timestamp }}]</span>
+      {% elsif line.scene and line.scene != '' and line.scene != last_scene %}
+        <span class="font-mono text-xs text-on-surface-variant whitespace-nowrap align-top"
+          style="flex-basis:15%; flex-shrink:0; flex-grow:0; max-width:15%; writing-mode: vertical-lr; text-align: left; align-self: flex-start;">{{ line.scene }}</span>
+        {%- assign last_scene = line.scene -%}
+      {% else %}
+        <span class="font-mono text-xs text-on-surface-variant opacity-0 whitespace-nowrap align-top"
+          style="flex-basis:15%; flex-shrink:0; flex-grow:0; max-width:15%;">&nbsp;</span>
+      {% endif %}
+      {% if char_val == "" %}
+        <span class="font-body text-on-surface italic opacity-60" style="flex-basis:85%; flex-shrink:1; flex-grow:1; max-width:85%; min-width:0;">{{ line.content }}</span>
+      {% else %}
+        {%- assign idx = 0 -%}
+        {%- for sp in speakers -%}
+          {%- if sp == line.character -%}
+            {%- break -%}
+          {%- endif -%}
+          {%- assign idx = idx | plus: 1 -%}
+        {%- endfor -%}
+        {%- assign color = color_palette[idx] | default: "outline" -%}
+        {%- assign name_words = char_val | downcase | split: " " -%}
+        {%- capture speaker_label -%}
+          {%- for w in name_words -%}{{ w | capitalize }}{%- unless forloop.last %} {% endunless -%}{%- endfor -%}
+        {%- endcapture -%}
+        <span class="transcription-speaker text-{{ color }}">{{ speaker_label | strip }}</span>
+        <span class="font-body text-on-surface" style="flex-basis:65%; flex-shrink:1; flex-grow:1; max-width:65%; min-width:0;">{{ line.content }}</span>
+      {% endif %}
+    </div>
+  {%- endfor -%}
+</div>

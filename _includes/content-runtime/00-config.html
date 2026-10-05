@@ -1,0 +1,22 @@
+<script src="https://cdn.jsdelivr.net/npm/marked@15.0.7/marked.min.js"></script>
+<script>
+  window.ContentRuntimeConfig = {
+    contentBase: '{{ site.content_api_base_url | default: "" }}',
+    includeUnpublished: {{ site.content_include_unpublished | default: false | jsonify }},
+    defaultAuthor: {{ site.pandorga.identity.name | default: site.author | jsonify }},
+    siteSuffix: {% assign _short = site.pandorga.identity.short_name | default: site.pandorga.identity.name | default: site.author %}{{ _short | prepend: ' | ' | jsonify }},
+    translations: {{ site.data.translations | jsonify }},
+    tocMinHeadings: 3,
+    expectedSchemaVersion: 1
+  };
+  // Template modules register listing/detail handlers here (PLT Phase 2).
+  window.ContentRuntime = window.ContentRuntime || {};
+  window.ContentRuntime.templates = window.ContentRuntime.templates || {
+    _map: Object.create(null),
+    register: function (name, api) {
+      if (!name) throw new Error('ContentRuntime.templates.register: name required');
+      this._map[name] = api || {};
+    },
+    get: function (name) { return this._map[name] || null; }
+  };
+</script>

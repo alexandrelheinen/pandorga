@@ -1,0 +1,22 @@
+{% if include.src %}
+<figure class="plotly-figure" style="margin: 1.5rem auto; text-align: center; max-width: {% if include.width %}{{ include.width }}{% else %}100{% endif %}%;">
+  {% assign _cap = include.caption | strip %}
+  {% if _cap != "" %}
+    {% assign _last = _cap | slice: -1, 1 %}
+    {% unless _last == '.' or _last == '!' or _last == '?' %}
+      {% assign _cap = _cap | append: '.' %}
+    {% endunless %}
+  {% endif %}
+  <iframe
+    class="plotly-embed-frame"
+    src="{{ include.src }}"
+    title="{{ include.alt | default: include.caption | default: 'Interactive chart' }}"
+    loading="lazy"
+    scrolling="no"
+    style="width: 100%; height: {% if include.height %}{{ include.height }}{% else %}480{% endif %}px; border: 0; display: block; border-radius: 0; background: transparent;"
+  ></iframe>
+  {% if include.caption or include.source %}
+  <figcaption>{% if _cap != "" %}{{ _cap }}{% endif %}{% if include.source %} Source: {{ include.source | strip }}{% endif %}</figcaption>
+  {% endif %}
+</figure>
+{% endif %}

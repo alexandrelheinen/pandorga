@@ -1,0 +1,7 @@
+{
+  "name": "archive-card/no-cta-no-dates-draws-no-rule",
+  "block": "renderArchiveCard",
+  "args": [{ "slug": "x", "front_matter": { "title": "A title" } }, { "href": "/x/" }],
+  "selectors": ["article.ledger-card", "h3.ledger-card-title"],
+  "excludes": ["ledger-card-foot"]
+}

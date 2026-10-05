@@ -1,0 +1,71 @@
+{% raw %}
+
+    var Listing = {
+      setActive: function (el) {
+        if (!el) return;
+        el.classList.add('text-secondary');
+        el.classList.remove('text-on-surface-variant');
+      },
+      clearActive: function (el) {
+        if (!el) return;
+        el.classList.remove('text-secondary');
+        el.classList.add('text-on-surface-variant');
+      },
+      buildFilterUrl: function (updates) {
+        var p = new URLSearchParams(window.location.search);
+        Object.keys(updates || {}).forEach(function (key) {
+          var val = updates[key];
+          if (val == null || val === '') p.delete(key);
+          else p.set(key, val);
+        });
+        p.delete('page');
+        var qs = p.toString();
+        return window.location.pathname + (qs ? '?' + qs : '');
+      },
+      pageUrl: function (pageNumber) {
+        var p = new URLSearchParams(window.location.search);
+        p.set('page', pageNumber);
+        return window.location.pathname + '?' + p.toString();
+      },
+      renderPagination: function (controls, currentPage, totalPages, labels) {
+        labels = labels || {};
+        if (!controls) return;
+        controls.innerHTML = '';
+        if (totalPages <= 1) {
+          controls.classList.add('hidden');
+          return;
+        }
+        controls.classList.remove('hidden');
+        var prevLabel = labels.prev || 'Previous';
+        var nextLabel = labels.next || 'Next';
+        // Styled by .pagination-nav-btn in base.css. Handing out utilities
+        // here forced every page sheet to out-specify them.
+        var btnClass = 'pagination-nav-btn';
+        var prevBtn = document.createElement('button');
+        prevBtn.textContent = prevLabel;
+        prevBtn.disabled = currentPage === 1;
+        prevBtn.className = btnClass;
+        if (currentPage > 1) prevBtn.addEventListener('click', function () { window.location.href = Listing.pageUrl(currentPage - 1); });
+        controls.appendChild(prevBtn);
+        var indicator = document.createElement('span');
+        indicator.className = 'pagination-count';
+        indicator.textContent = currentPage + ' / ' + totalPages;
+        controls.appendChild(indicator);
+        var nextBtn = document.createElement('button');
+        nextBtn.textContent = nextLabel;
+        nextBtn.disabled = currentPage === totalPages;
+        nextBtn.className = btnClass;
+        if (currentPage < totalPages) nextBtn.addEventListener('click', function () { window.location.href = Listing.pageUrl(currentPage + 1); });
+        controls.appendChild(nextBtn);
+      },
+      showLoadingState: function (element, message) {
+        if (!element) return;
+        element.innerHTML = '<p class="font-body text-on-surface-variant italic col-span-full">' + escapeHtml(message) + '</p>';
+      },
+      showErrorState: function (element, message) {
+        if (!element) return;
+        element.innerHTML = '<p class="font-body text-on-surface-variant italic col-span-full">' + escapeHtml(message) + '</p>';
+      }
+    };
+
+{% endraw %}

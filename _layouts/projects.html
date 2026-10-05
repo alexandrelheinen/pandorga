@@ -1,0 +1,521 @@
+---
+layout: shell
+---
+
+{%- comment -%}
+  Projects — index and client-side detail view.
+
+  This page is deliberately less modular than the rest of the site. Projects
+  are few, they change rarely, and each one owns a body full of figures,
+  videos, plots, diagrams and tables, so the presentation is written for that
+  material rather than routed through the generic listing/detail pair.
+
+  The binding rule still holds: every element here reads a front-matter field
+  that exists (`project`, `title`, `tagline`, `label`, `status`, `start_date`,
+  `end_date`, `github`, `article_url`, `external_url`, `tags`, `icon`,
+  `thumbnail`). Nothing counts, derives or invents. The mockup's metrics
+  strip, benchmark ledger, proof transcript, version badges and commit hashes
+  have no data source and are not built.
+{%- endcomment -%}
+
+<main class="projects-page relative max-w-7xl mx-auto px-4 sm:px-8 md:px-16 pt-10 pb-16" id="projects-main">
+
+  <div id="projects-page-header">
+    {% include page/page-header.html key=page.key
+       header_class="projects-masthead"
+       tags_class="projects-masthead-tags code-technical block hidden" %}
+  </div>
+
+  <div id="projects-listing">
+    <div id="projects-filter-note"></div>
+    <div id="projects-lead"></div>
+    <div id="projects-grid-banner"></div>
+    <div id="projects-grid" class="projects-grid"></div>
+    <p id="projects-state" class="projects-state font-body text-on-surface-variant italic">Loading projects…</p>
+    <div id="projects-repos"></div>
+  </div>
+
+  <div id="projects-detail" class="projects-detail hidden">
+    <div id="projects-detail-hero"></div>
+    {%- comment -%}
+      The tracks are the shared detail pair (`text-detail-grid`, defined in
+      ledger/detail.css), but this page holds the split back to 1024px instead
+      of 768px: at the tablet breakpoint the dossier is around 170px, which
+      broke a long project slug like `example/freshy` across three lines mid-word. 1024px is
+      also where the shared table of contents swaps from its disclosure to the
+      sidebar, so the two change together. ledger/projects.css keeps the
+      tablet band stacked.
+    {%- endcomment -%}
+    <div class="grid grid-cols-1 gap-8 lg:gap-12 items-start text-detail-grid">
+      <aside id="projects-detail-sidebar" class="projects-dossier-column"></aside>
+      <div id="projects-detail-main" class="projects-detail-column"></div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  (function () {
+    'use strict';
+
+    var runtime = window.ContentRuntime;
+    if (!runtime) return;
+
+    var esc = runtime.escapeHtml;
+    var escAttr = runtime.escapeAttr;
+
+    var LISTING_URL = '/pages/projects/';
+
+    var listing = document.getElementById('projects-listing');
+    var noteRoot = document.getElementById('projects-filter-note');
+    var leadRoot = document.getElementById('projects-lead');
+    var bannerRoot = document.getElementById('projects-grid-banner');
+    var grid = document.getElementById('projects-grid');
+    var state = document.getElementById('projects-state');
+    var reposRoot = document.getElementById('projects-repos');
+
+    var detail = document.getElementById('projects-detail');
+    var detailHero = document.getElementById('projects-detail-hero');
+    var detailSidebar = document.getElementById('projects-detail-sidebar');
+    var detailMain = document.getElementById('projects-detail-main');
+    var pageHeader = document.getElementById('projects-page-header');
+
+    var params = new URLSearchParams(window.location.search);
+    var selectedProject = runtime.contentSlug('project');
+    var selectedTag = (params.get('tag') || '').trim();
+
+    /* ── Field readers ──────────────────────────────────────────────────
+       Each returns '' when its field is unset, so an absent field drops the
+       element rather than leaving a placeholder beNewsreader. */
+
+    function projectName(item) {
+      var fm = item.front_matter || {};
+      return fm.project || fm.title || item.slug || '';
+    }
+
+    /* `status` is almost always the word the date span already ends with, so
+       an ongoing project would otherwise read "Ongoing" twice in one line.
+       Any other status — archived, paused — has no such carrier and is shown
+       on its own. */
+    function periodText(fm) {
+      if (!fm.start_date) return '';
+      var span = String(fm.start_date);
+      if (fm.status === 'ongoing') return span + ' – Ongoing';
+      if (fm.end_date) return span + ' – ' + fm.end_date;
+      return span;
+    }
+
+    function statusPart(fm) {
+      var value = String(fm.status || '').trim();
+      if (!value) return '';
+      if (value.toLowerCase() === 'ongoing' && fm.start_date) return '';
+      return '<span class="ledger-status">' + esc(value) + '</span>';
+    }
+
+    function iconMark(fm, className) {
+      if (!fm.icon) return '';
+      return '<span class="material-symbols-outlined ' + className + '" aria-hidden="true">' +
+        esc(fm.icon) + '</span>';
+    }
+
+    /* The ledger line above every project name: glyph, working period, the
+       project's own one-line stack description, and any status the period
+       does not already carry. */
+    function ledgerLine(fm, iconClass) {
+      var period = periodText(fm);
+      var lead = period ? '<span class="ledger-span">' + esc(period) + '</span>' : '';
+      return runtime.renderMetaStrip([
+        lead,
+        fm.label ? esc(fm.label) : '',
+        statusPart(fm)
+      ]);
+    }
+
+    /* Media plate. A project with a `thumbnail` shows it; one without shows
+       its own `icon` glyph on the panel step instead. The fallback is not a
+       placeholder for a missing image — `icon` is set on every project and is
+       already how the site marks a project elsewhere — so a project with no
+       imagery still reads as finished rather than as broken. */
+    function plateHtml(item, modifier) {
+      var fm = item.front_matter || {};
+      var poster = runtime.renderPosterMedia(fm.thumbnail, projectName(item));
+      var cls = 'projects-plate' + (modifier ? ' ' + modifier : '');
+      if (poster) return '<div class="' + cls + '">' + poster + '</div>';
+      if (!fm.icon) return '';
+      return '<div class="' + cls + ' projects-plate--mark">' +
+        '<span class="material-symbols-outlined projects-plate-glyph" aria-hidden="true">' +
+        esc(fm.icon) + '</span></div>';
+    }
+
+    function tagHref(tag) {
+      return LISTING_URL + '?tag=' + encodeURIComponent(tag);
+    }
+
+    /* Outbound links, in the order a reader wants them: the code, the writing
+       about it, the thing itself. */
+    function outboundLinks(fm) {
+      var links = [];
+      if (fm.github) links.push(runtime.renderCtaLink(fm.github, 'Source'));
+      if (fm.article_url) links.push(runtime.renderCtaLink(fm.article_url, 'Read the article'));
+      if (fm.external_url) links.push(runtime.renderCtaLink(fm.external_url, 'Visit'));
+      return links;
+    }
+
+    function repoPath(url) {
+      return String(url || '')
+        .replace(/^https?:\/\/(www\.)?github\.com\//i, '')
+        .replace(/\/+$/, '');
+    }
+
+    function articleSlugFromUrl(url) {
+      var match = String(url || '').match(/\/articles\/([^\/?#]+)/i);
+      return match ? decodeURIComponent(match[1]) : '';
+    }
+
+    /* Resolve the linked article's title so the dossier names the piece rather
+       than saying "Read the article". Falls back when the index has no match. */
+    async function articleTitleFor(url) {
+      var slug = articleSlugFromUrl(url);
+      if (!slug) return '';
+      try {
+        var items = await runtime.loadWritingIndex('articles');
+        var hit = (items || []).find(function (entry) {
+          return entry && entry.slug === slug;
+        });
+        if (!hit) return '';
+        var fm = hit.front_matter || {};
+        return String(fm.title || hit.title || '').trim();
+      } catch (error) {
+        return '';
+      }
+    }
+
+    /* ── Index ──────────────────────────────────────────────────────────── */
+
+    /* The featured project is drawn the way the writing listings draw their
+       featured article — at random from the whole index, then held in session
+       storage so navigating around the site does not reshuffle it. It keeps
+       its own key, because the article the home page leads with is a separate
+       pick, and every project is a candidate: one without a `thumbnail` still
+       leads with its glyph plate, so the shared thumbnail rule does not
+       apply here. */
+    var FEATURED_PICK = {
+      storageKey: 'featured-project-slug',
+      eligible: function () { return true; }
+    };
+
+    /* Lead plate. One entry opens the page at full width, the way a portfolio
+       leads with one piece of work rather than seven equal thumbnails. */
+    function renderLead(item) {
+      var fm = item.front_matter || {};
+      var href = runtime.projectUrl(item.slug);
+      var name = projectName(item);
+      var line = ledgerLine(fm, 'ledger-system-icon');
+
+      var html = '<article class="projects-lead">';
+      html += '<span class="shard-accent projects-lead-shard" aria-hidden="true"></span>';
+      /* The plate links to the same place as the title beside it. It is out of
+         the tab order so keyboard users are not made to pass the same
+         destination twice, but it keeps its accessible name — the poster's alt
+         — rather than being hidden from assistive technology, which would be
+         wrong on something focusable at all. */
+      html += '<a class="projects-lead-media" href="' + escAttr(href) + '" tabindex="-1">' +
+        plateHtml(item, 'projects-plate--lead') + '</a>';
+      html += '<div class="projects-lead-body">';
+      if (line) html += line;
+      html += '<h2 class="projects-lead-title"><a href="' + escAttr(href) + '">' + esc(name) + '</a></h2>';
+      if (fm.title && fm.title !== name) {
+        html += '<p class="projects-lead-subtitle">' + esc(fm.title) + '</p>';
+      }
+      if (fm.tagline) {
+        html += '<p class="projects-lead-copy font-body">' + esc(fm.tagline) + '</p>';
+      }
+      html += runtime.renderTagChips(fm.tags, { hrefFor: tagHref });
+      /* The plate and the title already lead to the project, so the row keeps
+         only what leaves the site. It disappears when a project publishes no
+         outbound link at all. */
+      var leadLinks = outboundLinks(fm);
+      if (leadLinks.length) {
+        html += '<div class="projects-lead-links ledger-card-links">' + leadLinks.join('') + '</div>';
+      }
+      html += '</div></article>';
+      leadRoot.innerHTML = html;
+    }
+
+    /* Grid card. The shared system card already carries exactly the project
+       shape — poster, ledger line, name, tagline, chips, links — so it stays
+       the block of record; the only thing grafted on is the glyph plate for a
+       project that publishes no imagery, which the shared block has no hook
+       for. */
+    function renderCard(item) {
+      var fm = item.front_matter || {};
+      var period = periodText(fm);
+      var card = runtime.renderSystemCard(item, {
+        href: runtime.projectUrl(item.slug),
+        repoLabel: 'Source',
+        articleLabel: 'Read the article',
+        externalLabel: 'Visit',
+        metaParts: [
+          period ? '<span class="ledger-span">' + esc(period) + '</span>' : '',
+          fm.label ? esc(fm.label) : '',
+          statusPart(fm)
+        ],
+        tagHref: tagHref
+      });
+      card.setAttribute('data-dynamic-project', 'true');
+      /* The glyph reads as part of the name, so it sits on the title's line at
+         the title's size rather than shrunk into the metadata above it. */
+      var cardTitle = card.querySelector('.ledger-card-title');
+      if (cardTitle && fm.icon) {
+        cardTitle.insertAdjacentHTML('afterbegin', iconMark(fm, 'projects-title-icon'));
+      }
+      if (!fm.thumbnail) {
+        var plate = plateHtml(item, 'projects-plate--card');
+        if (plate) card.insertAdjacentHTML('afterbegin', plate);
+      }
+      return card;
+    }
+
+    /* Closing ledger. One row per repository that front matter actually
+       names — five of seven today. The mockup's licence stamp, spec download
+       and commit hashes have nothing beNewsreader them and are not drawn. */
+    function renderRepositories(items) {
+      var rows = items.filter(function (item) {
+        return (item.front_matter || {}).github;
+      });
+      if (!rows.length) {
+        reposRoot.innerHTML = '';
+        return;
+      }
+      var html = '<section class="projects-repos">';
+      html += runtime.renderSectionBanner({ kicker: 'Open source', title: 'Repositories' });
+      html += '<div class="projects-repo-list">';
+      rows.forEach(function (item) {
+        var fm = item.front_matter || {};
+        html += '<a class="projects-repo" href="' + escAttr(fm.github) + '">' +
+          '<span class="projects-repo-name">' + esc(projectName(item)) + '</span>' +
+          '<span class="projects-repo-path code-technical">' + esc(repoPath(fm.github)) + '</span>' +
+          '<span class="material-symbols-outlined ledger-cta-arrow" aria-hidden="true">chevron_right</span>' +
+          '</a>';
+      });
+      html += '</div></section>';
+      reposRoot.innerHTML = html;
+    }
+
+    /* The count is a figure, so it takes the notation role; the words around
+       it are chrome labels and stay in the label and body faces. */
+    function renderFilterNote(tag, count, total) {
+      noteRoot.innerHTML = '<div class="projects-filter-note">' +
+        '<span class="projects-filter-note-label">Filtered by</span>' +
+        '<span class="ledger-chip">' + esc(tag) + '</span>' +
+        '<span class="projects-filter-note-count code-technical">' + count + ' of ' + total + '</span>' +
+        '<a class="ledger-cta" href="' + escAttr(LISTING_URL) + '"><span>Show all</span></a>' +
+        '</div>';
+    }
+
+    function matchesTag(item, tag) {
+      var tags = (item.front_matter || {}).tags || [];
+      return (Array.isArray(tags) ? tags : []).some(function (value) {
+        return String(value).toLowerCase() === tag.toLowerCase();
+      });
+    }
+
+    function bySortOrder(a, b) {
+      var ao = (a.front_matter && a.front_matter.sort_order) || 0;
+      var bo = (b.front_matter && b.front_matter.sort_order) || 0;
+      return Number(ao) - Number(bo);
+    }
+
+    function showListing() {
+      if (listing) listing.classList.remove('hidden');
+      if (detail) detail.classList.add('hidden');
+      if (pageHeader) pageHeader.classList.remove('hidden');
+      if (detailMain) detailMain.innerHTML = '';
+      if (detailSidebar) detailSidebar.innerHTML = '';
+      if (detailHero) detailHero.innerHTML = '';
+      runtime.removeArticleToc();
+      runtime.removeRuntimeBackLink();
+    }
+
+    function renderListing(projects) {
+      var ordered = projects.slice().sort(bySortOrder);
+      var visible = selectedTag
+        ? ordered.filter(function (item) { return matchesTag(item, selectedTag); })
+        : ordered;
+
+      grid.innerHTML = '';
+      leadRoot.innerHTML = '';
+      bannerRoot.innerHTML = '';
+      noteRoot.innerHTML = '';
+
+      if (selectedTag) renderFilterNote(selectedTag, visible.length, ordered.length);
+
+      if (!visible.length) {
+        state.textContent = 'No project carries that tag.';
+        state.classList.remove('hidden');
+        reposRoot.innerHTML = '';
+        return;
+      }
+      state.classList.add('hidden');
+
+      /* A filtered view is a short answer to a question, so it stays a flat
+         grid; the lead plate is for the unfiltered page, where the drawn entry
+         is genuinely the opening statement. The grid below is then everything
+         but that entry, so nothing is listed twice. */
+      var rest = visible;
+      if (!selectedTag && visible.length > 1) {
+        var featured = runtime.pickFeatured(ordered, FEATURED_PICK) || visible[0];
+        renderLead(featured);
+        rest = visible.filter(function (item) { return item.slug !== featured.slug; });
+        bannerRoot.innerHTML = runtime.renderSectionBanner({
+          kicker: 'Index',
+          title: 'Other projects'
+        });
+      }
+
+      rest.forEach(function (item) { grid.appendChild(renderCard(item)); });
+      renderRepositories(visible);
+    }
+
+    /* ── Detail ─────────────────────────────────────────────────────────── */
+
+    /* Full-width masthead. The generic detail view puts the title in a narrow
+       third-column dossier, where "Base Operating System for Sensors and
+       Actuators" breaks over five lines. A project leads with its short name,
+       carries its long title underneath, and states what it is before the
+       reader has to scroll. */
+    function renderHero(item) {
+      var fm = item.front_matter || {};
+      var name = projectName(item);
+      var line = ledgerLine(fm, 'projects-hero-icon');
+
+      var html = '<header class="projects-hero">';
+      html += '<span class="shard-accent projects-hero-shard" aria-hidden="true"></span>';
+      html += '<div class="projects-hero-body">';
+      if (line) html += line;
+      html += '<h1 class="projects-hero-title">' + esc(name) + '</h1>';
+      if (fm.title && fm.title !== name) {
+        html += '<p class="projects-hero-subtitle">' + esc(fm.title) + '</p>';
+      }
+      if (fm.tagline) {
+        html += '<p class="projects-hero-standfirst font-body">' + esc(fm.tagline) + '</p>';
+      }
+      var links = outboundLinks(fm);
+      if (links.length) {
+        html += '<div class="projects-hero-actions">' + links.join('') + '</div>';
+      }
+      html += '</div>';
+      var plate = plateHtml(item, 'projects-plate--hero');
+      if (plate) html += '<div class="projects-hero-media">' + plate + '</div>';
+      html += '</header>';
+      detailHero.innerHTML = html;
+    }
+
+    function dossierRow(term, value) {
+      if (!value) return '';
+      return '<div class="projects-dossier-row">' +
+        '<dt>' + esc(term) + '</dt><dd>' + value + '</dd></div>';
+    }
+
+    /* Dossier. The mockup's right-hand spec column — ARCH, STACK, SPEC — with
+       the fabricated rows replaced by the four facts a project actually
+       declares. `mountArticleToc` appends the contents list to this column's
+       first child and inserts the mobile disclosure after `.article-meta`, so
+       both hooks below are emitted on purpose. */
+    async function renderDossier(item) {
+      var fm = item.front_matter || {};
+      var period = periodText(fm);
+      var rows = '';
+      rows += dossierRow('Field', fm.label ? esc(fm.label) : '');
+      rows += dossierRow('Period', esc(period));
+      if (!period && fm.status) rows += dossierRow('Status', esc(fm.status));
+      if (fm.github) {
+        rows += dossierRow('Repository',
+          '<a href="' + escAttr(fm.github) + '">' + esc(repoPath(fm.github)) + '</a>');
+      }
+      if (fm.article_url) {
+        var articleTitle = await articleTitleFor(fm.article_url);
+        rows += dossierRow('Article',
+          '<a href="' + escAttr(fm.article_url) + '">' +
+          esc(articleTitle || 'Read the article') + '</a>');
+      }
+      if (fm.external_url) {
+        rows += dossierRow('Live', '<a href="' + escAttr(fm.external_url) + '">' +
+          esc(String(fm.external_url).replace(/^https?:\/\/(www\.)?/i, '').replace(/\/+$/, '')) +
+          '</a>');
+      }
+      var chips = runtime.renderTagChips(fm.tags, { hrefFor: tagHref });
+      if (chips) rows += dossierRow('Tags', chips);
+
+      var html = '<div class="lg:sticky lg:top-32 projects-dossier">';
+      if (rows) {
+        html += '<p class="projects-dossier-title">Dossier</p>';
+        html += '<dl class="projects-dossier-rows article-meta">' + rows + '</dl>';
+      }
+      html += runtime.buildDetailActions(fm);
+      html += '</div>';
+      detailSidebar.innerHTML = html;
+    }
+
+    async function renderProjectDetail(item) {
+      var fm = item.front_matter || {};
+      if (!fm.layout) fm.layout = 'project';
+      /* Projects carry no `description`, so the social card and the meta
+         description are built from the tagline. A tagline is a short paragraph
+         rather than one sentence, and a search result cut off mid-clause reads
+         worse than a shorter one that finishes its thought, so only the
+         opening sentence travels. The page still shows the whole thing. */
+      if (!fm.description && fm.tagline) fm.description = runtime.leadSentence(fm.tagline);
+
+      if (listing) listing.classList.add('hidden');
+      if (pageHeader) pageHeader.classList.add('hidden');
+      if (detail) detail.classList.remove('hidden');
+
+      renderHero(item);
+      await renderDossier(item);
+
+      var allItems = await runtime.loadWritingIndex('projects');
+      var sorted = allItems.slice().sort(bySortOrder);
+      var index = sorted.findIndex(function (entry) { return entry.slug === item.slug; });
+
+      await runtime.renderRuntimeDetailSection({
+        detailAttribute: 'data-dynamic-project-detail',
+        bodyMarkdown: item.body_markdown,
+        frontMatter: fm,
+        mainColumn: detailMain,
+        sidebarEl: detailSidebar,
+        /* The list is sorted ascending by `sort_order`, so "previous" is the
+           entry before this one in that order. It used to be the entry after,
+           which walked the register backwards. */
+        footerNav: {
+          lang: 'enus',
+          previousUrl: index > 0 ? runtime.projectUrl(sorted[index - 1].slug) : null,
+          nextUrl: index >= 0 && index < sorted.length - 1 ? runtime.projectUrl(sorted[index + 1].slug) : null
+        }
+      });
+    }
+
+    function loadListing() {
+      showListing();
+      runtime.loadWritingIndex('projects').then(renderListing).catch(function (error) {
+        console.error(error);
+        state.textContent = 'Projects could not be loaded right now.';
+        state.classList.remove('hidden');
+      });
+    }
+
+    if (selectedProject) {
+      runtime.loadCollectionItem('projects', selectedProject).then(function (item) {
+        return renderProjectDetail(item);
+      }).catch(function (error) {
+        console.error(error);
+        showListing();
+        state.textContent = 'This project could not be loaded right now.';
+        state.classList.remove('hidden');
+      });
+      return;
+    }
+
+    loadListing();
+  })();
+</script>

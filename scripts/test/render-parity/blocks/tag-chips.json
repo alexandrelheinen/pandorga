@@ -1,0 +1,9 @@
+{
+  "name": "tag-chips/static",
+  "block": "renderTagChips",
+  "args": [["Engineering", "Systems"]],
+  "selectors": ["div.ledger-chip-row", "span.ledger-chip"],
+  "forbidden": ["a.ledger-chip"],
+  "contains": [">Engineering<", ">Systems<"],
+  "counts": { "ledger-chip-row": 1, "ledger-chip": 2 }
+}

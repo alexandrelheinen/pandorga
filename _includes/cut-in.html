@@ -1,0 +1,10 @@
+{% comment %}
+  Typographic cut-in: a 3×4 portrait floated into the column so the following
+  paragraph wraps around it (six body line boxes tall). See docs/content/elements.md#cut-in-portraits.
+
+  {% include cut-in.html src="https://…" alt="Jean Lucas" %}
+  {% include cut-in.html src="/media/images/foo.jpg" alt="…" side="right" %}
+{% endcomment %}
+{% if include.src %}
+<figure class="article-cut-in-plate{% if include.side == 'right' %} article-cut-in--right{% endif %}"><img class="article-cut-in{% if include.side == 'right' %} article-cut-in--right{% endif %}" src="{{ include.src }}" alt="{{ include.alt | default: '' }}" width="120" loading="lazy"></figure>
+{% endif %}

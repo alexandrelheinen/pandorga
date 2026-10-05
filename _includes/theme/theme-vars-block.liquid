@@ -1,0 +1,161 @@
+{% comment %}
+  Emits CSS custom properties for one palette. Expects `theme_name` (e.g. light, dark).
+  Colour roles come from _data/themes/<name>.yml; fonts / motion / geometry from shared.yml.
+{% endcomment %}
+{% assign theme_profile = site.data.themes[theme_name] %}
+{% if theme_profile == nil %}
+  {% assign theme_profile = site.data.themes.light %}
+{% endif %}
+{% assign theme_shared = site.data.themes.shared %}
+{% assign tc = theme_profile.colors %}
+{% assign tn = theme_profile.neutrals %}
+{% assign tl = theme_profile.links %}
+{% assign sf = theme_shared.fonts %}
+{% assign sm = theme_shared.motion %}
+{% assign sg = theme_shared.geometry %}
+{% assign ts = theme_profile.static %}
+{% assign color_primary = tc.primary | default: "#1c5a7a" %}
+{% assign color_secondary = tc.secondary | default: "#287445" %}
+{% assign color_tertiary = tc.tertiary | default: "#746f30" %}
+{% assign font_title = sf.title | default: "Lora" %}
+{% assign font_subtitle = sf.subtitle | default: "Lato" %}
+{% assign font_label = sf.label | default: "Ysabeau SC" %}
+{% assign font_body = sf.body | default: "Newsreader" %}
+{% assign font_cv_body = sf.cv_body | default: "Newsreader" %}
+{% assign font_cv_body_weight = sf.cv_body_weight | default: 400 %}
+{% assign font_title_fallback = sf.title_fallback | default: "serif" %}
+{% assign font_subtitle_fallback = sf.subtitle_fallback | default: "serif" %}
+{% assign font_label_fallback = sf.label_fallback | default: "serif" %}
+{% assign font_body_fallback = sf.body_fallback | default: "sans-serif" %}
+{% assign bg_secondary = tn.background_secondary | default: tn.surface_container_low | default: "#f5f5f5" %}
+{% assign surface_value = tn.surface | default: "#ffffff" %}
+{% assign surface_variant_value = tn.surface_variant | default: "#e2e2e2" %}
+{% if theme_name == "light" %}:root,{% endif %}
+  [data-theme="{{ theme_name }}"] {
+    --font-title: '{{ font_title }}', {{ font_title_fallback }};
+    --font-subtitle: '{{ font_subtitle }}', {{ font_subtitle_fallback }};
+    --font-label: '{{ font_label }}', {{ font_label_fallback }};
+    --font-body: '{{ font_body }}', {{ font_body_fallback }};
+    --font-cv-body: '{{ font_cv_body }}', sans-serif;
+    --font-cv-body-weight: {{ font_cv_body_weight }};
+    --font-serif: '{{ font_title }}', {{ font_title_fallback }};
+    /* Content titles share the body face at 600 — Cinzel Decorative is
+       reserved for page/display titles. */
+    --font-content-title: var(--font-body);
+    --font-sans: var(--font-body);
+    --font-mono: {% if sf.mono and sf.mono != '' %}'{{ sf.mono }}', {% endif %}ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace;
+    --font-code: {% if sf.code and sf.code != '' %}'{{ sf.code }}', {% elsif sf.mono and sf.mono != '' %}'{{ sf.mono }}', {% endif %}ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace;
+
+    /* Motion. Named for what they are for: state change, poster filter
+       warm-up, poster/plate scale. Shared across palettes. */
+    --motion-duration-fast: {{ sm.duration_fast | default: "0.15s" }};
+    --motion-duration-base: {{ sm.duration_base | default: "0.4s" }};
+    --motion-duration-slow: {{ sm.duration_slow | default: "0.7s" }};
+    --motion-ease-default: {{ sm.ease_default | default: "ease" }};
+    --motion-ease-out: {{ sm.ease_out | default: "ease-out" }};
+
+    --color-primary: {{ color_primary }};
+    --color-secondary: {{ color_secondary }};
+    --color-tertiary: {{ color_tertiary }};
+    --color-primary-container: {{ tc.primary_container | default: "#b5c9d4" }};
+    --color-secondary-container: {{ tc.secondary_container | default: "#d2e4d8" }};
+    --color-tertiary-container: {{ tc.tertiary_container | default: "#ebe9d6" }};
+    --color-on-primary-container: {{ tc.on_primary_container | default: "#1a2d38" }};
+    --color-on-secondary-container: {{ tc.on_secondary_container | default: "#1f3528" }};
+    --color-on-tertiary-container: {{ tc.on_tertiary_container | default: "#3d3c2a" }};
+    --color-on-primary: {{ ts.on_primary | default: "#ffffff" }};
+    --color-on-secondary: {{ ts.on_secondary | default: "#ffffff" }};
+    --color-on-tertiary: {{ ts.on_tertiary | default: "#ffffff" }};
+    --color-on-surface: {{ tn.on_surface | default: "#1b1c15" }};
+    --color-on-surface-variant: {{ tn.on_surface_variant | default: "#4a4a4a" }};
+    --color-on-background: {{ tn.on_background | default: "#1b1c15" }};
+    --color-outline: {{ tn.outline | default: "#6b6b6b" }};
+    --color-outline-variant: {{ tn.outline_variant | default: "#d4d4d4" }};
+    --border-gentle-faint: color-mix(in srgb, {{ tn.outline_variant | default: "#d4d4d4" }} 22%, transparent);
+    --border-gentle-subtle: color-mix(in srgb, {{ tn.outline_variant | default: "#d4d4d4" }} 32%, transparent);
+    --border-gentle-divider: color-mix(in srgb, {{ tn.outline_variant | default: "#d4d4d4" }} 35%, transparent);
+    --border-gentle: color-mix(in srgb, {{ tn.outline_variant | default: "#d4d4d4" }} 62%, transparent);
+    --border-gentle-hover: color-mix(in srgb, {{ tn.outline_variant | default: "#d4d4d4" }} 78%, transparent);
+    /* Sketchbook ink frame. Light densifies toward near-black in base.css;
+       dark is overridden there to sit almost on the background. */
+    --border-ink: color-mix(in srgb, {{ tn.on_surface | default: "#1b1c15" }} 5%, {{ tn.background | default: "#ffffff" }});
+    --border-ink-strong: color-mix(in srgb, {{ tn.on_surface | default: "#1b1c15" }} 8%, {{ tn.background | default: "#ffffff" }});
+    --radius-card: {{ sg.radius_card | default: "0" }};
+    --cubist-card-border: var(--border-gentle);
+    --cubist-card-border-hover: var(--border-gentle-hover);
+    --color-background: {{ tn.background | default: "#ffffff" }};
+    --color-background-secondary: {{ bg_secondary }};
+    --color-surface: {{ surface_value }};
+    --color-surface-bright: {{ surface_value }};
+    --color-surface-container-lowest: {{ ts.surface_container_lowest | default: "#ffffff" }};
+    --color-surface-container-low: {{ bg_secondary }};
+    --color-surface-container: {{ tn.surface_container | default: "#eeeeee" }};
+    --color-surface-container-high: {{ tn.surface_container_high | default: "#e8e8e8" }};
+    --color-surface-container-highest: {{ surface_variant_value }};
+    --color-surface-variant: {{ surface_variant_value }};
+    --color-surface-dim: {{ ts.surface_dim | default: "#d9d9d9" }};
+    --color-panel-contrast: {{ tn.panel_contrast | default: bg_secondary }};
+    --color-surface-card: {{ tn.surface_card | default: surface_value }};
+    --color-surface-card-contrast: {{ tn.surface_card_contrast | default: tn.surface_card | default: surface_value }};
+    --color-surface-high: {{ tn.surface_high | default: tn.surface_container_high | default: "#e8e8e8" }};
+    --color-surface-high-contrast: {{ tn.surface_high_contrast | default: tn.surface_high | default: "#dedede" }};
+    --color-panel-grey: color-mix(in srgb, {{ tn.surface_container | default: "#eeeeee" }} 82%, {{ tn.background | default: "#ffffff" }});
+    --color-link: {{ tl.default | default: "#1c5a7a" }};
+    --color-link-hover: {{ tl.hover | default: "#436a7d" }};
+    --color-surface-tint: {{ color_primary }};
+    --color-inverse-primary: {{ ts.inverse_primary | default: "#8fa8b5" }};
+    --color-inverse-surface: {{ ts.inverse_surface | default: "#303129" }};
+    --color-inverse-on-surface: {{ ts.inverse_on_surface | default: "#f2f2f2" }};
+    --color-primary-fixed: {{ ts.primary_fixed | default: "#c5d4dc" }};
+    --color-primary-fixed-dim: {{ ts.primary_fixed_dim | default: "#8fa8b5" }};
+    --color-secondary-fixed: {{ ts.secondary_fixed | default: "#d2e4d8" }};
+    --color-secondary-fixed-dim: {{ ts.secondary_fixed_dim | default: "#7fa88f" }};
+    --color-tertiary-fixed: {{ ts.tertiary_fixed | default: "#e5e4d0" }};
+    --color-tertiary-fixed-dim: {{ ts.tertiary_fixed_dim | default: "#c8c6b0" }};
+    --color-on-primary-fixed: {{ ts.on_primary_fixed | default: "#0f1a22" }};
+    --color-on-primary-fixed-variant: {{ ts.on_primary_fixed_variant | default: tc.on_primary_container | default: "#1a2833" }};
+    --color-on-secondary-fixed: {{ ts.on_secondary_fixed | default: "#141a15" }};
+    --color-on-secondary-fixed-variant: {{ ts.on_secondary_fixed_variant | default: tc.on_secondary_container | default: "#2d362f" }};
+    --color-on-tertiary-fixed: {{ ts.on_tertiary_fixed | default: "#1b1c12" }};
+    --color-on-tertiary-fixed-variant: {{ ts.on_tertiary_fixed_variant | default: tc.on_tertiary_container | default: "#3d3c2a" }};
+    --color-error: {{ ts.error | default: "#ba1a1a" }};
+    --color-on-error: {{ ts.on_error | default: "#ffffff" }};
+    --color-error-container: {{ ts.error_container | default: "#ffdad6" }};
+    --color-on-error-container: {{ ts.on_error_container | default: "#93000a" }};
+    --color-res-youtube: {{ ts.res_youtube | default: "#c62828" }};
+    --color-res-podcast: {{ ts.res_podcast | default: "#2e7d32" }};
+    --color-res-doc: {{ ts.res_doc | default: "#b45309" }};
+    {% comment %}
+      Frozen triad aliases. `.page-accent--*` rebinds `--color-primary` (and
+      link) to secondary or tertiary for page chrome; categorical drawings
+      that must keep the absolute slate / forest / ochre map — the network
+      graph, ambient pools keyed to content type — read these instead.
+    {% endcomment %}
+    --triad-primary: {{ color_primary }};
+    --triad-secondary: {{ color_secondary }};
+    --triad-tertiary: {{ color_tertiary }};
+    {% comment %}
+      Timeline lane palette. A categorical scale, not the UI triad: the chart
+      draws six kinds of event at once and they have to be told apart, so this
+      is the one place the site holds more than three inks. Deliberately kept
+      out of `--color-primary` and friends, which a `.page-accent--*` class
+      rebinds — the CV reads green, but a green chart is an unreadable chart.
+    {% endcomment %}
+    {% assign tt = theme_profile.timeline %}
+    --timeline-employment: {{ tt.employment | default: color_primary }};
+    --timeline-education: {{ tt.education | default: color_secondary }};
+    --timeline-product: {{ tt.product | default: color_tertiary }};
+    --timeline-project: {{ tt.project | default: "#5c5896" }};
+    --timeline-article: {{ tt.article | default: "#a0543a" }};
+    --timeline-post: {{ tt.post | default: "#4f7d72" }};
+    {% assign st = theme_profile.sidebar_thumbnail %}
+    --sidebar-thumbnail-background: {{ st.background | default: site.sidebar_thumbnail.background | default: '#f5f0ee' }};
+    --sidebar-thumbnail-overlay-start: {{ st.overlay_gradient_start | default: site.sidebar_thumbnail.overlay_gradient_start | default: 'rgba(245, 240, 238, 0.18)' }};
+    --sidebar-thumbnail-overlay-end: {{ st.overlay_gradient_end | default: site.sidebar_thumbnail.overlay_gradient_end | default: 'rgba(237, 229, 224, 0.28)' }};
+    --sidebar-thumbnail-width: {{ st.width | default: site.sidebar_thumbnail.width | default: '22rem' }};
+    --sidebar-thumbnail-image-opacity: {{ st.image_opacity | default: site.sidebar_thumbnail.image_opacity | default: 0.94 }};
+    --sidebar-thumbnail-filter-saturate: {{ st.filter_saturate | default: site.sidebar_thumbnail.filter_saturate | default: 0.68 }};
+    --sidebar-thumbnail-filter-contrast: {{ st.filter_contrast | default: site.sidebar_thumbnail.filter_contrast | default: 0.98 }};
+    --sidebar-thumbnail-filter-brightness: {{ st.filter_brightness | default: site.sidebar_thumbnail.filter_brightness | default: 1.02 }};
+    --sidebar-thumbnail-filter-sepia: {{ st.filter_sepia | default: site.sidebar_thumbnail.filter_sepia | default: 0.10 }};
+  }

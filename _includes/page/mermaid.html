@@ -1,0 +1,101 @@
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+  /* Mermaid resolves its palette once, when initialize() runs, and bakes the
+     values into the SVG it emits. Reading the theme at load therefore left a
+     diagram painted in whatever palette happened to be active at that moment:
+     toggling to dark kept the light node fills and cluster backgrounds, which
+     is why diagrams showed pale blocks on a dark page. The palette is re-read
+     and the diagrams re-rendered whenever the theme changes. */
+
+  function themeFont() {
+    var value = getComputedStyle(document.documentElement).getPropertyValue('--font-sans').trim();
+    return value || "'Lato', sans-serif";
+  }
+
+  function themeColor(name, fallback) {
+    var value = getComputedStyle(document.documentElement).getPropertyValue('--color-' + name).trim();
+    return value || fallback;
+  }
+
+  function config() {
+    return {
+      startOnLoad: false,
+      theme: 'base',
+      darkMode: document.documentElement.getAttribute('data-theme') === 'dark',
+      themeVariables: {
+        fontFamily: themeFont(),
+        background: themeColor('background', '#ffffff'),
+        mainBkg: themeColor('surface', '#f1f1ef'),
+        primaryColor: themeColor('surface', '#f1f1ef'),
+        primaryTextColor: themeColor('on-surface', '#1b1c15'),
+        primaryBorderColor: themeColor('outline-variant', '#c4ccc6'),
+        secondaryColor: themeColor('panel-contrast', '#f7f7f5'),
+        secondaryTextColor: themeColor('on-surface', '#1b1c15'),
+        secondaryBorderColor: themeColor('outline-variant', '#c4ccc6'),
+        tertiaryColor: themeColor('surface-high', '#e8e8e4'),
+        tertiaryTextColor: themeColor('on-surface', '#1b1c15'),
+        tertiaryBorderColor: themeColor('outline-variant', '#c4ccc6'),
+        lineColor: themeColor('outline', '#6b7569'),
+        textColor: themeColor('on-surface', '#1b1c15'),
+        nodeBorder: themeColor('outline-variant', '#c4ccc6'),
+        nodeTextColor: themeColor('on-surface', '#1b1c15'),
+        clusterBkg: themeColor('panel-contrast', '#f7f7f5'),
+        clusterBorder: themeColor('outline-variant', '#c4ccc6'),
+        titleColor: themeColor('on-surface', '#1b1c15'),
+        edgeLabelBackground: themeColor('background', '#ffffff'),
+        labelBackground: themeColor('background', '#ffffff'),
+        labelTextColor: themeColor('on-surface', '#1b1c15'),
+        fontSize: '14px'
+      },
+      flowchart: {
+        diagramPadding: 16,
+        padding: 16,
+        subGraphTitleMargin: { top: 8, bottom: 0 }
+      }
+    };
+  }
+
+  /* Kramdown renders ```mermaid as <pre><code class="language-mermaid">.
+     Convert those to <div class="mermaid"> so Mermaid can process them. The
+     source is kept on the node so the diagram can be drawn again from scratch
+     after a theme change, since rendering replaces the text with an SVG. */
+  function collect() {
+    document.querySelectorAll('pre code.language-mermaid').forEach(function (code) {
+      var div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = code.textContent;
+      div.dataset.mermaidSource = code.textContent;
+      code.closest('pre').replaceWith(div);
+    });
+    return Array.from(document.querySelectorAll('.mermaid'));
+  }
+
+  async function draw(nodes) {
+    if (!nodes.length) return;
+    mermaid.initialize(config());
+    try {
+      await mermaid.run({ nodes: nodes });
+    } catch (error) {
+      console.error('Mermaid render failed', error);
+    }
+  }
+
+  var nodes = collect();
+  nodes.forEach(function (node) {
+    if (!node.dataset.mermaidSource) node.dataset.mermaidSource = node.textContent;
+  });
+  draw(nodes);
+
+  document.addEventListener('shell-theme-change', function () {
+    var existing = Array.from(document.querySelectorAll('.mermaid'));
+    if (!existing.length) return;
+    existing.forEach(function (node) {
+      if (!node.dataset.mermaidSource) return;
+      node.removeAttribute('data-processed');
+      node.innerHTML = '';
+      node.textContent = node.dataset.mermaidSource;
+    });
+    draw(existing);
+  });
+</script>

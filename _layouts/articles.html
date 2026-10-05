@@ -1,0 +1,519 @@
+---
+layout: shell
+---
+
+<main class="writing-index{% if page.accent and page.accent != 'blue' %} page-accent--{{ page.accent }}{% endif %} relative max-w-7xl mx-auto px-4 sm:px-8 md:px-16 pt-10 pb-16">
+
+  {%- comment -%}
+    Title, header tags and the optional standfirst all come from the
+    `articles` entry of content/pages/headers.yml, the one file that carries
+    every page title. The standfirst slot is declared by the
+    shared include and stays hidden until that file declares one, so nothing
+    is invented here to fill it.
+  {%- endcomment -%}
+  {% include page/page-header.html key=page.key
+     header_class="writing-masthead"
+     tags_class="writing-masthead-tags code-technical block hidden" %}
+
+  <div id="articles-listing">
+
+    {%- comment -%}
+      Featured panel. The entry is whichever article runtime.pickFeatured drew
+      for this browsing session — a random pick from the articles that carry a
+      thumbnail, remembered in session storage so the home page leads on the
+      same piece and paging through the archive below does not reshuffle it.
+      No article carries a thumbnail, no panel: the panel is built around an
+      image column, and one that reserves space for a picture that does not
+      exist is worse than no panel at all.
+    {%- endcomment -%}
+    <div id="articles-lead"></div>
+
+    <div class="writing-body">
+
+      {%- comment -%}
+        The filter is a rail beside the archive, not a band above it. Six tags
+        plus the order and the keyword box read as a list in a column, they
+        stay visible while the archive is scanned, and they take the column the
+        mockup filled with invented marginalia. Below 1024px the rail collapses
+        into the shared disclosure — trigger plus panel, exactly as
+        /pages/sources/ — so a phone is not made to scroll past the controls.
+        The controller is the shared ListingFilter either way: same tag facet,
+        same ?tag= URLs, same keyword query, same sort.
+
+        This is the sidebar both writing listings wear; /pages/blog/ emits the
+        same aside with its own labels. Anything added here has to make sense
+        on a Portuguese notebook as well as on an English archive, which is why
+        the last group is the licence: the terms are a fact about the corpus,
+        not about either page.
+      {%- endcomment -%}
+      <aside class="writing-rail listing-filter" data-listing-filter-root hidden>
+        <button type="button" class="writing-rail-trigger listing-filter-trigger"
+                data-listing-filter-trigger aria-expanded="false"
+                aria-controls="writing-filter-panel">
+          <span class="material-symbols-outlined" aria-hidden="true">filter_list</span>
+          <span class="font-label writing-rail-trigger-label">Filter</span>
+        </button>
+
+        <div id="writing-filter-panel" class="writing-rail-panel" data-listing-filter-panel hidden>
+          <p class="listing-filter-group-label font-label text-on-surface-variant">Keyword</p>
+          <label class="writing-rail-search">
+            <span class="sr-only">Filter articles by keyword</span>
+            <input type="search" class="listing-filter-search writing-rail-input font-body"
+                   data-listing-filter-q placeholder="Title, summary, tag…" autocomplete="off">
+            <span class="material-symbols-outlined writing-rail-search-icon" aria-hidden="true">search</span>
+          </label>
+          <div data-listing-filter-chips></div>
+        </div>
+
+        {%- comment -%}
+          Citation and reuse. Filled from the export manifest's licence record
+          and nothing else — no declared licence, no block.
+        {%- endcomment -%}
+        <section class="writing-rail-licence" data-writing-licence hidden></section>
+      </aside>
+
+      <div class="writing-main">
+        {%- comment -%}
+          Both halves of this line are read off the live list: the ordering is
+          the active sort and the tally is the length of the filtered
+          selection. Neither is a standing claim about the archive, and neither
+          is authored anywhere.
+        {%- endcomment -%}
+        <div class="writing-archive-head">
+          <h2 class="writing-archive-title code-technical">Archive</h2>
+          <span class="writing-archive-note code-technical" data-writing-order></span>
+          <span class="writing-archive-tally code-technical" data-writing-tally></span>
+        </div>
+
+        <div class="writing-archive" id="articles-list">
+          <section id="empty-state" class="writing-archive-state">
+            <p class="font-body text-on-surface-variant italic">Loading articles...</p>
+          </section>
+          <section id="no-results" class="writing-archive-state hidden">
+            <p class="font-body text-on-surface-variant italic">Nothing matches these filters yet.</p>
+          </section>
+        </div>
+
+        <div id="pagination-controls" class="writing-pagination hidden" aria-label="Article pages"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="articles-detail" class="hidden">
+    <div class="grid grid-cols-1 gap-8 lg:gap-12 items-start text-detail-grid">
+      <aside id="articles-detail-sidebar"></aside>
+      <div id="articles-detail-main"></div>
+    </div>
+  </div>
+
+</main>
+{% include mathjax.html %}
+
+<script>
+  (function () {
+    'use strict';
+
+    var runtime = window.ContentRuntime;
+    if (!runtime || !runtime.ListingFilter) return;
+
+    var listing = runtime.Listing;
+    var perPage = parseInt('{{ site.posts_per_page | default: 6 }}', 10);
+    var params = new URLSearchParams(window.location.search);
+    var selectedArticle = runtime.contentSlug('article');
+    var currentPage = Math.max(1, parseInt(params.get('page') || '1', 10));
+
+    var grid = document.getElementById('articles-list');
+    var emptyState = document.getElementById('empty-state');
+    var noResults = document.getElementById('no-results');
+    var controls = document.getElementById('pagination-controls');
+    var listingRoot = document.getElementById('articles-listing');
+    var leadRoot = document.getElementById('articles-lead');
+    var orderNote = document.querySelector('[data-writing-order]');
+    var tallyNote = document.querySelector('[data-writing-tally]');
+    var detailRoot = document.getElementById('articles-detail');
+    var detailSidebar = document.getElementById('articles-detail-sidebar');
+    var detailMain = document.getElementById('articles-detail-main');
+    var pageHeader = document.querySelector('[data-content-page-header="articles"]');
+    var filterRoot = document.querySelector('[data-listing-filter-root]');
+    var licenceEl = document.querySelector('[data-writing-licence]');
+
+    var SORT_LABELS = {
+      updated: 'Order: last revised',
+      published: 'Order: date published'
+    };
+
+    var allArticles = [];
+    var filterUi = null;
+
+    /* Drawn once, from the whole archive rather than the current selection:
+     * the point of the session-held pick is that the home page and this page
+     * agree, and they only can if both draw from the same pool. Recomputing it
+     * per filter would also let a tag whose entries have no thumbnail
+     * overwrite the stored slug and change what the home page leads with. */
+    var featured = null;
+
+    function tagHref(tag) {
+      return '/pages/articles/?tag=' + encodeURIComponent(tag);
+    }
+
+    function loadArticles() {
+      return runtime.loadWritingIndex('articles');
+    }
+
+    function sortItems(a, b, sortKey) {
+      if (sortKey === 'random') {
+        var ak = (a && (a.slug || a.key)) || '';
+        var bk = (b && (b.slug || b.key)) || '';
+        return runtime.sessionRandomCompare(ak, bk, 'articles');
+      }
+      if (sortKey === 'updated') {
+        var au = (a.front_matter && a.front_matter.last_updated) || a.last_updated || (a.front_matter && a.front_matter.date) || a.date || '';
+        var bu = (b.front_matter && b.front_matter.last_updated) || b.last_updated || (b.front_matter && b.front_matter.date) || b.date || '';
+        return String(bu).localeCompare(String(au));
+      }
+      var ad = (a.front_matter && a.front_matter.date) || a.date || '';
+      var bd = (b.front_matter && b.front_matter.date) || b.date || '';
+      return String(bd).localeCompare(String(ad));
+    }
+
+    /* Tab counts are computed from the index, never authored, so a tab can
+     * never promise more entries than the archive holds. */
+    function tagCounts(articles) {
+      var counts = {};
+      articles.forEach(function (article) {
+        var list = (article.front_matter && article.front_matter.tags) || [];
+        (Array.isArray(list) ? list : []).forEach(function (tag) {
+          if (!tag) return;
+          counts[tag] = (counts[tag] || 0) + 1;
+        });
+      });
+      return counts;
+    }
+
+    function buildChipGroups(tags, counts, total) {
+      return [
+        {
+          key: 'tag',
+          label: 'Topic',
+          options: [{ value: null, label: 'All (' + total + ')' }].concat(tags.map(function (tag) {
+            return { value: tag, label: tag + ' (' + counts[tag] + ')' };
+          }))
+        },
+        {
+          key: 'sort',
+          label: 'Order by',
+          options: [
+            { value: 'published', label: 'Date published' },
+            { value: 'updated', label: 'Last revised' },
+            { value: 'random', label: 'Random' }
+          ]
+        }
+      ];
+    }
+
+    function visibleArticles(state) {
+      return runtime.ListingFilter.filterItems(allArticles, state, { sortItems: sortItems });
+    }
+
+    function thumbnailOf(article) {
+      var value = (article && article.front_matter && article.front_matter.thumbnail) || '';
+      return String(value).trim();
+    }
+
+    /* The default order is by revision, so a list showing publication dates
+     * alone reads as unsorted. `last_updated` is a real exported field: show
+     * it beside the publication date whenever the two differ, and nothing at
+     * all when they do not. */
+    function revisionPart(fm) {
+      var revised = runtime.formatDate(fm.last_updated, 'en');
+      if (!revised || revised === runtime.formatDate(fm.date, 'en')) return '';
+      return '<span class="writing-revised">Revised ' + runtime.escapeHtml(revised) + '</span>';
+    }
+
+    function setHidden(el, hidden) {
+      if (!el) return;
+      el.classList.toggle('hidden', !!hidden);
+    }
+
+    function renderListing(state) {
+      Array.from(grid.querySelectorAll('[data-dynamic-article]')).forEach(function (el) { el.remove(); });
+      if (emptyState) emptyState.remove();
+      if (leadRoot) leadRoot.innerHTML = '';
+
+      var visible = visibleArticles(state);
+      if (orderNote) orderNote.textContent = SORT_LABELS[state.sort] || SORT_LABELS.updated;
+      if (tallyNote) {
+        tallyNote.textContent = visible.length === 1 ? '1 entry' : visible.length + ' entries';
+      }
+
+      if (visible.length === 0) {
+        setHidden(noResults, false);
+        if (controls) controls.classList.add('hidden');
+        return;
+      }
+      setHidden(noResults, true);
+
+      /* The featured entry is dropped from the archive so nothing is listed
+       * twice — but only when the current selection actually contains it. The
+       * pick is a standing one, held for the session, so a tag filter that
+       * excludes it leaves the panel alone and takes nothing out of the list.
+       * Later pages are archive only. */
+      var rest = visible.slice();
+      if (featured) {
+        var at = rest.findIndex(function (item) { return item.slug === featured.slug; });
+        if (at !== -1) rest.splice(at, 1);
+      }
+
+      var totalPages = Math.max(1, Math.ceil(rest.length / perPage));
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage === 1) renderLead(featured);
+
+      rest.slice((currentPage - 1) * perPage, currentPage * perPage).forEach(renderRow);
+      listing.renderPagination(controls, currentPage, totalPages);
+    }
+
+    /* A thumbnail that 404s would leave a hole where the image column is, so
+     * the frame removes itself and the panel or row falls back to the
+     * typographic layout it has without one. */
+    function dropPlateOnError(scope, frame, illustratedClass) {
+      var image = frame && frame.querySelector('img');
+      if (!image) return;
+      image.addEventListener('error', function () {
+        frame.remove();
+        scope.classList.remove(illustratedClass);
+      });
+    }
+
+    /* Lead panel. Binds title, date, revision, tags, description and the
+     * thumbnail — the same strip as the rows below it, language pill included
+     * in the omission. The mockup's topology figure, its DOI/arXiv line and its
+     * "Critical Notes" list have no field beNewsreader them, so none is rendered.
+     *
+     * The panel reads down the left and stops on the action: kicker, ledger
+     * line, title, summary, tags, then "Read article" — with the plate holding
+     * the right. The action used to sit on the same line as the tag chips,
+     * hard right, which put the one thing to press furthest from the sentence
+     * that argues for pressing it. */
+    function renderLead(article) {
+      if (!leadRoot || !article) return;
+      var fm = article.front_matter || {};
+      var href = runtime.articleUrl(article.slug);
+      var thumbnail = thumbnailOf(article);
+      var meta = runtime.renderMetaStrip([
+        runtime.formatDate(fm.date, 'en'),
+        revisionPart(fm)
+      ]);
+
+      var html = '<article class="writing-lead' + (thumbnail ? ' writing-lead--illustrated' : '') + '">';
+      html += '<span class="shard-accent writing-lead-shard" aria-hidden="true"></span>';
+      html += '<span class="shard-accent shard-accent-beta writing-lead-shard writing-lead-shard--beta" aria-hidden="true"></span>';
+      html += '<div class="writing-lead-inner">';
+      html += '<div class="writing-lead-body">';
+      html += '<div class="writing-lead-rail">';
+      html += '<span class="ledger-chip writing-lead-featured">Featured</span>';
+      if (meta) html += meta;
+      html += '</div>';
+      /* Thin category rule under the meta strip — accent hairline only; tags
+         remain in the foot chips. */
+      html += '<div class="writing-lead-category-bar" aria-hidden="true"></div>';
+      html += '<h2 class="section-title writing-lead-title"><a href="' +
+        runtime.escapeAttr(href) + '">' +
+        runtime.escapeHtml(fm.title || article.slug) + '</a></h2>';
+
+      var preview = runtime.listingPreview(article);
+      if (preview) {
+        html += '<p class="writing-lead-copy font-body">' +
+          runtime.escapeHtml(preview) + '</p>';
+      }
+
+      var chips = runtime.renderTagChips(fm.tags, { hrefFor: tagHref });
+      var cta = runtime.renderCtaLink(href, 'Read article', { className: 'writing-lead-cta' });
+      html += '<div class="writing-lead-foot">' + chips + cta + '</div>';
+      html += '</div>';
+
+      if (thumbnail) {
+        html += '<div class="writing-lead-media">' +
+          runtime.renderPosterMedia(runtime.buildUrl(thumbnail), fm.title || article.slug) +
+          '</div>';
+      }
+
+      html += '</div></article>';
+      leadRoot.innerHTML = html;
+
+      var panel = leadRoot.querySelector('.writing-lead');
+      if (panel) {
+        dropPlateOnError(panel, panel.querySelector('.writing-lead-media'), 'writing-lead--illustrated');
+      }
+    }
+
+    /* Archive entry. The shared ledger row carries exactly the fields that
+     * exist: title, description, tag chips, link, and the strip this page
+     * hands it — the date it was published and the day it was last revised.
+     * The language pill is not among them: every article here is in English,
+     * so on this page the pill separated the entries that declare the field
+     * from the entries that do not, which is a fact about the front matter
+     * and not about the writing. The ordinal, the reading time and the
+     * "MONOGRAPH #42" stamp the mockup drew around it are backed by nothing
+     * and are gone. The plate on the right is the `thumbnail` field, and only
+     * the entries that declare one get it. */
+    function renderRow(article) {
+      var fm = article.front_matter || {};
+      var row = runtime.renderLedgerRow(article, {
+        href: runtime.articleUrl(article.slug),
+        locale: 'en',
+        tagHref: tagHref,
+        ctaLabel: 'Read article',
+        metaParts: [
+          runtime.formatDate(fm.date, 'en'),
+          revisionPart(fm)
+        ]
+      });
+      row.setAttribute('data-dynamic-article', 'true');
+
+      var thumbnail = thumbnailOf(article);
+      if (thumbnail) {
+        var body = document.createElement('div');
+        body.className = 'writing-row-body';
+        while (row.firstChild) body.appendChild(row.firstChild);
+        row.appendChild(body);
+        row.insertAdjacentHTML('beforeend',
+          runtime.renderPosterMedia(runtime.buildUrl(thumbnail), fm.title || article.slug));
+        row.classList.add('writing-row--illustrated');
+        dropPlateOnError(row, row.querySelector('.ledger-poster'), 'writing-row--illustrated');
+      }
+
+      grid.insertBefore(row, noResults);
+    }
+
+    function showListing() {
+      if (listingRoot) listingRoot.classList.remove('hidden');
+      if (detailRoot) detailRoot.classList.add('hidden');
+      if (pageHeader) pageHeader.classList.remove('hidden');
+      if (filterUi) filterUi.setVisible(true);
+      if (detailMain) detailMain.innerHTML = '';
+      if (detailSidebar) detailSidebar.innerHTML = '';
+      runtime.removeRuntimeBackLink();
+      runtime.removeArticleToc();
+    }
+
+    async function renderArticleDetail(article, articles) {
+      showListing();
+      if (listingRoot) listingRoot.classList.add('hidden');
+      if (pageHeader) pageHeader.classList.add('hidden');
+      if (filterUi) filterUi.setVisible(false);
+      if (detailRoot) detailRoot.classList.remove('hidden');
+
+      var fm = article.front_matter || {};
+      var lang = fm.language || 'enus';
+
+      if (detailSidebar) {
+        detailSidebar.innerHTML = runtime.buildTextSidebar({
+          frontMatter: fm,
+          fallbackTitle: article.slug,
+          dateHtml: runtime.renderDateEvolution(fm.date, fm.last_updated, 'en')
+        });
+      }
+
+      var index = (articles || []).findIndex(function (item) { return item.slug === article.slug; });
+
+      await runtime.renderRuntimeDetailSection({
+        detailAttribute: 'data-dynamic-article-detail',
+        bodyMarkdown: article.body_markdown,
+        frontMatter: fm,
+        mainColumn: detailMain,
+        sidebarEl: detailSidebar,
+        footerNav: {
+          lang: lang,
+          previousUrl: index >= 0 && index < articles.length - 1 ? runtime.articleUrl(articles[index + 1].slug) : null,
+          nextUrl: index > 0 ? runtime.articleUrl(articles[index - 1].slug) : null
+        }
+      });
+    }
+
+    function initFilter() {
+      // One entry per tag actually in use, so the rail never offers a filter
+      // that would return nothing.
+      var tags = Array.from(new Set(allArticles.reduce(function (acc, article) {
+        var list = (article.front_matter && article.front_matter.tags) || [];
+        return acc.concat(Array.isArray(list) ? list : []);
+      }, []).filter(Boolean))).sort();
+
+      filterUi = runtime.ListingFilter.create({
+        root: filterRoot,
+        initialQuery: params.get('q') || '',
+        initialTag: params.get('tag') || params.get('category') || null,
+        initialSort: params.get('sort') || 'published',
+        defaultSort: 'published',
+        tagParam: 'tag',
+        chipGroups: buildChipGroups(tags, tagCounts(allArticles), allArticles.length),
+        onChange: function (state) {
+          currentPage = 1;
+          renderListing(state);
+        }
+      });
+      if (filterRoot) filterRoot.hidden = false;
+      renderListing(filterUi.getState());
+    }
+
+    /* Citation and reuse, the rail's last group. Every word is the exported
+     * licence record; the page states no terms of its own, and a manifest
+     * without a licence leaves no block. Twin of the rascunhos copy — the two
+     * listings wear the same sidebar, each in its own language. */
+    function mountLicence(manifest) {
+      if (!licenceEl) return;
+      var licence = manifest && manifest.content_license;
+      if (!licence || !licence.name) return;
+
+      var parts = ['<span class="writing-rail-licence-label font-label">Licensing &amp; reuse</span>'];
+      var named = licence.id ? licence.name + ' (' + licence.id + ')' : licence.name;
+      parts.push('<p class="writing-rail-licence-copy font-body">Articles published under ' +
+        runtime.escapeHtml(named) + '.</p>');
+      if (licence.rights_holder) {
+        parts.push('<p class="writing-rail-licence-copy font-body">Attribution to ' +
+          runtime.escapeHtml(licence.rights_holder) + '.</p>');
+      }
+      var href = licence.page_path || licence.url;
+      if (href) parts.push(runtime.renderCtaLink(href, 'Licence terms'));
+
+      licenceEl.innerHTML = parts.join('');
+      licenceEl.hidden = false;
+    }
+
+    function mountRailLicence() {
+      return runtime.loadJson('manifest.json')
+        .then(mountLicence)
+        .catch(function (error) { console.error(error); });
+    }
+
+    loadArticles().then(function (items) {
+      allArticles = items.slice();
+
+      var selected = selectedArticle && runtime.resolveWritingAlias(allArticles, selectedArticle);
+      if (selectedArticle) {
+        if (selected && selected.slug && selected.slug !== selectedArticle) {
+          runtime.adoptCanonicalDetailUrl(selected);
+        }
+        var slugToLoad = selected ? selected.slug : selectedArticle;
+        return runtime.loadCollectionItem('articles', slugToLoad).then(function (article) {
+          return renderArticleDetail(article, allArticles);
+        }).catch(function (error) {
+          runtime.reportDetailLoadError(error, {
+            emptyState: emptyState,
+            grid: grid,
+            noResults: noResults,
+            message: 'This article could not be loaded right now.'
+          });
+        });
+      }
+
+      featured = runtime.pickFeatured(allArticles);
+      initFilter();
+      return mountRailLicence();
+    }).catch(function (error) {
+      console.error(error);
+      if (emptyState) {
+        emptyState.querySelector('p').textContent = 'Articles could not be loaded right now.';
+      }
+    });
+  })();
+</script>

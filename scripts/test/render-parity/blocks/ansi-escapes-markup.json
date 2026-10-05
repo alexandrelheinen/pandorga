@@ -1,0 +1,7 @@
+{
+  "name": "ansi capture is escaped, not interpreted",
+  "block": "renderAnsiHtml",
+  "args": ["\\e[32m<script>alert(1)</script> & \"quoted\"\\e[0m"],
+  "contains": ["&lt;script&gt;", "&amp;", "&quot;quoted&quot;"],
+  "excludes": ["<script>"]
+}

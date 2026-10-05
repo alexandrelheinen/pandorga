@@ -1,40 +1,1432 @@
-/* Pandorga default shell — minimal tokens for examples. Full Architectural
-   Ledger theme lands when DESIGN.md is imported from the extraction. */
-:root {
-  --color-bg: #f7f5f2;
-  --color-fg: #1c1917;
-  --color-accent: #0f766e;
-  --font-sans: "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+/* ── Material Symbols ── */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  line-height: 1;
+  text-transform: none;
 }
 
-body {
-  margin: 0;
-  font-family: var(--font-sans);
-  background: var(--color-bg);
-  color: var(--color-fg);
-  line-height: 1.5;
+/* Cubist triad — ~+25% over the 1.25rem theme-toggle box (rounded to 1.5rem). */
+.site-logo {
+  display: block;
+  width: 1.5rem;
+  height: 1.5rem;
+  overflow: visible;
+  flex-shrink: 0;
 }
 
-.shell-nav {
+#theme-toggle-icon.material-symbols-outlined {
+  font-size: var(--type-card);
+  width: 1.25rem;
+  height: 1.25rem;
+  line-height: 1;
+}
+
+/* Light page → pastel triad; dark page → production triad. Each theme paints
+   the mark in the *other* theme's primary/secondary/tertiary, which is why
+   these are literals: a palette only ever exposes its own three as custom
+   properties, so there is no token here to reach for. Tokenising them needs
+   inverse_secondary / inverse_tertiary in `_data/themes/*.yml` (and
+   inverse_primary corrected to the triad value) wired through
+   `_includes/theme/theme-vars-block.liquid`. */
+:root .site-logo-primary,
+[data-theme="light"] .site-logo-primary {
+  fill: #a4c8da;
+}
+
+:root .site-logo-secondary,
+[data-theme="light"] .site-logo-secondary {
+  fill: #95c8a6;
+}
+
+:root .site-logo-tertiary,
+[data-theme="light"] .site-logo-tertiary {
+  fill: #ddd8a8;
+}
+
+[data-theme="dark"] .site-logo-primary {
+  fill: #1c5a7a;
+}
+
+[data-theme="dark"] .site-logo-secondary {
+  fill: #287445;
+}
+
+[data-theme="dark"] .site-logo-tertiary {
+  fill: #746f30;
+}
+
+/* Same contract as Studio `.studio-mark-frame`: hairline in on-surface-variant
+   (light page → dark edge, dark page → light edge). Public site token is
+   `--color-on-surface-variant` (Studio uses `--on-surface-variant`). */
+.site-logo-frame {
+  fill: none;
+  stroke: var(--color-on-surface-variant);
+  stroke-width: 1;
+  stroke-linejoin: miter;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── Base typography ──
+   Scale maps Stitch Borders tokens (§19.4) onto rem at root 110%:
+   display-hero → --type-display · headline-lg → --type-page ·
+   headline-md → --type-section · headline-sm → --type-card ·
+   body-lg → --type-prose · body-md → --type-body · body-sm → --type-meta ·
+   label-md → --type-label · label-lg → --type-label-lg.
+   Type tokens are literal rem at html { font-size: 110% } (1rem = 17.6px).
+   They already include the old +2pt / +1pt / +1.3pt steps. Prose is
+   1.2rem below 1024px and 1.25rem from there, plus `--prose-size-offset`
+   (−4pt … +4pt). Selectors consume tokens directly. */
+html {
+  font-size: 110%;
+
+  /* Display — Cinzel Decorative 400 */
+  --type-display: 2.9015rem;
+  --type-display-lg: 3.6515rem;
+  --type-page: 2.4015rem;
+  --type-page-lg: 2.9015rem;
+  --type-section: 1.9015rem;
+  --type-section-lg: 2.1515rem;
+
+  /* Content titles — Newsreader Regular 400 */
+  --type-title: 2.0015rem;
+  --type-title-lg: 2.4015rem;
+  --type-card: 1.4015rem;
+  --type-card-lg: 1.5515rem;
+
+  /* Reading + UI — Newsreader Light 300.
+     Default reading size is 1.2rem below 1024px and 1.25rem from there.
+     `--prose-size-offset` is the detail-page step (−4pt through +4pt); the
+     shell sets it from the reader's saved choice. The desktop step is in the
+     media query below. `--drop-cap-lines` is the fallback; the shell
+     overrides it from `_config.yml` `drop_cap_lines`. */
+  --prose-size-offset: 0pt;
+  --type-prose: calc(1.2rem + var(--prose-size-offset));
+  --drop-cap-lines: 2;
+  --type-body: 1.0758rem;
+  /* Card/row blurbs, standfirsts, project/source copy — same as body. */
+  --type-subtitle: var(--type-body);
+  --type-dek: 0.9375rem;
+  --type-meta: 0.8125rem;
+
+  /* Chrome — quiet relative to body (tuned for Marcellus SC cap-height to match icons) */
+  --type-label: 0.8485rem;
+  --type-label-lg: 0.9735rem;
+  --type-nav: 1.036rem;
+  --type-cta: 0.911rem;
+  --type-mono: 0.8504rem;
+  --type-micro: 0.75rem;
+
+  /* Soft apparatus ink — legends, card excerpts, muted descriptions. */
+  --color-legend: color-mix(in srgb, var(--color-on-surface) 58%, var(--color-on-surface-variant));
+
+  --font-size-body: var(--type-body);
+  --leading-body: 1.5;
+  --leading-prose: 1.6;
+
+  --weight-display: 400;
+  --weight-title: 400;
+  --weight-body: 300;
+  --weight-label: 400;
+  --weight-emphasis: 500;
+
+  transition: background-color var(--motion-duration-fast) var(--motion-ease-default), color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+@media (min-width: 1024px) {
+  html {
+    --type-prose: calc(1.25rem + var(--prose-size-offset));
+  }
+}
+
+/* `html body`, not `body`: Tailwind's Preflight ships `body {  line-height:
+   inherit }` from the CDN <style> that loads after this file, so a bare `body`
+   selector here loses the tie on source order and the leading silently becomes
+   Preflight's. That is how the old 1.65 in this rule came to be inert. */
+html body {
+  font-family: var(--font-body);
+  font-size: var(--font-size-body);
+  font-weight: var(--weight-body);
+  background-color: var(--color-background);
+  /* Quiet square grid on both palettes; only --color-background changes. */
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--color-outline) 4%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--color-outline) 4%, transparent) 1px, transparent 1px);
+  background-size: 1.25rem 1.25rem;
+  background-attachment: fixed;
+  color: var(--color-on-surface);
+  line-height: var(--leading-body);
+  letter-spacing: 0.01em;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Display face only when opted in — do not paint every heading Cinzel
+   (article / card titles use --font-content-title). */
+.font-title {
+  font-family: var(--font-title);
+  font-synthesis: none;
+}
+
+/* ── Utility class used in various places ── */
+.marginalia {
+  font-family: var(--font-label);
+  font-size: var(--type-nav);
+  font-weight: var(--weight-label);
+  letter-spacing: 0.05em;
+}
+
+/* ── Display title scale (home hero, 404) ── */
+.page-title {
+  font-family: var(--font-title);
+  font-size: var(--type-display);
+  font-weight: var(--weight-display);
+  line-height: 1.05;
+  color: var(--color-on-surface);
+  letter-spacing: normal;
+  font-synthesis: none;
+  font-optical-sizing: auto;
+}
+
+@media (min-width: 768px) {
+  .page-title {
+    font-size: var(--type-display-lg);
+  }
+}
+
+/* Listing page headers (CV, Articles, Portfolio, Rascunhos, …) */
+.page-header-title {
+  font-family: var(--font-title);
+  font-size: var(--type-page);
+  font-weight: var(--weight-display);
+  line-height: 1.15;
+  color: var(--color-on-surface);
+  letter-spacing: normal;
+  margin-bottom: 0.5rem;
+  font-synthesis: none;
+  font-optical-sizing: auto;
+}
+
+@media (min-width: 768px) {
+  .page-header-title {
+    font-size: var(--type-page-lg);
+    line-height: 1.1;
+  }
+}
+
+/* Article / post / project detail titles — content title voice.
+   Regular 400 only — never Medium/bold, and never synthesize a heavier cut. */
+.text-title {
+  font-family: var(--font-content-title);
+  font-size: var(--type-title);
+  font-weight: var(--weight-title);
+  font-synthesis: none;
+  line-height: 1.2;
+  color: var(--color-on-surface);
+  letter-spacing: normal;
+  font-optical-sizing: auto;
+}
+
+@media (min-width: 768px) {
+  .text-title {
+    font-size: var(--type-title-lg);
+  }
+}
+
+.section-title {
+  font-family: var(--font-title);
+  font-size: var(--type-section);
+  font-weight: var(--weight-display);
+  line-height: 1.15;
+  color: var(--color-on-surface);
+  font-synthesis: none;
+  font-optical-sizing: auto;
+}
+
+@media (min-width: 640px) {
+  .section-title {
+    font-size: var(--type-section-lg);
+  }
+}
+
+/* Featured article lead on the writing index is a content title, not a page name. */
+.writing-lead-title.section-title {
+  font-family: var(--font-content-title);
+  font-weight: var(--weight-title);
+  font-synthesis: none;
+}
+
+/* The italicized second half of a section or page title ("Articles & Notes",
+   "Personal Projects & Experiments") carries the page's accent colour plus a
+   marker highlight — felt-pen underlay, not invented copy. Same wash on home
+   band titles (`.section-title em`) and listing mastheads (`.page-header-title
+   em`) so the two never diverge. */
+.section-title em,
+.page-header-title em {
+  font-style: italic;
+  color: var(--color-primary);
+  background: linear-gradient(104deg,
+      transparent 0.9%,
+      color-mix(in srgb, var(--color-primary) 16%, transparent) 2.4%,
+      color-mix(in srgb, var(--color-primary) 12%, transparent) 58%,
+      color-mix(in srgb, var(--color-primary) 4%, transparent) 98%);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding: 0 0.1em;
+}
+
+/* Dark ink paper: dim the felt wash so primary/ochre highlighter does not glow. */
+[data-theme="dark"] .section-title em,
+[data-theme="dark"] .page-header-title em {
+  background: linear-gradient(104deg,
+      transparent 0.9%,
+      color-mix(in srgb, var(--color-primary) 9%, transparent) 2.4%,
+      color-mix(in srgb, var(--color-primary) 6%, transparent) 58%,
+      color-mix(in srgb, var(--color-primary) 2%, transparent) 98%);
+}
+
+
+
+/* When headers.yml marks only half the title, the outer loading span's
+   blanket italic must not italicize the unmarked half. */
+.page-header-title:has(em) [data-content-header-title] {
+  font-style: normal;
+}
+
+/* Marker wash for any field-backed highlight (hero family name, etc.). */
+.ledger-marker {
+  background: linear-gradient(104deg,
+      transparent 0.9%,
+      color-mix(in srgb, var(--color-tertiary) 20%, transparent) 2.4%,
+      color-mix(in srgb, var(--color-tertiary) 16%, transparent) 58%,
+      color-mix(in srgb, var(--color-tertiary) 5%, transparent) 98%);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding: 0 0.1em;
+}
+
+[data-theme="dark"] .ledger-marker {
+  background: linear-gradient(104deg,
+      transparent 0.9%,
+      color-mix(in srgb, var(--color-tertiary) 10%, transparent) 2.4%,
+      color-mix(in srgb, var(--color-tertiary) 7%, transparent) 58%,
+      color-mix(in srgb, var(--color-tertiary) 2%, transparent) 98%);
+}
+
+.ledger-marker--primary {
+  background: linear-gradient(104deg,
+      transparent 0.9%,
+      color-mix(in srgb, var(--color-primary) 16%, transparent) 2.4%,
+      color-mix(in srgb, var(--color-primary) 12%, transparent) 58%,
+      color-mix(in srgb, var(--color-primary) 4%, transparent) 98%);
+}
+
+[data-theme="dark"] .ledger-marker--primary {
+  background: linear-gradient(104deg,
+      transparent 0.9%,
+      color-mix(in srgb, var(--color-primary) 9%, transparent) 2.4%,
+      color-mix(in srgb, var(--color-primary) 6%, transparent) 58%,
+      color-mix(in srgb, var(--color-primary) 2%, transparent) 98%);
+}
+
+/* ── Page-level accent ────────────────────────────────────────────────
+   The shared triad (theme/theme-vars-block.liquid) declares one primary per
+   theme, but each section of the site reads in its own hue: Projects and
+   Sources blue, Articles and the CV green, Rascunhos and Network ochre.
+   Rather than forking the palette, a page puts one of these classes on its
+   top-level container and the class rebinds the same custom property names
+   theme-vars-block.liquid already defines, pointing them at an *existing*
+   triad token — never a new literal. Custom properties inherit, so every
+   rule anywhere (here or in a ledger/*.css) that reads `var(--color-primary)`
+   picks the page's hue up for free: card titles, CTA fills and borders,
+   section-title italics.
+
+   Parameterisation: set `accent: green|ochre` in the listing page front
+   matter and in `content/pages/headers.yml` (home bands apply it at
+   hydrate time). Collection defaults in `_config.yml` cover studio/detail
+   paths. Omit the field (or use `blue`) for the default primary.
+
+   The hover tone is mixed toward `--color-on-surface` rather than borrowing
+   a `*-fixed-dim` token. Those tokens hold the same value in both palettes,
+   so they lighten the link on hover in *both* — correct against a near-black
+   canvas, wrong against white paper, where hover has to go darker to read as
+   emphasis. Mixing toward the foreground ink moves the right direction in
+   each theme automatically, because that ink is dark in light and light in
+   dark. Blue needs no class: it is the default primary. Categorical drawings
+   that must keep the absolute triad (network graph) read `--triad-*` instead.
+
+   These lived in cv.css and writing.css as two byte-similar copies until
+   the third page needed one. One definition, here, beside the rule that
+   consumes it. */
+.page-accent--green {
+  --color-primary: var(--color-secondary);
+  --color-link: var(--color-secondary);
+  --color-link-hover: color-mix(in srgb, var(--color-secondary) 72%, var(--color-on-surface));
+}
+
+.page-accent--ochre {
+  --color-primary: var(--color-tertiary);
+  --color-link: var(--color-tertiary);
+  --color-link-hover: color-mix(in srgb, var(--color-tertiary) 72%, var(--color-on-surface));
+}
+
+/* Card / row / collection entry titles — content-title voice (Regular 400). */
+.card-title,
+.ledger-card-title,
+.ledger-row-title,
+.source-card-title {
+  font-family: var(--font-content-title);
+  font-size: var(--type-card);
+  font-weight: var(--weight-title);
+  font-synthesis: none;
+  line-height: 1.25;
+  color: var(--color-on-surface);
+  font-optical-sizing: auto;
+}
+
+/* Label-face meta on CV identity lines, etc. */
+.card-meta {
+  font-family: var(--font-label);
+  font-size: var(--type-meta);
+  font-weight: var(--weight-label);
+  letter-spacing: 0.04em;
+}
+
+.card-meta-block {
   display: flex;
-  gap: 1.5rem;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--color-fg) 15%, transparent);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
 }
 
-.shell-nav a {
-  color: var(--color-accent);
+/* Notation — tabular mono only. */
+.code-technical {
+  font-family: var(--font-mono);
+  font-size: var(--type-mono);
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums;
 }
 
-.home,
-.page-articles {
-  max-width: 42rem;
-  margin: 0 auto;
-  padding: 2rem 1.5rem;
+/* Masthead tag line under the page H1. */
+[data-content-header-tags],
+.page-header-tags {
+  font-size: var(--type-dek);
+  line-height: 1.45;
+  letter-spacing: 0.04em;
 }
 
-.home-band {
-  margin-top: 2rem;
-  padding-top: 1rem;
-  border-top: 1px solid color-mix(in srgb, var(--color-fg) 12%, transparent);
+/* Dates, kickers, section notes — body face at meta size. */
+.ledger-meta,
+.ledger-kicker,
+.ledger-section-note {
+  font-family: var(--font-body);
+  font-size: var(--type-meta);
+  font-weight: var(--weight-body);
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Detail-page return link ── */
+.back-link {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-size: var(--type-label-lg);
+  display: inline-block;
+  margin-bottom: 2rem;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+/* Text selection: quiet ink wash at high transparency, matching the
+   neutral shard/hero highlights rather than a primary-container spotlight. */
+::selection {
+  background: color-mix(in srgb, var(--color-on-surface) 12%, transparent);
+  color: inherit;
+}
+
+::-moz-selection {
+  background: color-mix(in srgb, var(--color-on-surface) 12%, transparent);
+  color: inherit;
+}
+
+/* ── Shared layout tokens ── */
+/* Light densifies paper rules. Prefer :root:not([data-theme=dark]) over
+   html:root so a missing attribute (pre-boot) still densifies light without
+   also matching dark once data-theme=dark is set. Dark keeps Liquid defaults
+   from theme-vars-block — do not re-dense them here. */
+html:root,
+html[data-theme="light"] {
+  --cubist-shard-opacity: 18%;
+  --cubist-shard-opacity-strong: 26%;
+}
+
+:root:not([data-theme="dark"]),
+html[data-theme="light"] {
+  /* Light paper rules: denser outline mixes so white-on-white cards keep a
+     Stitch-like margin. */
+  --border-gentle-faint: color-mix(in srgb, var(--color-outline-variant) 40%, transparent);
+  --border-gentle-subtle: color-mix(in srgb, var(--color-outline-variant) 58%, transparent);
+  --border-gentle-divider: color-mix(in srgb, var(--color-outline-variant) 64%, transparent);
+  --border-gentle: color-mix(in srgb, var(--color-outline-variant) 82%, transparent);
+  --border-gentle-hover: color-mix(in srgb, var(--color-outline-variant) 94%, transparent);
+  /* Card / chip frames: same hairline as the CV disclaimer box
+     (`.cv-disclaimer-box` → `--border-gentle-subtle`). Opaque mid-ink was
+     heavier than the rest of the light ledger; this outline-variant mix
+     keeps a clear edge without a second border family. */
+  --border-ink: var(--border-gentle-subtle);
+  --border-ink-strong: var(--border-gentle-subtle);
+}
+
+html:root,
+html[data-theme="light"] {
+  /* Spacing scale. Rhythm comes from deliberate jumps on this ladder rather
+     than from repeated rules, so components step xl -> 2xl -> 3xl between
+     bands and stay on sm/md inside a card. */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4.5rem;
+  --gutter: 2rem;
+  --gutter-mobile: 1rem;
+
+  /* The two canonical shard polygons. Every accent uses one of these; the
+     five ad hoc variants the old home and CV panels carried went out with
+     those panels, so nothing outside this pair is left. */
+  --shard-alpha: polygon(26% 0, 100% 0, 78% 100%, 0 68%);
+  --shard-beta: polygon(0 0, 74% 18%, 100% 100%, 18% 84%);
+}
+
+html[data-theme="dark"] {
+  --cubist-shard-opacity: 10%;
+  --cubist-shard-opacity-strong: 14%;
+  /* Dark Borders: sit on the canvas, barely a step above background. */
+  --border-ink: color-mix(in srgb, var(--color-on-surface) 5%, var(--color-background));
+  --border-ink-strong: color-mix(in srgb, var(--color-on-surface) 8%, var(--color-background));
+}
+
+/* Soft paper radius token (0 = square Borders Edition). Pills and status
+   dots stay fully round; shards stay clipped polygons. */
+.shard-accent {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+  clip-path: var(--shard-alpha);
+  opacity: var(--cubist-shard-opacity);
+}
+
+.shard-accent-beta {
+  clip-path: var(--shard-beta);
+}
+
+/* Shards are decoration, not information: below the tablet breakpoint they
+   cost layout without earning it. */
+@media (max-width: 639px) {
+  .shard-accent {
+    display: none;
+  }
+}
+
+.professional-connections-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .professional-connections-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.professional-connections-grid .group {
+  position: relative;
+  min-height: 100%;
+  align-items: flex-start;
+  padding: 0.95rem 1rem;
+  background: transparent;
+  border: 1px solid var(--border-gentle);
+  transition: background-color var(--motion-duration-fast) var(--motion-ease-default), border-color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.professional-connections-grid .group:hover {
+  background: var(--color-surface-high);
+  border-color: var(--border-gentle-hover);
+}
+
+/* Also remove underline for elements using the utility class 'no-underline' */
+a.no-underline,
+a.no-underline:hover,
+a.no-underline:focus,
+a.no-underline:active {
+  text-decoration: none;
+}
+
+/* Interactive applets follow surface / on-surface tokens (light stays white) */
+.applet-canvas {
+  background-color: var(--color-surface);
+  color: var(--color-on-surface);
+}
+
+.applet-canvas .timeline-applet-control,
+.applet-canvas .timeline-zoom-btn {
+  background-color: var(--color-surface);
+  border-color: color-mix(in srgb, var(--color-outline-variant) 55%, transparent);
+  color: var(--color-on-surface-variant);
+}
+
+.applet-canvas .timeline-applet-control:hover,
+.applet-canvas .timeline-zoom-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* ── Listing pages: full-width card grid + header filter ── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.listing-card-grid {
+  --listing-grid-cols: 2;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .listing-card-grid {
+    grid-template-columns: repeat(var(--listing-grid-cols), minmax(0, 1fr));
+  }
+}
+
+.page-header-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .page-header-row--with-filter {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+
+  .page-header-row--with-filter .listing-filter {
+    flex-shrink: 0;
+    align-self: flex-end;
+  }
+}
+
+.listing-filter {
+  position: relative;
+}
+
+.listing-filter-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+  background: var(--color-surface-card);
+  color: var(--color-on-surface-variant);
+  cursor: pointer;
+  transition: color var(--motion-duration-fast) var(--motion-ease-default),
+    border-color var(--motion-duration-fast) var(--motion-ease-default),
+    background-color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.listing-filter-trigger:hover,
+.listing-filter-trigger[aria-expanded="true"] {
+  color: var(--color-secondary);
+  border-color: var(--color-secondary);
+  background: var(--color-surface-high);
+}
+
+.listing-filter-trigger .material-symbols-outlined {
+  font-size: var(--type-card);
+}
+
+.listing-filter-panel {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  width: min(22rem, calc(100vw - 4rem));
+  padding: 1rem 1.125rem;
+  background: var(--color-surface);
+  border: 1px solid var(--border-gentle);
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--color-on-surface) 12%, transparent);
+}
+
+@media (max-width: 767px) {
+  .listing-filter-panel {
+    position: static;
+    width: 100%;
+    margin-top: 0.25rem;
+    box-shadow: none;
+  }
+}
+
+.listing-filter-search-label {
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.listing-filter-search {
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--border-gentle-subtle);
+  background: var(--color-background);
+  --listing-search-value: color-mix(in srgb, black 75%, white);
+  color: var(--listing-search-value);
+  -webkit-text-fill-color: var(--listing-search-value);
+  caret-color: var(--listing-search-value);
+  font-family: var(--font-body);
+  font-size: var(--type-subtitle);
+  font-weight: var(--weight-body);
+  line-height: 1.4;
+}
+
+[data-theme="dark"] .listing-filter-search {
+  --listing-search-value: var(--color-on-surface);
+}
+
+/* The Tailwind forms plugin paints text inputs white from a runtime stylesheet
+   injected after this file, and its [type='text'] selector outranks a single
+   class. In dark mode that leaves the keyword box as a white hole in the
+   panel, on every listing page. Two classes take the specificity back. */
+.listing-filter-panel .listing-filter-search,
+.listing-filter .listing-filter-search {
+  background: var(--color-background);
+  border: 1px solid var(--border-gentle-subtle);
+  color: var(--listing-search-value);
+  -webkit-text-fill-color: var(--listing-search-value);
+}
+
+.listing-filter-search::placeholder {
+  font-family: var(--font-body);
+  font-size: var(--type-subtitle);
+  font-weight: var(--weight-body);
+  color: color-mix(in srgb, var(--color-on-surface) 50%, var(--color-on-surface-variant));
+  -webkit-text-fill-color: color-mix(in srgb, var(--color-on-surface) 50%, var(--color-on-surface-variant));
+  opacity: 1;
+}
+
+.listing-filter-search:-webkit-autofill,
+.listing-filter-search:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--listing-search-value);
+  transition: background-color 99999s ease-out 0s;
+}
+
+/* The forms plugin's [type='search']:focus is equal specificity and injected
+   later, so a single-class rule here never applied and the ring stayed its
+   1px blue. Two classes take it back, and its box-shadow has to go with it. */
+.listing-filter-panel .listing-filter-search:focus,
+.listing-filter .listing-filter-search:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+  box-shadow: none;
+  border-color: var(--color-primary);
+}
+
+.listing-filter-group+.listing-filter-group {
+  margin-top: 0.85rem;
+}
+
+.listing-filter-group-label {
+  margin: 0 0 0.5rem;
+}
+
+.listing-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.listing-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.55rem;
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+  background: transparent;
+  color: var(--color-on-surface-variant);
+  font-family: var(--font-label);
+  font-size: var(--type-label);
+  font-weight: var(--weight-label);
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: border-color var(--motion-duration-fast) var(--motion-ease-default), color var(--motion-duration-fast) var(--motion-ease-default), background-color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.listing-filter-chip:hover {
+  border-color: color-mix(in srgb, var(--color-primary) 55%, var(--border-ink));
+  color: var(--color-primary);
+}
+
+.listing-filter-chip.is-active {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  /* High-transparency accent wash — selected cue without a solid green plate. */
+  background: color-mix(in srgb, var(--color-primary) 8%, transparent);
+}
+
+.listing-filter-swatch {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  flex-shrink: 0;
+}
+
+/* ══ Architectural Ledger blocks ══
+   Styles for the shared renderers in content-runtime/43-blocks.html. Depth
+   comes from the surface ladder, never from shadow, and every corner is
+   square. Each block is invisible when its backing field is absent, so these
+   rules only ever describe the populated case. */
+
+.lang-pill {
+  font-family: var(--font-label);
+  font-size: var(--type-label);
+  font-weight: var(--weight-label);
+  letter-spacing: 0.03em;
+  padding: 0.1rem 0.4rem;
+  border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+  white-space: nowrap;
+}
+
+.lang-pill--enus {
+  color: var(--color-primary);
+}
+
+.lang-pill--ptbr {
+  color: var(--color-secondary);
+}
+
+.ledger-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  align-items: center;
+}
+
+.ledger-chip {
+  font-family: var(--font-label);
+  font-size: var(--type-cta);
+  font-weight: var(--weight-label);
+  letter-spacing: 0.03em;
+  padding: 0.15rem 0.45rem;
+  /* Tags carry the page's accent rather than a neutral grey. Both values mix
+     `--color-primary`, which `.page-accent--*` rebinds per page, so a chip is
+     blue on Projects, green on Articles and the CV, ochre on Rascunhos with
+     no per-page rule anywhere. The fill stays mostly surface so a row of
+     chips reads as metadata and not as a row of buttons; the ink carries
+     most of the hue, which is what makes the tag legible as a tag.
+     Note this is `.ledger-chip` only: the page-header tag line (the CV's
+     "Engineering Leadership. Team Building…") is a separate
+     `data-content-header-tags` span and is deliberately left alone. */
+  background: color-mix(in srgb, var(--color-primary) 16%, var(--color-surface-high));
+  color: color-mix(in srgb, var(--color-primary) 82%, var(--color-on-surface));
+  text-decoration: none;
+  border-radius: var(--radius-card);
+  /* The hover hairline arrives as an inset ring rather than a border, and is
+     declared transparent here so it has something to transition from. This is
+     not the shadow the system forbids — nothing is offset, blurred or spread,
+     so it draws a 1px line on the chip's own edge, exactly where a border
+     would sit. A real border would be the idiom, but it would have to be
+     present at rest to avoid a 2px jump under the pointer, and the padding
+     compensation that costs only lands exactly at integer device pixel
+     ratios: at 1.75 the browser snaps the border to 0.571px and the chip
+     quietly loses most of a pixel on both axes. The ring takes no space at
+     any ratio, so the resting chip keeps its size, its fill and its square
+     corners. */
+  box-shadow: inset 0 0 0 1px transparent;
+  transition: color var(--motion-duration-fast) var(--motion-ease-default), background-color var(--motion-duration-fast) var(--motion-ease-default), box-shadow var(--motion-duration-fast) var(--motion-ease-default), border-color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+/* Hover reads `.ledger-card:hover` — one tonal step plus an accent-warmed
+   hairline — at chip scale.
+
+   The step cannot be a ladder rung: the chip's resting fill is already the
+   ladder's top one. What it used to do instead was borrow a rung from the
+   other surface family (`surfaceHigh` → `surfaceContainerHigh`), which is
+   the defect DESIGN.md records under *Two surface families name the same
+   colours* — in dark the two are the same value to the byte, so the hover
+   measured 1.000 : 1 and only the text changed, and in light they are close
+   enough to have read the same way. Tinting the resting fill with the page
+   accent instead is a real step in both palettes — down on paper, up on the
+   dark canvas — and stays right whichever way the light ladder is pointed,
+   which the borrowed rung did not. 8% is the value
+   `.listing-filter-chip.is-active` already uses for an accent-tinted fill.
+
+   The hairline carries the rest, at 35% accent over plain `--border-gentle`
+   rather than the card's 40% over `--border-gentle-hover`. A line drawn
+   around something this small is a far larger share of its ink than the same
+   line around a card, so the quieter mix is the proportionate one. */
+a.ledger-chip:hover {
+  color: var(--color-on-surface);
+  /* Resting fill is 16% accent in light; hover must clear that. */
+  background: color-mix(in srgb, var(--color-primary) 28%, var(--color-surface-high));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-primary) 45%, var(--border-gentle));
+  /* No-op for the filled chip, which has no border. It matters on the sources
+     facets, the one place that outlines the chip instead of filling it: the
+     ring would otherwise be drawn just inside that outline and the two
+     hairlines would read as one 2px line. Handing the edge to the ring keeps
+     the hover at a single line there too, and the fill that page expects on
+     hover still arrives. */
+  border-color: transparent;
+}
+
+[data-theme="dark"] a.ledger-chip {
+  background: color-mix(in srgb, var(--color-primary) 10%, var(--color-surface-high));
+  color: color-mix(in srgb, var(--color-primary) 78%, var(--color-on-surface));
+}
+
+[data-theme="dark"] a.ledger-chip:hover {
+  background: color-mix(in srgb, var(--color-primary) 22%, var(--color-surface-high));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-primary) 35%, var(--border-gentle));
+}
+
+/* Dates live here. The chips and language pills inside the strip set their
+   own uppercase, so the strip itself leaves case alone — running small caps
+   over a date is heavier than the date deserves. */
+.ledger-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+  color: var(--color-on-surface-variant);
+  letter-spacing: 0.04em;
+}
+
+/* A separator is ink, not a border. --color-outline-variant is tuned for
+   hairlines and reads at 1.31:1 here, which is invisible rather than quiet. */
+.ledger-meta-sep {
+  color: var(--color-outline);
+}
+
+.ledger-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: var(--font-label);
+  font-size: var(--type-cta);
+  font-weight: var(--weight-label);
+  letter-spacing: 0.04em;
+  color: var(--color-primary);
+  text-decoration: none;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.ledger-cta>span {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+
+/* Text CTAs carry a gentle accent underline so the clickable cue is not the
+   same gesture as the marker wash on titles. Emphasis buttons keep a box
+   fill instead — underline would fight the border. */
+.ledger-cta:not(.ledger-cta--emphasis):not(.ledger-cta--emphasis-alt)>span:not(.ledger-cta-arrow):not(.ledger-cta-icon) {
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--color-primary) 50%, transparent);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.28em;
+  text-underline-position: under;
+}
+
+.ledger-cta-icon,
+.ledger-cta-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35em;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.ledger-cta:hover {
+  color: var(--color-link-hover);
+}
+
+.ledger-cta:not(.ledger-cta--emphasis):not(.ledger-cta--emphasis-alt):hover>span:not(.ledger-cta-arrow):not(.ledger-cta-icon) {
+  text-decoration-color: color-mix(in srgb, var(--color-link-hover) 75%, transparent);
+}
+
+.ledger-cta-arrow {
+  transition: transform var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.ledger-cta:hover .ledger-cta-arrow {
+  transform: translateX(4px);
+}
+
+/* Shared discrete-button replacement for the old per-page `.home-cta` /
+   `.home-cta--solid` / `.home-cta--outline` pattern (assets/css/ledger/home.css).
+   Those set real button padding (0.85rem vertical, --space-lg horizontal) and a
+   solid filled background for the primary case. `.ledger-cta--emphasis` is the
+   one or two truly primary actions per page (e.g. hero "Full Curriculum
+   Vitæ"): still a `.ledger-cta`, just with tight padding and a tinted fill
+   instead of a heavy solid block, so it reads as a real button — with color
+   and contrast — without becoming a bulky box. Reuse this instead of adding
+   another one-off CTA class. `--emphasis-alt` swaps the hue to secondary, for
+   a second hero-level action (e.g. "Contacts") that needs to read as a
+   distinct button next to the primary one rather than a duplicate of it. */
+.ledger-cta--emphasis {
+  padding: 0.35rem 0.85rem;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--color-primary) 22%, var(--color-background));
+  transition: color var(--motion-duration-fast) var(--motion-ease-default),
+    border-color var(--motion-duration-fast) var(--motion-ease-default),
+    background-color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.ledger-cta--emphasis:hover {
+  color: var(--color-on-primary, var(--color-surface));
+  border-color: var(--color-link-hover);
+  background: var(--color-primary);
+}
+
+.ledger-cta--emphasis-alt {
+  padding: 0.35rem 0.85rem;
+  border: 1px solid var(--color-secondary);
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--color-secondary) 22%, var(--color-background));
+  color: var(--color-secondary);
+  transition: color var(--motion-duration-fast) var(--motion-ease-default),
+    border-color var(--motion-duration-fast) var(--motion-ease-default),
+    background-color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+[data-theme="dark"] .ledger-cta--emphasis {
+  background: color-mix(in srgb, var(--color-primary) 18%, var(--color-background));
+}
+
+[data-theme="dark"] .ledger-cta--emphasis-alt {
+  background: color-mix(in srgb, var(--color-secondary) 18%, var(--color-background));
+}
+
+/* Dark resting mixes sit after the shared :hover fill and match its
+   specificity (attr + class vs class + :hover), so without these the
+   primary button kept the 14% wash under the pointer while the ink
+   stepped to on-primary — dark text on a near-black hero. Alt escaped
+   because its :hover rule already follows the dark rest. */
+[data-theme="dark"] .ledger-cta--emphasis:hover {
+  background: var(--color-primary);
+}
+
+[data-theme="dark"] .ledger-cta--emphasis-alt:hover {
+  background: var(--color-secondary);
+}
+
+.ledger-cta--emphasis-alt:hover {
+  color: var(--color-on-secondary, var(--color-surface));
+  border-color: var(--color-secondary);
+  background: var(--color-secondary);
+}
+
+.ledger-section-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+
+.ledger-kicker {
+  display: block;
+  color: var(--color-on-surface-variant);
+  letter-spacing: 0.12em;
+  margin-bottom: var(--space-xs);
+}
+
+.ledger-section-note {
+  color: var(--color-on-surface-variant);
+  letter-spacing: 0.08em;
+}
+
+/* ── Ledger row: dense horizontal entry ── */
+.ledger-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+  background: var(--color-surface-card);
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+  transition: background-color var(--motion-duration-fast) var(--motion-ease-default),
+    border-color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.ledger-row:hover {
+  background: var(--color-surface-high);
+  border-color: var(--border-gentle-hover);
+}
+
+.ledger-row-title a,
+.ledger-card-title a {
+  color: var(--color-on-surface);
+  text-decoration: none;
+  transition: color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.ledger-row:hover .ledger-row-title a,
+.ledger-card:hover .ledger-card-title a,
+.ledger-system-card:hover .ledger-card-title a {
+  color: var(--color-primary);
+}
+
+.ledger-row-copy,
+.ledger-card-copy {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--type-subtitle);
+  font-weight: var(--weight-body);
+  color: var(--color-legend);
+}
+
+/* The footer is a rule with links under it, so it needs enough air not to sit
+   on the line. --space-sm is twice what this used to carry, and it is now the
+   one value for every card of this shape — the home system grid and the
+   projects page each used to override it with a larger one of their own. */
+.ledger-row-foot,
+.ledger-card-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding-top: var(--space-sm);
+}
+
+/* ── Ledger card: vertical grid cell ── */
+.ledger-card,
+.ledger-system-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface-card);
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+  transition: background-color var(--motion-duration-fast) var(--motion-ease-default), border-color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+/* Light paper: match the CV disclaimer edge — 1px outline hairline, not the
+   1.5px ink frame dark mode needs for faint canvas borders. */
+:root:not([data-theme="dark"]) .ledger-card,
+:root:not([data-theme="dark"]) .ledger-system-card,
+html[data-theme="light"] .ledger-card,
+html[data-theme="light"] .ledger-system-card {
+  border-width: 1px;
+  border-color: var(--border-ink);
+}
+
+/* Triad top hairline — reusable edge accent (home grids + any listing). */
+.ledger-card--edge-primary {
+  border-top-width: 2px;
+  border-top-style: solid;
+  border-top-color: var(--color-primary);
+}
+
+.ledger-card--edge-secondary {
+  border-top-width: 2px;
+  border-top-style: solid;
+  border-top-color: var(--color-secondary);
+}
+
+.ledger-card--edge-tertiary {
+  border-top-width: 2px;
+  border-top-style: solid;
+  border-top-color: var(--color-tertiary);
+}
+
+/* Drafting corner brackets — four L-corners, no labels. Pure decoration.
+   Outline ink (not primary): the corners are drafting marks on the plate,
+   same register as `.ledger-frame-crosshairs`, not a brand accent. */
+.ledger-frame-corners {
+  --frame-corner-size: 0.85rem;
+  --frame-corner-thickness: 1px;
+  position: absolute;
+  inset: 0.35rem;
+  pointer-events: none;
+  z-index: 2;
+  background:
+    linear-gradient(var(--color-outline), var(--color-outline)) top left / var(--frame-corner-size) var(--frame-corner-thickness) no-repeat,
+    linear-gradient(var(--color-outline), var(--color-outline)) top left / var(--frame-corner-thickness) var(--frame-corner-size) no-repeat,
+    linear-gradient(var(--color-outline), var(--color-outline)) top right / var(--frame-corner-size) var(--frame-corner-thickness) no-repeat,
+    linear-gradient(var(--color-outline), var(--color-outline)) top right / var(--frame-corner-thickness) var(--frame-corner-size) no-repeat,
+    linear-gradient(var(--color-outline), var(--color-outline)) bottom left / var(--frame-corner-size) var(--frame-corner-thickness) no-repeat,
+    linear-gradient(var(--color-outline), var(--color-outline)) bottom left / var(--frame-corner-thickness) var(--frame-corner-size) no-repeat,
+    linear-gradient(var(--color-outline), var(--color-outline)) bottom right / var(--frame-corner-size) var(--frame-corner-thickness) no-repeat,
+    linear-gradient(var(--color-outline), var(--color-outline)) bottom right / var(--frame-corner-thickness) var(--frame-corner-size) no-repeat;
+}
+
+/* Empty drafting crosshairs outside a plate — no coordinates, no labels. */
+.ledger-frame-crosshairs {
+  --cross-arm: 0.55rem;
+  --cross-thick: 1px;
+  position: absolute;
+  inset: -0.35rem;
+  pointer-events: none;
+  z-index: 3;
+  background:
+    linear-gradient(var(--color-outline), var(--color-outline)) top left / var(--cross-arm) var(--cross-thick) no-repeat,
+    linear-gradient(var(--color-outline), var(--color-outline)) top left / var(--cross-thick) var(--cross-arm) no-repeat,
+    linear-gradient(var(--color-outline), var(--color-outline)) top right / var(--cross-arm) var(--cross-thick) no-repeat,
+    linear-gradient(var(--color-outline), var(--color-outline)) top right / var(--cross-thick) var(--cross-arm) no-repeat,
+    linear-gradient(var(--color-outline), var(--color-outline)) bottom left / var(--cross-arm) var(--cross-thick) no-repeat,
+    linear-gradient(var(--color-outline), var(--color-outline)) bottom left / var(--cross-thick) var(--cross-arm) no-repeat,
+    linear-gradient(var(--color-outline), var(--color-outline)) bottom right / var(--cross-arm) var(--cross-thick) no-repeat,
+    linear-gradient(var(--color-outline), var(--color-outline)) bottom right / var(--cross-thick) var(--cross-arm) no-repeat;
+}
+
+/* Lithography section divider — double hairline with a short primary tick. */
+.ledger-section-rule {
+  display: block;
+  height: 0;
+  margin: 0 0 var(--space-xl);
+  border: 0;
+  border-top: 1px solid var(--border-gentle-divider);
+  box-shadow: 0 3px 0 -2px var(--border-gentle-faint);
+  position: relative;
+}
+
+.ledger-section-rule::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -1.5px;
+  width: 2.5rem;
+  height: 2px;
+  background: var(--color-primary);
+}
+
+.ledger-section-rule--dashed {
+  border-top-style: dashed;
+  box-shadow: none;
+}
+
+/* Hover lifts the card one rung and warms its hairline toward the page's
+   accent. The reference mockup states this as "the line transitions to
+   subtle charcoal slate or warm antique brass at 40% opacity" — the accent
+   mix is that idea, made page-accent-aware rather than hardcoded to one hue.
+   The card itself stays flat: no shadow, no glow. Depth is the rung plus
+   the line, which is the whole premise of the ladder. */
+.ledger-card:hover,
+.ledger-system-card:hover {
+  background: var(--color-surface-high);
+  border-color: color-mix(in srgb, var(--color-primary) 55%, var(--border-gentle-hover));
+}
+
+[data-theme="dark"] .ledger-card:hover,
+[data-theme="dark"] .ledger-system-card:hover {
+  border-color: color-mix(in srgb, var(--color-primary) 10%, var(--border-ink));
+}
+
+/* Cards and rows sitting on contrast bands keep the same transparent rest
+   as the canvas cards; hover steps to surface-high-contrast. */
+.home-band--contrast .ledger-card,
+.home-band--contrast .ledger-row,
+.home-band--contrast .home-index-panel {
+  background: var(--color-surface-card-contrast);
+}
+
+.home-band--contrast .ledger-card:hover,
+.home-band--contrast .ledger-row:hover,
+.home-band--contrast .home-index-panel:hover {
+  background: var(--color-surface-high-contrast);
+}
+
+/* A project card used to end in a "Details" link pointing at the same place
+   its own title points at, which is a second copy of the destination the
+   reader is already looking at. The title's anchor now covers the whole card
+   instead, so the poster, the tagline and the chips all navigate, and the
+   footer is left to the links that actually leave the site.
+
+   One anchor, stretched: screen readers still announce a single link named
+   after the project, and the keyboard still stops once. The outbound links
+   and the tag chips are lifted above the overlay so they stay clickable. */
+.ledger-system-card {
+  position: relative;
+}
+
+.ledger-card-stretch::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.ledger-system-card .ledger-card-links,
+.ledger-system-card .ledger-chip-row {
+  position: relative;
+  z-index: 1;
+}
+
+.ledger-card-body,
+.ledger-system-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+  flex: 1;
+}
+
+.ledger-card-copy {
+  flex: 1;
+}
+
+.ledger-card-foot {
+  margin-top: auto;
+  border-top: 1px solid var(--border-gentle-divider);
+}
+
+.ledger-card-links {
+  justify-content: flex-start;
+  gap: var(--space-md);
+}
+
+.ledger-status {
+  color: var(--color-secondary);
+}
+
+/* Optional page standfirst. Sits under the title at the prose measure so a
+   long intro does not run the full page width. */
+.page-header-standfirst {
+  max-width: var(--reading-measure, 45rem);
+  margin-top: var(--space-md);
+  font-size: var(--type-body);
+  line-height: var(--leading-body);
+}
+
+/* Poster media on system cards. Fixed ratio so a grid of projects keeps its
+   baseline whether a card illustrates itself with a still or a capture. */
+.ledger-poster {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--color-surface-container);
+}
+
+/* Drafting corners on every poster plate — CSS-only, no invented labels. */
+.ledger-poster::after {
+  content: "";
+  --frame-corner-size: 0.7rem;
+  --frame-corner-thickness: 1px;
+  position: absolute;
+  inset: 0.3rem;
+  pointer-events: none;
+  z-index: 2;
+  background:
+    linear-gradient(var(--color-primary), var(--color-primary)) top left / var(--frame-corner-size) var(--frame-corner-thickness) no-repeat,
+    linear-gradient(var(--color-primary), var(--color-primary)) top left / var(--frame-corner-thickness) var(--frame-corner-size) no-repeat,
+    linear-gradient(var(--color-primary), var(--color-primary)) top right / var(--frame-corner-size) var(--frame-corner-thickness) no-repeat,
+    linear-gradient(var(--color-primary), var(--color-primary)) top right / var(--frame-corner-thickness) var(--frame-corner-size) no-repeat,
+    linear-gradient(var(--color-primary), var(--color-primary)) bottom left / var(--frame-corner-size) var(--frame-corner-thickness) no-repeat,
+    linear-gradient(var(--color-primary), var(--color-primary)) bottom left / var(--frame-corner-thickness) var(--frame-corner-size) no-repeat,
+    linear-gradient(var(--color-primary), var(--color-primary)) bottom right / var(--frame-corner-size) var(--frame-corner-thickness) no-repeat,
+    linear-gradient(var(--color-primary), var(--color-primary)) bottom right / var(--frame-corner-thickness) var(--frame-corner-size) no-repeat;
+}
+
+.ledger-poster img,
+.ledger-poster video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: saturate(0.92) contrast(1.02);
+  transition: filter var(--motion-duration-base) var(--motion-ease-default), transform var(--motion-duration-slow) var(--motion-ease-default);
+}
+
+.ledger-system-card:hover .ledger-poster img,
+.ledger-system-card:hover .ledger-poster video {
+  filter: saturate(1.05) contrast(1);
+  transform: scale(1.02);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .ledger-system-card:hover .ledger-poster img,
+  .ledger-system-card:hover .ledger-poster video {
+    transform: none;
+  }
+}
+
+/* Project-specific meta furniture grafted onto the shared system card. */
+.material-symbols-outlined.ledger-system-icon {
+  font-size: var(--type-card);
+  line-height: 1;
+  color: var(--color-secondary);
+}
+
+.ledger-span {
+  color: var(--color-on-surface-variant);
+}
+
+/* ── Listing pagination ──
+   The shared renderer used to hand these buttons a string of Tailwind
+   utilities and no component, so three page stylesheets each restated the
+   same metrics at whatever specificity it took to beat the utilities. One
+   definition here; the pages keep only what is genuinely theirs. */
+.pagination-nav-btn {
+  padding: var(--space-xs) var(--space-md);
+  min-height: 2.5rem;
+  background: var(--color-surface-card);
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+  color: var(--color-on-surface-variant);
+  font-family: var(--font-label);
+  font-size: var(--type-label-lg);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: color var(--motion-duration-fast) var(--motion-ease-default), border-color var(--motion-duration-fast) var(--motion-ease-default), background-color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.pagination-nav-btn:hover:not(:disabled) {
+  color: var(--color-on-surface);
+  border-color: var(--border-gentle-hover);
+  background: var(--color-surface-high);
+}
+
+.pagination-nav-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.pagination-nav-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* Page count shares the Previous/Next label face; tabular nums keep "1 / 3"
+   from jumping width as the page changes. */
+.pagination-count {
+  font-family: var(--font-label);
+  font-size: var(--type-label-lg);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  color: var(--color-on-surface-variant);
+  white-space: nowrap;
 }

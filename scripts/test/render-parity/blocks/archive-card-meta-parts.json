@@ -1,0 +1,26 @@
+{
+  "name": "archive-card/metaParts replaces the default strip",
+  "block": "renderArchiveCard",
+  "args": [
+    {
+      "slug": "wsl",
+      "front_matter": {
+        "title": "Why I chose WSL",
+        "date": "2026-02-24",
+        "language": "enus",
+        "tags": ["Engineering"],
+        "description": "How a failed dual boot pushed me to WSL2."
+      }
+    },
+    {
+      "href": "/articles/wsl/",
+      "locale": "en",
+      "ctaLabel": "Read article",
+      "metaParts": ["Feb 24, 2026"]
+    }
+  ],
+  "selectors": ["article.ledger-card", "div.ledger-meta"],
+  "forbidden": ["span.lang-pill"],
+  "contains": ["Feb 24, 2026"],
+  "counts": { "ledger-meta-sep": 0 }
+}

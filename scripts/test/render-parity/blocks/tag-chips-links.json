@@ -1,0 +1,12 @@
+{
+  "name": "tag-chips/filter-links-and-limit",
+  "block": "renderTagChips",
+  "args": [
+    ["Engineering", "Systems", "Craft"],
+    { "hrefFor": { "$hrefTemplate": "/pages/articles/?tag={value}" }, "limit": 2 }
+  ],
+  "selectors": ["a.ledger-chip"],
+  "contains": ["href=\"/pages/articles/?tag=Engineering\""],
+  "excludes": ["Craft"],
+  "counts": { "ledger-chip": 2 }
+}

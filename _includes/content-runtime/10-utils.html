@@ -1,0 +1,176 @@
+{% raw %}
+    var contentBase = (window.ContentRuntimeConfig && window.ContentRuntimeConfig.contentBase);
+    if (contentBase == null) contentBase = '';
+    contentBase = String(contentBase).replace(/\/$/, '');
+
+    function escapeHtml(value) {
+      return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replace(/`/g, '&#96;');
+    }
+
+    function shellOrigin() {
+      return (window.ContentRuntimeConfig && window.ContentRuntimeConfig.shellOrigin) || window.location.origin || '';
+    }
+
+    function buildUrl(path) {
+      var value = unwrapMediaSrc(path);
+      if (!value) return '';
+      if (/^https?:\/\//.test(value)) return value;
+      if (value.charAt(0) === '/') return encodeURI(contentBase + value);
+      return encodeURI(contentBase + '/' + value);
+    }
+
+    /* Pages CMS rich-text (Editor mode) rewrites bare URLs inside quoted
+     * Liquid attributes into Markdown autolinks, e.g.
+     *   src="https://example.com/a.png"
+     * becomes
+     *   src="[https://example.com/a.png](https://example.com/a.png)"
+     * which then breaks <img src>. Prefer the Markdown href when the whole
+     * attribute value is a single link; leave real captions alone. */
+    function unwrapMediaSrc(path) {
+      var value = String(path == null ? '' : path).trim();
+      if (!value) return '';
+      var md = value.match(/^\[([^\]]*)\]\(([^)\s]+)\)\s*$/);
+      if (md) return String(md[2] || '').trim();
+      var angle = value.match(/^<([^>\s]+)>\s*$/);
+      if (angle) return String(angle[1] || '').trim();
+      return value;
+    }
+
+    function resolveAssetUrl(path) {
+      if (!path) return '';
+      var value = unwrapMediaSrc(path);
+      if (!value) return '';
+      if (/^https?:\/\//i.test(value)) return value;
+      if (value.charAt(0) === '/') {
+        if (value.indexOf('/media/') === 0) {
+          return encodeURI(contentBase.replace(/\/$/, '') + value);
+        }
+        return encodeURI(shellOrigin().replace(/\/$/, '') + value);
+      }
+      if (value.indexOf('media/') === 0) {
+        return encodeURI(contentBase.replace(/\/$/, '') + '/' + value);
+      }
+      return encodeURI(contentBase.replace(/\/$/, '') + '/' + value);
+    }
+
+    function parseIncludeAttrs(raw) {
+      var attrs = {};
+      var text = String(raw || '');
+      // Allow newlines inside quoted values (dict-card def=, tweet body=/note=).
+      text = text.replace(/([\w-]+)\s*=\s*(?:"([\s\S]*?)"|'([\s\S]*?)')/g, function (_, key, dbl, sgl) {
+        attrs[key] = dbl != null ? dbl : sgl;
+        return '';
+      });
+      text.replace(/([\w-]+)\s*=\s*([^\s]+)/g, function (_, key, val) {
+        if (!(key in attrs)) attrs[key] = val;
+        return '';
+      });
+      return attrs;
+    }
+
+    function parseScalar(value) {
+      var raw = String(value || '').trim();
+      if ((raw.charAt(0) === '"' && raw.charAt(raw.length - 1) === '"') ||
+          (raw.charAt(0) === "'" && raw.charAt(raw.length - 1) === "'")) {
+        return raw.slice(1, -1);
+      }
+      if (raw === 'true') return true;
+      if (raw === 'false') return false;
+      return raw;
+    }
+
+    function hydrateFrontMatter(item) {
+      var markdown = String(item.body_markdown || '').replace(/^\uFEFF/, '');
+      var match = markdown.match(/^---\s*\n([\s\S]*?)\n---\s*\n?/);
+
+      // The export strips the front-matter block out of body_markdown, so this
+      // never matches for exported content. The date promotion below therefore
+      // has to happen first: when it sat after the early return, no detail
+      // page ever received a date. The parse itself still matters for raw
+      // Markdown that has not been through the exporter.
+      item.front_matter = item.front_matter || {};
+      if (item.date) item.front_matter.date = item.date;
+      if (item.last_updated) item.front_matter.last_updated = item.last_updated;
+
+      if (!match) return item;
+
+      var parsed = {};
+      match[1].split(/\n/).forEach(function (line) {
+        var m = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
+        if (m) parsed[m[1]] = parseScalar(m[2]);
+      });
+      item.front_matter = Object.assign({}, parsed, item.front_matter);
+      item.body_markdown = markdown.slice(match[0].length);
+      return item;
+    }
+
+    function stripFrontMatter(markdown) {
+      return String(markdown || '').replace(/^\uFEFF/, '').replace(/^---\s*\n[\s\S]*?\n---\s*\n?/, '');
+    }
+
+    function endsWithSentencePunctuation(text) {
+      var value = String(text || '').trim();
+      return /[.!?](\s*<\/[^>]+>)*\s*$/.test(value);
+    }
+
+    function ensureCaptionPeriod(text) {
+      var value = String(text || '').trim();
+      if (!value || endsWithSentencePunctuation(value)) return value;
+      return value + '.';
+    }
+
+    /* The opening sentence of a longer piece of copy, for the places that need
+     * one sentence and are given a paragraph. A project's `tagline` is the
+     * case that forced this: it is a standfirst on the page, and it is also
+     * what `_layouts/projects.html` hands to the meta description and the
+     * social card, where a search result truncated mid-clause reads worse than
+     * a shorter one that finishes its thought.
+     *
+     * 160 characters is roughly what a desktop search result renders; Open
+     * Graph is more generous and takes the same string. A first sentence longer
+     * than the budget is cut on a word boundary rather than mid-word, and any
+     * punctuation left dangling at the cut goes with it.
+     */
+    var LEAD_SENTENCE_MAX = 160;
+
+    function leadSentence(text, limit) {
+      var value = String(text || '').trim();
+      if (!value) return '';
+      var max = limit || LEAD_SENTENCE_MAX;
+      var match = value.match(/^[\s\S]*?[.!?](?=\s|$)/);
+      var lead = match ? match[0] : value;
+      if (lead.length <= max) return lead;
+      var cut = lead.slice(0, max);
+      var space = cut.lastIndexOf(' ');
+      if (space > 0) cut = cut.slice(0, space);
+      return cut.replace(/[\s,;:.]+$/, '');
+    }
+
+    function figureSourceHtml(raw) {
+      raw = String(raw || '').trim();
+      if (!raw) return '';
+      if (/<a\s/i.test(raw)) {
+        return ' Source: ' + raw;
+      }
+      // Captions already parse Markdown; sources do too so
+      // `[Parrot Website](https://…)` renders as a link, not escaped brackets.
+      return ' Source: ' + stripSingleParagraph(parseInlineMarkdown(raw));
+    }
+
+    function includeCaptionHtml(caption) {
+      var trimmed = ensureCaptionPeriod(String(caption || '').trim());
+      if (!trimmed) return '';
+      if (/<[a-z][\s\S]*>/i.test(trimmed)) return trimmed;
+      return stripSingleParagraph(parseInlineMarkdown(trimmed));
+    }
+
+{% endraw %}

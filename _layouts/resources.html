@@ -1,0 +1,379 @@
+---
+layout: shell
+---
+
+<main class="relative max-w-7xl mx-auto px-8 md:px-16 pt-10 pb-16">
+  {%- comment -%}
+    The shards live here rather than inside the shared page header include,
+    which every listing uses and which no single page may restyle — the same
+    arrangement /pages/blog/ uses for its masthead. They bracket the grid
+    rather than sitting on it: a page of many small cards has no one panel to
+    accent, so the accent goes on the space above and below the run.
+  {%- endcomment -%}
+  <div class="sources-masthead">
+    <span class="shard-accent sources-masthead-shard" aria-hidden="true"></span>
+    {% include page/page-header.html key=page.key listing_filter=true spacer_class="mb-8"
+       header_class="sources-header mb-10 md:mb-12"
+       filter_label="Filter"
+       filter_placeholder="Match channels, links, descriptions…" %}
+  </div>
+
+  <section class="scroll-mt-28 sources-body" id="sources">
+    <div class="listing-card-grid listing-card-grid--sources" id="resources-grid">
+      <p class="font-body text-on-surface-variant italic col-span-full">Loading sources...</p>
+      <section id="no-results" class="col-span-full py-16 hidden">
+        <p class="font-body text-on-surface-variant italic">Nothing matches these filters yet.</p>
+      </section>
+    </div>
+    <div id="resource-pagination" class="source-pagination"></div>
+    <span class="shard-accent shard-accent-beta sources-foot-shard" aria-hidden="true"></span>
+  </section>
+</main>
+
+<script>
+  (function () {
+    'use strict';
+
+    var runtime = window.ContentRuntime;
+    if (!runtime || !runtime.ListingFilter) return;
+
+    var listing = runtime.Listing;
+    var params = new URLSearchParams(window.location.search);
+    var grid = document.getElementById('resources-grid');
+    var noResults = document.getElementById('no-results');
+    var pagination = document.getElementById('resource-pagination');
+    var filterRoot = document.querySelector('[data-listing-filter-root]');
+    var pageSize = 12;
+    var currentPage = 1;
+    var allResources = [];
+    var allCards = [];
+    var filterUi = null;
+
+    /* Medium is derived from `type` (and, where an author left it implicit, from
+       the host in `link`). The four values map onto the brand triad plus ink;
+       nothing here invents a fifth. */
+    var MEDIUM_OPTIONS = [
+      { value: 'youtube', label: 'YouTube' },
+      { value: 'podcast', label: 'Podcast' },
+      { value: 'document', label: 'Document' },
+      { value: 'website', label: 'Website' }
+    ];
+
+    if (!grid) return;
+
+    function mediumOf(fm) {
+      var type = String(fm.type || '').toLowerCase();
+      var link = String(fm.link || '').toLowerCase();
+      if (type === 'spotify' || type === 'podcast' || link.indexOf('spotify.com') !== -1) return 'podcast';
+      if (type === 'youtube' || link.indexOf('youtube.com') !== -1 || link.indexOf('youtu.be') !== -1) return 'youtube';
+      if (type === 'pdf' || type === 'document') return 'document';
+      return 'website';
+    }
+
+    function mediumLabel(value) {
+      for (var i = 0; i < MEDIUM_OPTIONS.length; i += 1) {
+        if (MEDIUM_OPTIONS[i].value === value) return MEDIUM_OPTIONS[i].label;
+      }
+      return '';
+    }
+
+    function mediumKey(item) {
+      return mediumOf(item.front_matter || item);
+    }
+
+    /* A resource records a full locale — `en_us`, `pt_br`, `en_gb` — which is
+       two facts in one string: the language before the separator and the
+       country after it. The card now shows both, as two chips, so each one
+       reads only its own half of the value.
+
+       Splitting a locale is the one thing both chips share, so it happens
+       once. An empty or malformed value yields an empty array and every chip
+       downstream of it renders nothing. */
+    function localeParts(language) {
+      var raw = String(language || '').trim().toLowerCase();
+      if (!raw) return [];
+      return raw.split(/[_-]/).filter(function (part) { return part !== ''; });
+    }
+
+    /* The language half. The shared pill keys on the site's own two content
+       languages, so the locale folds onto that vocabulary before it is handed
+       over. Nothing is lost in the fold: `en_gb` and `en_au` are both English,
+       and the flag chip beside this one is already carrying the difference.
+
+       A third language is passed through for the pill to judge rather than
+       reprinted here, because a second spelling of the pill is how the two
+       drift apart. The pill currently declines anything outside its own two
+       codes, so the one French source shows three chips — which is the
+       correct failure: the fix belongs in renderLangPill, not in a copy of
+       it. */
+    var LANGUAGE_PILL_CODES = { en: 'enus', pt: 'ptbr' };
+
+    function languageChip(language) {
+      var parts = localeParts(language);
+      if (!parts.length) return '';
+      var primary = parts[0];
+      return runtime.renderLangPill(LANGUAGE_PILL_CODES[primary] || primary, { allowUnknown: true });
+    }
+
+    /* The country half. The region subtag of a locale is an ISO 3166-1
+       alpha-2 code, which is what flag-icons — pinned in the shell — draws
+       from. A locale with no region (`pt` on its own) or a subtag that is not
+       two letters gets no flag rather than a guessed one: there is no honest
+       way to read a country out of a value that never names one.
+
+       The names are the accessible label, since a flag carries no text. An
+       unlisted region falls back to its own code, which is still true. */
+    var COUNTRY_NAMES = {
+      au: 'Australia',
+      br: 'Brazil',
+      ch: 'Switzerland',
+      fr: 'France',
+      gb: 'United Kingdom',
+      hk: 'Hong Kong',
+      hu: 'Hungary',
+      in: 'India',
+      it: 'Italy',
+      us: 'United States'
+    };
+
+    function countryChip(language) {
+      var parts = localeParts(language);
+      if (parts.length < 2) return '';
+      var region = parts[1];
+      if (!/^[a-z]{2}$/.test(region)) return '';
+      var name = COUNTRY_NAMES[region] || region.toUpperCase();
+      return '<span class="source-facet source-facet--country" title="' +
+        runtime.escapeAttr(name) + '"><span class="fi fi-' + runtime.escapeAttr(region) +
+        '" role="img" aria-label="' + runtime.escapeAttr(name) + '"></span></span>';
+    }
+
+    /* The medium chip. `mediumOf` always answers, because the filter needs a
+       bucket for every card; the chip is stricter and stays silent unless a
+       resource actually declared a `type` or a `link` for that answer to be
+       read from. Colour comes from the card's --source-accent, so the chip and
+       the card edge cannot disagree about what medium this is. */
+    function mediumChip(fm, medium) {
+      var declared = String(fm.type || '').trim() || String(fm.link || '').trim();
+      var label = declared ? mediumLabel(medium) : '';
+      if (!label) return '';
+      return '<span class="source-facet source-facet--medium">' +
+        runtime.escapeHtml(label) + '</span>';
+    }
+
+    /* The four facets a source is filed under: what it is, how it is
+       classified, what language it speaks, and where it speaks from. Each
+       renders only when the field beNewsreader it is populated, so a source missing
+       a category shows three chips and no gap where the fourth would be. */
+    function renderFacets(fm, medium) {
+      var chips = [
+        mediumChip(fm, medium),
+        runtime.renderTagChips(fm.category ? [fm.category] : [], { hrefFor: categoryHref }),
+        languageChip(fm.language),
+        countryChip(fm.language)
+      ].filter(function (chip) { return chip !== ''; });
+      if (!chips.length) return '';
+      return '<div class="source-facets">' + chips.join('') + '</div>';
+    }
+
+    /* The host, not the full URL: the ledger line wants the publisher, and a
+       tracking-laden path tells the reader nothing. */
+    function linkHost(link) {
+      var value = String(link || '').trim();
+      if (!value) return '';
+      return value.replace(/^https?:\/\//i, '').replace(/^www\./i, '').split(/[/?#]/)[0];
+    }
+
+    function categoryHref(category) {
+      return window.location.pathname + '?category=' + encodeURIComponent(category);
+    }
+
+    function sortResources(a, b, sortKey) {
+      if (sortKey === 'random') {
+        var ak = a.slug || (a.front_matter && a.front_matter.name) || '';
+        var bk = b.slug || (b.front_matter && b.front_matter.name) || '';
+        return runtime.sessionRandomCompare(ak, bk, 'resources');
+      }
+      var na = String((a.front_matter && a.front_matter.name) || a.slug || '').toLowerCase();
+      var nb = String((b.front_matter && b.front_matter.name) || b.slug || '').toLowerCase();
+      return na.localeCompare(nb);
+    }
+
+    function buildChipGroups(categories, mediumsPresent) {
+      return [
+        {
+          /* The shared filter keys its single classification facet on `tag`.
+             Resources classify on `category`, which that facet already falls
+             back to, so the group key has to be `tag` for a click to land. */
+          key: 'tag',
+          label: 'Category',
+          options: [{ value: null, label: 'All' }].concat(categories.map(function (cat) {
+            return { value: cat, label: cat };
+          }))
+        },
+        {
+          key: 'medium',
+          label: 'Medium',
+          options: [{ value: null, label: 'All' }].concat(MEDIUM_OPTIONS.filter(function (opt) {
+            return mediumsPresent[opt.value];
+          }).map(function (opt) {
+            return { value: opt.value, label: opt.label, swatch: 'source-swatch source-swatch--' + opt.value };
+          }))
+        },
+        {
+          key: 'sort',
+          label: 'Sort by',
+          options: [
+            { value: 'random', label: 'Random' },
+            { value: 'title', label: 'Title' }
+          ]
+        }
+      ];
+    }
+
+    function visibleResources(state) {
+      return runtime.ListingFilter.filterItems(allResources, state, {
+        mediumKey: mediumKey,
+        sortItems: sortResources
+      });
+    }
+
+    function renderCard(resource) {
+      var fm = resource.front_matter || {};
+      var name = fm.name || resource.slug;
+      var link = fm.link || '';
+      var medium = mediumOf(fm);
+
+      var card = document.createElement('article');
+      card.className = 'ledger-card source-card group';
+      card.dataset.category = fm.category || '';
+      card.dataset.medium = medium;
+
+      var html = runtime.renderPosterMedia(runtime.buildUrl(fm.thumbnail), name);
+      if (html) {
+        html = '<div class="source-card-media">' +
+          '<span class="ledger-frame-corners" aria-hidden="true"></span>' +
+          html + '</div>';
+      }
+
+      html += '<div class="ledger-card-body">';
+      html += renderFacets(fm, medium);
+      html += '<h3 class="card-title ledger-card-title source-card-title"><a href="' +
+        runtime.escapeAttr(link) + '">' + runtime.escapeHtml(name) + '</a></h3>';
+      if (fm.description) {
+        html += '<p class="ledger-card-copy font-body text-on-surface-variant">' +
+          runtime.escapeHtml(fm.description) + '</p>';
+      }
+      html += '<div class="ledger-card-foot">';
+      html += '<span class="source-host code-technical">' + runtime.escapeHtml(linkHost(link)) + '</span>';
+      html += runtime.renderCtaLink(link, 'Open');
+      html += '</div></div>';
+
+      card.innerHTML = html;
+
+      /* Sources live off-site, so every link out of a card opens in a new tab.
+         The category chip stays in-page and is deliberately left alone. */
+      Array.prototype.forEach.call(card.querySelectorAll('a[href^="http"]'), function (anchor) {
+        anchor.target = '_blank';
+        anchor.rel = 'noopener noreferrer';
+      });
+
+      return card;
+    }
+
+    function renderPagination(state, totalPages) {
+      if (!pagination) return;
+      pagination.innerHTML = '';
+      if (totalPages <= 1) return;
+      var prev = document.createElement('button');
+      prev.type = 'button';
+      prev.textContent = 'Previous';
+      prev.disabled = currentPage === 1;
+      prev.className = 'pagination-nav-btn';
+      prev.onclick = function () { currentPage -= 1; renderPage(state); };
+      var label = document.createElement('span');
+      label.className = 'pagination-count';
+      label.textContent = currentPage + ' / ' + totalPages;
+      var next = document.createElement('button');
+      next.type = 'button';
+      next.textContent = 'Next';
+      next.disabled = currentPage === totalPages;
+      next.className = prev.className;
+      next.onclick = function () { currentPage += 1; renderPage(state); };
+      pagination.append(prev, label, next);
+    }
+
+    function renderPage(state) {
+      allCards.forEach(function (card) { card.classList.add('resource-hidden'); });
+      var cardsBySlug = {};
+      allCards.forEach(function (card) { cardsBySlug[card.dataset.slug] = card; });
+      var sortedList = visibleResources(state);
+      var visible = [];
+      sortedList.forEach(function (r) {
+        var card = cardsBySlug[r.slug];
+        if (card) {
+          visible.push(card);
+          grid.appendChild(card);
+        }
+      });
+
+      if (noResults) {
+        grid.appendChild(noResults);
+        noResults.classList.toggle('hidden', visible.length !== 0);
+      }
+
+      var totalPages = Math.max(1, Math.ceil(visible.length / pageSize));
+      if (currentPage > totalPages) currentPage = totalPages;
+      visible.slice((currentPage - 1) * pageSize, currentPage * pageSize).forEach(function (card) {
+        card.classList.remove('resource-hidden');
+      });
+
+      renderPagination(state, totalPages);
+    }
+
+    function initFilter() {
+      var categories = Array.from(new Set(allResources.map(function (resource) {
+        return resource.front_matter && resource.front_matter.category;
+      }).filter(Boolean))).sort();
+      var mediumsPresent = {};
+      allResources.forEach(function (resource) {
+        mediumsPresent[mediumKey(resource)] = true;
+      });
+
+      filterUi = runtime.ListingFilter.create({
+        root: filterRoot,
+        initialQuery: params.get('q') || '',
+        initialCategory: params.get('category') || params.get('tag') || null,
+        initialMedium: params.get('medium') || null,
+        initialSort: params.get('sort') || 'random',
+        defaultSort: 'random',
+        categoryParam: 'category',
+        chipGroups: buildChipGroups(categories, mediumsPresent),
+        onChange: function (state) {
+          currentPage = 1;
+          renderPage(state);
+        }
+      });
+
+      if (filterRoot) filterRoot.hidden = false;
+      renderPage(filterUi.getState());
+    }
+
+    listing.showLoadingState(grid, 'Loading sources...');
+
+    runtime.loadCollection('collections/resources', 'resources').then(function (resources) {
+      allResources = resources.slice();
+      grid.innerHTML = '';
+      allCards = allResources.map(function (resource) {
+        var card = renderCard(resource);
+        card.dataset.slug = resource.slug;
+        return card;
+      });
+      allCards.forEach(function (card) { grid.appendChild(card); });
+      if (noResults) grid.appendChild(noResults);
+      initFilter();
+    }).catch(function (error) {
+      console.error(error);
+      listing.showErrorState(grid, 'Sources could not be loaded right now.');
+    });
+  })();
+</script>

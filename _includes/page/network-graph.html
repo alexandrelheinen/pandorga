@@ -1,0 +1,1253 @@
+<style>
+  /* The ideas graph, dressed as a ledger plate: a framed panel one step below
+     the canvas on the surface ladder, a header rule carrying the legend, and
+     square corners throughout.
+
+     Every colour and every typeface here is a custom property. The graph used
+     to read the palette in JavaScript and repaint itself on a theme event; SVG
+     presentation attributes cannot hold a var(), so the fix is to stop setting
+     them as attributes at all. Fill, stroke and font now come from these rules,
+     which means the browser re-resolves them the instant data-theme flips and
+     no second palette can drift out of step with the first. */
+
+  .network-figure {
+      position: relative;
+      margin: 0;
+      border: 1.5px solid var(--border-ink);
+      border-radius: var(--radius-card);
+      background: var(--color-panel-contrast);
+  }
+
+  .network-figure-crosshairs {
+      /* Empty drafting corners outside the ink plate — Borders artifact frame. */
+      inset: -0.45rem;
+      z-index: 1;
+  }
+
+  .network-figure-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-md);
+      padding: var(--space-sm) var(--space-md);
+      border-bottom: 1.5px solid var(--border-ink);
+  }
+
+  /* Three entry series plus themes. The brand triad is deliberately
+     low-chroma, and identity is therefore carried three times over — the
+     legend, the mark's own shape (filled for an entry, hollow for a theme)
+     and a dashed stroke on rascunho citations — with hue only reinforcing it.
+     Absolute triad roles (not page-accent rebinds): articles = secondary
+     (forest), posts = tertiary (ochre), projects = primary (slate). */
+  .network-legend {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--space-lg);
+  }
+
+  .network-legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      font-family: var(--font-label);
+      font-size: 0.77rem;
+      letter-spacing: 0.04em;
+  color: var(--color-on-surface-variant);
+  }
+
+  .network-legend-swatch {
+      display: inline-block;
+      width: 0.75rem;
+      height: 0.75rem;
+      flex-shrink: 0;
+      background: var(--color-outline);
+  }
+
+  .network-legend-swatch--articles {
+      background: var(--triad-secondary);
+  }
+
+  .network-legend-swatch--posts {
+      background: var(--triad-tertiary);
+  }
+
+  .network-legend-swatch--projects {
+      background: var(--triad-primary);
+  }
+
+  .network-legend-swatch--themes {
+      background: transparent;
+      border: 1px solid var(--color-on-surface-variant);
+  }
+
+  .network-hint {
+      font-family: var(--font-label);
+      font-size: 0.725rem;
+      line-height: 1.2;
+      color: var(--color-on-surface-variant);
+  letter-spacing: 0.03em;
+  }
+
+  /* `isolation: isolate` is for the ambient pool the graph draws inside its
+     own SVG — see assets/css/ledger/network.css, which owns every rule that
+     effect needs. It is declared here because this is the rule that owns the
+     plate the pool sits in. */
+  .network-canvas {
+      position: relative;
+      isolation: isolate;
+      width: 100%;
+      height: 520px;
+      overflow: hidden;
+      cursor: grab;
+      background: var(--color-panel-contrast);
+      color: var(--color-on-surface);
+  }
+
+  @media (min-width: 768px) {
+      .network-canvas {
+          height: 680px;
+      }
+  }
+
+  .network-canvas:active {
+      cursor: grabbing;
+  }
+
+  .network-zoom-hud {
+      position: absolute;
+      z-index: 3;
+      top: var(--space-sm);
+      right: var(--space-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+  }
+
+  .network-zoom-btn {
+      width: 2rem;
+      height: 2rem;
+      padding: 0;
+      border: 1px solid var(--border-ink);
+      background: var(--color-background);
+      color: var(--color-on-surface);
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      line-height: 1;
+      cursor: pointer;
+  }
+
+  .network-zoom-btn:hover {
+      color: var(--color-primary);
+      border-color: var(--color-primary);
+  }
+
+  #network-graph {
+      position: absolute;
+      inset: 0;
+  }
+
+  .network-empty {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-xl);
+      text-align: center;
+      color: var(--color-on-surface-variant);
+      font-style: italic;
+  }
+
+  /* ── Canvas ── */
+  /* A painted rectangle rather than a CSS background, because it is also the
+     surface the pan gesture has to land on. */
+  .network-canvas-bg {
+      fill: var(--color-panel-contrast);
+  }
+
+  /* ── Edges ── */
+  /* Circular arcs rather than straight lines. A straight segment between two
+     marks reads as a ruler — a measurement — and these are relations, not
+     distances. The arc also separates the two edges of a reciprocal pair,
+     which a pair of coincident lines cannot do. */
+  .network-edge {
+      fill: none;
+      stroke: var(--color-outline);
+      stroke-opacity: 0.7;
+  }
+
+  .network-edge--articles {
+      stroke: var(--triad-secondary);
+  }
+
+  /* Dashed, so the two kinds of citation stay apart without relying on hue. */
+  .network-edge--posts {
+      stroke: var(--triad-tertiary);
+      stroke-dasharray: 5 3;
+  }
+
+  .network-edge--projects {
+      stroke: var(--triad-primary);
+  }
+
+  /* A theme edge is not a claim the author made, only a word two pieces share,
+     so it is drawn as the quietest mark on the plate: no arrow, no colour, and
+     an opacity that lets the citation arcs pass in front of it. */
+  .network-edge--theme {
+      stroke: var(--color-outline);
+      stroke-opacity: 0.3;
+      stroke-width: 1;
+  }
+
+  .network-arrow {
+      fill: var(--color-outline);
+      fill-opacity: 0.8;
+  }
+
+  .network-arrow--articles {
+      fill: var(--triad-secondary);
+  }
+
+  .network-arrow--posts {
+      fill: var(--triad-tertiary);
+  }
+
+  .network-arrow--projects {
+      fill: var(--triad-primary);
+  }
+
+  /* ── Marks ── */
+  /* Squares, because nothing on this site has a corner radius. An entry is
+     filled in its series colour and sized by how often it is cited; a theme is
+     hollow, which is the shape saying "this is a word, not a piece of
+     writing" before the colour says anything at all. */
+  .network-node {
+      cursor: pointer;
+  }
+
+  .network-node-entry--articles {
+      fill: var(--triad-secondary);
+  }
+
+  .network-node-entry--posts {
+      fill: var(--triad-tertiary);
+  }
+
+  .network-node-entry--projects {
+      fill: var(--triad-primary);
+  }
+
+  .network-node-theme {
+      fill: var(--color-panel-contrast);
+      stroke: var(--color-on-surface-variant);
+      stroke-width: 1;
+  }
+
+  .network-node:focus {
+      outline: none;
+  }
+
+  .network-node:focus-visible .network-node-mark {
+      stroke: var(--color-on-surface);
+      stroke-width: 2;
+  }
+
+  /* Soft tertiary halo on the focused neighborhood — felt-wash, not glow. */
+  .network-svg--focusing .network-node.network-mark--near .network-node-mark {
+      filter: drop-shadow(0 0 0.45rem color-mix(in srgb, var(--triad-tertiary) 45%, transparent));
+  }
+
+  .network-svg--focusing .network-node.network-mark--near.network-node-entry--articles .network-node-mark {
+      filter: drop-shadow(0 0 0.45rem color-mix(in srgb, var(--triad-secondary) 45%, transparent));
+  }
+
+  .network-svg--focusing .network-node.network-mark--near.network-node-entry--projects .network-node-mark {
+      filter: drop-shadow(0 0 0.45rem color-mix(in srgb, var(--triad-primary) 45%, transparent));
+  }
+
+  /* ── Labels ── */
+  /* The type roles are the site's, not the graph's. A theme is a tag, so it
+     takes the label face that every other tag and chip on the site wears; an
+     entry's title is UI copy at this size, so it takes the body sans. Neither
+     is notation, and the notation face is reserved for code. The halo is a
+     paint-order stroke in the canvas colour: labels sit over the edges, and
+     without it a hairline crossing a descender is unreadable. */
+  .network-label {
+      paint-order: stroke;
+      stroke: var(--color-panel-contrast);
+      stroke-width: 3px;
+      stroke-linejoin: round;
+      pointer-events: none;
+  }
+
+  .network-label--theme {
+      font-family: var(--font-label);
+      font-size: 11px;
+      letter-spacing: 0.04em;
+  fill: var(--color-on-surface);
+  }
+
+  .network-label--entry {
+      font-family: var(--font-body);
+      font-size: 11.5px;
+      fill: var(--color-on-surface-variant);
+  }
+
+  /* Landmarks are drawn from the start; every other title waits to be asked
+     for. A map that labels all 51 entries at once is the card layout again. */
+  .network-label--demand {
+      opacity: 0;
+      transition: opacity var(--motion-duration-fast) var(--motion-ease-default);
+  }
+
+  .network-weight-label {
+      font-family: var(--font-body);
+      font-size: 10px;
+      fill: var(--color-on-surface-variant);
+      pointer-events: none;
+  }
+
+  /* ── Focus ── */
+  /* Focusing a mark dims everything it does not touch. This is the question a
+     graph actually gets asked — "what does this one reach?" — and the old card
+     layout could not answer it at any size. */
+  .network-mark {
+      transition: opacity var(--motion-duration-fast) var(--motion-ease-default);
+  }
+
+  .network-svg--focusing .network-mark:not(.network-mark--near) {
+      opacity: 0.1;
+  }
+
+  .network-svg--focusing .network-mark--near.network-label--demand {
+      opacity: 1;
+  }
+
+  /* A title that was never asked for stays unasked-for: the dim rule above
+     would otherwise raise all fifty of them from nothing to a tenth, which is
+     enough to read and more than enough to clutter. */
+  .network-svg--focusing .network-mark.network-label--demand:not(.network-mark--near) {
+      opacity: 0;
+  }
+
+  /* ── The hover card ── */
+  /* HTML rather than SVG text: a standfirst needs real line breaking, and the
+     thumbnail is a real image. It is positioned in screen space, so it does
+     not scale with the zoom and stays readable at any magnification. */
+  .network-hovercard {
+      position: absolute;
+      z-index: 2;
+      display: none;
+      width: 19rem;
+      max-width: calc(100% - var(--space-lg));
+      padding: var(--space-md);
+      background: var(--color-background);
+      border: 1px solid var(--border-gentle);
+      border-left: 3px solid var(--color-outline);
+      pointer-events: none;
+  }
+
+  .network-hovercard[data-open="true"] {
+      display: block;
+  }
+
+  .network-hovercard[data-type="articles"] {
+      border-left-color: var(--triad-secondary);
+  }
+
+  .network-hovercard[data-type="posts"] {
+      border-left-color: var(--triad-tertiary);
+  }
+
+  .network-hovercard[data-type="projects"] {
+      border-left-color: var(--triad-primary);
+  }
+
+  .network-hovercard-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-xs);
+  }
+
+  .network-hovercard-kicker {
+      font-family: var(--font-label);
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+  color: var(--color-on-surface-variant);
+  }
+
+  /* The one mono in the component. A date is a meta line, and every meta line
+     on the site is set in the notation face by renderMetaStrip. */
+  .network-hovercard-date {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-variant-numeric: tabular-nums;
+      color: var(--color-on-surface-variant);
+  }
+
+  .network-hovercard-title {
+      margin: 0 0 var(--space-xs);
+      font-family: var(--font-content-title);
+      font-size: 1.15rem;
+      font-weight: var(--weight-title);
+      line-height: 1.2;
+      color: var(--color-on-surface);
+      font-synthesis: none;
+  }
+
+  .network-hovercard-blurb {
+      margin: 0;
+      font-family: var(--font-body);
+      font-size: 0.82rem;
+      line-height: 1.5;
+      color: var(--color-on-surface-variant);
+  }
+
+  .network-hovercard-themes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+      margin-top: var(--space-sm);
+  }
+
+  .network-hovercard-theme {
+      font-family: var(--font-label);
+      font-size: 0.68rem;
+      letter-spacing: 0.03em;
+  padding: 0.1rem 0.4rem;
+      background: var(--color-surface-high);
+      color: var(--color-on-surface-variant);
+  }
+
+  .network-hovercard-count {
+      margin: 0;
+      font-family: var(--font-body);
+      font-size: 0.82rem;
+      color: var(--color-on-surface-variant);
+  }
+
+
+</style>
+
+<section class="mb-16 scroll-mt-28" id="network">
+  <figure class="network-figure">
+    <span class="ledger-frame-crosshairs network-figure-crosshairs" aria-hidden="true"></span>
+    <figcaption class="network-figure-head">
+      <div class="network-legend" id="network-legend"></div>
+      <span class="network-hint" id="network-hint">Hover a mark to trace it · Drag to move · Click to open</span>
+    </figcaption>
+    <div id="network-graph-wrapper" class="network-canvas">
+      <div class="network-zoom-hud" role="group" aria-label="Zoom">
+        <button type="button" class="network-zoom-btn" data-network-zoom="in" aria-label="Zoom in">+</button>
+        <button type="button" class="network-zoom-btn" data-network-zoom="out" aria-label="Zoom out">−</button>
+        <button type="button" class="network-zoom-btn" data-network-zoom="fit" aria-label="Fit graph">⊡</button>
+      </div>
+      <div id="network-graph"></div>
+      <div id="network-hovercard" class="network-hovercard" aria-hidden="true"></div>
+    </div>
+  </figure>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<script>
+    (function () {
+        'use strict';
+
+        var runtime = window.ContentRuntime;
+        if (!runtime || !runtime.ListingFilter) return;
+
+        var params = new URLSearchParams(window.location.search);
+        var filterRoot = document.querySelector('[data-listing-filter-root]');
+        var legendRoot = document.getElementById('network-legend');
+        var writingIndexCache = null;
+        var filterUi = null;
+
+        var NETWORK_TYPE_OPTIONS = [
+          {  value: 'articles', label: 'Article' },
+          {  value: 'posts', label: 'Post / Rascunho' },
+          {  value: 'projects', label: 'Project' }
+        ];
+
+        /* Soft region anchors for the three entry series. Articles settle
+           top-left, posts top-right, projects along the bottom; theme nodes
+           stay free near the entries that carry them. Citation and theme
+           forces still pull neighbors together inside each region. */
+        var NETWORK_REGIONS = {
+          articles: { x: 0.28, y: 0.32 },
+          posts: { x: 0.72, y: 0.32 },
+          projects: { x: 0.50, y: 0.78 }
+        };
+
+        var NETWORK_ENTRY_TYPES = { articles: true, posts: true, projects: true };
+
+        /* A tag carried by one entry connects that entry to nothing. Only tags
+           two or more entries share become marks, so the theme layer is always
+           reporting something the corpus actually has in common. */
+        var MIN_THEME_USES = 2;
+
+        /* Rascunho tags are stored lowercase (`arte`, `provocação`); capitalize
+           them on this map so theme marks match the Title Case already used
+           for English article tags. Stored identity stays the raw spelling. */
+        function themeDisplayName(name) {
+          var s = String(name || '');
+          if (!s) return s;
+          return s.charAt(0).toUpperCase() + s.slice(1);
+        }
+
+        function nodeType(item) {
+          return item.collection || item.type;
+        }
+
+        function initFilter(items) {
+          if (!filterRoot) return;
+          var typesPresent = {};
+          items.forEach(function (item) {
+            typesPresent[nodeType(item)] = true;
+          });
+          var chipGroups = [{
+            key: 'type',
+            label: 'Type',
+            options: [{  value: null, label: 'All nodes' }].concat(
+              NETWORK_TYPE_OPTIONS.filter(function (option) {
+                return typesPresent[option.value];
+              }).map(function (option) {
+                return {
+                  value: option.value,
+                  label: option.label,
+                  swatch: 'network-legend-swatch network-legend-swatch--' + option.value
+                };
+              })
+            )
+          }];
+          filterUi = runtime.ListingFilter.create({
+            root: filterRoot,
+            initialType: params.get('type') || null,
+            chipGroups: chipGroups,
+            onChange: function (state) {
+              renderNetworkGraph(writingIndexCache, state.type);
+            }
+          });
+          filterRoot.hidden = false;
+        }
+
+        /* The legend describes what is on the plate right now, so it is rebuilt
+           with the graph rather than hard-coded beside it. */
+        function renderLegend(types, themeCount) {
+          if (!legendRoot) return;
+          var keys = NETWORK_TYPE_OPTIONS.filter(function (option) {
+            return types[option.value];
+          }).map(function (option) {
+            return {  kind: option.value, label: option.label };
+          });
+          if (themeCount) keys.push({  kind: 'themes', label: 'Theme' });
+          legendRoot.innerHTML = keys.map(function (key) {
+            return '<span class="network-legend-item">' +
+              '<span class="network-legend-swatch network-legend-swatch--' + key.kind +
+              '" aria-hidden="true"></span>' + runtime.escapeHtml(key.label) + '</span>';
+          }).join('');
+        }
+
+        function formatNetworkDate(value) {
+          if (!value) return '';
+          var date = new Date(value);
+          if (isNaN(date.getTime())) return '';
+          return date.toLocaleString('en', {  month: 'short', year: 'numeric' });
+        }
+
+        function buildNetworkEdges(items) {
+          var edges = [];
+          var seen = new Set();
+          function addEdge(source, target) {
+            if (!source || !target || source === target) return;
+            var key = source + '\x00' + target;
+            if (seen.has(key)) return;
+            seen.add(key);
+            edges.push({  source: source, target: target });
+          }
+          items.forEach(function (item) {
+            var cites = Array.isArray(item.xcites) ? item.xcites : [];
+            cites.forEach(function (citeKey) {
+              items.forEach(function (target) {
+                if (target.key === citeKey) addEdge(item.url, target.url);
+              });
+            });
+          });
+          return edges;
+        }
+
+        /* Themes are counted over the entries actually on the plate, so
+           filtering to one series re-asks the question of that series rather
+           than leaving the full corpus's tags hanging over a subset. */
+        function buildThemes(items) {
+          var uses = new Map();
+          items.forEach(function (item) {
+            var tags = Array.isArray(item.tags) ? item.tags : [];
+            tags.forEach(function (tag) {
+              var name = String(tag || '').trim();
+              if (!name) return;
+              if (!uses.has(name)) uses.set(name, []);
+              uses.get(name).push(item.url);
+            });
+          });
+          var themes = [];
+          var links = [];
+          uses.forEach(function (urls, name) {
+            if (urls.length < MIN_THEME_USES) return;
+            var id = 'theme:' + name;
+            themes.push({  id: id, name: name, uses: urls.length });
+            urls.forEach(function (url) {
+              links.push({  source: url, target: id, weight: 1, kind: 'theme' });
+            });
+          });
+          return {  themes: themes, links: links };
+        }
+
+        function renderNetworkGraph(writingIndex, activeType) {
+        /* Articles, posts, and projects. The index also carries products;
+           those stay off the plate — portfolio CV cards, not nodes on the
+           idea map. A shared tag used to let products in through the side
+           door under a legend that never named them. */
+        var keyed = (writingIndex || []).filter(function (item) {
+          return item.key && NETWORK_ENTRY_TYPES[nodeType(item)];
+        });
+        if (NETWORK_ENTRY_TYPES[activeType]) {
+          keyed = keyed.filter(function (item) {  return nodeType(item) === activeType; });
+        }
+
+        var themeData = buildThemes(keyed);
+        var themesByEntry = new Map();
+        themeData.links.forEach(function (link) {
+          if (!themesByEntry.has(link.source)) themesByEntry.set(link.source, []);
+          themesByEntry.get(link.source).push(link.target.slice(6));
+        });
+
+        var rawNodes = keyed.map(function (item) {
+          return {
+            id: item.url,
+            key: item.key,
+            kind: 'entry',
+            title: item.title,
+            url: item.url,
+            type: nodeType(item),
+            date: formatNetworkDate(item.date),
+            blurb: String(item.description || item.excerpt || '').replace(/\s+/g, ' '),
+            themes: themesByEntry.get(item.url) || []
+          };
+        });
+        themeData.themes.forEach(function (theme) {
+          rawNodes.push({
+            id: theme.id,
+            kind: 'theme',
+            title: themeDisplayName(theme.name),
+            url: '',
+            type: 'theme',
+            uses: theme.uses,
+            themes: []
+          });
+        });
+
+        var rawEdges = buildNetworkEdges(keyed);
+
+        var edgeMap = new Map();
+        rawEdges.forEach(function (e) {
+            var k = e.source + '\x00' + e.target;
+            if (edgeMap.has(k)) edgeMap.get(k).weight++;
+            else edgeMap.set(k, {  source: e.source, target: e.target, weight: 1, kind: 'cite' });
+        });
+        var links = Array.from(edgeMap.values()).concat(themeData.links);
+
+        var wrapper = document.getElementById('network-graph-wrapper');
+        var container = document.getElementById('network-graph');
+        var hovercard = document.getElementById('network-hovercard');
+        if (!wrapper || !container) return;
+        container.innerHTML = '';
+        if (hovercard) hovercard.setAttribute('data-open', 'false');
+
+        function getSize() { return {  W: wrapper.clientWidth, H: wrapper.clientHeight }; }
+        var dim = getSize();
+        var W = dim.W, H = dim.H;
+
+        /* Size is the one quantity the mark carries: how often a piece is
+           cited. The range here is 0 to 6, so a linear map would be invisible
+           at one end and a blob at the other — the root compresses it into
+           something the eye can still rank. */
+        var THEME_SIZE = 10;
+        function markSize(d) {
+            if (d.kind === 'theme') return THEME_SIZE;
+            return 9 + Math.sqrt(d.deg || 0) * 3.6;
+        }
+
+        /* The chord is trimmed at both ends before the arc is drawn, so an
+           arrowhead lands beside its mark instead of under it. The arc is
+           shallow enough — radius is several times the span — that trimming
+           along the chord is indistinguishable from trimming along the curve. */
+        var ARC_RADIUS_FACTOR = 3.4;
+        function arcPath(d) {
+            var sx = d.source.x, sy = d.source.y, tx = d.target.x, ty = d.target.y;
+            var dx = tx - sx, dy = ty - sy;
+            var len = Math.hypot(dx, dy) || 1;
+            var ux = dx / len, uy = dy / len;
+            var padS = markSize(d.source) / 2 + 3;
+            var padT = markSize(d.target) / 2 + (d.kind === 'cite' ? 7 : 3);
+            var x1 = sx + ux * padS, y1 = sy + uy * padS;
+            var x2 = tx - ux * padT, y2 = ty - uy * padT;
+            var r = (Math.hypot(x2 - x1, y2 - y1) || 1) * ARC_RADIUS_FACTOR;
+            return 'M' + x1 + ',' + y1 + 'A' + r + ',' + r + ' 0 0,1 ' + x2 + ',' + y2;
+        }
+
+        var svg = d3.select('#network-graph').append('svg')
+            .attr('class', 'network-svg').attr('width', W).attr('height', H);
+        var bgRect = svg.append('rect')
+            .attr('class', 'network-canvas-bg').attr('width', W).attr('height', H);
+
+        var defs = svg.append('defs');
+        ['articles', 'posts', 'projects'].forEach(function (type) {
+            defs.append('marker')
+                .attr('id', 'arrow-' + type)
+                .attr('viewBox', '-1 -4 9 8').attr('refX', 7).attr('refY', 0)
+                .attr('markerWidth', 5).attr('markerHeight', 5).attr('orient', 'auto')
+                .append('path').attr('d', 'M0,-3.5L7,0L0,3.5Z')
+                .attr('class', 'network-arrow network-arrow--' + type);
+        });
+
+        /* ── The ambient pools ──
+           Depth treatments under each entry series cluster: articles (forest),
+           posts (ochre), projects (slate). Centre and width are read off the
+           settled layout in placePool() below.
+
+           Drawn inside the SVG because the canvas rectangle above is opaque
+           and would cover anything beNewsreader it, and between that rectangle and
+           the zoom group so it stays a backdrop: every edge, mark and label is
+           painted over it. It sits in screen space rather than in graph space,
+           like the hover card, so the blur is the same 60px at every
+           magnification instead of dissolving as the reader zooms out.
+
+           Colour, opacity, blur and the dark-palette gate all live in
+           assets/css/ledger/network.css. */
+        var poolArticlesGrad = defs.append('radialGradient').attr('id', 'network-pool-articles-fill');
+        poolArticlesGrad.append('stop').attr('offset', '0%').attr('class', 'network-pool-core network-pool-core--articles');
+        poolArticlesGrad.append('stop').attr('offset', '70%').attr('class', 'network-pool-edge network-pool-edge--articles');
+
+        var poolPostsGrad = defs.append('radialGradient').attr('id', 'network-pool-posts-fill');
+        poolPostsGrad.append('stop').attr('offset', '0%').attr('class', 'network-pool-core network-pool-core--posts');
+        poolPostsGrad.append('stop').attr('offset', '70%').attr('class', 'network-pool-edge network-pool-edge--posts');
+
+        var poolProjectsGrad = defs.append('radialGradient').attr('id', 'network-pool-projects-fill');
+        poolProjectsGrad.append('stop').attr('offset', '0%').attr('class', 'network-pool-core network-pool-core--projects');
+        poolProjectsGrad.append('stop').attr('offset', '70%').attr('class', 'network-pool-edge network-pool-edge--projects');
+
+        var poolArticlesSel = svg.append('ellipse')
+            .attr('class', 'network-pool network-pool--articles')
+            .attr('fill', 'url(#network-pool-articles-fill)');
+
+        var poolPostsSel = svg.append('ellipse')
+            .attr('class', 'network-pool network-pool--posts')
+            .attr('fill', 'url(#network-pool-posts-fill)');
+
+        var poolProjectsSel = svg.append('ellipse')
+            .attr('class', 'network-pool network-pool--projects')
+            .attr('fill', 'url(#network-pool-projects-fill)');
+
+        var poolSelByType = {
+          articles: poolArticlesSel,
+          posts: poolPostsSel,
+          projects: poolProjectsSel
+        };
+
+        var zoomG = svg.append('g');
+        var zoom = d3.zoom().scaleExtent([0.1, 4])
+            .on('zoom', function (ev) {
+                zoomG.attr('transform', ev.transform);
+                moveHovercard();
+                placePool();
+            });
+        svg.call(zoom);
+
+        document.querySelectorAll('[data-network-zoom]').forEach(function (btn) {
+            btn.addEventListener('click', function (ev) {
+                ev.preventDefault();
+                ev.stopPropagation();
+                var action = btn.getAttribute('data-network-zoom');
+                if (action === 'fit') {
+                    fitToCanvas();
+                    return;
+                }
+                var factor = action === 'in' ? 1.25 : 0.8;
+                svg.transition().duration(180).call(zoom.scaleBy, factor);
+            });
+        });
+
+        /* A mark with no relation at all has nothing to say on a map of
+           relations, and it is already on the index pages. */
+        var connectedIds = new Set();
+        links.forEach(function (l) {  connectedIds.add(l.source); connectedIds.add(l.target); });
+        var simNodes = rawNodes
+            .filter(function (d) {  return connectedIds.has(d.id); })
+            .map(function (d) { return Object.assign({}, d); });
+        var byId = {};
+        simNodes.forEach(function (n) {  byId[n.id] = n; });
+
+        var citeDegree = {};
+        links.forEach(function (l) {
+            if (l.kind !== 'cite') return;
+            citeDegree[l.source] = (citeDegree[l.source] || 0) + 1;
+            citeDegree[l.target] = (citeDegree[l.target] || 0) + 1;
+        });
+        simNodes.forEach(function (n) {  n.deg = citeDegree[n.id] || 0; });
+
+        var typesDrawn = {};
+        var themesDrawn = 0;
+        simNodes.forEach(function (n) {
+            if (n.kind === 'theme') themesDrawn += 1;
+            else typesDrawn[n.type] = true;
+        });
+        renderLegend(typesDrawn, themesDrawn);
+
+        /* A graph with nothing in it is a real state — the type filter can
+           select a slice that shares neither a citation nor a theme — so say
+           so rather than leave an empty plate. */
+        if (!simNodes.length) {
+            var empty = document.createElement('p');
+            empty.className = 'network-empty font-body';
+            empty.textContent = 'No cross-references between the selected entries.';
+            container.appendChild(empty);
+            return;
+        }
+
+        var r0 = Math.min(W, H) * 0.18;
+        simNodes.forEach(function (d, i) {
+            var region = NETWORK_REGIONS[d.type] || { x: 0.5, y: 0.5 };
+            var a = (i / Math.max(simNodes.length, 1)) * 2 * Math.PI;
+            d.x = region.x * W + r0 * Math.cos(a);
+            d.y = region.y * H + r0 * Math.sin(a);
+        });
+
+        var simLinks = links
+            .filter(function (l) {  return byId[l.source] && byId[l.target]; })
+            .map(function (l) { return Object.assign({}, l); });
+
+        /* Stopped on creation: the layout is solved before the first paint
+           rather than animated into place over five seconds. A citation map is
+           something to read, not a demonstration of physics.
+
+           A theme pulls harder and holds its entries closer than a citation
+           does, which is what turns the plate into clusters rather than an
+           even field. The themes also repel each other hardest, so the
+           clusters they anchor stay apart instead of piling into the middle.
+
+           Soft X/Y forces bias each entry series toward its region of the
+           plate (articles top-left, posts top-right, projects bottom) without
+           pinning nodes hard enough to break citation geometry. */
+        function regionX(d) {
+            if (d.kind === 'theme') return W / 2;
+            var region = NETWORK_REGIONS[d.type];
+            return region ? region.x * W : W / 2;
+        }
+        function regionY(d) {
+            if (d.kind === 'theme') return H / 2;
+            var region = NETWORK_REGIONS[d.type];
+            return region ? region.y * H : H / 2;
+        }
+        var sim = d3.forceSimulation(simNodes)
+            .force('link', d3.forceLink(simLinks).id(function (d) {  return d.id; })
+                .distance(function (l) {  return l.kind === 'theme' ? 62 : 104; })
+                .strength(function (l) {  return l.kind === 'theme' ? 0.85 : 0.35; }))
+            .force('charge', d3.forceManyBody().strength(function (d) {
+                return d.kind === 'theme' ? -420 : -230;
+            }))
+            .force('collide', d3.forceCollide(function (d) {  return markSize(d) + 16; }))
+            .force('x', d3.forceX(regionX).strength(function (d) {
+                return d.kind === 'theme' ? 0.03 : 0.09;
+            }))
+            .force('y', d3.forceY(regionY).strength(function (d) {
+                return d.kind === 'theme' ? 0.03 : 0.09;
+            }))
+            .stop();
+
+        function srcNode(d) {  return typeof d.source === 'object' ? d.source : byId[d.source]; }
+        function edgeClass(d) {
+            if (d.kind === 'theme') return 'network-mark network-edge network-edge--theme';
+            var s = srcNode(d);
+            return 'network-mark network-edge network-edge--' + (s ? s.type : 'posts');
+        }
+        function arrowRef(d) {
+            if (d.kind === 'theme') return null;
+            var s = srcNode(d);
+            return 'url(#arrow-' + (s ? s.type : 'posts') + ')';
+        }
+
+        var linkSel = zoomG.append('g').selectAll('path').data(simLinks).join('path')
+            .attr('class', edgeClass)
+            .attr('stroke-width', function (d) {
+                return d.kind === 'theme' ? 1 : 1.4 + (d.weight - 1) * 0.5;
+            })
+            .attr('marker-end', arrowRef);
+
+        var wLabelSel = zoomG.append('g')
+            .selectAll('text')
+            .data(simLinks.filter(function (l) {  return l.kind === 'cite' && l.weight > 1; }))
+            .join('text')
+            .attr('class', 'network-mark network-weight-label')
+            .attr('text-anchor', 'middle')
+            .text(function (d) {  return d.weight; });
+
+        var drag = d3.drag()
+            .on('start', function (ev, d) {  if (!ev.active) sim.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
+            .on('drag', function (ev, d) {  d.fx = ev.x; d.fy = ev.y; })
+            .on('end', function (ev, d) {  if (!ev.active) sim.alphaTarget(0); d.fx = null; d.fy = null; });
+
+        var nodeSel = zoomG.append('g').selectAll('rect').data(simNodes).join('rect')
+            .attr('class', function (d) {
+                return 'network-mark network-node network-node-mark ' +
+                    (d.kind === 'theme' ? 'network-node-theme' : 'network-node-entry network-node-entry--' + d.type);
+            })
+            .attr('width', markSize).attr('height', markSize)
+            .attr('tabindex', 0)
+            .attr('role', function (d) {  return d.kind === 'theme' ? 'img' : 'link'; })
+            .attr('aria-label', function (d) {
+                if (d.kind === 'theme') return 'Theme ' + d.title + ', ' + d.uses + ' entries';
+                var kind = d.type === 'articles' ? 'article'
+                  : d.type === 'projects' ? 'project'
+                  : 'rascunho';
+                return d.title + ' — ' + kind;
+            })
+            .call(drag);
+
+        /* Adjacency, built once. Focusing is a per-frame operation on a set,
+           not a walk of the edge list. */
+        var neighbors = {};
+        simNodes.forEach(function (n) {  neighbors[n.id] = new Set([n.id]); });
+        simLinks.forEach(function (l) {
+            var s = l.source.id || l.source;
+            var t = l.target.id || l.target;
+            if (neighbors[s]) neighbors[s].add(t);
+            if (neighbors[t]) neighbors[t].add(s);
+        });
+
+        /* Every theme is named, and so is every entry the corpus cites three
+           times or more: without a few landmarks an anonymous field of marks
+           is impossible to get oriented in. The rest of the titles wait for
+           the reader to ask. A label is dropped when its box would collide
+           with one already placed — a map with two names on top of each other
+           has no names. */
+        var LABEL_THRESHOLD = 3;
+        function labelText(d) {
+            if (d.kind === 'theme') return d.title;
+            return d.title.length > 28 ? d.title.slice(0, 27) + '…' : d.title;
+        }
+
+        var labelSel = zoomG.append('g').selectAll('text').data(simNodes).join('text')
+            .attr('class', function (d) {
+                return 'network-mark network-label network-label--' +
+                    (d.kind === 'theme' ? 'theme' : 'entry');
+            })
+            .attr('text-anchor', 'middle')
+            .text(labelText);
+
+        function placeLabels() {
+            var placed = [];
+            labelSel.each(function (d) {
+                var el = d3.select(this);
+                var isLandmark = d.kind === 'theme' || d.deg >= LABEL_THRESHOLD;
+                if (!isLandmark) {
+                    el.classed('network-label--demand', true);
+                    return;
+                }
+                var box = this.getBBox();
+                var clash = placed.some(function (p) {
+                    return !(box.x + box.width < p.x || box.x > p.x + p.width ||
+                             box.y + box.height < p.y || box.y > p.y + p.height);
+                });
+                el.classed('network-label--demand', clash);
+                if (!clash) placed.push(box);
+            });
+        }
+
+        /* ── Focus ── */
+        var focusedId = null;
+
+        function hovercardHtml(d) {
+            var parts = [];
+            if (d.kind === 'theme') {
+                parts.push('<p class="network-hovercard-kicker">Theme</p>');
+                parts.push('<h3 class="network-hovercard-title">' + runtime.escapeHtml(d.title) + '</h3>');
+                parts.push('<p class="network-hovercard-count">' + d.uses + ' entries carry this theme.</p>');
+                return parts.join('');
+            }
+            parts.push('<div class="network-hovercard-head">');
+            parts.push('<span class="network-hovercard-kicker">' +
+                (d.type === 'articles' ? 'Article'
+                  : d.type === 'projects' ? 'Project'
+                  : 'Rascunho') + '</span>');
+            if (d.date) parts.push('<span class="network-hovercard-date">' + runtime.escapeHtml(d.date) + '</span>');
+            parts.push('</div>');
+            parts.push('<h3 class="network-hovercard-title">' + runtime.escapeHtml(d.title) + '</h3>');
+            var degree = neighbors[d.id] ? Math.max(0, neighbors[d.id].size - 1) : 0;
+            parts.push('<p class="network-hovercard-count">' +
+                (degree === 1 ? '1 neighbor' : degree + ' neighbors') + '</p>');
+            if (d.blurb) {
+                /* A standfirst is written to a card's measure, not a hover
+                   card's: left whole, the longest of them doubles the card's
+                   height and covers the neighborhood the focus just drew. */
+                var blurb = d.blurb.length > 168 ? d.blurb.slice(0, 167).replace(/\s+\S*$/, '') + '…' : d.blurb;
+                parts.push('<p class="network-hovercard-blurb">' + runtime.escapeHtml(blurb) + '</p>');
+            }
+            if (d.themes.length) {
+                parts.push('<p class="network-hovercard-themes">' + d.themes.map(function (name) {
+                    return '<span class="network-hovercard-theme">' +
+                      runtime.escapeHtml(themeDisplayName(name)) + '</span>';
+                }).join('') + '</p>');
+            }
+            return parts.join('');
+        }
+
+        function moveHovercard() {
+            if (!hovercard || !focusedId) return;
+            var d = byId[focusedId];
+            if (!d) return;
+            var t = d3.zoomTransform(svg.node());
+            var px = t.applyX(d.x);
+            var py = t.applyY(d.y);
+            var cw = hovercard.offsetWidth;
+            var ch = hovercard.offsetHeight;
+            var left = px + 16;
+            var top = py + 14;
+            if (left + cw > W - 8) left = px - cw - 16;
+            if (left < 8) left = 8;
+            if (top + ch > H - 8) top = H - ch - 8;
+            if (top < 8) top = 8;
+            hovercard.style.left = left + 'px';
+            hovercard.style.top = top + 'px';
+        }
+
+        function focusNode(d) {
+            focusedId = d.id;
+            var near = neighbors[d.id] || new Set([d.id]);
+            svg.classed('network-svg--focusing', true);
+            nodeSel.classed('network-mark--near', function (n) {  return near.has(n.id); });
+            labelSel.classed('network-mark--near', function (n) {  return near.has(n.id); });
+            linkSel.classed('network-mark--near', function (l) {
+                return near.has(l.source.id) && near.has(l.target.id);
+            });
+            wLabelSel.classed('network-mark--near', function (l) {
+                return near.has(l.source.id) && near.has(l.target.id);
+            });
+            if (hovercard) {
+                hovercard.setAttribute('data-type', d.type);
+                hovercard.innerHTML = hovercardHtml(d);
+                hovercard.setAttribute('data-open', 'true');
+                moveHovercard();
+            }
+        }
+
+        function clearFocus() {
+            focusedId = null;
+            svg.classed('network-svg--focusing', false);
+            nodeSel.classed('network-mark--near', false);
+            labelSel.classed('network-mark--near', false);
+            linkSel.classed('network-mark--near', false);
+            wLabelSel.classed('network-mark--near', false);
+            if (hovercard) hovercard.setAttribute('data-open', 'false');
+        }
+
+        function openNode(d) {
+            if (d.kind === 'theme' || !d.url) return;
+            window.location.href = d.url;
+        }
+
+        /* Pointer, keyboard and touch all reach the same two states. A mouse
+           focuses on hover, so its click opens on the first press; a finger
+           has no hover, so its first tap focuses and the second opens. */
+        nodeSel
+            .on('mouseenter', function (_, d) {  focusNode(d); })
+            .on('mouseleave', function () {  clearFocus(); })
+            .on('focus', function (_, d) {  focusNode(d); })
+            .on('blur', function () {  clearFocus(); })
+            .on('click', function (ev, d) {
+                ev.stopPropagation();
+                if (focusedId === d.id) openNode(d);
+                else focusNode(d);
+            })
+            .on('keydown', function (ev, d) {
+                if (ev.key === 'Enter' || ev.key === ' ') {
+                    ev.preventDefault();
+                    openNode(d);
+                } else if (ev.key === 'Escape') {
+                    clearFocus();
+                }
+            });
+
+        svg.on('click', function () {  clearFocus(); });
+
+        /* Once the layout settles, frame it. A force graph left at its own
+           scale spills past the plate and the reader has to hunt for the parts
+           that fell off the edge. */
+        function fitToCanvas() {
+            var xs = simNodes.map(function (d) {  return d.x; });
+            var ys = simNodes.map(function (d) {  return d.y; });
+            /* The margin is a label's worth, not a mark's: a mark at the edge
+               of the cloud carries a name wider than itself. */
+            var margin = 70;
+            var minX = Math.min.apply(null, xs) - margin;
+            var maxX = Math.max.apply(null, xs) + margin;
+            var minY = Math.min.apply(null, ys) - margin / 2;
+            var maxY = Math.max.apply(null, ys) + margin / 2;
+            var bw = Math.max(maxX - minX, 1);
+            var bh = Math.max(maxY - minY, 1);
+            var scale = Math.max(0.45, Math.min(1.15, Math.min(W / bw, H / bh)));
+            var tx = W / 2 - scale * (minX + maxX) / 2;
+            var ty = H / 2 - scale * (minY + maxY) / 2;
+            svg.call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
+        }
+
+        /* Where the corpus concentrates, measured rather than chosen.
+
+           A plain centroid of the marks is the wrong statistic: the layout
+           carries its own centring force, so the mean of everything lands in
+           the middle of the plate whatever the graph does, and a pool in the
+           middle of its container is a vignette rather than a lamp. What the
+           pool is for is the *densest* part of the cloud, which is a peak and
+           not a mean.
+
+           So each mark scores the relations of every other mark, falling off
+           with distance on a kernel a fifth of the plate wide, and the pool
+           centres on the highest score. Its radius is the kernel-weighted
+           spread around that point, opened out, because a pool that stops at
+           one standard deviation lights the middle of a cluster and leaves
+           its edge dark. Nothing here is a coordinate someone picked. */
+        var poolCentres = {  articles: null, posts: null, projects: null };
+
+        function poolWeight(n) {
+            return neighbors[n.id] ? neighbors[n.id].size - 1 : 0;
+        }
+
+        function measureClusterPool(type) {
+            var targetNodes = simNodes.filter(function (n) {
+                return n.type === type;
+            });
+            if (!targetNodes.length) return null;
+
+            var k = Math.min(W, H) / 5;
+            var falloff = 2 * k * k;
+
+            function kernelAt(x, y) {
+                var sum = 0;
+                targetNodes.forEach(function (b) {
+                    var dx = x - b.x;
+                    var dy = y - b.y;
+                    sum += (poolWeight(b) + 1) * Math.exp(-(dx * dx + dy * dy) / falloff);
+                });
+                return sum;
+            }
+
+            var peak = null;
+            var best = 0;
+            targetNodes.forEach(function (a) {
+                var score = kernelAt(a.x, a.y);
+                if (score > best) {
+                    best = score;
+                    peak = a;
+                }
+            });
+            if (!peak) return null;
+
+            var mass = 0;
+            var spread = 0;
+            targetNodes.forEach(function (b) {
+                var dx = b.x - peak.x;
+                var dy = b.y - peak.y;
+                var d2 = dx * dx + dy * dy;
+                var w = (poolWeight(b) + 1) * Math.exp(-d2 / falloff);
+                mass += w;
+                spread += w * d2;
+            });
+            return {
+                x: peak.x,
+                y: peak.y,
+                r: mass ? Math.sqrt(spread / mass) * 2.2 : k
+            };
+        }
+
+        function measurePool() {
+            poolCentres.articles = measureClusterPool('articles');
+            poolCentres.posts = measureClusterPool('posts');
+            poolCentres.projects = measureClusterPool('projects');
+        }
+
+        /* Screen space, like the hover card: the pools track their clusters
+           under panning and scale with the zoom, but the blur beNewsreader them stays
+           the same 60px at every magnification instead of dissolving as the
+           reader pulls back. */
+        function placePool() {
+            var t = d3.zoomTransform(svg.node());
+            ['articles', 'posts', 'projects'].forEach(function (type) {
+                var c = poolCentres[type];
+                var sel = poolSelByType[type];
+                if (!c) {
+                    sel.attr('rx', 0).attr('ry', 0);
+                    return;
+                }
+                sel
+                    .attr('cx', t.applyX(c.x))
+                    .attr('cy', t.applyY(c.y))
+                    .attr('rx', c.r * t.k)
+                    .attr('ry', c.r * t.k);
+            });
+        }
+
+        function placeMarks() {
+            linkSel.attr('d', arcPath);
+            wLabelSel
+                .attr('x', function (d) {  return (d.source.x + d.target.x) / 2; })
+                .attr('y', function (d) {  return (d.source.y + d.target.y) / 2; });
+            nodeSel
+                .attr('x', function (d) {  return d.x - markSize(d) / 2; })
+                .attr('y', function (d) {  return d.y - markSize(d) / 2; });
+            labelSel
+                .attr('x', function (d) {  return d.x; })
+                .attr('y', function (d) {  return d.y - markSize(d) / 2 - 7; });
+            moveHovercard();
+            measurePool();
+            placePool();
+        }
+
+        /* Solve, place, frame. Dragging restarts the simulation from here, so
+           the graph stays live without ever re-framing itself under the
+           reader's hand. */
+        sim.on('tick', placeMarks);
+        sim.tick(400);
+        placeMarks();
+        placeLabels();
+        fitToCanvas();
+
+        window.addEventListener('resize', function () {
+            var d2 = getSize();
+            W = d2.W;
+            H = d2.H;
+            svg.attr('width', W).attr('height', H);
+            bgRect.attr('width', W).attr('height', H);
+            /* The kernel is a fifth of the plate, so a resized plate is a
+               different measurement. */
+            measurePool();
+            fitToCanvas();
+        });
+        }
+
+        runtime.loadJson('data/writing_index.json').then(function (writingIndex) {
+          writingIndexCache = writingIndex;
+          var keyed = writingIndex.filter(function (item) {
+            return item.key && NETWORK_ENTRY_TYPES[nodeType(item)];
+          });
+          initFilter(keyed);
+          var initialType = filterUi ? filterUi.getState().type : params.get('type');
+          renderNetworkGraph(writingIndexCache, initialType);
+        }).catch(function (error) {
+          console.error(error);
+        });
+
+    }());
+</script>

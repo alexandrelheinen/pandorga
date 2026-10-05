@@ -1,0 +1,26 @@
+{% assign short_src = include.src | default: include.id %}
+{% assign short_src2 = include.src2 | default: include.id2 %}
+{% if short_src %}
+<figure class="article-youtube-short-wrap{% if short_src2 %} article-youtube-short-wrap--pair{% endif %} my-8 mx-auto text-center w-full" style="margin: 1.5rem auto; max-width: {% if short_src2 %}100{% else %}45{% endif %}%;">
+<div class="article-youtube-short{% if short_src2 %} article-youtube-short--pair{% endif %}" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem;">
+  <iframe width="315" height="560"
+    src="https://www.youtube.com/embed/{{ short_src }}"
+    title="YouTube short"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowfullscreen
+    style="width: {% if short_src2 %}45{% else %}100{% endif %}%; max-width: 100%; aspect-ratio: 9 / 16; height: auto; border-radius: 0.25rem;">
+  </iframe>
+  {% if short_src2 %}
+  <iframe width="315" height="560"
+    src="https://www.youtube.com/embed/{{ short_src2 }}"
+    title="YouTube short"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowfullscreen
+    style="width: 45%; max-width: 45%; aspect-ratio: 9 / 16; height: auto; border-radius: 0.25rem;">
+  </iframe>
+  {% endif %}
+</div>
+</figure>
+{% endif %}

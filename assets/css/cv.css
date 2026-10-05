@@ -1,0 +1,13 @@
+/* ── Public CV page ── (intentionally empty)
+
+   This file held the pre-redesign CV entry styles: .cv-section, .job-title,
+   .job-department, .job-meta, .institution and .cv-description. The public CV
+   page was rebuilt as the architectural register in `_layouts/cv.html`, which
+   emits .cv-register / .cv-entry-* / .cv-product-* and styles them from
+   `assets/css/ledger/cv.css`. None of the six old classes is emitted by any
+   layout, include, runtime renderer or content file any more, so they were
+   removed rather than left to rot.
+
+   The file itself stays because `_layouts/shell.html` links it unconditionally
+   and dropping the <link> belongs to whoever owns that layout. Once that line
+   is gone, delete this file. */

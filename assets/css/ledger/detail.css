@@ -1,0 +1,1270 @@
+/* Ledger page styles: detail. Owned by the detail page; shared component rules
+   belong in assets/css/base.css under "Architectural Ledger blocks".
+
+   Scope note. Public detail views are assembled in the browser by
+   `_includes/content-runtime/50-detail.html` (`buildTextSidebar`,
+   `renderRuntimeDetailSection`) and mounted by the listing layouts, so this
+   file styles the DOM that runtime emits. `_layouts/text.html` emits the same
+   class contract for the private studio build; every rule below therefore
+   targets classes, never a container that exists on only one of the two paths.
+
+   Specificity note. The Tailwind Play CDN injects its utilities *after* this
+   stylesheet, so a single-class rule loses to any colliding utility already on
+   the element (`text-tertiary`, `text-xs`, `flex`, `mb-8`, …). Rules that have
+   to beat one are written with two compound parts on purpose. */
+
+/* ══ Reading progress ══
+   Pure UI state, no field beNewsreader it, and no DOM hook to hang it on — the
+   runtime owns the detail markup. A scroll-driven animation on a pseudo of
+   the detail section gives the mockup's indicator with zero markup, and the
+   @supports guard means older engines simply get no bar.
+
+   Sit under the sticky site nav (z-50), not over it — a top-of-viewport bar
+   was invisible against the nav surface. */
+@supports (animation-timeline: scroll(root block)) {
+
+  :is([data-dynamic-article-detail],
+    [data-dynamic-post-detail],
+    [data-dynamic-project-detail],
+    [data-dynamic-product-detail],
+    [data-detail-view])::before {
+    content: "";
+    position: fixed;
+    left: 0;
+    right: 0;
+    /* Approx sticky nav stack: wordmark row + padding (shell sticky nav). */
+    top: 4.25rem;
+    z-index: 40;
+    height: 2px;
+    background: var(--color-primary);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    pointer-events: none;
+    animation-name: detail-read-progress;
+    animation-duration: 1ms;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: scroll(root block);
+  }
+}
+
+@keyframes detail-read-progress {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* The bar is decoration driven by the scroll position: nothing on the page
+   depends on it, so a reader who has asked for less motion simply does not get
+   a strip that tracks their scrolling. */
+@media (prefers-reduced-motion: reduce) {
+
+  :is([data-dynamic-article-detail],
+    [data-dynamic-post-detail],
+    [data-dynamic-project-detail],
+    [data-dynamic-product-detail],
+    [data-detail-view])::before {
+    display: none;
+  }
+}
+
+/* ══ Return link ══
+   The ledger's first line: mono, uppercase, tracked out. */
+a.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 0.35rem 0.85rem;
+  background: var(--color-surface-card);
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+  font-family: var(--font-mono);
+  font-size: var(--type-label-lg);
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-on-surface-variant);
+  text-decoration: none !important;
+  transition: color var(--motion-duration-fast) var(--motion-ease-default),
+    border-color var(--motion-duration-fast) var(--motion-ease-default),
+    background-color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+a.back-link:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  background: var(--color-surface-high);
+}
+
+a.back-link .material-symbols-outlined {
+  font-size: var(--type-body);
+}
+
+/* ══ Meta action row ══
+   Share · Cite · PDF as pill buttons with Google icons. */
+.detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-sm);
+  margin-top: var(--space-sm);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--border-gentle-faint);
+}
+
+.detail-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.85rem;
+  background: var(--color-surface-card);
+  border: 1px solid var(--border-ink);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-label);
+  font-size: var(--type-label-lg);
+  font-weight: var(--weight-label);
+  letter-spacing: 0.04em;
+  color: var(--color-on-surface);
+  text-decoration: none !important;
+  cursor: pointer;
+  transition: background-color var(--motion-duration-fast) var(--motion-ease-default),
+    border-color var(--motion-duration-fast) var(--motion-ease-default),
+    color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.detail-action:hover {
+  background: var(--color-surface-high);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.detail-action .material-symbols-outlined {
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--color-primary);
+  transition: color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.detail-action:hover .material-symbols-outlined {
+  color: var(--color-primary);
+}
+
+/* Reading-size step. Compact pill beside Share and Cite; opens a −4…+4 menu. */
+.detail-type-size {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-on-surface);
+}
+
+.detail-type-size-trigger {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.35rem 0.55rem 0.35rem 0.7rem;
+  background: var(--color-surface-card);
+  border: 1px solid var(--border-ink);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-label);
+  font-size: var(--type-label-lg);
+  font-weight: var(--weight-label);
+  letter-spacing: 0.04em;
+  line-height: 1;
+  color: var(--color-on-surface);
+  cursor: pointer;
+  transition: background-color var(--motion-duration-fast) var(--motion-ease-default),
+    border-color var(--motion-duration-fast) var(--motion-ease-default),
+    color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.detail-type-size-trigger:hover,
+.detail-type-size-trigger[aria-expanded="true"] {
+  background: var(--color-surface-high);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.detail-type-size-trigger:focus-visible {
+  outline: 1px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.detail-type-size-trigger .material-symbols-outlined {
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--color-primary);
+}
+
+.detail-type-size-value {
+  min-width: 1.6em;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.detail-type-size-caret {
+  font-size: 1rem;
+  line-height: 1;
+  transition: transform var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.detail-type-size-trigger[aria-expanded="true"] .detail-type-size-caret {
+  transform: rotate(180deg);
+}
+
+.detail-type-size:has(.detail-type-size-trigger[aria-expanded="true"]) {
+  z-index: 30;
+}
+
+.detail-type-size-menu {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 100%;
+  max-height: min(14.5rem, 70vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.35rem;
+  background: var(--color-surface-card);
+  border: 1px solid var(--border-ink);
+  border-radius: var(--radius-card);
+  box-shadow: 0 0.45rem 1.1rem color-mix(in srgb, var(--color-on-surface) 12%, transparent);
+  scrollbar-width: thin;
+}
+
+/* On the stacked mobile dossier the actions sit near the plate floor, so the
+   menu opens upward into the panel instead of vanishing under the next block. */
+@media (max-width: 767px) {
+  .detail-type-size-menu {
+    top: auto;
+    bottom: calc(100% + 0.35rem);
+  }
+}
+
+.detail-type-size-menu[hidden] {
+  display: none;
+}
+
+.detail-type-size-step {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  border-radius: var(--radius-pill);
+  padding: 0.35rem 0.55rem;
+  font-family: var(--font-label);
+  font-size: var(--type-label);
+  font-weight: var(--weight-label);
+  letter-spacing: 0.02em;
+  line-height: 1;
+  color: var(--color-on-surface);
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+
+.detail-type-size-step::after {
+  content: "";
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 999px;
+  background: var(--border-ink);
+  opacity: 0.55;
+}
+
+.detail-type-size-step[aria-selected="true"] {
+  background: var(--color-surface-high);
+  color: var(--color-primary);
+}
+
+.detail-type-size-step[aria-selected="true"]::after {
+  background: var(--color-primary);
+  opacity: 1;
+}
+
+.detail-type-size-step:hover,
+.detail-type-size-step:focus-visible {
+  color: var(--color-primary);
+}
+
+.detail-type-size-step:focus-visible {
+  outline: 1px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+/* ══ Detail column grid ══
+   Two tracks, dossier then body. This used to be Tailwind's twelve-column
+   grid with the dossier on `md:col-span-3`, which left the panel around 15rem
+   on a laptop: narrow enough that a fourteen-letter word in a title broke
+   mid-word rather than wrapping. The dossier now takes a quarter more width.
+
+   Three of twelve columns plus the two gaps between them is `25% - 0.75gap`,
+   so a quarter more is `31.25% - 0.9375gap`. The body track keeps whatever is
+   left, and since the reading column inside it is capped at
+   `--reading-measure` and sets flush left, the widening moves the prose right
+   by exactly what the dossier gained instead of narrowing it.
+
+   The gap values mirror the `gap-8 lg:gap-12` utilities the markup still
+   carries; the track formula needs the number, and Tailwind's own gap cannot
+   be read back out of the cascade. Change one and change the other. The
+   selector compounds `.grid` for the reason given at the top of this file:
+   the Play CDN injects `grid-cols-1` after this sheet, so a single class
+   loses the tie and the page stays stacked.
+
+   Every detail page uses this one rule, including the projects page, which
+   only differs in holding the split back to 1024px (ledger/projects.css). */
+@media (min-width: 768px) {
+  .grid.text-detail-grid {
+    --detail-column-gap: 2rem;
+
+    grid-template-columns:
+      calc(31.25% - 0.9375 * var(--detail-column-gap)) minmax(0, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid.text-detail-grid {
+    --detail-column-gap: 3rem;
+  }
+}
+
+/* ══ Dossier ══
+   Title, description, classification and dates read as one panel. The runtime
+   emits the heading block and the meta block as siblings with no wrapper, so
+   the panel is made by giving both the same surface and closing the gap
+   between them rather than by boxing them. */
+
+/* The column already asks to be sticky (`md:sticky md:top-32`), but the grid
+   sets `items-start`, which shrinks the <aside> to its own content and leaves
+   the sticky child no distance to travel — so the dossier scrolled away with
+   the first screen. Stretching the column to the row restores it. */
+aside:has(> .text-detail-sidebar) {
+  align-self: stretch;
+}
+
+/* The markup pins the column with Tailwind's `md:top-32`, which is 8rem. The
+   CV register rail and the rascunhos marginalia column both park at 7rem below
+   the 78px sticky nav; one sticky offset for the site. The child combinator
+   supplies the extra specificity the utility would otherwise win on. */
+.text-detail-sidebar {
+  background: var(--color-panel-contrast);
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+/* Reading-size menu is absolute and must escape the plate; the heading
+   already clips its own shard, so opening the menu can drop the plate clip. */
+.text-detail-sidebar:has(.detail-type-size-trigger[aria-expanded="true"]) {
+  overflow: visible;
+  position: relative;
+  z-index: 4;
+}
+
+@media (min-width: 768px) {
+
+  /* Default park under the nav. After mount, syncDetailSidebarSticky()
+     rewrites top from the dossier's own height so a tall plate (Related Texts)
+     scrolls with the page until its bottom meets the viewport, then sticks. */
+  aside>.text-detail-sidebar {
+    top: 7rem;
+  }
+}
+
+/* Article / rascunho dossier uses the site type scale as-is — no local remaps. */
+
+.text-detail-sidebar .article-sidebar-heading {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 0;
+  padding: var(--space-lg);
+  background: var(--color-panel-contrast);
+  border-bottom: 0;
+}
+
+/* Canonical shard, bottom-right, as in the mockup. Decoration only: it is
+   suppressed below the tablet breakpoint like every other shard. */
+.text-detail-sidebar .article-sidebar-heading::after {
+  content: "";
+  position: absolute;
+  right: -1.75rem;
+  bottom: -1.75rem;
+  width: 5rem;
+  height: 5rem;
+  clip-path: var(--shard-alpha);
+  background: var(--color-secondary);
+  opacity: var(--cubist-shard-opacity);
+  pointer-events: none;
+}
+
+@media (max-width: 639px) {
+  .text-detail-sidebar .article-sidebar-heading::after {
+    display: none;
+  }
+}
+
+.text-detail-sidebar .article-sidebar-heading>* {
+  position: relative;
+  z-index: 1;
+}
+
+/* The detail title is the page h1 and stays in the left column, but it sits
+   inside a ~18rem panel now, so it comes down one step from the full
+   .text-title scale. */
+.text-detail-sidebar .text-title {
+  /* Moves with the h2 above it. At 1.7rem against the new 1.87rem h2 the page
+     h1 would have been the smaller of the two — at the old 1.6em h2 the pair
+     were already dead level between 768px and 1024px. */
+  font-size: var(--type-title);
+  font-weight: var(--weight-title);
+  font-synthesis: none;
+  line-height: 1.15;
+  margin: 0;
+  text-wrap: balance;
+  /* A word longer than the panel breaks at a syllable with a real hyphen
+     rather than mid-letter: "Hiperespaçolândia" is seventeen characters and
+     still overruns the widened dossier, and it used to read as
+     "Hiperespaçolândi / a". The dictionary follows the document language the
+     shell sets (pt-BR on the rascunhos shell, en on the others), and a title
+     whose words already fit is left alone. `overflow-wrap` stays as the last
+     resort for a string no dictionary can break, such as a bare URL. */
+  hyphens: auto;
+  overflow-wrap: break-word;
+}
+
+@media (min-width: 1024px) {
+  .text-detail-sidebar .text-title {
+    font-size: var(--type-title-lg);
+  }
+}
+
+.text-detail-sidebar .article-sidebar-heading .material-symbols-outlined {
+  color: var(--color-secondary);
+}
+
+/* Lead thesis. `description` is the article's own one-sentence claim — body
+   face and body size, in legend ink so it sits under the H1 without matching
+   the reading column. */
+.text-detail-sidebar .article-sidebar-description {
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: var(--type-body);
+  font-weight: var(--weight-body);
+  line-height: var(--leading-body);
+  color: var(--color-legend);
+  margin: var(--space-md) 0 0;
+}
+
+.text-detail-sidebar .article-sidebar-thumbnail {
+  margin-top: var(--space-md);
+  width: 100%;
+  max-width: none;
+}
+
+/* ── Dossier ledger rows ── */
+.text-detail-sidebar .article-meta {
+  margin-bottom: 0;
+  padding: 0 var(--space-lg) var(--space-lg);
+  background: var(--color-panel-contrast);
+  color: var(--color-on-surface-variant);
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  letter-spacing: 0.04em;
+  text-transform: none;
+  gap: var(--space-md);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Projects and products can carry no meta at all, and on articles and posts
+   the byline below is the block's only child. Either way an all-empty meta
+   block must not hang a stub of padding off the bottom of the panel. */
+.text-detail-sidebar .article-meta:has(> div:empty),
+.text-detail-sidebar .article-meta:has(> div > span.text-secondary:not(.font-bold):only-child) {
+  display: none;
+}
+
+.text-detail-sidebar .article-meta>div {
+  gap: var(--space-sm);
+}
+
+/* Author byline. Dropped: single-author site. The runtime still emits it, so
+   it is suppressed here until `buildTextSidebar` stops rendering it — see the
+   runtime-change note in this branch's commit message. The product/company
+   line is the same colour but carries `font-bold`, hence the :not(). */
+.text-detail-sidebar .article-meta>div>span.text-secondary:not(.font-bold) {
+  display: none;
+}
+
+.text-detail-sidebar .article-meta .text-tertiary,
+.text-detail-sidebar .article-meta span.font-bold {
+  font-family: var(--font-label);
+  font-size: var(--type-label-lg);
+  letter-spacing: 0.04em;
+  color: var(--color-tertiary);
+}
+
+/* Dates. The runtime already localises "Published" / "Updated" into each
+   span's title attribute, so the label can be lifted from the markup instead
+   of being invented in CSS — and it stays in the reader's language. */
+.text-detail-sidebar .article-meta .date-evolution {
+  gap: var(--space-xs);
+  width: 100%;
+}
+
+.text-detail-sidebar .article-meta .date-evolution>span {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  opacity: 1;
+  color: var(--color-on-surface);
+  white-space: nowrap;
+  border-top: 1px solid var(--border-gentle-faint);
+  padding-top: var(--space-sm);
+}
+
+.text-detail-sidebar .article-meta .date-evolution>span[title]::before {
+  content: attr(title);
+  color: var(--color-outline);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: var(--type-label);
+}
+
+/* Classification chips and the language pill, once the dossier carries them. */
+.text-detail-sidebar .article-meta .ledger-chip-row {
+  margin-bottom: var(--space-sm);
+}
+
+
+/* ══ Table of contents ══
+   Restyled from `55-toc.html`, which builds it from the body's own h2/h3. The
+   numbering is part of that same structural derivation, not a field. */
+.article-toc--sidebar {
+  margin-top: var(--space-sm);
+  padding: var(--space-md);
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+  background: var(--color-surface-container-low);
+}
+
+.article-toc-title,
+.article-toc-summary {
+  font-family: var(--font-label);
+  font-size: var(--type-label-lg);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.article-toc-title {
+  color: var(--color-on-surface);
+  font-weight: 600;
+  margin-bottom: var(--space-md);
+}
+
+.article-toc--sidebar .article-toc-list,
+.article-toc-panel .article-toc-list {
+  padding-left: 0;
+}
+
+.article-toc-item+.article-toc-item {
+  margin-top: 0.35rem;
+}
+
+.article-toc-link {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  padding: 0.25rem 0;
+  font-family: var(--font-body);
+  font-size: var(--type-body);
+  line-height: 1.45;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--color-on-surface-variant);
+  transition: color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.article-toc-link:hover {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.article-toc-num {
+  flex: 0 0 auto;
+  min-width: 1.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  letter-spacing: 0.04em;
+  color: var(--color-outline);
+}
+
+.article-toc-item.is-active>.article-toc-link,
+.article-toc-item.is-active .article-toc-num {
+  color: var(--color-primary);
+}
+
+.article-toc-item.is-active>.article-toc-link {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.22em;
+  text-decoration-color: color-mix(in srgb, var(--color-primary) 55%, transparent);
+}
+
+.article-toc-item--h3>.article-toc-link {
+  padding-left: 1.75rem;
+  font-size: var(--type-subtitle);
+  color: var(--color-outline);
+}
+
+.article-toc-item--h3>.article-toc-link:hover {
+  color: var(--color-primary);
+}
+
+/* Mobile disclosure: the same panel, folded. */
+.article-toc--disclosure {
+  margin-bottom: var(--space-xl);
+  border: 0;
+  background: var(--color-surface-container-low);
+}
+
+.article-toc-summary {
+  padding: var(--space-sm) var(--space-md);
+  font-weight: 400;
+  color: var(--color-on-surface-variant);
+}
+
+.article-toc-panel {
+  padding: 0 var(--space-md) var(--space-md);
+  border-top: 1px solid var(--border-gentle-faint);
+}
+
+/* ══ Prose column ══
+   The page's reason to exist. Measure is already var(--reading-measure);
+   what changes here is the vertical rhythm and the heading voice. */
+.article-content {
+  /* Body face; slightly larger than UI body. */
+  font-family: var(--font-body);
+  font-size: var(--type-prose);
+  font-weight: var(--weight-body);
+  line-height: var(--leading-prose);
+}
+
+/* Opening initial. Front matter `drop_cap: true` adds `.has-drop-cap` when the
+   body does not open with a heading. The letter spans `--drop-cap-lines`
+   (site config, default 2) in the reading face. `initial-letter` sinks it
+   inside the paragraph; the float is only for engines that still lack that
+   property. */
+.article-content.has-drop-cap > p:first-of-type::first-letter {
+  font-family: var(--font-body);
+  font-weight: var(--weight-body);
+  font-style: normal;
+  color: var(--color-on-surface);
+  initial-letter: var(--drop-cap-lines);
+  margin-right: 0.2em;
+}
+
+@supports not (initial-letter: 3) {
+  .article-content.has-drop-cap > p:first-of-type::first-letter {
+    float: left;
+    font-size: calc(var(--drop-cap-lines) * var(--leading-prose) / 0.66 * 1em);
+    line-height: 0.75;
+    margin: 0.04em 0.2em 0 0;
+  }
+}
+
+/* The display serif for section heads, the same face as the title, with a
+   hairline above so a long article reads as a sequence of plates rather than a
+   scroll. The body face at semibold — what this replaces — belonged to no type
+   role.
+
+   Raised from 1.6em: at that size a section head opening a plate sat too close
+   to the paragraph under it to stop the eye on its own, and the hairline was
+   doing most of the work. h3 and the sidebar h1 move with it below. */
+.article-content h2 {
+  font-family: var(--font-content-title);
+  font-size: var(--type-title);
+  font-weight: var(--weight-title);
+  font-synthesis: none;
+  line-height: 1.25;
+  color: var(--color-on-surface);
+  margin-top: var(--space-2xl);
+  margin-bottom: var(--space-md);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--border-gentle-divider);
+}
+
+.article-content> :first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.article-content> :last-child {
+  margin-bottom: 0;
+}
+
+/* Sub-heads are titles, so they take the display face a step below h2 rather
+   than the small-caps label voice. Small caps belong to tags and chrome; run
+   over a sentence-shaped heading they shout. */
+.article-content h3 {
+  font-family: var(--font-content-title);
+  /* Holds a step below h2. */
+  font-size: var(--type-card-lg);
+  font-weight: var(--weight-title);
+  font-synthesis: none;
+  letter-spacing: normal;
+  text-transform: none;
+  line-height: 1.3;
+  color: var(--color-on-surface);
+  margin-top: var(--space-xl);
+  margin-bottom: var(--space-sm);
+}
+
+.article-content h4 {
+  font-family: var(--font-body);
+  font-size: var(--type-body);
+  font-weight: var(--weight-title);
+  font-synthesis: none;
+  color: var(--color-on-surface);
+  margin-top: var(--space-lg);
+  margin-bottom: var(--space-xs);
+}
+
+.article-content p {
+  margin-bottom: 1.15em;
+}
+
+/* Architectural rectilinearity: the prose furniture still had soft corners. */
+.article-content code,
+.article-content pre,
+.article-content blockquote,
+.article-content .article-note {
+  border-radius: 0;
+}
+
+.article-content code {
+  background: var(--color-surface-container);
+  color: var(--color-on-surface);
+  padding: 0.05em 0.35em;
+  font-size: var(--type-meta);
+  font-family: var(--font-code);
+}
+
+/* `--color-surface-container-lowest` is the mockup's well, but it resolves to
+   the page white in the light palette, so the deepest surface that reads in
+   both is the container step. */
+.article-content pre {
+  background: var(--color-surface-container);
+  border-left: 2px solid var(--color-outline-variant);
+  padding: var(--space-md);
+  margin: var(--space-lg) 0;
+  font-size: var(--type-meta);
+  line-height: 1.6;
+  font-family: var(--font-code);
+}
+
+.article-content pre code {
+  color: var(--color-on-surface);
+}
+
+/* Pull quotes are running text and are read, not glanced at, so they keep the
+   body face at prose size. The tonal band and the rule mark the quote. */
+.article-content blockquote {
+  background: var(--color-surface-container-low);
+  /* Borders Detail dialect: accent spine (secondary / forest), square plate. */
+  border: 1.5px solid var(--border-ink);
+  border-left: 3px solid var(--color-secondary);
+  border-radius: var(--radius-card);
+  padding: var(--space-md) var(--space-lg);
+  margin: var(--space-xl) 0;
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: var(--type-prose);
+  font-weight: var(--weight-body);
+  line-height: var(--leading-prose);
+  color: var(--color-on-surface);
+}
+
+/* A poem is set verse by verse at prose size — same as notes and body copy. */
+.article-content blockquote .poem,
+.article-content .poem {
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: var(--type-prose);
+  font-weight: var(--weight-body);
+  line-height: var(--leading-prose);
+  color: var(--color-on-surface);
+}
+
+.article-content .poem p {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+/* ── Theorem / proof / key-takeaways callout ──
+   Authored per article as `<div class="article-note" markdown="1">`; styled
+   here, never injected. Ochre wash + tertiary spine = scannable field note. */
+.article-content .article-note {
+  position: relative;
+  background: color-mix(in srgb, var(--color-tertiary) 10%, var(--color-panel-contrast));
+  border: 1px solid color-mix(in srgb, var(--color-tertiary) 22%, var(--border-gentle-subtle));
+  padding: var(--space-lg) var(--space-lg) var(--space-lg) calc(var(--space-lg) + 3px);
+  margin: var(--space-xl) 0;
+  font-size: var(--type-subtitle);
+  font-weight: var(--weight-body);
+  line-height: var(--leading-prose);
+  color: var(--color-on-surface);
+}
+
+[data-theme="dark"] .article-content .article-note {
+  background: color-mix(in srgb, var(--color-tertiary) 6%, var(--color-panel-contrast));
+}
+
+.article-content .article-note::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--color-tertiary);
+}
+
+.article-content .article-note strong {
+  color: var(--color-on-surface);
+}
+
+/* A formula band inside a callout, as in the mockup's axiomatic block. */
+.article-content .article-note .math-display,
+.article-content .article-note mjx-container[display="true"] {
+  background: var(--color-surface-dim);
+  padding: var(--space-sm) var(--space-md);
+  margin: var(--space-md) 0;
+}
+
+/* ── Benchmark and data tables ──
+   Authored as GFM; the ledger treatment is rules between rows, a label-voice
+   header, and figures that line up. */
+/* No table surface: the header band and the hover row are the only fills, so
+   both read against the page canvas in either palette. */
+.article-content table,
+.article-content .table-csv {
+  margin: var(--space-xl) 0;
+  font-size: var(--type-dek);
+  font-variant-numeric: tabular-nums;
+  background: transparent;
+}
+
+.article-content th,
+.article-content td,
+.article-content .table-csv th,
+.article-content .table-csv td {
+  border: 0;
+  border-bottom: 1px solid var(--border-gentle-subtle);
+  padding: var(--space-sm) var(--space-md);
+}
+
+/* GFM column alignment. Markdown's `|--:|` becomes align="right" on the cell,
+   which is a presentational hint and therefore loses to any author rule —
+   including the reset's `th {  text-align: inherit }`. Numeric columns in a
+   results table are exactly where alignment carries meaning, so honour what
+   the author wrote. */
+.article-content th[align="left"],
+.article-content td[align="left"] {
+  text-align: left;
+}
+
+.article-content th[align="center"],
+.article-content td[align="center"] {
+  text-align: center;
+}
+
+.article-content th[align="right"],
+.article-content td[align="right"] {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.article-content thead th,
+.article-content .table-csv thead th {
+  background: var(--color-surface-container);
+  font-family: var(--font-body);
+  font-size: var(--type-body);
+  font-weight: var(--weight-emphasis);
+  letter-spacing: normal;
+  color: var(--color-legend);
+}
+
+/* Zebra striping fights the row rules; the hover row is the reading aid. */
+.article-content tbody tr:nth-child(even),
+.article-content .table-csv tbody tr:nth-child(even) td {
+  background: transparent;
+}
+
+.article-content tbody tr:hover,
+.article-content .table-csv tbody tr:hover {
+  background: var(--color-surface-container-low);
+}
+
+.article-content tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* ── Notation on demand ── */
+/* The Mermaid plate used to live here, at the container-low step. It has moved
+   to article.css and moved up one step, to the container step, because
+   container-low sits between the cluster fill (panel-contrast) and the node
+   fill (surface-card) that `mermaidConfig()` paints — so subgraph boxes and
+   nodes were dissolving into their own plate on this page. */
+
+/* Display math takes its spacing from article.css, where the `.math-display`
+   wrapper carries a margin measured against the paragraph gap `.article-content
+   p` sets in this file. Do not override the margin here: the wrapper's padding
+   stays either way, so a larger margin only adds to a gap that is already the
+   one we want. */
+
+/* A caption is a sentence about the figure — body face, description size
+   (body − 1pt), upright. Same treatment for image, video, YouTube, Plotly.
+   Softened toward variant so the legend reads as apparatus, not body. */
+.article-content figcaption,
+.article-content figure figcaption {
+  font-family: var(--font-body);
+  font-size: var(--type-subtitle);
+  font-style: normal;
+  font-weight: var(--weight-body);
+  line-height: 1.55;
+  letter-spacing: normal;
+  color: var(--color-legend);
+  margin-top: var(--space-sm);
+}
+
+.article-content hr {
+  margin: var(--space-2xl) 0;
+}
+
+/* ══ Marginalia: citations and the reference apparatus ══ */
+.article-content .citation-sup {
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+}
+
+.article-content .citation-sup a.citation {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.article-content .citation-sup a.citation:hover {
+  text-decoration: underline;
+}
+
+.article-content .article-references {
+  margin-top: var(--space-3xl);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--border-gentle-divider);
+}
+
+/* The heading is an h2, so it would otherwise collect the section rule above
+   on top of the apparatus rule — two hairlines and a hole. Keep the ## face;
+   only drop the duplicated top rule. */
+.article-content .article-references .section-title {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+  margin-bottom: var(--space-md);
+}
+
+.article-content .article-references .bibliography {
+  counter-reset: detail-ref;
+  list-style: none;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.article-content .article-references .bibliography>li {
+  counter-increment: detail-ref;
+  display: flex;
+  gap: var(--space-sm);
+  padding: 0.3rem var(--space-xs);
+  margin-bottom: 0;
+  font-family: var(--font-mono);
+  /* The floor of the apparatus, one step under the caption. It was 0.78rem,
+     which in the notation face against a 1.1rem column was small enough that
+     a reference read as a footnote to a footnote. */
+  font-size: var(--type-meta);
+  line-height: 1.55;
+  color: var(--color-on-surface-variant);
+  transition: background-color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.article-content .article-references .bibliography>li:hover {
+  background: var(--color-surface-container-low);
+}
+
+.article-content .article-references .bibliography>li::before {
+  content: "[" counter(detail-ref) "]";
+  flex: none;
+  color: var(--color-primary);
+}
+
+/* ══ Prev / next ══
+   Two panels, ordered by date upstream, replacing the bare text links. */
+nav.text-page-nav {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-md);
+  align-items: stretch;
+  margin-top: var(--space-xl);
+  width: 100%;
+  max-width: var(--reading-measure);
+}
+
+@media (min-width: 640px) {
+  nav.text-page-nav {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+nav.text-page-nav>a {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-md);
+  background: var(--color-background);
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+  color: var(--color-on-surface);
+  font-family: var(--font-label);
+  font-size: var(--type-meta);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition: background-color var(--motion-duration-fast) var(--motion-ease-default),
+    border-color var(--motion-duration-fast) var(--motion-ease-default),
+    color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+nav.text-page-nav>a:hover {
+  background: var(--color-surface-container-high);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+nav.text-page-nav>a:last-child {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+/* First and last entries emit an empty <span> on the missing side, which is
+   fine — it just holds the column. A nav with no link at all, though, would be
+   nothing but a rule and a gap. */
+nav.text-page-nav:not(:has(a)) {
+  display: none;
+}
+
+/* ══ Cite this text block ══
+   Dedicated block below controls, rendered using the standard code-block chrome. */
+.article-cite-block {
+  margin-top: var(--space-xl);
+  width: 100%;
+  max-width: var(--reading-measure);
+}
+
+.article-cite-label {
+  margin: 0 0 var(--space-xs);
+  color: var(--color-on-surface-variant);
+  font-family: var(--font-label);
+  font-size: var(--type-meta);
+  letter-spacing: 0.08em;
+}
+
+.article-cite-block .code-block {
+  margin: 0;
+  background: var(--color-background);
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.article-cite-block .code-block pre {
+  padding: var(--space-md);
+  font-family: var(--font-technical);
+  font-size: var(--type-meta);
+  line-height: 1.55;
+  color: var(--color-on-surface);
+  white-space: pre;
+}
+
+/* ══ Column rhythm at the breakpoints ══ */
+@media (max-width: 767px) {
+
+  .text-page-main,
+  .text-reading-column,
+  .article-content {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .text-detail-sidebar .article-sidebar-heading,
+  .text-detail-sidebar .article-meta {
+    padding-left: var(--space-md);
+    padding-right: var(--space-md);
+  }
+
+  .article-content h2 {
+    font-size: var(--type-section-lg);
+  }
+
+  /* A four-column benchmark table wanted 468px inside a 355px column at 390px
+     and pushed the whole document sideways — every page on the site got a
+     horizontal scrollbar because of one article. The ledger cell padding is
+     most of the excess (35px per cell), so it comes down first; what is still
+     too wide then scrolls inside the table rather than moving the page. The
+     runtime emits the table with no wrapper, so the table itself has to be the
+     scroll container. */
+  .article-content table,
+  .article-content .table-csv {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .article-content th,
+  .article-content td,
+  .article-content .table-csv th,
+  .article-content .table-csv td {
+    padding: var(--space-xs) var(--space-sm);
+  }
+}
+
+/* ══ Related Texts ══
+   Neighbors from writing_index.json xcites. Section pills are neutral gray;
+   card titles pick up the linked collection's triad colour on hover. */
+.article-related-box {
+  margin-top: var(--space-xl);
+  padding: 0 var(--space-md) var(--space-lg);
+}
+
+@media (max-width: 1023px) {
+  .article-related-box {
+    display: none;
+  }
+}
+
+.article-related-title {
+  font-family: var(--font-label);
+  font-size: var(--type-label-lg);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-on-surface);
+  font-weight: 600;
+  margin: 0 0 var(--space-md);
+  padding: 0;
+}
+
+.article-related-section+.article-related-section {
+  margin-top: var(--space-lg);
+}
+
+.article-related-section-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  margin: 0 0 var(--space-md);
+  padding: 0.2rem 0.7rem;
+  min-height: 1.65rem;
+  border-radius: 0;
+  background: color-mix(in srgb, var(--color-on-surface-variant) 18%, transparent);
+  color: var(--color-on-surface-variant);
+  font-family: var(--font-label);
+  font-size: var(--type-label);
+  font-weight: var(--weight-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.article-related-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs, 0.35rem);
+}
+
+.article-related-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs, 0.25rem);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-surface-container-low);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border-gentle-subtle);
+  text-decoration: none;
+  transition:
+    border-color var(--motion-duration-fast) var(--motion-ease-default),
+    background-color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.article-related-card:hover {
+  border-color: color-mix(in srgb, var(--color-on-surface) 28%, var(--border-gentle-subtle));
+  background: var(--color-surface-container);
+}
+
+.article-related-card--articles:hover {
+  border-color: color-mix(in srgb, var(--triad-secondary) 40%, var(--border-gentle-subtle));
+}
+
+.article-related-card--posts:hover {
+  border-color: color-mix(in srgb, var(--triad-tertiary) 40%, var(--border-gentle-subtle));
+}
+
+.article-related-card--projects:hover {
+  border-color: color-mix(in srgb, var(--triad-primary) 40%, var(--border-gentle-subtle));
+}
+
+.article-related-card-title {
+  font-family: var(--font-content-title);
+  font-size: calc(var(--type-subtitle) - 1pt);
+  font-weight: 400;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.article-related-card-title a {
+  color: var(--color-on-surface);
+  text-decoration: none;
+  transition: color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.article-related-card--articles:hover .article-related-card-title a {
+  color: var(--triad-secondary);
+}
+
+.article-related-card--posts:hover .article-related-card-title a {
+  color: var(--triad-tertiary);
+}
+
+.article-related-card--projects:hover .article-related-card-title a {
+  color: var(--triad-primary);
+}
+
+.article-related-card-dates {
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  color: var(--color-on-surface);
+  line-height: 1.4;
+}
+
+.article-related-card-dates-sep {
+  color: var(--color-on-surface);
+  opacity: 0.55;
+}

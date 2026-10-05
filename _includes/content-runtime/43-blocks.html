@@ -1,0 +1,379 @@
+{% raw %}
+
+    /* Architectural Ledger blocks.
+     *
+     * Shared renderers for the pieces every listing repeats: meta strips,
+     * language pills, tag chips, directional CTAs, and the three card shapes.
+     * Each layout used to grow its own copy of these, which is why the same
+     * card drifted between the writing index and the home page.
+     *
+     * House rule: a block renders only when the field backing it is present
+     * and non-empty. Nothing here derives a value, counts anything, or
+     * substitutes a placeholder — an absent field means an absent element.
+     */
+
+    var LANGUAGE_LABELS = {
+      enus: 'EN',
+      ptbr: 'PT'
+    };
+
+    /* [EN] / [PT]. Empty language renders nothing rather than a neutral pill,
+     * since roughly half the corpus has never declared one.
+     *
+     * Writing declares `enus` / `ptbr`; resources use the underscored form
+     * (`en_us`, `pt_br`) and include a handful of third languages. Separators
+     * are dropped before the lookup so both spellings resolve, and a language
+     * outside the pair still renders under its primary subtag rather than
+     * being discarded — the value is really there.
+     */
+    function renderLangPill(language, options) {
+      var raw = String(language || '').trim().toLowerCase();
+      if (!raw) return '';
+      var code = raw.replace(/[_-]/g, '');
+      var label = LANGUAGE_LABELS[code];
+      if (!label) {
+        // A regional variant is still the same language: en_gb is English, so
+        // it takes the English pill rather than the neutral one. Resolve the
+        // primary subtag against the same vocabulary before giving up.
+        var primary = code.slice(0, 2);
+        var canonical = Object.keys(LANGUAGE_LABELS).filter(function (key) {
+          return key.slice(0, 2) === primary;
+        })[0];
+        if (canonical) {
+          label = LANGUAGE_LABELS[canonical];
+          code = canonical;
+        } else if (options && options.allowUnknown) {
+          // Only where a caller genuinely holds languages beyond the two the
+          // site publishes in. Sources has one French entry; dropping its pill
+          // would discard a value that is really there. Everywhere else an
+          // unrecognised code is a typo, and showing it would hide the error.
+          label = primary.toUpperCase();
+          code = 'other';
+        } else {
+          return '';
+        }
+      }
+      return [
+        '<span class="lang-pill lang-pill--', escapeAttr(code), '" data-language="',
+        escapeAttr(raw.replace(/[_-]/g, '')), '">', escapeHtml(label), '</span>'
+      ].join('');
+    }
+
+    /* Tag chips. Optional href turns each chip into a filter link. */
+    function renderTagChips(tags, options) {
+      options = options || {};
+      var list = (Array.isArray(tags) ? tags : [])
+        .map(function (t) { return String(t || '').trim(); })
+        .filter(function (t) { return t !== ''; });
+      if (!list.length) return '';
+      if (options.limit) list = list.slice(0, options.limit);
+
+      var chips = list.map(function (tag) {
+        var inner = escapeHtml(tag);
+        if (typeof options.hrefFor === 'function') {
+          return '<a class="ledger-chip" href="' + escapeAttr(options.hrefFor(tag)) +
+            '">' + inner + '</a>';
+        }
+        return '<span class="ledger-chip">' + inner + '</span>';
+      });
+      return '<div class="ledger-chip-row">' + chips.join('') + '</div>';
+    }
+
+    /* Mono meta strip: the ledger line above a title. Callers pass whatever
+     * they have; separators appear only between surviving parts, so a missing
+     * category never leaves a dangling slash. */
+    function renderMetaStrip(parts, options) {
+      options = options || {};
+      var kept = (parts || []).filter(function (p) {
+        return p != null && String(p).trim() !== '';
+      });
+      if (!kept.length) return '';
+      var sep = '<span class="ledger-meta-sep" aria-hidden="true">/</span>';
+      var cls = 'ledger-meta' + (options.className ? ' ' + options.className : '');
+      return '<div class="' + cls + '">' + kept.join(sep) + '</div>';
+    }
+
+    /* Directional CTA. Plain calls keep the trailing arrow (label, then a
+     * `.ledger-cta-arrow` glyph that slides right on hover) — that motion is
+     * a "go to" cue and reads correctly after the label. A destination-typed
+     * `icon` (repository/article/external/details) is a leading marker
+     * instead, like a small label icon, not a directional cue: it renders
+     * before the label in its own `.ledger-cta-icon` span, which does not
+     * take part in the hover slide. */
+    function renderCtaLink(href, label, options) {
+      options = options || {};
+      if (!href || !label) return '';
+      var cls = 'ledger-cta' + (options.className ? ' ' + options.className : '');
+      if (options.icon) {
+        return [
+          '<a class="', cls, '" href="', escapeAttr(href), '">',
+          '<span class="material-symbols-outlined ledger-cta-icon" aria-hidden="true">', escapeHtml(options.icon), '</span>',
+          '<span>', escapeHtml(label), '</span>',
+          '</a>'
+        ].join('');
+      }
+      return [
+        '<a class="', cls, '" href="', escapeAttr(href), '">',
+        '<span>', escapeHtml(label), '</span>',
+        '<span class="material-symbols-outlined ledger-cta-arrow" aria-hidden="true">chevron_right</span>',
+        '</a>'
+      ].join('');
+    }
+
+    /* Section banner: kicker, title, and an optional right-aligned note. */
+    function renderSectionBanner(options) {
+      options = options || {};
+      if (!options.title) return '';
+      var html = '<div class="ledger-section-banner">';
+      html += '<div class="ledger-section-lead">';
+      if (options.kicker) {
+        html += '<span class="ledger-kicker">' +
+          escapeHtml(options.kicker) + '</span>';
+      }
+      html += '<h2 class="section-title">' + escapeHtml(options.title) + '</h2>';
+      html += '</div>';
+      if (options.note) {
+        html += '<span class="ledger-section-note">' +
+          escapeHtml(options.note) + '</span>';
+      }
+      html += '</div>';
+      return html;
+    }
+
+    /* The featured entry.
+     *
+     * The pick is random, so a listing does not always lead with the same
+     * piece — but it is held for the session, so paging through the archive
+     * does not reshuffle the lead, and the home page and the writing index
+     * agree on which article is featured. Closing the tab draws again.
+     *
+     * Callers that lead on something other than an article pass their own
+     * `storageKey`, so the two picks are independent, and their own
+     * `eligible` when the default candidate rule does not apply to them. The
+     * default is an article's: only entries carrying a thumbnail, because the
+     * panel has an image column and one that reserves space for a picture it
+     * does not have is worse than no panel.
+     */
+    var FEATURED_STORAGE_KEY = 'featured-article-slug';
+
+    function hasThumbnail(item) {
+      var fm = (item && item.front_matter) || {};
+      return String(fm.thumbnail || '').trim() !== '';
+    }
+
+    function readSessionSlug(key) {
+      try {
+        return window.sessionStorage.getItem(key);
+      } catch (error) {
+        return null;   // private mode, or storage disabled
+      }
+    }
+
+    function writeSessionSlug(key, slug) {
+      try {
+        window.sessionStorage.setItem(key, slug);
+      } catch (error) {
+        /* Not being able to remember the pick is survivable: the page still
+           renders, it just may lead with a different entry next navigation. */
+      }
+    }
+
+    function pickFeatured(items, options) {
+      var opts = options || {};
+      var key = opts.storageKey || FEATURED_STORAGE_KEY;
+      var candidates = (items || []).filter(opts.eligible || hasThumbnail);
+      if (!candidates.length) return null;
+
+      var held = readSessionSlug(key);
+      if (held) {
+        var match = candidates.filter(function (item) { return item.slug === held; })[0];
+        if (match) return match;
+      }
+
+      var chosen = candidates[Math.floor(Math.random() * candidates.length)];
+      if (chosen && chosen.slug) writeSessionSlug(key, chosen.slug);
+      return chosen;
+    }
+
+    /* Shared card internals, so the three shapes below cannot drift apart. */
+    function blockFields(item) {
+      var fm = (item && item.front_matter) || item || {};
+      return {
+        fm: fm,
+        title: fm.title || item.title || item.slug || '',
+        date: fm.date || item.date || '',
+        lastUpdated: fm.last_updated || item.last_updated || '',
+        language: fm.language || item.language || '',
+        tags: fm.tags || item.tags || [],
+        preview: typeof listingPreview === 'function' ? listingPreview(item) : ''
+      };
+    }
+
+    /* Ledger row — the dense horizontal entry used by the rascunhos folio and
+     * the writing archive. */
+    function renderLedgerRow(item, options) {
+      options = options || {};
+      var f = blockFields(item);
+      var href = options.href || '#';
+      var locale = options.locale || 'en';
+
+      // Callers may supply their own strip parts, the way renderSystemCard
+      // does; the default is the date and the language pill. A listing whose
+      // entries are all one language gets nothing from the pill and has its
+      // own facts to put in that slot, and passing them in beats patching the
+      // strip after construction.
+      var meta = renderMetaStrip(options.metaParts || [
+        formatDate(f.date, locale),
+        renderLangPill(f.language)
+      ]);
+
+      var row = document.createElement('article');
+      row.className = 'ledger-row group';
+
+      var html = '';
+      if (meta) html += '<div class="ledger-row-head">' + meta + '</div>';
+      html += '<h3 class="ledger-row-title card-title"><a href="' +
+        escapeAttr(href) + '">' + escapeHtml(f.title) + '</a></h3>';
+      if (f.preview) {
+        html += '<p class="ledger-row-copy font-body">' +
+          escapeHtml(f.preview) + '</p>';
+      }
+
+      var chips = renderTagChips(f.tags, { hrefFor: options.tagHref });
+      var cta = renderCtaLink(href, options.ctaLabel);
+      if (chips || cta) {
+        html += '<div class="ledger-row-foot">' + chips + cta + '</div>';
+      }
+
+      row.innerHTML = html;
+      return row;
+    }
+
+    /* Archive card — the vertical card used on grids. */
+    function renderArchiveCard(item, options) {
+      options = options || {};
+      var f = blockFields(item);
+      var href = options.href || '#';
+      var locale = options.locale || 'en';
+
+      var card = document.createElement('article');
+      card.className = 'ledger-card group';
+      card.setAttribute('data-dynamic-article', 'true');
+
+      var html = '<div class="ledger-card-body">';
+      // Callers may supply their own strip parts, as renderLedgerRow lets
+      // them; the default is the date and the language pill. A grid whose
+      // entries are all one language gets nothing from the pill.
+      var meta = renderMetaStrip(options.metaParts || [
+        formatDate(f.date, locale),
+        renderLangPill(f.language)
+      ]);
+      if (meta) html += meta;
+      html += '<h3 class="card-title ledger-card-title"><a href="' +
+        escapeAttr(href) + '">' + escapeHtml(f.title) + '</a></h3>';
+      if (f.preview) {
+        html += '<p class="ledger-card-copy font-body">' +
+          escapeHtml(f.preview) + '</p>';
+      }
+      html += renderTagChips(f.tags, { hrefFor: options.tagHref, limit: options.tagLimit });
+      // The meta strip above already carries the date, so the footer copy is
+      // opt-in rather than the default — printing it twice is the common bug.
+      var foot = '';
+      if (options.showFooterDates) {
+        foot += renderCardFooterDates(f.date, f.lastUpdated, locale);
+      }
+      foot += renderCtaLink(href, options.ctaLabel);
+      // .ledger-card-foot draws a rule above itself, so an empty one rules off
+      // nothing. renderLedgerRow guards this the same way.
+      if (foot) html += '<div class="ledger-card-foot">' + foot + '</div>';
+      html += '</div>';
+
+      card.innerHTML = html;
+      return card;
+    }
+
+    /* Card media. Stills, not clips: the simulation captures these projects
+     * publish run to several megabytes each (ARCO's city race is 5.9 MB,
+     * FRET's 3.5 MB), and autoplaying a grid of them on an index page is not
+     * defensible on a mobile connection. The videos stay in the project
+     * bodies, where a reader has chosen to be.
+     *
+     * A video URL still renders rather than vanishing, but it downloads
+     * nothing until the reader asks for it. */
+    function renderPosterMedia(src, alt) {
+      var url = String(src || '').trim();
+      if (!url) return '';
+      var isVideo = /\.(mp4|webm|mov)(\?|#|$)/i.test(url);
+      if (isVideo) {
+        return [
+          '<div class="ledger-poster">',
+          '<video src="', escapeAttr(url), '" controls preload="none" ',
+          'playsinline aria-label="', escapeAttr(alt || ''), '"></video>',
+          '</div>'
+        ].join('');
+      }
+      return [
+        '<div class="ledger-poster">',
+        '<img src="', escapeAttr(url), '" alt="', escapeAttr(alt || ''),
+        '" loading="lazy" decoding="async"',
+        // Thumbnails are frequently hotlinked to third-party hosts. When one
+        // dies, remove the frame rather than leaving an empty plate beNewsreader.
+        ' onerror="var p=this.closest(\'.ledger-poster\'); if (p) p.remove();"',
+        '>',
+        '</div>'
+      ].join('');
+    }
+
+    /* System card — the project shape. Carries the fields projects actually
+     * have: label, status, and a repository link. */
+    function renderSystemCard(item, options) {
+      options = options || {};
+      var f = blockFields(item);
+      var fm = f.fm;
+      var href = options.href || '#';
+      var name = fm.project || f.title;
+
+      var card = document.createElement('article');
+      card.className = 'ledger-system-card group';
+
+      var html = renderPosterMedia(fm.thumbnail, name);
+      // Callers may supply their own strip parts; the default is whatever the
+      // project declares about itself.
+      var parts = options.metaParts || [
+        fm.label ? escapeHtml(fm.label) : '',
+        fm.status ? '<span class="ledger-status">' + escapeHtml(fm.status) + '</span>' : ''
+      ];
+      var head = renderMetaStrip(parts);
+      if (head) html += head;
+
+      // The title's anchor is the card's only link to the project, and CSS
+      // stretches it over the whole card (see .ledger-system-card in
+      // base.css), so the poster and the tagline navigate as well. That is
+      // what replaced the Details CTA this footer used to carry.
+      html += '<h3 class="card-title ledger-card-title"><a class="ledger-card-stretch" href="' +
+        escapeAttr(href) + '">' + escapeHtml(name) + '</a></h3>';
+
+      var summary = fm.tagline || f.preview;
+      if (summary) {
+        html += '<p class="ledger-card-copy font-body">' +
+          escapeHtml(summary) + '</p>';
+      }
+
+      html += renderTagChips(f.tags, { hrefFor: options.tagHref });
+
+      // Outbound links only. `.ledger-card-foot` draws a rule above itself, so
+      // an empty one rules off nothing; renderLedgerRow and renderArchiveCard
+      // guard it the same way.
+      var links = [];
+      if (fm.github) links.push(renderCtaLink(fm.github, options.repoLabel || 'Repository', { icon: 'code' }));
+      if (fm.article_url) links.push(renderCtaLink(fm.article_url, options.articleLabel || 'Article', { icon: 'article' }));
+      if (fm.external_url) links.push(renderCtaLink(fm.external_url, options.externalLabel || 'Visit', { icon: 'public' }));
+      if (links.length) {
+        html += '<div class="ledger-card-foot ledger-card-links">' + links.join('') + '</div>';
+      }
+
+      card.innerHTML = html;
+      return card;
+    }
+
+{% endraw %}

@@ -1,0 +1,365 @@
+{% raw %}
+    function plainTextFromMarkup(value) {
+      return String(value || '')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/&nbsp;/gi, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function figureLightboxCaption(caption, source) {
+      var parts = [];
+      var cap = plainTextFromMarkup(ensureCaptionPeriod(String(caption || '').trim()));
+      if (cap) parts.push(cap);
+      var src = plainTextFromMarkup(String(source || '').trim());
+      if (src) parts.push('Source: ' + src);
+      return parts.join(' ');
+    }
+
+    function cutInHtml(attrs) {
+      if (!attrs.src) return '';
+      var src = resolveAssetUrl(attrs.src);
+      var sideClass = attrs.side === 'right' ? ' article-cut-in--right' : '';
+      return '<figure class="article-cut-in-plate' + sideClass + '">' +
+        '<img class="article-cut-in' + sideClass + '" src="' + escapeAttr(src) + '" alt="' + escapeAttr(attrs.alt || '') + '" width="120" loading="lazy">' +
+        '</figure>';
+    }
+
+    function figureHtml(attrs) {
+      var width = attrs.width ? 'max-width:' + escapeAttr(attrs.width) + '%;' : 'max-width:100%;';
+      var src = resolveAssetUrl(attrs.src);
+      var caption = attrs.caption || '';
+      var lbCaption = figureLightboxCaption(caption, attrs.source);
+      var lbAttr = lbCaption ? ' data-lightbox-caption="' + escapeAttr(lbCaption) + '"' : '';
+      return [
+        '<figure class="my-8 mx-auto text-center w-full" style="display:block;margin-left:auto;margin-right:auto;' + width + '">',
+        '<img src="' + escapeAttr(src) + '" alt="' + escapeAttr(attrs.alt || caption) + '" class="figure-lightbox-trigger mx-auto max-w-full h-auto block" loading="lazy" tabindex="0" role="button" aria-label="Enlarge image"' + lbAttr + '>',
+        caption || attrs.source ? '<figcaption class="mt-3 font-body">' + includeCaptionHtml(caption) + figureSourceHtml(attrs.source) + '</figcaption>' : '',
+        '</figure>'
+      ].join('');
+    }
+
+    function plotlyHtml(attrs) {
+      if (!attrs.src) return '';
+      var width = attrs.width ? String(attrs.width).trim() : '100';
+      var height = attrs.height ? String(attrs.height).trim() : '480';
+      if (!/^\d+$/.test(height)) height = '480';
+      var src = resolveAssetUrl(attrs.src);
+      var caption = attrs.caption || '';
+      var title = attrs.alt || caption || 'Interactive chart';
+      return [
+        '<figure class="plotly-figure my-8 mx-auto text-center w-full" style="display:block;margin-left:auto;margin-right:auto;max-width:' + escapeAttr(width) + '%;">',
+        '<iframe class="plotly-embed-frame" src="' + escapeAttr(src) + '" title="' + escapeAttr(title) + '" loading="lazy" scrolling="no" style="width:100%;height:' + escapeAttr(height) + 'px;border:0;display:block;border-radius:0;background:transparent;"></iframe>',
+        caption || attrs.source ? '<figcaption class="mt-3 font-body">' + includeCaptionHtml(caption) + figureSourceHtml(attrs.source) + '</figcaption>' : '',
+        '</figure>'
+      ].join('');
+    }
+
+    function youtubeHtml(attrs, isShort) {
+      var id = attrs.id || attrs.youtube_id || (isShort ? attrs.src : '');
+      if (!id) return '';
+      var caption = attrs.caption || '';
+      if (isShort) {
+        return '<figure class="article-youtube-short-wrap my-8 mx-auto text-center w-full" style="margin:1.5rem auto;max-width:45%;">' +
+          '<div class="article-youtube-short" style="display:flex;flex-wrap:wrap;justify-content:center;gap:1rem;">' +
+          youtubeShortEmbed(id, false) +
+          '</div>' +
+          (caption ? '<figcaption class="mt-3 font-body">' + includeCaptionHtml(caption) + '</figcaption>' : '') +
+          '</figure>';
+      }
+      return '<figure class="article-youtube-landscape my-8 mx-auto text-center w-full" style="margin:1.5rem auto;max-width:100%;">' +
+        '<div style="aspect-ratio:16 / 9;">' +
+        '<iframe src="https://www.youtube.com/embed/' + escapeAttr(id) + '" title="YouTube video" loading="lazy" allowfullscreen class="w-full h-full" style="width:100%;height:100%;border:0;"></iframe>' +
+        '</div>' +
+        (caption ? '<figcaption class="mt-3 font-body">' + includeCaptionHtml(caption) + '</figcaption>' : '') +
+        '</figure>';
+    }
+
+    function youtubeShortEmbed(id, paired) {
+      var width = paired ? '45%' : '100%';
+      return '<iframe width="315" height="560" src="https://www.youtube.com/embed/' + escapeAttr(id) + '" title="YouTube short" loading="lazy" allowfullscreen style="width:' + width + ';max-width:' + (paired ? '45%' : '100%') + ';aspect-ratio:9 / 16;height:auto;border-radius:0.25rem;"></iframe>';
+    }
+
+    function youtubeShortHtml(attrs) {
+      var src = attrs.src || attrs.id || attrs.id1;
+      var src2 = attrs.src2 || attrs.id2;
+      if (!src) return '';
+      var paired = !!src2;
+      return '<figure class="article-youtube-short-wrap' + (paired ? ' article-youtube-short-wrap--pair' : '') + ' my-8 mx-auto text-center w-full" style="margin:1.5rem auto;max-width:' + (paired ? '100%' : '45%') + ';">' +
+        '<div class="article-youtube-short' + (paired ? ' article-youtube-short--pair' : '') + '" style="display:flex;flex-wrap:wrap;justify-content:center;gap:1rem;">' +
+        youtubeShortEmbed(src, paired) +
+        (src2 ? youtubeShortEmbed(src2, paired) : '') +
+        '</div>' +
+        '</figure>';
+    }
+
+    function formatDefHtml(def) {
+      return escapeHtml(String(def || '').trim()).replace(/\r\n|\r|\n/g, '<br>');
+    }
+
+    function dictCardHtml(attrs) {
+      var lemma = String(attrs.lemma || '').trim();
+      if (!lemma) return '';
+      var locale = String(attrs.locale || '').trim().toLowerCase();
+      var meta = String(attrs.meta || '').trim();
+      var label = String(attrs.country || meta || locale).trim();
+      var note = String(attrs.note || '').trim();
+      var source = String(attrs.source || '').trim();
+      var url = String(attrs.url || '').trim();
+      var accessed = String(attrs.accessed || '').trim();
+      var citeExtra = String(attrs.cite_extra || '').trim();
+      var linkLabel = String(attrs.link_label || url).trim();
+      var parts = [
+        '<article class="sov-card' + (locale ? ' sov-card--' + escapeAttr(locale) : '') + '" role="listitem">',
+        '<div class="sov-card__head">'
+      ];
+      if (locale) {
+        parts.push(
+          '<span class="sov-card__flag" title="' + escapeAttr(label) + '">' +
+          '<span class="fi fi-' + escapeAttr(locale) + '" role="img" aria-label="' + escapeAttr(label) + '"></span>' +
+          '</span>'
+        );
+      }
+      if (meta) parts.push('<span class="sov-card__meta">' + escapeHtml(meta) + '</span>');
+      parts.push('</div>');
+      parts.push('<p class="sov-card__lemma">' + escapeHtml(lemma) + '</p>');
+      if (attrs.def) parts.push('<div class="sov-card__def">' + formatDefHtml(attrs.def) + '</div>');
+      if (note) parts.push('<p class="sov-card__note">' + note + '</p>');
+      if (source) {
+        var cite = escapeHtml(source) + ', s.v. &ldquo;' + escapeHtml(lemma) + ',&rdquo;';
+        if (url) cite += ' <a href="' + escapeAttr(url) + '">' + escapeHtml(linkLabel) + '</a>';
+        if (accessed) cite += ', accessed ' + escapeHtml(accessed);
+        cite += '.';
+        if (citeExtra) cite += ' ' + escapeHtml(citeExtra);
+        parts.push('<p class="sov-card__cite">' + cite + '</p>');
+      }
+      parts.push('</article>');
+      return parts.join('');
+    }
+
+    function tweetHtml(attrs) {
+      var body = String(attrs.body || '').trim();
+      if (!body) return '';
+      var handle = String(attrs.handle || '').trim().replace(/^@/, '');
+      var icon = String(attrs.icon || 'chat').trim() || 'chat';
+      var url = String(attrs.url || '').trim();
+      var date = String(attrs.date || '').trim();
+      var note = String(attrs.note || '').trim();
+      var name = String(attrs.name || '').trim();
+      var linkLabel = url.replace(/^https?:\/\//, '');
+      var parts = [
+        '<article class="sov-tweet article-tweet">',
+        '<div class="sov-tweet__head article-tweet__head">',
+        '<span class="sov-tweet__avatar article-tweet__avatar" aria-hidden="true"><span class="material-symbols-outlined">' + escapeHtml(icon) + '</span></span>',
+        '<span class="sov-tweet__id article-tweet__id">'
+      ];
+      if (name) parts.push('<span class="sov-tweet__name article-tweet__name">' + escapeHtml(name) + '</span>');
+      if (handle) parts.push('<span class="sov-tweet__handle article-tweet__handle">@' + escapeHtml(handle) + '</span>');
+      parts.push('</span></div>');
+      parts.push('<p class="sov-tweet__body article-tweet__body">' + body + '</p>');
+      if (url || date) {
+        var cite = '';
+        if (url) cite += '<a href="' + escapeAttr(url) + '">' + escapeHtml(linkLabel) + '</a>';
+        if (url && date) cite += ' · ';
+        if (date) cite += escapeHtml(date);
+        parts.push('<p class="sov-tweet__cite article-tweet__cite">' + cite + '</p>');
+      }
+      if (note) parts.push('<p class="sov-tweet__note article-tweet__note">' + note + '</p>');
+      parts.push('</article>');
+      return parts.join('');
+    }
+
+    function wrapDictCardGrid(html) {
+      return String(html || '').replace(
+        /(?:<article\b[^>]*\bsov-card\b[\s\S]*?<\/article>\s*){2,}/g,
+        function (block) {
+          if (/\bsov-grid\b/.test(block)) return block;
+          return '<div class="sov-grid" role="list">' + block.trim() + '</div>\n';
+        }
+      );
+    }
+
+    function videoHtml(attrs) {
+      if (!attrs.src) return '';
+      var caption = attrs.caption || '';
+      return '<figure class="article-video-landscape my-8 mx-auto text-center" style="display:block;margin-left:auto;margin-right:auto;max-width:100%;">' +
+        '<video controls src="' + escapeAttr(buildUrl(attrs.src)) + '" class="mx-auto max-w-full" style="width:100%;"></video>' +
+        (caption ? '<figcaption class="mt-3 font-body">' + includeCaptionHtml(caption) + '</figcaption>' : '') +
+        '</figure>';
+    }
+
+    function placeholderHtml() {
+      return '<div class="w-full h-full flex items-center justify-center opacity-30"><span class="material-symbols-outlined text-5xl">article</span></div>';
+    }
+
+    function normalizeDataPath(path, fallbackPrefix) {
+      var value = String(path || '').trim();
+      if (!value) return '';
+      value = value.replace(/^content\/collections\/data\//, 'data/');
+      value = value.replace(/^_data\//, 'data/');
+      value = value.replace(/\.(ya?ml)$/, '.json');
+      if (value.indexOf('/') === -1 && fallbackPrefix) {
+        value = fallbackPrefix + '/' + value + '.json';
+      }
+      return value;
+    }
+
+    function preprocessTranscriptionAssigns(markdown) {
+      var assignMap = {};
+      var text = String(markdown || '').replace(
+        /\{%-?\s*assign\s+(\w+)\s*=\s*site\.data\.transcriptions\[([^\]]+)\]\.transcription\s*-?%\}\s*/g,
+        function (_, varName, keyExpr) {
+          keyExpr = String(keyExpr || '').trim();
+          if ((keyExpr.charAt(0) === "'" && keyExpr.charAt(keyExpr.length - 1) === "'") ||
+              (keyExpr.charAt(0) === '"' && keyExpr.charAt(keyExpr.length - 1) === '"')) {
+            assignMap[varName] = keyExpr.slice(1, -1);
+          } else if (keyExpr === 'page.transcription') {
+            assignMap[varName] = null;
+          } else {
+            assignMap[varName] = keyExpr;
+          }
+          return '';
+        }
+      );
+      return { text: text, assignMap: assignMap };
+    }
+
+    function resolveTranscriptionPath(attrs, fm, assignMap) {
+      var path = normalizeDataPath(attrs.path || attrs.file || attrs.src, '');
+      if (path) return path;
+
+      var transcriptionVar = attrs.transcription;
+      if (transcriptionVar && Object.prototype.hasOwnProperty.call(assignMap, transcriptionVar)) {
+        var assignedKey = assignMap[transcriptionVar];
+        if (assignedKey) {
+          return normalizeDataPath(assignedKey, 'data/transcriptions');
+        }
+        if (fm.transcription) {
+          return normalizeDataPath(fm.transcription, 'data/transcriptions');
+        }
+      }
+
+      if (fm.transcription) {
+        return normalizeDataPath(fm.transcription, 'data/transcriptions');
+      }
+
+      return '';
+    }
+
+    function transcriptionSpeakerLabel(name) {
+      return String(name || '')
+        .trim()
+        .toLowerCase()
+        .replace(/(^|\s)\S/g, function (ch) { return ch.toUpperCase(); });
+    }
+
+    function transcriptionHtml(data, attrs) {
+      var rows = Array.isArray(data) ? data : (data && data.transcription) || [];
+      var speakers = [];
+      rows.forEach(function (line) {
+        var character = String(line.character || '').trim();
+        if (character && speakers.indexOf(character) === -1) speakers.push(character);
+      });
+      var colors = ['primary', 'secondary', 'tertiary', 'outline'];
+      var header = attrs.youtube_id ? youtubeHtml({ id: attrs.youtube_id }, false) : '';
+      return [
+        '<div class="mt-16 mb-8">',
+        '<hr class="border-t border-gentle-divider mb-6">',
+        header,
+        '<span class="font-label text-xs text-on-surface-variant">Transcrição</span>',
+        '</div>',
+        '<div class="transcription-block space-y-4">',
+        rows.map(function (line) {
+          var character = String(line.character || '').trim();
+          var side = '';
+          if (line.timestamp) {
+            side = '<span class="font-mono text-xs text-on-surface-variant whitespace-nowrap" style="flex-basis:15%; flex-shrink:0; flex-grow:0; max-width:15%; text-align:left; align-self:flex-start;">[' + escapeHtml(line.timestamp) + ']</span>';
+          } else if (line.scene) {
+            side = '<span class="font-mono text-xs text-on-surface-variant whitespace-nowrap align-top" style="flex-basis:15%; flex-shrink:0; flex-grow:0; max-width:15%; writing-mode:vertical-lr; text-align:left; align-self:flex-start;">' + escapeHtml(line.scene) + '</span>';
+          } else {
+            side = '<span class="font-mono text-xs text-on-surface-variant opacity-0 whitespace-nowrap align-top" style="flex-basis:15%; flex-shrink:0; flex-grow:0; max-width:15%;">&nbsp;</span>';
+          }
+          if (!character) {
+            return '<div class="flex items-start gap-0 w-full" style="justify-content:flex-start;">' + side + '<span class="font-body text-on-surface italic opacity-60" style="flex-basis:85%; flex-shrink:1; flex-grow:1; max-width:85%; min-width:0;">' + escapeHtml(line.content || '') + '</span></div>';
+          }
+          var color = colors[speakers.indexOf(character)] || 'outline';
+          return '<div class="flex items-start gap-0 w-full" style="justify-content:flex-start;">' + side + '<span class="transcription-speaker text-' + color + '">' + escapeHtml(transcriptionSpeakerLabel(character)) + '</span><span class="font-body text-on-surface" style="flex-basis:65%; flex-shrink:1; flex-grow:1; max-width:65%; min-width:0;">' + escapeHtml(line.content || '') + '</span></div>';
+        }).join(''),
+        '</div>'
+      ].join('');
+    }
+
+    function themeFont() {
+      var value = getComputedStyle(document.documentElement).getPropertyValue('--font-sans').trim();
+      return value || "'Lato', sans-serif";
+    }
+
+    function themeColor(name, fallback) {
+      var value = getComputedStyle(document.documentElement).getPropertyValue('--color-' + name).trim();
+      return value || fallback;
+    }
+
+    function ongoingProductHtml() {
+      return '<span class="ongoing-product-badge" style="display: inline-block; padding: 0.15rem 0.5rem; background: var(--color-surface-container-low); border-radius: 0.25rem; font-size: 0.8rem; color: var(--color-on-surface-variant);">Currently active</span>';
+    }
+
+    function chordTabHtml(data) {
+      var sections = (data && data.sections) || [];
+      return [
+        '<div class="chord-tab-container mt-16 mb-8" style="width:100%; box-sizing:border-box; padding-left:0; padding-right:0;">',
+        '<h2>Cifra</h2>',
+        data && data.intro ? '<div class="mt-3 mb-6"><pre class="font-mono text-tertiary text-[0.8em] leading-relaxed whitespace-pre m-0 p-0 bg-transparent border-0">' + escapeHtml(data.intro) + '</pre></div>' : '',
+        "<div class=\"mt-4 font-mono text-[0.8em]\" style=\"display:grid; grid-template-columns:repeat(auto-fill, min(79ch, 100%)); gap:0 0.5rem; width:100%;\">",
+        sections.map(function (section) {
+          return '<div style="overflow-y:auto;">' +
+            (section.label ? '<div class="font-body text-[0.9em] uppercase tracking-widest text-tertiary mb-[0.35rem]">' + escapeHtml(section.label) + '</div>' : '') +
+            '<pre class="m-0 p-0 bg-transparent border-0 whitespace-pre overflow-x-auto leading-[1.55] text-on-surface">' + escapeHtml(section.content || '') + '</pre>' +
+            '<hr class="border-0 border-t border-gentle-divider my-[1.55em]">' +
+            '</div>';
+        }).join(''),
+        '</div>',
+        '</div>'
+      ].join('');
+    }
+
+    function preprocessLiquid(markdown, xciteIndex) {
+      var text = stripFrontMatter(markdown)
+        .replace(/\{%-?\s*include\s+cut-in\.html\s+([\s\S]*?)-?%\}/g, function (_, raw) {
+          return cutInHtml(parseIncludeAttrs(raw));
+        })
+        .replace(/\{%-?\s*include\s+figure\.html\s+([\s\S]*?)-?%\}/g, function (_, raw) {
+          return figureHtml(parseIncludeAttrs(raw));
+        })
+        .replace(/\{%-?\s*include\s+plotly\.html\s+([\s\S]*?)-?%\}/g, function (_, raw) {
+          return plotlyHtml(parseIncludeAttrs(raw));
+        })
+        .replace(/\{%-?\s*include\s+youtube-short\.html\s+([\s\S]*?)-?%\}/g, function (_, raw) {
+          return youtubeShortHtml(parseIncludeAttrs(raw));
+        })
+        .replace(/\{%-?\s*include\s+youtube\.html\s+([\s\S]*?)-?%\}/g, function (_, raw) {
+          return youtubeHtml(parseIncludeAttrs(raw), false);
+        })
+        .replace(/\{%-?\s*include\s+video\.html\s+([\s\S]*?)-?%\}/g, function (_, raw) {
+          return videoHtml(parseIncludeAttrs(raw));
+        })
+        .replace(/\{%-?\s*include\s+dict-card\.html\s+([\s\S]*?)-?%\}/g, function (_, raw) {
+          return dictCardHtml(parseIncludeAttrs(raw));
+        })
+        .replace(/\{%-?\s*include\s+tweet\.html\s+([\s\S]*?)-?%\}/g, function (_, raw) {
+          return tweetHtml(parseIncludeAttrs(raw));
+        })
+        .replace(/\{%-?\s*include\s+ongoing-product\.html\s*-?%\}/g, function () {
+          return ongoingProductHtml();
+        })
+        .replace(/\{%-?\s*include\s+xcite\.html\s+key=["']([^"']+)["'][\s\S]*?-?%\}/g, function (_, key) {
+          return xciteIndex ? xciteHtml(key, xciteIndex) : '%%CONTENT_RUNTIME_XCITE_' + key + '%%';
+        });
+      return wrapDictCardGrid(text);
+    }
+
+{% endraw %}

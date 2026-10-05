@@ -1,0 +1,315 @@
+{% raw %}
+    /* ══ Code blocks ══
+       `marked` renders a fence as a bare `<pre><code class="language-x">`, so a
+       reader met a grey box with no indication of what was in it. Every fenced
+       block in the prose is given the chrome an editor gives a file: a bar
+       across the top with the language on a tab and a copy control on the
+       right, and the pane below it.
+
+       This runs on the rendered DOM rather than through a marked extension.
+       The same three lines of markup then cover both render paths — the public
+       detail page, which assembles in the browser, and the studio build, where
+       kramdown emits the identical `pre > code.language-*`. A marked extension
+       would only ever have reached the first. */
+
+    /* Fence tokens are whatever an author types, so the label is a lookup with
+       a fallback rather than a closed set: an unlisted token is uppercased and
+       shown as itself, which is right often enough (`toml`, `sql`) and honest
+       the rest of the time. */
+    var CODE_LANGUAGE_NAMES = {
+      ansi: 'Terminal',
+      bash: 'Bash',
+      bibtex: 'BibTeX',
+      c: 'C',
+      cmake: 'CMake',
+      console: 'Console',
+      cpp: 'C++',
+      css: 'CSS',
+      diff: 'Diff',
+      docker: 'Dockerfile',
+      dockerfile: 'Dockerfile',
+      go: 'Go',
+      html: 'HTML',
+      ini: 'INI',
+      java: 'Java',
+      js: 'JavaScript',
+      javascript: 'JavaScript',
+      json: 'JSON',
+      jsx: 'JSX',
+      kotlin: 'Kotlin',
+      liquid: 'Liquid',
+      lua: 'Lua',
+      make: 'Makefile',
+      makefile: 'Makefile',
+      markdown: 'Markdown',
+      matlab: 'MATLAB',
+      md: 'Markdown',
+      mermaid: 'Mermaid',
+      php: 'PHP',
+      powershell: 'PowerShell',
+      ps1: 'PowerShell',
+      pwsh: 'PowerShell',
+      py: 'Python',
+      python: 'Python',
+      r: 'R',
+      rb: 'Ruby',
+      ruby: 'Ruby',
+      rs: 'Rust',
+      rust: 'Rust',
+      scss: 'SCSS',
+      sh: 'Shell',
+      shell: 'Shell',
+      sql: 'SQL',
+      svelte: 'Svelte',
+      swift: 'Swift',
+      text: 'Text',
+      toml: 'TOML',
+      ts: 'TypeScript',
+      typescript: 'TypeScript',
+      tsx: 'TSX',
+      vim: 'Vim',
+      xml: 'XML',
+      yaml: 'YAML',
+      yml: 'YAML',
+      zsh: 'Zsh'
+    };
+
+    function codeLanguageLabel(token) {
+      var key = String(token || '').trim().toLowerCase();
+      if (!key) return '';
+      return CODE_LANGUAGE_NAMES[key] || key.toUpperCase();
+    }
+
+    function codeLanguageToken(code) {
+      var match = /(?:^|\s)language-([\w+#.-]+)/.exec(code.className || '');
+      return match ? match[1].toLowerCase() : '';
+    }
+
+    /* ── ANSI colour ──
+       A `ansi` fence carries a real terminal capture, escape codes and all, so
+       `neofetch` and friends can be shown the way they actually look rather
+       than as the grey text a screenshot-free article is otherwise limited to.
+
+       The escapes are read in their printable spellings — `\e[31m`, `\033[31m`,
+       `\x1b[31m`, `[31m` — as well as the real 0x1b control byte. The
+       printable forms are what a Markdown file can actually hold: an editor,
+       a JSON export and a diff all survive a backslash and an `e`, and none of
+       them reliably survives a raw control character. The control byte is
+       accepted anyway, for output pasted straight out of a pipe. A bare
+       `[31m` is deliberately not read as an escape: it is ordinary prose often
+       enough that matching it would repaint text nobody coloured.
+
+       Only SGR (`m`) is honoured. A capture that moves the cursor to draw
+       columns — which is exactly what neofetch does to put its info block
+       beside the logo — has to be flattened before it is pasted, because
+       there is no cursor here to move. Anything else is dropped rather than
+       printed, so a stray sequence never appears as literal text. */
+    var ANSI_PATTERN = /(?:\x1b|\\(?:e|x1b|X1B|033|u001b|u001B))\[([0-9;]*)([A-Za-z])/g;
+
+    /* The sixteen base colours are CSS custom properties rather than literals,
+       so the palette lives in the stylesheet beside the terminal ground it is
+       drawn against. Indices past 15 are the 6×6×6 cube and the 24-step grey
+       ramp, which are defined arithmetically by the standard and so are
+       computed rather than tabulated. */
+    function ansiColor(index) {
+      var n = Number(index);
+      if (!(n >= 0 && n <= 255)) return '';
+      if (n < 16) return 'var(--ansi-' + n + ')';
+      if (n < 232) {
+        var offset = n - 16;
+        var steps = [0, 95, 135, 175, 215, 255];
+        var rgb = [
+          steps[Math.floor(offset / 36) % 6],
+          steps[Math.floor(offset / 6) % 6],
+          steps[offset % 6]
+        ];
+        return 'rgb(' + rgb.join(', ') + ')';
+      }
+      var level = 8 + (n - 232) * 10;
+      return 'rgb(' + level + ', ' + level + ', ' + level + ')';
+    }
+
+    function newAnsiState() {
+      return { fg: null, bg: null, bold: false, dim: false, italic: false, underline: false, inverse: false };
+    }
+
+    function applyAnsiSgr(state, params) {
+      var codes = params === '' ? ['0'] : params.split(';');
+      for (var i = 0; i < codes.length; i++) {
+        var n = parseInt(codes[i], 10);
+        if (isNaN(n) || n === 0) {
+          var fresh = newAnsiState();
+          state.fg = fresh.fg; state.bg = fresh.bg; state.bold = false;
+          state.dim = false; state.italic = false; state.underline = false; state.inverse = false;
+        } else if (n === 1) state.bold = true;
+        else if (n === 2) state.dim = true;
+        else if (n === 3) state.italic = true;
+        else if (n === 4) state.underline = true;
+        else if (n === 7) state.inverse = true;
+        else if (n === 22) { state.bold = false; state.dim = false; }
+        else if (n === 23) state.italic = false;
+        else if (n === 24) state.underline = false;
+        else if (n === 27) state.inverse = false;
+        else if (n === 39) state.fg = null;
+        else if (n === 49) state.bg = null;
+        else if (n >= 30 && n <= 37) state.fg = n - 30;
+        else if (n >= 90 && n <= 97) state.fg = n - 90 + 8;
+        else if (n >= 40 && n <= 47) state.bg = n - 40;
+        else if (n >= 100 && n <= 107) state.bg = n - 100 + 8;
+        else if (n === 38 || n === 48) {
+          // Extended selectors: `5;N` picks out of the 256-colour table,
+          // `2;R;G;B` states a colour outright. Both are consumed here so
+          // their arguments are never mistaken for further attributes.
+          var target = n === 38 ? 'fg' : 'bg';
+          if (codes[i + 1] === '5') { state[target] = parseInt(codes[i + 2], 10); i += 2; }
+          else if (codes[i + 1] === '2') {
+            state[target] = 'rgb(' + [codes[i + 2], codes[i + 3], codes[i + 4]].map(function (v) {
+              return parseInt(v, 10) || 0;
+            }).join(', ') + ')';
+            i += 4;
+          }
+        }
+      }
+    }
+
+    function ansiResolve(value) {
+      if (value == null) return '';
+      return typeof value === 'string' ? value : ansiColor(value);
+    }
+
+    function ansiStyle(state) {
+      var fg = state.fg;
+      var bg = state.bg;
+      if (state.inverse) {
+        var swap = fg;
+        fg = bg == null ? 'var(--ansi-bg)' : bg;
+        bg = swap == null ? 'var(--ansi-fg)' : swap;
+      }
+      /* Bold is a brightness in a terminal, not only a weight: the eight base
+         colours have bright twins at 8..15 and every tool that paints a bold
+         red means the bright one. Bold with no colour set takes the bright
+         default instead. */
+      if (state.bold && typeof fg === 'number' && fg < 8) fg += 8;
+      var parts = [];
+      var fgColor = ansiResolve(fg);
+      var bgColor = ansiResolve(bg);
+      if (fgColor) parts.push('color:' + fgColor);
+      else if (state.bold) parts.push('color:var(--ansi-fg-bold)');
+      if (bgColor) parts.push('background-color:' + bgColor);
+      if (state.bold) parts.push('font-weight:700');
+      if (state.dim) parts.push('opacity:0.65');
+      if (state.italic) parts.push('font-style:italic');
+      if (state.underline) parts.push('text-decoration:underline');
+      return parts.join(';');
+    }
+
+    function renderAnsiHtml(text) {
+      var source = String(text || '');
+      var state = newAnsiState();
+      var html = '';
+      var cursor = 0;
+      var match;
+      ANSI_PATTERN.lastIndex = 0;
+      function emit(chunk) {
+        if (!chunk) return;
+        var style = ansiStyle(state);
+        html += style
+          ? '<span style="' + escapeAttr(style) + '">' + escapeHtml(chunk) + '</span>'
+          : escapeHtml(chunk);
+      }
+      while ((match = ANSI_PATTERN.exec(source)) !== null) {
+        emit(source.slice(cursor, match.index));
+        if (match[2] === 'm') applyAnsiSgr(state, match[1]);
+        cursor = match.index + match[0].length;
+      }
+      emit(source.slice(cursor));
+      return html;
+    }
+
+    /* ── Chrome ──
+       Mermaid fences are left alone: enhanceArticleContent replaces those
+       with a rendered diagram, and a diagram does not want an editor bar. */
+    function decorateCodeBlock(code) {
+      var pre = code.parentElement;
+      if (!pre || pre.tagName !== 'PRE') return;
+      if (pre.closest('.code-block')) return;
+      var token = codeLanguageToken(code);
+      if (token === 'mermaid') return;
+
+      if (token === 'ansi') {
+        code.innerHTML = renderAnsiHtml(code.textContent);
+      }
+
+      var block = document.createElement('div');
+      block.className = 'code-block' + (token === 'ansi' ? ' code-block--ansi' : '');
+      if (token) block.setAttribute('data-code-language', token);
+
+      var bar = document.createElement('div');
+      bar.className = 'code-block-bar';
+
+      var label = codeLanguageLabel(token);
+      if (label) {
+        var tab = document.createElement('span');
+        tab.className = 'code-block-tab font-label';
+        tab.textContent = label;
+        bar.appendChild(tab);
+      } else {
+        // The tab is what pushes the copy control to the right edge, so an
+        // unlabelled fence still needs something holding its place.
+        bar.appendChild(document.createElement('span'));
+      }
+
+      /* The clipboard API is absent over plain HTTP and in older browsers. A
+         control that cannot do its job is not drawn, rather than drawn and
+         left to fail under the reader's hand. */
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        bar.appendChild(buildCopyButton(code));
+      }
+
+      pre.replaceWith(block);
+      block.appendChild(bar);
+      block.appendChild(pre);
+    }
+
+    function buildCopyButton(code) {
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'code-block-copy font-label';
+      button.textContent = 'Copy';
+      button.addEventListener('click', function () {
+        navigator.clipboard.writeText(code.textContent).then(function () {
+          button.textContent = 'Copied';
+          button.classList.add('is-copied');
+          window.setTimeout(function () {
+            button.textContent = 'Copy';
+            button.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function (error) {
+          /* The API is present but can still refuse: a denied permission, or a
+             document that does not have focus. Selecting the block is the next
+             best thing, because it leaves the reader one keystroke from the
+             result they asked for instead of a dead control. */
+          console.error('Copy failed:', error);
+          selectContents(code);
+          button.textContent = 'Press Ctrl+C';
+          window.setTimeout(function () { button.textContent = 'Copy'; }, 2400);
+        });
+      });
+      return button;
+    }
+
+    function selectContents(node) {
+      var selection = window.getSelection && window.getSelection();
+      if (!selection || typeof document.createRange !== 'function') return;
+      var range = document.createRange();
+      range.selectNodeContents(node);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+
+    function decorateCodeBlocks(root) {
+      if (!root) return;
+      Array.prototype.forEach.call(root.querySelectorAll('pre > code'), decorateCodeBlock);
+    }
+
+{% endraw %}

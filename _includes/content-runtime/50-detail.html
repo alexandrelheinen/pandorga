@@ -1,0 +1,861 @@
+{% raw %}
+    function buildTextSidebar(options) {
+      var fm = options.frontMatter || {};
+      var title = fm.title || options.fallbackTitle || '';
+      var dateHtml = options.dateHtml || '';
+      var description = fm.description || fm.tagline || '';
+      var parts = ['<div class="md:sticky md:top-32 text-detail-sidebar">'];
+
+      if (title) {
+        parts.push('<div class="article-sidebar-heading mb-8">');
+        if (fm.icon) {
+          /* The page accent, not a fixed triad role: this glyph marks a
+             project, and the projects page reads blue. text-secondary pinned
+             it green there regardless. */
+          parts.push('<span class="material-symbols-outlined text-5xl md:text-6xl text-primary mb-4 block leading-none">' + escapeHtml(fm.icon) + '</span>');
+        }
+        parts.push('<h1 class="text-title">' + escapeHtml(title) + '</h1>');
+        if (fm.layout === 'post' && fm.thumbnail) {
+          parts.push(
+            '<figure class="article-sidebar-thumbnail">',
+            '<img src="', escapeAttr(buildUrl(fm.thumbnail)), '" alt="" loading="lazy">',
+            '</figure>'
+          );
+        } else if (description) {
+          parts.push('<p class="article-sidebar-description">' + escapeHtml(description) + '</p>');
+        } else if (fm.thumbnail) {
+          parts.push(
+            '<figure class="article-sidebar-thumbnail">',
+            '<img src="', escapeAttr(buildUrl(fm.thumbnail)), '" alt="" loading="lazy">',
+            '</figure>'
+          );
+        }
+        parts.push('</div>');
+      }
+
+      parts.push('<div class="flex flex-col gap-6 text-tertiary font-label text-xs article-meta mb-8">');
+      parts.push('<div class="flex flex-col gap-2">');
+      // Tags replaced category on articles and posts; resources still classify
+      // on category, so both are read.
+      if (fm.category) parts.push('<span class="text-tertiary font-bold">' + escapeHtml(fm.category) + '</span>');
+      // The private Liquid path renders these as links into the listing
+      // filter; rendering them as inert spans here gave the same page two
+      // different affordances depending on which path drew it.
+      if (typeof renderTagChips === 'function') {
+        var tagBase = { posts: '/pages/blog/', articles: '/pages/articles/',
+                        project: '/pages/projects/' }[fm.layout === 'project' ? 'project' :
+                        (fm.layout === 'post' ? 'posts' : (fm.layout === 'article' ? 'articles' : ''))];
+        parts.push(renderTagChips(fm.tags, tagBase ? {
+          hrefFor: function (tag) { return tagBase + '?tag=' + encodeURIComponent(tag); }
+        } : undefined));
+      }
+      if (dateHtml) parts.push('<div class="mt-1">' + dateHtml + '</div>');
+      if (fm.layout === 'product') {
+        if (fm.company) parts.push('<span class="text-secondary font-bold">' + escapeHtml(fm.company) + '</span>');
+        if (fm.product) parts.push('<span>' + escapeHtml(fm.product) + '</span>');
+        if (fm.start_date) {
+          var productOngoing = fm.status === 'ongoing' || !String(fm.end_date || '').trim();
+          var productEnd = productOngoing ? ' – Ongoing' : (fm.end_date ? ' – ' + escapeHtml(fm.end_date) : '');
+          parts.push('<span>' + escapeHtml(fm.start_date) + productEnd + '</span>');
+        }
+      }
+      if (fm.layout === 'project') {
+        if (fm.label) parts.push('<span class="text-tertiary font-bold">' + escapeHtml(fm.label) + '</span>');
+        if (fm.start_date) {
+          var end = fm.status === 'ongoing' ? ' – Ongoing' : (fm.end_date ? ' – ' + escapeHtml(fm.end_date) : '');
+          parts.push('<span>' + escapeHtml(fm.start_date) + end + '</span>');
+        }
+      }
+      parts.push('</div>');
+      parts.push(buildDetailActions(fm));
+      parts.push('</div></div>');
+      return parts.join('');
+    }
+
+    /* Reading size. Nine pt offsets (−4…+4) from the default prose size.
+       The shell applies the saved step before paint; this control only changes it. */
+    function proseSizeLabel(step) {
+      return step > 0 ? '+' + step : String(step);
+    }
+
+    function buildProseSizeControl() {
+      var api = window.ShellProseSize;
+      var steps = api ? api.offsets : [-4, -3, -2, -1, 0, 1, 2, 3, 4];
+      var current = api ? api.read() : 0;
+      var currentLabel = proseSizeLabel(current);
+      var parts = [
+        '<div class="detail-type-size" data-prose-size>',
+        '<button type="button" class="detail-type-size-trigger" aria-haspopup="listbox" aria-expanded="false" aria-label="Reading size ', currentLabel, ' pt">',
+        '<span class="material-symbols-outlined" aria-hidden="true">format_size</span>',
+        '<span class="detail-type-size-value" data-prose-size-label>', currentLabel, '</span>',
+        '<span class="material-symbols-outlined detail-type-size-caret" aria-hidden="true">expand_more</span>',
+        '</button>',
+        '<div class="detail-type-size-menu" role="listbox" aria-label="Reading size" hidden>'
+      ];
+      for (var i = 0; i < steps.length; i++) {
+        var step = steps[i];
+        var label = proseSizeLabel(step);
+        var on = step === current;
+        parts.push(
+          '<button type="button" class="detail-type-size-step" data-prose-offset="', String(step),
+          '" role="option" aria-selected="', on ? 'true' : 'false',
+          '" aria-label="', label, ' pt" tabindex="-1">',
+          label,
+          '</button>'
+        );
+      }
+      parts.push('</div></div>');
+      return parts.join('');
+    }
+
+    function bindProseSizeControl(group) {
+      if (!group || group._proseSizeBound) return;
+      group._proseSizeBound = true;
+      var api = window.ShellProseSize;
+      var trigger = group.querySelector('.detail-type-size-trigger');
+      var menu = group.querySelector('.detail-type-size-menu');
+      var valueEl = group.querySelector('[data-prose-size-label]');
+      if (!trigger || !menu) return;
+
+      function options() {
+        return menu.querySelectorAll('[data-prose-offset]');
+      }
+
+      function setOpen(open) {
+        trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (open) menu.removeAttribute('hidden');
+        else menu.setAttribute('hidden', '');
+      }
+
+      function isOpen() {
+        return trigger.getAttribute('aria-expanded') === 'true';
+      }
+
+      function paint(current) {
+        var label = proseSizeLabel(current);
+        if (valueEl) valueEl.textContent = label;
+        trigger.setAttribute('aria-label', 'Reading size ' + label + ' pt');
+        var buttons = options();
+        for (var i = 0; i < buttons.length; i++) {
+          var on = Number(buttons[i].getAttribute('data-prose-offset')) === current;
+          buttons[i].setAttribute('aria-selected', on ? 'true' : 'false');
+        }
+      }
+
+      function selectedIndex() {
+        var buttons = options();
+        for (var i = 0; i < buttons.length; i++) {
+          if (buttons[i].getAttribute('aria-selected') === 'true') return i;
+        }
+        return 0;
+      }
+
+      function choose(n, closeAfter) {
+        if (!api || api.offsets.indexOf(n) === -1) return;
+        paint(api.set(n));
+        if (closeAfter) {
+          setOpen(false);
+          trigger.focus();
+        }
+      }
+
+      paint(api ? api.read() : 0);
+
+      trigger.addEventListener('click', function (event) {
+        event.preventDefault();
+        setOpen(!isOpen());
+        if (isOpen()) {
+          var buttons = options();
+          var idx = selectedIndex();
+          if (buttons[idx]) {
+            buttons[idx].focus();
+            if (buttons[idx].scrollIntoView) {
+              buttons[idx].scrollIntoView({ block: 'nearest' });
+            }
+          }
+        }
+      });
+
+      menu.addEventListener('click', function (event) {
+        var btn = event.target.closest ? event.target.closest('[data-prose-offset]') : null;
+        if (!btn || !menu.contains(btn)) return;
+        choose(Number(btn.getAttribute('data-prose-offset')), true);
+      });
+
+      group.addEventListener('keydown', function (event) {
+        var buttons = options();
+        if (!buttons.length) return;
+
+        if (event.key === 'Escape') {
+          if (!isOpen()) return;
+          event.preventDefault();
+          setOpen(false);
+          trigger.focus();
+          return;
+        }
+
+        if (!isOpen()) {
+          if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+            event.preventDefault();
+            setOpen(true);
+            var openIdx = selectedIndex();
+            if (buttons[openIdx]) buttons[openIdx].focus();
+          }
+          return;
+        }
+
+        var dir = 0;
+        if (event.key === 'ArrowDown' || event.key === 'ArrowRight') dir = 1;
+        else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') dir = -1;
+        else if (event.key === 'Home') {
+          event.preventDefault();
+          buttons[0].focus();
+          return;
+        } else if (event.key === 'End') {
+          event.preventDefault();
+          buttons[buttons.length - 1].focus();
+          return;
+        } else if (event.key === 'Enter' || event.key === ' ') {
+          var focused = document.activeElement;
+          if (focused && menu.contains(focused) && focused.hasAttribute('data-prose-offset')) {
+            event.preventDefault();
+            choose(Number(focused.getAttribute('data-prose-offset')), true);
+          }
+          return;
+        } else {
+          return;
+        }
+
+        var index = 0;
+        for (var i = 0; i < buttons.length; i++) {
+          if (buttons[i] === document.activeElement) index = i;
+        }
+        var next = buttons[index + dir];
+        if (!next) return;
+        event.preventDefault();
+        next.focus();
+      });
+
+      document.addEventListener('click', function (event) {
+        if (!isOpen()) return;
+        if (group.contains(event.target)) return;
+        setOpen(false);
+      });
+    }
+
+    function bindProseSizeControls(root) {
+      if (!root || !root.querySelectorAll) return;
+      if (root.getAttribute && root.getAttribute('data-prose-size') !== null) {
+        bindProseSizeControl(root);
+      }
+      var groups = root.querySelectorAll('[data-prose-size]');
+      for (var i = 0; i < groups.length; i++) bindProseSizeControl(groups[i]);
+    }
+
+    /* Back · Share · Cite · PDF. Back returns to the collection listing.
+       Share/Cite use the live URL and front-matter fields; PDF renders only if `pdf_url` is set.
+       Projects and products only get the Back button: BibTeX citation does not apply to portfolio
+       items, and they carry their own outbound link actions in the hero actions row.
+       The reading-size pill sits with them on every detail page. */
+    function buildDetailActions(fm) {
+      fm = fm || {};
+      var layout = fm.layout || '';
+      var isArticleOrPost = layout === 'article' || layout === 'post';
+      var isProjectOrProduct = layout === 'project' || layout === 'product';
+      if (!isArticleOrPost && !isProjectOrProduct) return '';
+      var lang = fm.language || (layout === 'post' ? 'ptbr' : 'enus');
+      var backUrl = layout === 'post' ? '/pages/blog/'
+                  : layout === 'project' ? '/pages/projects/'
+                  : layout === 'product' ? '/pages/cv/#products'
+                  : '/pages/articles/';
+      var parts = ['<div class="detail-actions" data-detail-actions>'];
+      parts.push(
+        '<a class="detail-action" href="', escapeAttr(backUrl), '" aria-label="Back">',
+        '<span class="material-symbols-outlined text-sm" aria-hidden="true">chevron_left</span>',
+        '<span class="detail-action-label">Back</span>',
+        '</a>'
+      );
+      if (isArticleOrPost) {
+        parts.push(
+          '<button type="button" class="detail-action" data-detail-share aria-label="Share">',
+          '<span class="material-symbols-outlined text-sm" aria-hidden="true">share</span>',
+          '<span class="detail-action-label">Share</span>',
+          '</button>'
+        );
+        parts.push(
+          '<button type="button" class="detail-action" data-detail-cite aria-label="Cite">',
+          '<span class="material-symbols-outlined text-sm" aria-hidden="true">format_quote</span>',
+          '<span class="detail-action-label">Cite</span>',
+          '</button>'
+        );
+      }
+      parts.push(buildProseSizeControl());
+      if (isArticleOrPost && fm.pdf_url) {
+          parts.push(
+            '<a class="detail-action" href="', escapeAttr(String(fm.pdf_url)),
+            '" rel="noopener" target="_blank" aria-label="PDF">',
+            '<span class="material-symbols-outlined text-sm" aria-hidden="true">picture_as_pdf</span>',
+            '<span class="detail-action-label">PDF</span>',
+            '</a>'
+          );
+      }
+      parts.push('</div>');
+      return parts.join('');
+    }
+
+    function articleCiteBibtex(fm, pageUrl) {
+      fm = fm || {};
+      var year = String(fm.date || '').slice(0, 4);
+      var key = String(fm.slug || fm.title || 'entry')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_|_$/g, '')
+        .slice(0, 48) || 'entry';
+      var lines = [
+        '@misc{' + key + ',',
+        '  title = {' + String(fm.title || key).replace(/[{}]/g, '') + '},',
+        '  author = {' + String(fm.author || (window.ContentRuntimeConfig && window.ContentRuntimeConfig.defaultAuthor) || '').replace(/[{}]/g, '') + '},'
+      ];
+      if (year) lines.push('  year = {' + year + '},');
+      lines.push('  url = {' + String(pageUrl || '') + '}');
+      lines.push('}');
+      return lines.join('\n');
+    }
+
+    /* End-matter BibTeX plate for citing this page — same fields as Cite. */
+    function buildCiteBox(fm, lang) {
+      fm = fm || {};
+      if (fm.layout !== 'article' && fm.layout !== 'post') return '';
+      var bibtex = articleCiteBibtex(fm, absoluteUrl(window.location.pathname));
+      var label = translate('cite_this_text', lang || fm.language || 'enus');
+      return [
+        '<section class="article-cite-block text-reading-column w-full" data-article-cite-block>',
+        '<p class="article-cite-label font-label">', escapeHtml(label), '</p>',
+        '<pre><code class="language-bibtex">', escapeHtml(bibtex), '</code></pre>',
+        '</section>'
+      ].join('');
+    }
+
+    function copyTextToClipboard(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(text);
+      }
+      return new Promise(function (resolve, reject) {
+        try {
+          var ta = document.createElement('textarea');
+          ta.value = text;
+          ta.setAttribute('readonly', '');
+          ta.style.position = 'fixed';
+          ta.style.left = '-9999px';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          resolve();
+        } catch (err) {
+          reject(err);
+        }
+      });
+    }
+
+    function bindDetailActions(root, fm) {
+      if (!root) return;
+      var shareBtn = root.querySelector('[data-detail-share]');
+      var citeBtn = root.querySelector('[data-detail-cite]');
+      var pageUrl = absoluteUrl(window.location.pathname);
+
+      if (shareBtn) {
+        shareBtn.addEventListener('click', function () {
+          var payload = {
+            title: (fm && fm.title) || document.title,
+            text: (fm && fm.description) || '',
+            url: pageUrl
+          };
+          var labelEl = shareBtn.querySelector('.detail-action-label') || shareBtn;
+          var done = function () {
+            labelEl.textContent = 'Copied';
+            window.setTimeout(function () { labelEl.textContent = 'Share'; }, 1600);
+          };
+          if (navigator.share) {
+            navigator.share(payload).catch(function () {
+              copyTextToClipboard(pageUrl).then(done);
+            });
+          } else {
+            copyTextToClipboard(pageUrl).then(done);
+          }
+        });
+      }
+
+      if (citeBtn) {
+        citeBtn.addEventListener('click', function () {
+          var labelEl = citeBtn.querySelector('.detail-action-label') || citeBtn;
+          copyTextToClipboard(articleCiteBibtex(fm, pageUrl)).then(function () {
+            labelEl.textContent = 'Copied';
+            window.setTimeout(function () { labelEl.textContent = 'Cite'; }, 1600);
+          });
+        });
+      }
+
+      bindProseSizeControls(root);
+
+      var citeBoxBtn = root.querySelector('[data-detail-cite-box]');
+      if (citeBoxBtn) {
+        citeBoxBtn.addEventListener('click', function () {
+          copyTextToClipboard(articleCiteBibtex(fm, pageUrl)).then(function () {
+            citeBoxBtn.textContent = 'Copied';
+            window.setTimeout(function () { citeBoxBtn.textContent = 'Copy BibTeX'; }, 1600);
+          });
+        });
+      }
+    }
+
+    function buildTextBackLink(options) {
+      var lang = options.lang || 'enus';
+      var label = options.backLabel || translate(options.backLabelKey || 'back', lang);
+      return [
+        '<a href="', escapeAttr(options.backUrl || '#'), '" ',
+        'class="back-link text-sm font-label inline-flex items-center gap-2 no-underline hover:underline text-primary mb-8 block" ',
+        'id="', escapeAttr(options.id || 'runtime-back-link'), '">',
+        '<span class="material-symbols-outlined text-sm">arrow_left_alt</span>',
+        escapeHtml(label),
+        '</a>'
+      ].join('');
+    }
+
+    function buildTextFooterNav(options) {
+      var lang = options.lang || 'enus';
+      var parts = ['<nav class="text-page-nav text-reading-column w-full" aria-label="Article navigation">'];
+
+      if (options.previousUrl) {
+        parts.push(
+          '<a href="', escapeAttr(options.previousUrl), '">',
+          '<span class="material-symbols-outlined text-sm">arrow_left_alt</span>',
+          escapeHtml(translate('previous_text', lang)),
+          '</a>'
+        );
+      } else {
+        parts.push('<span></span>');
+      }
+
+      if (options.nextUrl) {
+        parts.push(
+          '<a href="', escapeAttr(options.nextUrl), '">',
+          escapeHtml(translate('next_text', lang)),
+          '<span class="material-symbols-outlined text-sm">arrow_right_alt</span>',
+          '</a>'
+        );
+      } else if (options.showRandom) {
+        parts.push(
+          '<a href="#" id="random-post-link">',
+          escapeHtml(translate('random_text', lang)),
+          '<span class="material-symbols-outlined text-sm">shuffle</span>',
+          '</a>'
+        );
+      } else {
+        parts.push('<span></span>');
+      }
+
+      parts.push('</nav>');
+      return parts.join('');
+    }
+
+    async function enhanceArticleContent(root, frontMatter) {
+      if (!root) return;
+      decorateCodeBlocks(root);
+      await typesetMath(root);
+      if (!frontMatter || !frontMatter.mermaid) return;
+      try {
+        await ensureMermaid();
+        root.querySelectorAll('pre code.language-mermaid').forEach(function (code) {
+          var div = document.createElement('div');
+          div.className = 'mermaid';
+          div.textContent = code.textContent;
+          // Keep the source so the diagram can be redrawn on a theme change.
+          div.dataset.mermaidSource = code.textContent;
+          code.closest('pre').replaceWith(div);
+        });
+        if (typeof window.mermaid.run === 'function') {
+          await window.mermaid.run({ nodes: root.querySelectorAll('.mermaid') });
+        }
+      } catch (error) {
+        console.error('Mermaid rendering failed:', error);
+      }
+    }
+
+    function removeRuntimeBackLink() {
+      var existing = document.getElementById('runtime-back-link');
+      if (existing) existing.remove();
+    }
+
+    function insertRuntimeBackLink(beforeElement, options) {
+      removeRuntimeBackLink();
+      if (!beforeElement || !beforeElement.parentElement) return;
+      var wrapper = document.createElement('div');
+      wrapper.innerHTML = buildTextBackLink(options);
+      beforeElement.parentElement.insertBefore(wrapper.firstChild, beforeElement);
+    }
+
+    function absoluteUrl(path) {
+      if (!path) return window.location.href;
+      var value = String(path);
+      if (value.indexOf('://') !== -1) return value;
+      return window.location.origin + (value.charAt(0) === '/' ? value : '/' + value);
+    }
+
+    function setMetaTag(name, content, attr) {
+      if (!content) return;
+      attr = attr || 'name';
+      var selector = attr + '="' + name + '"';
+      var el = document.head.querySelector('meta[' + selector + ']');
+      if (!el) {
+        el = document.createElement('meta');
+        el.setAttribute(attr, name);
+        document.head.appendChild(el);
+      }
+      el.setAttribute('content', content);
+    }
+
+    function applyDocumentMeta(meta) {
+      meta = meta || {};
+      var siteSuffix = (window.ContentRuntimeConfig && window.ContentRuntimeConfig.siteSuffix) || '';
+      var title = meta.title ? String(meta.title) + siteSuffix : document.title;
+      document.title = title;
+      if (meta.description) setMetaTag('description', meta.description);
+      setMetaTag('og:title', title, 'property');
+      if (meta.description) setMetaTag('og:description', meta.description, 'property');
+      if (meta.url) setMetaTag('og:url', absoluteUrl(meta.url), 'property');
+
+      var defaultOgImage = '/assets/images/og-default-dark.png';
+      var imagePath = meta.image || defaultOgImage;
+      var imageUrl = resolveAssetUrl(imagePath);
+      setMetaTag('og:image', imageUrl, 'property');
+      setMetaTag('image', imageUrl, 'name');
+      setMetaTag('twitter:image', imageUrl);
+
+      var ext = imageUrl.split('?')[0].split('.').pop().toLowerCase();
+      var imageType = (ext === 'jpg' || ext === 'jpeg') ? 'image/jpeg' : (ext === 'webp' ? 'image/webp' : 'image/png');
+      setMetaTag('og:image:type', imageType, 'property');
+      setMetaTag('og:image:width', '1200', 'property');
+      setMetaTag('og:image:height', '630', 'property');
+
+      setMetaTag('twitter:title', title);
+      if (meta.description) setMetaTag('twitter:description', meta.description);
+    }
+
+    /* Related Texts: neighbors from writing_index.json xcites (same graph the
+       Network of Ideas reads). Two sections — Cites, then Cited by — each
+       ordered projects → articles → posts. */
+    var RELATED_COLLECTION_ORDER = { projects: 0, articles: 1, posts: 2 };
+
+    /* Site language codes (enus / ptbr) are not BCP-47 tags. Intl.DateTimeFormat
+       rejects them; map to a real locale before any date render. */
+    function relatedDateLocale(lang) {
+      if (lang === 'ptbr') return 'pt-BR';
+      if (lang === 'frfr') return 'fr';
+      if (lang === 'eses') return 'es';
+      return 'en';
+    }
+
+    function relatedCollection(item) {
+      var raw = (item && (item.collection || item.type)) || '';
+      if (raw === 'article') return 'articles';
+      if (raw === 'post') return 'posts';
+      if (raw === 'project') return 'projects';
+      return raw;
+    }
+
+    function relatedDateLine(date, lastUpdated, locale) {
+      var created = formatDate(date, locale);
+      var updated = formatDate(lastUpdated, locale);
+      var hasUpdate = dateKey(lastUpdated) && dateKey(lastUpdated) !== dateKey(date);
+      if (!created && !(hasUpdate && updated)) return '';
+      if (created && hasUpdate && updated) {
+        return '<div class="article-related-card-dates">' +
+          '<span title="Published">' + escapeHtml(created) + '</span>' +
+          '<span class="article-related-card-dates-sep" aria-hidden="true"> / </span>' +
+          '<span title="Updated">' + escapeHtml(updated) + '</span>' +
+          '</div>';
+      }
+      return '<div class="article-related-card-dates"><span title="Published">' +
+        escapeHtml(created || updated) + '</span></div>';
+    }
+
+    function relatedCardHtml(neighbor, dateLocale) {
+      var item = neighbor.item;
+      var dateHtml = relatedDateLine(item.date, item.last_updated, dateLocale);
+      return [
+        '<article class="article-related-card article-related-card--', neighbor.collection, '">',
+        '<h3 class="article-related-card-title"><a href="', escapeAttr(xciteUrl(item)), '">',
+        escapeHtml(xciteLabel(item)), '</a></h3>',
+        dateHtml,
+        '</article>'
+      ].join('');
+    }
+
+    function relatedSectionHtml(type, items, lang, dateLocale) {
+      if (!items.length) return '';
+      var label = type === 'out' ? translate('cites', lang) : translate('cited_by', lang);
+      var parts = [
+        '<section class="article-related-section">',
+        '<h3 class="article-related-section-pill">', escapeHtml(label), '</h3>',
+        '<div class="article-related-list">'
+      ];
+      items.forEach(function (neighbor) {
+        parts.push(relatedCardHtml(neighbor, dateLocale));
+      });
+      parts.push('</div></section>');
+      return parts.join('');
+    }
+
+    function buildRelatedBox(currentKey, currentItem, xciteIndex, langHint) {
+      if (!currentKey || !xciteIndex) return '';
+
+      var outKeys = Array.isArray(currentItem && currentItem.xcites)
+        ? currentItem.xcites
+        : [];
+      var seenOut = {};
+      var seenIn = {};
+      var outbound = [];
+      var inbound = [];
+
+      outKeys.forEach(function (key) {
+        if (seenOut[key]) return;
+        seenOut[key] = true;
+        var item = xciteIndex[key];
+        if (!item) return;
+        var coll = relatedCollection(item);
+        if (!(coll in RELATED_COLLECTION_ORDER)) return;
+        outbound.push({ type: 'out', item: item, collection: coll });
+      });
+
+      Object.keys(xciteIndex).forEach(function (key) {
+        if (key === currentKey) return;
+        var item = xciteIndex[key];
+        var cites = Array.isArray(item.xcites) ? item.xcites : [];
+        if (cites.indexOf(currentKey) === -1) return;
+        var coll = relatedCollection(item);
+        if (!(coll in RELATED_COLLECTION_ORDER)) return;
+        if (seenIn[key]) return;
+        seenIn[key] = true;
+        inbound.push({ type: 'in', item: item, collection: coll });
+      });
+
+      if (!outbound.length && !inbound.length) return '';
+
+      function byCollection(a, b) {
+        return RELATED_COLLECTION_ORDER[a.collection] - RELATED_COLLECTION_ORDER[b.collection];
+      }
+      outbound.sort(byCollection);
+      inbound.sort(byCollection);
+
+      var lang = langHint
+        || (currentItem && currentItem.language)
+        || ((currentItem && relatedCollection(currentItem) === 'posts') ? 'ptbr' : 'enus');
+      var dateLocale = relatedDateLocale(lang);
+
+      return [
+        '<div class="article-related-box">',
+        '<h2 class="article-related-title">', escapeHtml(translate('related_texts', lang)), '</h2>',
+        relatedSectionHtml('out', outbound, lang, dateLocale),
+        relatedSectionHtml('in', inbound, lang, dateLocale),
+        '</div>'
+      ].join('');
+    }
+
+    function mountRelatedTexts(sidebarEl, currentKey, xciteIndex, langHint) {
+      if (!sidebarEl || !currentKey || !xciteIndex) return;
+      var currentItem = xciteIndex[currentKey] || null;
+      var relatedHtml = buildRelatedBox(currentKey, currentItem, xciteIndex, langHint);
+      if (!relatedHtml) return;
+      var sticky = sidebarEl.querySelector('.md\\:sticky') || sidebarEl.firstElementChild || sidebarEl;
+      var wrap = document.createElement('div');
+      wrap.innerHTML = relatedHtml;
+      if (wrap.firstElementChild) sticky.appendChild(wrap.firstElementChild);
+    }
+
+    /* Sticky `top` percentages resolve against the stretched <aside> (the full
+       reading-column height), not the dossier — so the tall-sidebar CSS trick
+       cannot see the plate's own height. Measure after mount and set top so a
+       short dossier parks under the nav, and a tall one scrolls with the page
+       until its bottom meets the viewport. */
+    function syncDetailSidebarSticky(sidebarEl) {
+      var el = sidebarEl && (
+        sidebarEl.querySelector('.text-detail-sidebar') ||
+        sidebarEl.querySelector('.md\\:sticky') ||
+        sidebarEl.firstElementChild
+      );
+      if (!el || window.matchMedia('(max-width: 767px)').matches) return;
+
+      function apply() {
+        var navPx = 7 * 16;
+        var height = el.offsetHeight;
+        var view = window.innerHeight;
+        if (height <= view - navPx) {
+          el.style.top = navPx + 'px';
+        } else {
+          el.style.top = (view - height) + 'px';
+        }
+      }
+
+      apply();
+      if (el._detailStickyBound) return;
+      el._detailStickyBound = true;
+      window.addEventListener('resize', apply);
+      if (typeof ResizeObserver !== 'undefined') {
+        var ro = new ResizeObserver(apply);
+        ro.observe(el);
+      }
+    }
+
+    function articleContentOpensWithHeading(root) {
+      if (!root || !root.firstElementChild) return false;
+      return /^H[1-6]$/i.test(root.firstElementChild.tagName);
+    }
+
+    function applyDropCapClass(body, frontMatter) {
+      if (!body || !frontMatter || frontMatter.drop_cap !== true) return;
+      if (!articleContentOpensWithHeading(body)) {
+        body.classList.add('has-drop-cap');
+      }
+    }
+
+    async function renderRuntimeDetailSection(options) {
+      var fm = options.frontMatter || {};
+      if (options.documentMeta !== false) {
+        applyDocumentMeta({
+          title: fm.title,
+          description: fm.description,
+          url: window.location.pathname,
+          image: fm.og_image || fm.thumbnail
+        });
+      }
+      var section = document.createElement('section');
+      section.className = 'text-page-main text-reading-column w-full';
+      section.setAttribute(options.detailAttribute, 'true');
+
+      var body = document.createElement('div');
+      body.className = 'article-content';
+      body.innerHTML = await renderRichContent(options.bodyMarkdown, fm);
+      applyDropCapClass(body, fm);
+      section.appendChild(body);
+
+      if (options.mainColumn) options.mainColumn.appendChild(section);
+
+      await enhanceArticleContent(body, fm);
+
+      assignHeadingIds(body);
+      mountArticleToc({
+        entries: buildTocEntries(body),
+        lang: resolveTocLang(fm),
+        sidebarEl: options.sidebarEl,
+        detailSection: section
+      });
+
+      /* Related Texts sit below the TOC. The index is already warm from
+         renderRichContent; ensureXciteIndex resolves immediately. A failure
+         here must not abort the cite box that follows. */
+      try {
+        var xciteIndex = await ensureXciteIndex();
+        var relatedLang = fm.language || (fm.layout === 'post' ? 'ptbr' : 'enus');
+        mountRelatedTexts(options.sidebarEl, fm.key, xciteIndex, relatedLang);
+      } catch (relatedError) {
+        console.error(relatedError);
+      }
+      syncDetailSidebarSticky(options.sidebarEl);
+
+      if (options.sidebarEl) bindDetailActions(options.sidebarEl, fm);
+      bindDetailActions(section, fm);
+
+      if (options.footerNav) {
+        var footer = document.createElement('div');
+        footer.innerHTML = buildTextFooterNav(options.footerNav);
+        if (footer.firstElementChild) {
+          if (options.mainColumn) {
+            options.mainColumn.appendChild(footer.firstElementChild);
+          } else {
+            section.appendChild(footer.firstElementChild);
+          }
+        }
+      }
+
+      var citeBoxHtml = buildCiteBox(fm, options.footerNav ? options.footerNav.lang : null);
+      if (citeBoxHtml) {
+        var citeWrap = document.createElement('div');
+        citeWrap.innerHTML = citeBoxHtml;
+        if (citeWrap.firstElementChild) {
+          var citeBlock = citeWrap.firstElementChild;
+          decorateCodeBlocks(citeBlock);
+          if (options.mainColumn) {
+            options.mainColumn.appendChild(citeBlock);
+          } else {
+            section.appendChild(citeBlock);
+          }
+        }
+      }
+
+      return section;
+    }
+
+    function reportDetailLoadError(error, options) {
+      console.error(error);
+      if (!options || !options.emptyState || !options.grid) return;
+      options.emptyState.classList.remove('hidden');
+      var message = options.emptyState.querySelector('p');
+      if (message) message.textContent = options.message || 'Content could not be loaded right now.';
+      options.grid.insertBefore(options.emptyState, options.noResults || null);
+    }
+
+    async function renderRichContent(markdown, frontMatter) {
+      var fm = frontMatter || {};
+      var index = await ensureXciteIndex();
+      var bibIndex = await ensureBibliographyIndex();
+      var assignPrep = preprocessTranscriptionAssigns(stripFrontMatter(markdown));
+      var prepared = assignPrep.text;
+      var transcriptionAssigns = assignPrep.assignMap;
+      var replacements = [];
+      prepared = prepared.replace(/\{%-?\s*include\s+transcription\.html\s+([\s\S]*?)-?%\}/g, function (match, raw) {
+        var replacementIndex = replacements.length;
+        var attrs = parseIncludeAttrs(raw);
+        var path = resolveTranscriptionPath(attrs, fm, transcriptionAssigns);
+        replacements.push(path ? loadJson(path).then(function (data) { return transcriptionHtml(data, attrs); }) : Promise.resolve(''));
+        return '%%CONTENT_RUNTIME_REPLACEMENT_' + replacementIndex + '%%';
+      });
+      prepared = prepared.replace(/\{%-?\s*include\s+chord-tab\.html\s+([\s\S]*?)-?%\}/g, function (match, raw) {
+        var replacementIndex = replacements.length;
+        var attrs = parseIncludeAttrs(raw);
+        var path = normalizeDataPath(attrs.path || attrs.file || attrs.src || attrs.tab, 'data/tabs');
+        replacements.push(path ? loadJson(path).then(chordTabHtml) : Promise.resolve(''));
+        return '%%CONTENT_RUNTIME_REPLACEMENT_' + replacementIndex + '%%';
+      });
+      var citationPrep = preprocessScholarCites(prepared, bibIndex);
+      var html = renderMarkdown(citationPrep.text, {
+        xciteIndex: index,
+        bibIndex: bibIndex,
+        citedKeys: citationPrep.citedKeys,
+        lang: fm.language
+      });
+      html = resolveXcitePlaceholders(html, index);
+      var resolved = await Promise.all(replacements);
+      resolved.forEach(function (replacement, index) {
+        html = html.replace('<p>%%CONTENT_RUNTIME_REPLACEMENT_' + index + '%%</p>', replacement);
+        html = html.replace('%%CONTENT_RUNTIME_REPLACEMENT_' + index + '%%', replacement);
+      });
+      if (fm.tab && !/\{%-?\s*include\s+chord-tab\.html/.test(String(markdown || ''))) {
+        try {
+          html += chordTabHtml(await loadJson(normalizeDataPath(fm.tab, 'data/tabs')));
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      return html;
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function () {
+        bindProseSizeControls(document);
+      });
+    } else {
+      bindProseSizeControls(document);
+    }
+
+{% endraw %}

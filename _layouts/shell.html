@@ -1,25 +1,203 @@
 <!DOCTYPE html>
-<html lang="{{ page.lang | default: site.pandorga.identity.locale | default: 'en' }}">
+<html lang="{{ page.lang | default: 'en' }}">
+
 <head>
+  {% include theme/shell-theme-boot.html %}
+  <meta name="color-scheme" content="light dark" />
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  {% assign identity_name = site.pandorga.identity.name | default: site.title %}
-  {% capture meta_title %}{% if page.title %}{{ page.title }} | {% endif %}{{ identity_name }}{% endcapture %}
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  {% include theme/favicons.html %}
+  {% assign identity_short = site.pandorga.identity.short_name | default: site.pandorga.identity.name | default: site.author %}
+  {% capture meta_title %}{% if page.title %}{{ page.title }} | {% endif %}{{ identity_short }}{% endcapture %}
+  {% assign meta_description = page.description | default: site.description %}
+  {% assign canonical_path = page.canonical_url | default: page.url %}
   <title>{{ meta_title | strip | escape_once }}</title>
-  <meta name="description" content="{{ page.description | default: site.description | escape_once }}" />
+  <meta name="description" content="{{ meta_description | escape_once }}" />
+  <!-- Open Graph / Social Sharing -->
+  {% assign og_type = page.og_type | default: "website" %}
+  <meta property="og:type" content="{{ og_type }}" />
+  <meta property="og:url" content="{{ canonical_path | absolute_url }}" />
+  <meta property="og:title" content="{{ meta_title | strip | escape_once }}" />
+  <meta property="og:description" content="{{ meta_description | escape_once }}" />
+  {% if og_type == "article" and page.date %}
+  <meta property="article:published_time" content="{{ page.date | date_to_xmlschema }}" />
+  {% endif %}
+  {% if og_type == "article" and page.last_updated %}
+  <meta property="article:modified_time" content="{{ page.last_updated | date_to_xmlschema }}" />
+  {% endif %}
+  {% assign og_image = page.og_image | default: page.thumbnail | default: "/assets/images/og-default-dark.png" %}
+  {% if og_image contains "://" %}
+  {% assign og_image_url = og_image %}
+  {% elsif site.content_api_base_url and og_image contains "media/" %}
+    {% if og_image contains "/media/" %}
+      {% assign og_image_url = site.content_api_base_url | append: og_image %}
+    {% else %}
+      {% assign og_image_url = site.content_api_base_url | append: "/" | append: og_image %}
+    {% endif %}
+  {% else %}
+  {% assign og_image_url = og_image | absolute_url %}
+  {% endif %}
+  {% assign og_image_ext = og_image_url | split: "?" | first | split: "." | last | downcase %}
+  {% if og_image_ext == "jpg" or og_image_ext == "jpeg" %}
+  {% assign og_image_type = "image/jpeg" %}
+  {% elsif og_image_ext == "webp" %}
+  {% assign og_image_type = "image/webp" %}
+  {% else %}
+  {% assign og_image_type = "image/png" %}
+  {% endif %}
+  <meta property="og:image" content="{{ og_image_url }}" />
+  <meta name="image" property="og:image" content="{{ og_image_url }}" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:type" content="{{ og_image_type }}" />
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="{{ meta_title | strip | escape_once }}" />
+  <meta name="twitter:description" content="{{ meta_description | escape_once }}" />
+  <meta name="twitter:image" content="{{ og_image_url }}" />
+  <!-- Canonical URL -->
+  <link rel="canonical" href="{{ canonical_path | absolute_url }}" />
   <link rel="stylesheet" href="/assets/css/base.css" />
+  <link rel="stylesheet" href="/assets/css/article.css" />
+  {% include theme/theme-vars.html %}
+  <link rel="stylesheet" href="/assets/css/cv.css" />
+  <link rel="stylesheet" href="/assets/css/global-link.css" />
+  {%- comment -%} Per-page ledger styles. One file per page so page work stays
+      independent; shared component rules live in base.css. {%- endcomment -%}
+  {%- for sheet in site.static_files -%}
+    {%- if sheet.path contains "/assets/css/ledger/" -%}
+  <link rel="stylesheet" href="{{ sheet.path }}" />
+    {%- endif -%}
+  {%- endfor -%}
+  <link href="https://fonts.googleapis.com" rel="preconnect" />
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+  {% include theme/font-loader.html %}
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css" />
+  <style>
+    :root { --drop-cap-lines: {{ site.drop_cap_lines | default: 2 }}; }
+  </style>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="/assets/tailwind-play.js"></script>
 </head>
-<body>
-  <nav class="shell-nav" aria-label="Primary">
-    {% for group in site.data.pandorga_nav %}
-      <div class="nav-group">
-        <span class="nav-group-name">{{ group.name }}</span>
-        {% for item in group.items %}
-          <a href="{{ item.path }}">{{ item.title }}</a>
-        {% endfor %}
+
+<body class="bg-background text-on-surface">
+
+  {% assign nav_active = nil %}
+  {% if page.collection == "articles" %}{% assign nav_active = "articles" %}{% endif %}
+  {% if page.collection == "posts" %}{% assign nav_active = "blog" %}{% endif %}
+  {% if page.collection == "products" %}{% assign nav_active = "cv" %}{% endif %}
+  {% if page.collection == "projects" %}{% assign nav_active = "projects" %}{% endif %}
+  {% unless nav_active %}{% assign nav_active = page.key %}{% endunless %}
+
+  {% assign _all_pages = site.pages %}
+
+  <!-- TopNavBar -->
+  <nav class="sticky top-0 z-50 bg-surface">
+    <div class="flex justify-between items-center w-full px-6 sm:px-8 md:px-10 pt-5 pb-3.5 leading-none max-w-7xl mx-auto">
+      <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+        <a href="/" aria-label="{{ site.author }} – Home" class="shrink-0 inline-flex items-center gap-3 site-wordmark-link">
+          {% include theme/site-logo.html %}
+          <span class="site-wordmark">{{ site.author | default: site.title | split: " " | first }}</span>
+        </a>
       </div>
-    {% endfor %}
+
+      {%- comment -%}
+        The mockup's nav is a flat, always-visible bar rather than a menu
+        behind a button. Links and order come from pandorga.pages via the
+        registry generator (site.data.nav). The Explore menu survives as the
+        narrow-viewport fallback.
+      {%- endcomment -%}
+      <nav class="site-rail" aria-label="Sections">
+        {%- for _group in site.data.nav -%}
+        {%- for _item in _group.pages -%}
+        {%- assign _key = _item.key -%}
+        {%- assign _p = _all_pages | where: "key", _key | first -%}
+        <a href="{{ _p.url }}" class="site-rail-link{% if nav_active == _key %} is-active{% endif %}"
+          {% if nav_active == _key %}aria-current="page"{% endif %}>{{ _p.title }}</a>
+        {%- endfor -%}
+        {%- endfor -%}
+      </nav>
+
+      <div class="flex items-center gap-4 sm:gap-5 shrink-0">
+        {% if site.content_include_unpublished or site.unpublished %}
+          {% include theme/dev-reexport.html %}
+        {% endif %}
+        {% include theme/theme-toggle.html %}
+        <div id="site-menu" class="relative flex items-center shrink-0">
+          <button id="mobile-menu-btn" type="button"
+            class="flex items-center justify-center w-7 h-7 p-1 text-on-surface-variant hover:text-primary transition-colors duration-300"
+            aria-label="Explore site pages"
+            title="Menu"
+            aria-haspopup="true" aria-expanded="false" aria-controls="mobile-menu">
+            <span class="sr-only">Explore</span>
+            <span class="material-symbols-outlined text-xl" aria-hidden="true">menu</span>
+          </button>
+        <div id="mobile-menu"
+          class="hidden absolute right-0 top-full mt-1 min-w-[14rem] py-2 bg-surface border border-gentle-subtle shadow-sm z-50"
+          role="menu" aria-label="Explore">
+          <div class="flex flex-col px-3 gap-0">
+            {% for _group in site.data.nav %}
+            {% unless forloop.first %}<div class="h-px bg-outline-variant/30 my-1.5" role="separator"></div>{% endunless %}
+            {% for _item in _group.pages %}
+            {% assign _key = _item.key %}
+            {% assign _p = _all_pages | where: "key", _key | first %}
+            {% comment %}The inactive state carries no weight class: Cabin's axis starts
+            at 400 and the font loader requests nothing below it, so the `font-light` this
+            used to set asked for a 300 that resolves straight back to 400 and changed
+            nothing on the page. The variant ink is what marks the state.{% endcomment %}
+            <a href="{{ _p.url }}" role="menuitem"
+              class="flex items-center gap-2.5 font-body {% if nav_active == _key %}text-primary font-semibold{% else %}text-on-surface-variant hover:text-primary{% endif %} transition-colors duration-300 py-2 px-1">
+              {% if _item.icon %}<span class="material-symbols-outlined text-lg shrink-0 flex items-center justify-center" aria-hidden="true">{{ _item.icon }}</span>{% endif %}
+              <span class="inline-flex items-center gap-1.5 leading-none">{{
+                _p.title }}{% if _p.badge %}<span class="marginalia font-label text-tertiary">{{ _p.badge }}</span>{% endif
+                %}</span>
+            </a>
+            {% endfor %}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+    <!-- Tonal separator — "No-Line" design rule: background-color shift instead of a CSS border -->
+    <div class="bg-surface-container-low h-[1px]"></div>
   </nav>
+  <script>
+    (function () {
+      var wrap = document.getElementById('site-menu');
+      var btn = document.getElementById('mobile-menu-btn');
+      var menu = document.getElementById('mobile-menu');
+      if (!wrap || !btn || !menu) return;
+
+      function setOpen(open) {
+        menu.classList.toggle('hidden', !open);
+        btn.setAttribute('aria-expanded', String(open));
+      }
+
+      btn.addEventListener('click', function (event) {
+        event.stopPropagation();
+        setOpen(menu.classList.contains('hidden'));
+      });
+      document.addEventListener('click', function (event) {
+        if (!wrap.contains(event.target)) setOpen(false);
+      });
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') setOpen(false);
+      });
+    })();
+  </script>
+
+  {% include page/content-runtime.html %}
+
   {{ content }}
+
+  {% include page/figure-lightbox.html %}
+
+  <!-- Footer -->
+  {% include page/site-footer.html nav_active=nav_active %}
+
 </body>
+
 </html>

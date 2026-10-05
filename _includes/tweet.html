@@ -1,0 +1,22 @@
+{% if include.body %}
+{% assign _handle = include.handle | default: '' | strip | remove_first: '@' %}
+{% assign _icon = include.icon | default: 'chat' | strip %}
+{% assign _url = include.url | default: '' | strip %}
+{% assign _link = _url | remove: 'https://' | remove: 'http://' %}
+<article class="sov-tweet article-tweet">
+  <div class="sov-tweet__head article-tweet__head">
+    <span class="sov-tweet__avatar article-tweet__avatar" aria-hidden="true"><span class="material-symbols-outlined">{{ _icon | escape }}</span></span>
+    <span class="sov-tweet__id article-tweet__id">
+      {% if include.name and include.name != '' %}<span class="sov-tweet__name article-tweet__name">{{ include.name | escape }}</span>{% endif %}
+      {% if _handle != '' %}<span class="sov-tweet__handle article-tweet__handle">@{{ _handle | escape }}</span>{% endif %}
+    </span>
+  </div>
+  <p class="sov-tweet__body article-tweet__body">{{ include.body }}</p>
+  {% if _url != '' or include.date %}
+  <p class="sov-tweet__cite article-tweet__cite">{% if _url != '' %}<a href="{{ _url }}">{{ _link }}</a>{% endif %}{% if _url != '' and include.date %} · {% endif %}{% if include.date %}{{ include.date | escape }}{% endif %}</p>
+  {% endif %}
+  {% if include.note and include.note != '' %}
+  <p class="sov-tweet__note article-tweet__note">{{ include.note }}</p>
+  {% endif %}
+</article>
+{% endif %}

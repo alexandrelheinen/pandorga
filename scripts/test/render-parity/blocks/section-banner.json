@@ -1,0 +1,13 @@
+{
+  "name": "section-banner/kicker-title-note",
+  "block": "renderSectionBanner",
+  "args": [{ "kicker": "02", "title": "Long-form inquiries", "note": "12 entries" }],
+  "selectors": [
+    "div.ledger-section-banner",
+    "div.ledger-section-lead",
+    "span.ledger-kicker",
+    "h2.section-title",
+    "span.ledger-section-note"
+  ],
+  "contains": [">02<", ">Long-form inquiries<", ">12 entries<"]
+}

@@ -1,0 +1,97 @@
+# Brazilian Ledger — dark theme (runtime toggle companion to light.yml).
+#
+# 2026-09 vivid pass: same Ledger hues as light, chroma raised so accents
+# read on the near-black ladder (Stitch Home Dark Mode intent: pigment on
+# near-black, not a new triad).
+
+colors:
+  primary: "#a4c8da"
+  secondary: "#95c8a6"
+  tertiary: "#ddd8a8"
+  primary_container: "#4a5c66"
+  secondary_container: "#435c4c"
+  tertiary_container: "#6a684f"
+  on_primary_container: "#c0d8e6"
+  on_secondary_container: "#b5d9c2"
+  on_tertiary_container: "#e8e4c0"
+  chart_project: "#98c8ac"
+
+neutrals:
+  on_surface: "#ffffff"
+  on_surface_variant: "#b8b7ae"
+  on_background: "#ffffff"
+  outline: "#93938d"
+  # Neutralised with the rest of the ramp: this was #44453f (green highest),
+  # and every hairline in the build is an opacity step of it.
+  outline_variant: "#45454c"
+  background: "#0c0c0e"
+  background_secondary: "#141418"
+  surface: "#111114"
+  surface_container_low: "#17171b"
+  surface_container: "#1f1f24"
+  surface_container_high: "#26262b"
+  surface_variant: "#2e2e34"
+  # Architectural Ledger ladder. Depth comes from tonal steps, not shadow:
+  # canvas (background) -> panel -> card (transparent at rest) -> hover.
+  #
+  # Cards rest transparent so the panel/canvas and shards show through; the
+  # hover rung still lifts. Widened 2026-09: canvas near-black buys headroom
+  # the reference mockup uses (#0a0a0a canvas). Panel and hover keep the
+  # ~+4 L* / ~+6 L* steps; the resting card no longer inserts a mid plate.
+  panel_contrast: "#141418"
+  surface_card: "#0c0c0e"
+  surface_card_contrast: "#141418"
+  surface_high: "#26262b"
+  surface_high_contrast: "#26262b"
+
+links:
+  default: "#b0d0e0"
+  hover: "#c4dce8"
+
+# Fonts, motion, and geometry live in shared.yml — colour themes do not
+# redeclare them.
+
+static:
+  on_primary: "#0f1a22"
+  on_secondary: "#141a15"
+  on_tertiary: "#1b1c12"
+  surface_container_lowest: "#08080a"
+  surface_dim: "#060607"
+  inverse_primary: "#1c5a7a"
+  inverse_surface: "#ffffff"
+  inverse_on_surface: "#000000"
+  primary_fixed: "#a8c5d4"
+  primary_fixed_dim: "#a4c8da"
+  secondary_fixed: "#b4d4c0"
+  secondary_fixed_dim: "#95c8a6"
+  tertiary_fixed: "#d0ceb0"
+  tertiary_fixed_dim: "#ddd8a8"
+  on_primary_fixed: "#0a1419"
+  on_primary_fixed_variant: "#c0d8e6"
+  on_secondary_fixed: "#0c1710"
+  on_secondary_fixed_variant: "#b5d9c2"
+  on_tertiary_fixed: "#17160c"
+  on_tertiary_fixed_variant: "#e8e4c0"
+  error: "#ffb4ab"
+  on_error: "#690005"
+  error_container: "#93000a"
+  on_error_container: "#ffdad6"
+  res_youtube: "#de6461"
+  res_podcast: "#5dc462"
+  res_doc: "#e4b268"
+
+sidebar_thumbnail:
+  background: "#1f1f24"
+  overlay_gradient_start: "rgba(23, 23, 27, 0.35)"
+  overlay_gradient_end: "rgba(12, 12, 14, 0.45)"
+
+# Timeline lane palette — see light.yml for the rationale. Same six hues,
+# lifted in lightness and eased in saturation so they carry against the
+# near-black canvas instead of sinking into it. Chroma raised with the triad.
+timeline:
+  employment: "#a4c8da"   # petrol
+  education: "#95c8a6"    # forest
+  product: "#d5b46e"      # tobacco
+  project: "#a9a5dd"      # indigo
+  article: "#da987e"      # terracotta
+  post: "#7cc7b5"         # sage teal

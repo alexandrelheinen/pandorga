@@ -1,0 +1,1330 @@
+/* ── Article content ── */
+:root {
+  --reading-measure: 45rem;
+}
+
+.text-reading-column {
+  width: 100%;
+  max-width: var(--reading-measure);
+}
+
+/* Sidebar title/description/meta share the same measure as the body column */
+.text-detail-sidebar {
+  width: 100%;
+  max-width: var(--reading-measure);
+}
+
+/* Detail pages: title in left third; body starts aligned with the title */
+.text-page-main {
+  align-self: start;
+  background-color: var(--color-background);
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+  padding: var(--space-md);
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .text-page-main {
+    padding: var(--space-2xl);
+  }
+}
+
+/* Size and leading are not set here: ledger/detail.css loads after this sheet
+   and owns both (1.1rem at var(--leading-body)). They used to be declared in
+   both files, 1em/1.8 here against 1.1rem/1.7 there, and the pair that lost
+   was still being used to derive line-box measurements further down. */
+/* Body / prose ink is full on-surface (black in light, white in dark).
+   Meta, captions, and chrome stay on on-surface-variant. */
+.article-content {
+  width: 100%;
+  max-width: var(--reading-measure);
+  color: var(--color-on-surface);
+}
+
+/* Section headings — content-title voice (Regular 400, never bold);
+   detail.css owns final size/leading. */
+.article-content h1,
+.article-content h2,
+.article-content h3 {
+  font-family: var(--font-content-title);
+  font-weight: var(--weight-title);
+  font-synthesis: none;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  color: var(--color-on-surface);
+  border-left: none;
+  padding-left: 0;
+}
+
+.article-content h4 {
+  font-family: var(--font-body);
+  font-weight: var(--weight-title);
+  font-synthesis: none;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  color: var(--color-on-surface);
+  border-left: none;
+  padding-left: 0;
+}
+
+.article-content h1 {
+  font-size: var(--type-title);
+}
+
+.article-content h2 {
+  font-size: var(--type-title);
+}
+
+.article-content h3 {
+  font-size: var(--type-card-lg);
+}
+
+.article-content h4 {
+  font-size: var(--type-body);
+}
+
+/* The paragraph gap belongs to ledger/detail.css, which sets it at 1.15em;
+   only the reset survives here. */
+.article-content p {
+  margin-top: 0;
+}
+
+/* MathJax: keep inline math in the text flow; display math on its own line */
+.article-content mjx-container:not([display="true"]) {
+  display: inline;
+  margin: 0;
+  vertical-align: baseline;
+}
+
+/* A display equation is a block in the prose flow, so it takes the paragraph
+   gap and nothing more. Two things used to inflate it, to a measured 52px
+   above the equation and 39px below against a 22px paragraph gap.
+
+   First, the runtime wraps a standalone `$$…$$` in a `.math-display` div
+   (20-markdown.html) and MathJax then renders its own container inside that
+   wrapper, so a selector list naming both spaced one equation twice.
+
+   Second, the container half of that pair never applied: MathJax injects
+   `mjx-container[jax="CHTML"][display="true"] {  margin: 1em 0 }` at runtime,
+   which outranks `.article-content mjx-container[display="true"]` on
+   specificity. The 0.5rem this file asked for was never what the page drew.
+
+   So the wrapper owns the gap, the scroll and the padding; the container
+   inside it owns none of them. */
+.article-content .math-display {
+  display: block;
+  /* The bottom gap is the paragraph gap `.article-content p` sets in
+     ledger/detail.css; the top gap is left to the previous block, exactly as
+     it is between two paragraphs. The negative top margin hands back the
+     padding below, which a margin collapse cannot absorb — the two are one
+     number, so change them together or the rhythm moves. */
+  margin: -1.25rem 0 calc(1.15em - 1.25rem);
+  /* overflow-x lets an over-wide equation scroll sideways. CSS forces
+     overflow-y to auto alongside it, so a bracket, radical or matrix rule that
+     MathJax draws past its own line box gets clipped, or grows a vertical
+     scrollbar it has no use for. The padding is the allowance for that
+     overshoot: 1.25rem clears the worst case on the object-centric article
+     (a 3-row bmatrix, measured at 12px past a 0.5rem allowance). It costs
+     nothing visually, because the margin above gives it straight back. */
+  padding: 1.25rem 0;
+  overflow-x: auto;
+  text-align: center;
+}
+
+/* `[jax]` is redundant as a selector — every MathJax container carries it —
+   but it lifts this rule past MathJax's own injected margin, which is the
+   whole point of the rule. */
+.article-content .math-display mjx-container[jax][display="true"] {
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+}
+
+/* Display math the wrapper regex cannot reach, because the `$$` sits inside a
+   list item or a table cell rather than alone in a paragraph. It still has to
+   break the line; its vertical margin stays MathJax's own 1em, which lands
+   within a pixel of the paragraph gap. */
+.article-content mjx-container[display="true"] {
+  display: block;
+  overflow-x: auto;
+  text-align: center;
+}
+
+/* End-of-section brand strip: centered raw HTML row of logos (not figure.html).
+   Default height is shared; override per <img style="height:…"> when a mark
+   needs a different optical weight. Pairs sit ~2ch apart (inline-block, not flex).
+   Vertical margin is one body line box before and after, read off the leading
+   token rather than copied as a number; 1lh is unusable while line-height is
+   0, and the literal this used to carry (1.8em) outlived the leading it was
+   measured against. */
+.article-content .article-brand-strip {
+  display: block;
+  text-align: center;
+  margin: calc(var(--leading-body) * 1em) 0;
+  line-height: 0;
+}
+
+.article-content .article-brand-strip img {
+  display: inline-block;
+  vertical-align: middle;
+  width: auto;
+  height: 2.75rem;
+  max-width: min(100%, 14rem);
+  object-fit: contain;
+}
+
+.article-content .article-brand-strip img+img {
+  margin-left: 2ch;
+}
+
+.article-content .article-brand-strip-dark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 0.35rem 0.55rem;
+  /* A fixed dark plate beNewsreader light-on-transparent marks. It must stay dark in
+     both themes, so no surface token fits: every one of them flips. */
+  background: #111;
+}
+
+.article-content .article-brand-strip-dark img {
+  height: 2.25rem;
+}
+
+/* Poem blocks preserve line breaks typed in Markdown without trailing spaces.
+   Same face and size as the reading column — not a smaller apparatus step. */
+.article-content .poem {
+  white-space: normal;
+  font-family: var(--font-body);
+  font-size: var(--type-prose);
+  font-weight: var(--weight-body);
+  font-style: normal;
+  line-height: var(--leading-prose);
+  color: var(--color-on-surface);
+  margin: 0;
+}
+
+.article-content .poem p {
+  white-space: pre-line;
+  font-size: inherit;
+  font-weight: inherit;
+  margin: 0;
+}
+
+.article-content .poem p+p {
+  /* Blank line in source = new stanza or refrão. */
+  margin-top: 1em;
+}
+
+.article-content ul {
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+  list-style-type: disc;
+  list-style-position: outside;
+}
+
+.article-content ol {
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+  list-style-type: decimal;
+  list-style-position: outside;
+}
+
+.article-content li {
+  margin-bottom: 0.3rem;
+}
+
+.article-content code {
+  background: var(--color-surface-container);
+  padding: 0.1rem 0.3rem;
+  font-size: var(--type-meta);
+  font-family: var(--font-code);
+}
+
+:is(.article-content, .article-cite-block) pre {
+  background: var(--color-surface-container);
+  padding: 1rem;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+  font-family: var(--font-code);
+}
+
+:is(.article-content, .article-cite-block) pre code {
+  background: none;
+  padding: 0;
+}
+
+.article-content a {
+  color: var(--color-link);
+}
+
+.article-content img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 100%;
+}
+
+@media (max-width: 767px) {
+
+  /* Override inline figure widths to allow full width on mobile */
+  .article-content figure[style] {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .article-content img:not(.article-cut-in) {
+    width: 100%;
+    max-height: 100vw;
+    object-fit: contain;
+  }
+
+  .article-content img.article-cut-in {
+    max-height: calc(var(--leading-body) * 6em);
+  }
+}
+
+/* Typographic cut-in: 3×4 portrait floated into the column so type wraps
+   around it. Height is six body line boxes and the width is the 3:4 of that,
+   both derived from the leading token so the crop keeps landing on the text
+   it wraps. The pair was frozen at 8.1em by 10.8em, which was six line boxes
+   of a leading the sheet no longer sets.
+
+   The image carries the geometry; the plate around it carries the float. */
+.article-content img.article-cut-in {
+  display: block;
+  width: calc(var(--leading-body) * 4.5em);
+  height: calc(var(--leading-body) * 6em);
+  max-width: 100%;
+  object-fit: cover;
+  object-position: center 18%;
+  margin: 0;
+}
+
+/* A cut-in sits on the same plate as every other picture in an article, which
+   it did not before: the include emitted a bare `<img>`, so a portrait dropped
+   into a paragraph was the one piece of media on the site arriving without a
+   ground under it. `.article-content figure` is written for a full-width
+   block, so the three properties that make this one a float have to be stated
+   back: the width shrinks to its portrait, the float moves here off the image,
+   and the margin becomes the gutter the wrapping text reads against. The
+   padding is the small step, not the figure's own: a plate as thick as a
+   full-width figure's would swallow a 3x4 portrait set into running text. */
+.article-content figure.article-cut-in-plate {
+  float: left;
+  display: block;
+  width: auto;
+  max-width: 40%;
+  margin: 0.15em 0.9em 0.45em 0;
+  padding: var(--space-sm);
+}
+
+.article-content figure.article-cut-in-plate.article-cut-in--right {
+  float: right;
+  margin: 0.15em 0 0.45em 0.9em;
+}
+
+/* Short wrapping grafs beside a cut-in. The default 1.1em paragraph gap is
+   meant for long reading-column blocks; next to a 3×4 float and a *** rule
+   it reads as an extra blank line. Only pages that float a cut-in as a
+   direct child (the bulletin layout) pick this up. */
+.article-content:has(> figure.article-cut-in-plate)>p {
+  margin-bottom: 0.8em;
+}
+
+.article-content:has(> figure.article-cut-in-plate)>hr {
+  margin: 1.5rem 0;
+}
+
+/* ── Media plates ──
+   Every figure sits on a plate. This is not decoration: a light-background
+   Matplotlib plot and a dark simulation video otherwise arrive on the page as
+   two different surfaces, and a transparent PNG on the dark palette reads as a
+   rendering fault rather than as a picture. The plate gives all of them one
+   ground in both themes.
+
+   The projects page had this to itself until now; these rules are the ones it
+   proved, moved up so the treatment is the site's rather than one page's. What
+   stayed beNewsreader in ledger/projects.css is the *other* thing that page does —
+   letting media out of the reading measure — which is a separate decision.
+
+   `.plotly-figure` and the videos both carry the `figure` element, so one
+   selector covers the include library, the browser runtime and the two legacy
+   WordPress `wp-block-image` figures in the Portuguese posts. */
+.article-content figure {
+  margin: 1.5rem auto;
+  text-align: center;
+  width: 100%;
+  display: block;
+  background: var(--color-surface-container-low);
+  padding: var(--space-md);
+}
+
+.article-content figure img {
+  margin-inline: auto;
+}
+
+/* Video is the one medium that brings its own black, so it takes the full
+   plate width over the dim step rather than the container step under it. */
+.article-content figure video {
+  display: block;
+  width: 100%;
+  background: var(--color-surface-dim);
+}
+
+/* Landscape YouTube / local video: always the full reading measure.
+   Shorts stay narrow (45%); a paired short block uses the full measure with
+   each frame at 45%. */
+.article-content figure.article-youtube-landscape,
+.article-content figure.article-video-landscape {
+  max-width: 100%;
+  width: 100%;
+}
+
+.article-content figure.article-youtube-short-wrap {
+  max-width: 45%;
+}
+
+.article-content figure.article-youtube-short-wrap--pair {
+  max-width: 100%;
+}
+
+.article-content .article-youtube-short iframe {
+  display: block;
+}
+
+/* The Plotly iframe paints its own themed background and is already inside the
+   plate; a second fill here would box a box. */
+.article-content .plotly-embed-frame {
+  background: transparent;
+}
+
+/* ── Figure lightbox (docs/features/figure-lightbox.md) ── */
+img.figure-lightbox-trigger {
+  cursor: zoom-in;
+}
+
+img.figure-lightbox-trigger:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+html.figure-lightbox-open,
+body.figure-lightbox-open {
+  overflow: hidden;
+}
+
+.figure-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  box-sizing: border-box;
+}
+
+.figure-lightbox[hidden] {
+  display: none;
+}
+
+.figure-lightbox-backdrop {
+  position: absolute;
+  inset: 0;
+  /* Near-opaque black so the article beNewsreader never reads as “another page”. */
+  background: rgba(0, 0, 0, 0.85);
+  cursor: zoom-out;
+  animation: figure-lightbox-fade-in var(--motion-duration-fast) var(--motion-ease-out);
+}
+
+.figure-lightbox-panel {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: min(92vw, 72rem);
+  max-height: 92vh;
+  animation: figure-lightbox-scale-in var(--motion-duration-fast) var(--motion-ease-out);
+}
+
+.figure-lightbox-img {
+  display: block;
+  max-width: 92vw;
+  max-height: 85vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  background: var(--color-surface);
+  border: 1px solid color-mix(in srgb, var(--color-outline-variant) 40%, transparent);
+  border-radius: 0;
+}
+
+/* Moves with the caption under the plate — the lightbox shows the same
+   sentence about the same figure. */
+.figure-lightbox-caption {
+  margin: 0.75rem 0 0;
+  max-width: min(40rem, 90vw);
+  font-family: var(--font-body);
+  font-size: var(--type-label-lg);
+  line-height: 1.45;
+  text-align: center;
+  /* Light caption on the black scrim (readable in light and dark themes). */
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.figure-lightbox-close {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--color-outline-variant) 50%, transparent);
+  border-radius: 0;
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  cursor: pointer;
+  transition: color var(--motion-duration-fast) var(--motion-ease-default), background-color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.figure-lightbox-close:hover,
+.figure-lightbox-close:focus-visible {
+  color: var(--color-primary);
+  background: var(--color-surface-container-low);
+  outline: none;
+}
+
+.figure-lightbox-close:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.figure-lightbox-close .material-symbols-outlined {
+  font-size: var(--type-section);
+  line-height: 1;
+}
+
+@keyframes figure-lightbox-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes figure-lightbox-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .figure-lightbox-backdrop,
+  .figure-lightbox-panel {
+    animation: none;
+  }
+}
+
+/* Mermaid takes the container step, not the panel step. `mermaidConfig()`
+   paints cluster backgrounds with --color-panel-contrast and node fills with
+   --color-surface-card, so a panel plate would swallow every subgraph box the
+   diagram draws. The container step sits clear of both in each theme — do not
+   "simplify" this to panel-contrast. */
+.article-content .mermaid {
+  margin: var(--space-2xl) 0;
+  padding: var(--space-xl) var(--space-lg);
+  background: var(--color-surface-container);
+  text-align: center;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.article-content .mermaid svg {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: none;
+  width: auto;
+  height: auto;
+}
+
+/* Captions are sentences. The include centres the whole figure, and a centred
+   paragraph of provenance is harder to read than a left-set one; the rule on
+   the element itself beats the `text-center` utility the runtime emits. The
+   hairline separates the caption from the picture now that both share a
+   plate.
+
+   Scoped to `figure figcaption`, not to any figcaption, so the treatment and
+   the plate always travel together. That used to exclude the YouTube caption,
+   because youtube.html emitted a bare `<figcaption>` inside a `<div>` with no
+   `<figure>` around it and the rule would have drawn a hairline under an
+   unplated iframe. The include emits a `<figure>` now, so the embed takes the
+   plate and its caption takes this treatment with it. */
+/* Captions match the detail standfirst: body − 1pt, upright, not fine print.
+   Ink is a soft step toward variant so legends sit quieter than body copy. */
+.article-content figure figcaption,
+.article-content figcaption {
+  text-align: left;
+  font-family: var(--font-body);
+  font-size: var(--type-subtitle);
+  font-style: normal;
+  font-weight: var(--weight-body);
+  line-height: 1.55;
+  letter-spacing: normal;
+  color: var(--color-legend);
+  margin-top: var(--space-sm);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--border-gentle-faint);
+}
+
+.article-content figcaption p {
+  display: inline;
+  margin: 0;
+}
+
+.article-content blockquote {
+  background: var(--color-surface-container-low);
+  padding: 1rem 1.5rem;
+  margin: 1.5em 0;
+  color: var(--color-on-surface);
+  font-size: var(--type-prose);
+  font-style: normal;
+  font-weight: var(--weight-body);
+  border-left: none;
+}
+
+.article-content blockquote a {
+  color: var(--color-link);
+  text-decoration: underline;
+}
+
+.article-content blockquote p {
+  margin-bottom: 0.5rem;
+}
+
+.article-content blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+/* ── Tables ── */
+.article-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+  font-size: var(--type-dek);
+}
+
+.article-content th,
+.article-content td {
+  border: 1px solid var(--border-gentle-subtle);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.article-content thead th {
+  background: var(--color-surface-container-low);
+  font-family: var(--font-body);
+  font-weight: var(--weight-emphasis);
+  color: var(--color-legend);
+}
+
+.article-content tbody tr:nth-child(even) {
+  background: var(--color-surface-container-low);
+}
+
+.article-content tbody tr:nth-child(even) td {
+  color: var(--color-on-surface);
+}
+
+.article-content hr {
+  border: 0;
+  border-top: 1px solid var(--border-gentle-divider);
+  margin: 2rem 0;
+  clear: both;
+}
+
+/* ── Article sidebar heading (title + description live in the left column) ── */
+.article-sidebar-heading {
+  border-bottom: 1px solid var(--border-gentle-divider);
+  padding-bottom: 1.5rem;
+}
+
+.article-sidebar-heading .text-title {
+  margin: 0 0 0.875rem;
+}
+
+@media (min-width: 768px) {
+  .article-sidebar-heading .text-title {
+    margin-bottom: 1rem;
+  }
+}
+
+.article-sidebar-description {
+  font-family: var(--font-body);
+  font-size: var(--type-body);
+  font-weight: var(--weight-body);
+  line-height: var(--leading-body);
+  letter-spacing: normal;
+  color: var(--color-legend);
+  margin: 0;
+  text-transform: none;
+}
+
+/* Speaker cue in a transcript — title-cased name, accent colour, no shouty
+   caps and no chip chrome. Colour alone marks who is speaking; the dialogue
+   stays the main measure. */
+.transcription-speaker {
+  flex: 0 0 20%;
+  max-width: 20%;
+  font-family: var(--font-body);
+  font-size: var(--type-body);
+  font-weight: var(--weight-emphasis);
+  line-height: var(--leading-body);
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+/* Sequential page navigation — same typeface as article descriptions.
+   This used to cover .pagination-nav-btn too, which loads after base.css at
+   the same specificity and so silently overrode the listing pagination
+   component. Article prev/next and listing pagination are different controls
+   on different pages; the listing one is defined once in base.css. */
+.text-page-nav a {
+  font-family: var(--font-subtitle);
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+/* Post thumbnail in sidebar — softer than card thumbnails, same 16:9 family */
+.article-sidebar-thumbnail {
+  margin: 1rem 0 0;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  position: relative;
+  background: var(--sidebar-thumbnail-background);
+  width: min(100%, var(--sidebar-thumbnail-width));
+  max-width: var(--sidebar-thumbnail-width);
+  flex-shrink: 0;
+}
+
+.article-sidebar-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: var(--sidebar-thumbnail-image-opacity);
+  filter: saturate(var(--sidebar-thumbnail-filter-saturate)) contrast(var(--sidebar-thumbnail-filter-contrast)) brightness(var(--sidebar-thumbnail-filter-brightness)) sepia(var(--sidebar-thumbnail-filter-sepia));
+}
+
+.article-sidebar-thumbnail::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+      var(--sidebar-thumbnail-overlay-start) 0%,
+      var(--sidebar-thumbnail-overlay-end) 100%);
+  pointer-events: none;
+}
+
+/* ── Article meta ── */
+.article-meta {
+  color: var(--color-on-surface-variant);
+  font-size: var(--type-label-lg);
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 1023px) {
+  .text-detail-sidebar .article-meta {
+    margin-bottom: 0;
+  }
+}
+
+/* ── Article table of contents ── */
+.article-toc--sidebar {
+  display: none;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-gentle-divider);
+}
+
+.article-toc-title,
+.article-toc-summary {
+  font-family: var(--font-label);
+  font-size: var(--type-label-lg);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.article-toc-title {
+  font-weight: 600;
+  color: var(--color-on-surface);
+  margin: 0 0 0.75rem;
+}
+
+.article-toc--sidebar .article-toc-list {
+  padding-left: 0.75rem;
+}
+
+.article-toc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.article-toc-item+.article-toc-item {
+  margin-top: 0.375rem;
+}
+
+.article-toc-link {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  font-family: var(--font-body);
+  font-size: var(--type-body);
+  line-height: 1.45;
+  color: var(--color-on-surface-variant);
+  text-decoration: none;
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 400;
+}
+
+.article-toc-num {
+  flex: 0 0 auto;
+  min-width: 1.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  letter-spacing: 0.04em;
+  color: var(--color-outline);
+}
+
+.article-toc-item.is-active>.article-toc-link,
+.article-toc-item.is-active .article-toc-num {
+  color: var(--color-primary);
+}
+
+.article-toc-item.is-active>.article-toc-link {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.22em;
+  text-decoration-color: color-mix(in srgb, var(--color-primary) 55%, transparent);
+}
+
+.article-toc-link:hover {
+  color: var(--color-link-hover);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.article-toc-item--h3 .article-toc-link {
+  padding-left: 1.75rem;
+  font-size: var(--type-subtitle);
+  color: var(--color-on-surface-variant);
+}
+
+.article-toc--disclosure {
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border-gentle-divider);
+  background: var(--color-surface-container-low);
+}
+
+@media (max-width: 1023px) {
+  .text-detail-sidebar .article-toc--disclosure {
+    margin-top: 1.5em;
+    margin-bottom: 0;
+  }
+
+  .text-page-main[data-dynamic-article-detail],
+  .text-page-main[data-dynamic-post-detail],
+  .text-page-main[data-dynamic-portfolio-detail] {
+    margin-top: 2.5rem;
+  }
+}
+
+.article-toc-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  list-style: none;
+  font-weight: 600;
+  color: var(--color-on-surface-variant);
+}
+
+.article-toc-summary::-webkit-details-marker {
+  display: none;
+}
+
+.article-toc-summary-icon {
+  font-size: var(--type-prose);
+  color: var(--color-secondary);
+  transition: transform var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.article-toc--disclosure[open] .article-toc-summary-icon {
+  transform: rotate(180deg);
+}
+
+.article-toc-panel {
+  padding: 0 1rem 1rem;
+  border-top: 1px solid var(--border-gentle-divider);
+}
+
+.article-content h2[id],
+.article-content h3[id] {
+  scroll-margin-top: 6rem;
+}
+
+@media (min-width: 1024px) {
+  .article-toc--sidebar {
+    display: block;
+  }
+
+  .article-toc--disclosure {
+    display: none;
+  }
+}
+
+/* ── Internal cross-citation links (xcite) ── */
+a.xcite-ref {
+  color: var(--color-secondary);
+  text-decoration-line: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  text-decoration-style: dotted;
+}
+
+a.xcite-ref:hover {
+  color: var(--color-link-hover);
+  text-decoration-style: solid;
+}
+
+.xcite-missing {
+  color: var(--color-error);
+  font-family: monospace;
+  font-size: var(--type-meta);
+}
+
+/* ── Inline note block (gray, similar to CV/portfolio boxes) ── */
+.article-content .article-note {
+  background: var(--color-surface-container-low);
+  padding: 1rem 1.5rem;
+  margin: 1.5em 0;
+  font-size: var(--type-subtitle);
+  font-weight: var(--weight-body);
+  color: var(--color-on-surface);
+}
+
+.article-content .article-note> :last-child {
+  margin-bottom: 0;
+}
+
+/* ══ Code blocks ══
+   A fence used to render as a bare grey box: no indication of what language
+   was in it, and nothing to do with it but select the text by hand. It now
+   carries the chrome an editor gives a file — a bar across the top with the
+   language on a tab and a copy control at the right edge, and the pane below.
+
+   The tab is drawn in the pane's own fill with a rule of primary across its
+   top edge, which is the one idiom every editor shares for "this is the file
+   you are looking at". It is the same square, hairline-bordered construction
+   the ledger cards use; nothing here is rounded and nothing floats.
+
+   The markup is assembled from the rendered DOM by
+   _includes/content-runtime/25-code-blocks.html, so these rules never see a
+   `pre` that has not been wrapped. */
+:is(.article-content, .article-cite-block) .code-block {
+  margin: 1.5rem 0;
+  background: var(--color-surface-container);
+  border: 1px solid var(--border-gentle-subtle);
+}
+
+:is(.article-content, .article-cite-block) .code-block-bar {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: var(--space-md);
+  background: var(--color-surface-container-high);
+  border-bottom: 1px solid var(--border-gentle-subtle);
+}
+
+:is(.article-content, .article-cite-block) .code-block-tab {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.9rem;
+  background: var(--color-surface-container);
+  border-right: 1px solid var(--border-gentle-subtle);
+  /* An inset shadow rather than a border-top, so the rule does not add a
+     pixel to the tab's height and push the bar taller than the button. */
+  box-shadow: inset 0 2px 0 var(--color-primary);
+  color: var(--color-on-surface);
+  font-size: var(--type-label);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  line-height: 1;
+}
+
+:is(.article-content, .article-cite-block) .code-block-copy {
+  padding: 0.4rem 0.9rem;
+  border: 0;
+  background: transparent;
+  color: var(--color-on-surface-variant);
+  font-size: var(--type-label);
+  letter-spacing: 0.12em;
+  line-height: 1;
+  cursor: pointer;
+  transition: color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+:is(.article-content, .article-cite-block) .code-block-copy:hover,
+:is(.article-content, .article-cite-block) .code-block-copy:focus-visible {
+  color: var(--color-primary);
+}
+
+/* The acknowledgement is the secondary green, which is the colour this site
+   already uses for a state rather than for a link. */
+:is(.article-content, .article-cite-block) .code-block-copy.is-copied {
+  color: var(--color-secondary);
+}
+
+/* The container carries the fill and the frame now, so the pane inside is
+   only the scroll box and the padding. */
+:is(.article-content, .article-cite-block) .code-block pre {
+  margin: 0;
+  background: none;
+  border: 0;
+}
+
+/* ── Terminal captures ──
+   An `ansi` fence is a real capture, escape codes and all, rendered by
+   renderAnsiHtml into spans that paint from the sixteen custom properties
+   below. The ground is stated outright instead of being taken from the
+   surface ladder, and it does not follow the theme: ANSI colours are defined
+   against a dark terminal and a bright yellow on the light palette's white
+   canvas is illegible. A capture of a terminal brings its own surface with
+   it, the way a photograph brings its own light.
+
+   The palette is Tango, which is what Ubuntu's terminal ships and therefore
+   what the capture in the WSL article was actually drawn with. Bold maps to
+   the bright half in the renderer, not here, because that is a terminal
+   behaviour rather than a typographic one. */
+.article-content .code-block--ansi {
+  --ansi-bg: #12130f;
+  --ansi-fg: #d3d7cf;
+  --ansi-fg-bold: #eeeeec;
+  /* The resting colour of the copy control. `--ansi-8`, the bright black the
+     palette would otherwise suggest, is 2.5 : 1 on this ground; this is 4.9 : 1
+     against the bar it sits on. */
+  --ansi-fg-dim: #9aa09a;
+  --ansi-0: #2e3436;
+  --ansi-1: #cc0000;
+  --ansi-2: #4e9a06;
+  --ansi-3: #c4a000;
+  --ansi-4: #3465a4;
+  --ansi-5: #75507b;
+  --ansi-6: #06989a;
+  --ansi-7: #d3d7cf;
+  --ansi-8: #555753;
+  --ansi-9: #ef2929;
+  --ansi-10: #8ae234;
+  --ansi-11: #fce94f;
+  --ansi-12: #729fcf;
+  --ansi-13: #ad7fa8;
+  --ansi-14: #34e2e2;
+  --ansi-15: #eeeeec;
+  background: var(--ansi-bg);
+  border-color: var(--ansi-0);
+}
+
+.article-content .code-block--ansi .code-block-bar {
+  background: var(--ansi-0);
+  border-bottom-color: var(--ansi-8);
+}
+
+.article-content .code-block--ansi .code-block-tab {
+  background: var(--ansi-bg);
+  border-right-color: var(--ansi-8);
+  color: var(--ansi-fg);
+}
+
+.article-content .code-block--ansi .code-block-copy {
+  color: var(--ansi-fg-dim);
+}
+
+.article-content .code-block--ansi .code-block-copy:hover,
+.article-content .code-block--ansi .code-block-copy:focus-visible {
+  color: var(--ansi-fg);
+}
+
+.article-content .code-block--ansi .code-block-copy.is-copied {
+  color: var(--ansi-10);
+}
+
+/* Box drawing made of `s`, `o` and `/` only holds together on a tight grid,
+   so the line height is closed up and the size dropped below the prose
+   `code`. A capture is as wide as the terminal that took it — the neofetch
+   block below runs to about 100 columns — and the reading measure is not
+   negotiable, so past that width the pane scrolls. */
+.article-content .code-block--ansi pre {
+  padding: 0.9rem 1rem;
+  color: var(--ansi-fg);
+  overflow-x: auto;
+  /* Both terms sit on the `pre` rather than on the `code` inside it. `code` is
+     inline, so the block it sits in is what establishes the line boxes: a
+     line-height set on the `code` only sizes its own inline box, and the
+     taller of that and the block's strut wins. With detail.css setting the
+     `pre` to 0.85rem/1.6, the strut was 23.9px against a 15.6px inline box,
+     and the capture rendered at two-thirds again the leading it asked for.
+     Stating the size here as well keeps the strut and the content in step.
+
+     1.15 is a terminal cell. VTE — what Ubuntu's terminal is built on — takes
+     its row height from the font's own ascent plus descent and adds nothing,
+     which lands between 1.16 and 1.20 for the monospace faces it ships. Box
+     drawing made of `s`, `o` and `/` needs that: at prose leading the Ubuntu
+     logo's swirl breaks into twenty unrelated rows of punctuation. */
+  font-size: var(--type-micro);
+  line-height: 1.15;
+}
+
+.article-content .code-block--ansi code {
+  font-size: inherit;
+  line-height: inherit;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Definition cards & social quote callouts (e.g. sovereignty) ── */
+.article-content .sov-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.0rem;
+  margin: 1.25rem 0 1.75rem;
+}
+
+@media (min-width: 720px) {
+  .article-content .sov-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.article-content .sov-card {
+  border: 1px solid color-mix(in srgb, var(--color-outline, #888) 45%, transparent);
+  border-left: 3px solid var(--sov-accent, var(--color-primary, #5b6cff));
+  border-radius: 0;
+  background: color-mix(in srgb, var(--color-surface-card, transparent) 92%, transparent);
+  padding: 0.7rem 0.85rem 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.article-content .sov-card p {
+  margin: 0;
+}
+
+.article-content .sov-card__head {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.article-content .sov-card__flag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.65rem;
+  padding: 0 0.4rem;
+  border: 1.5px solid color-mix(in srgb, currentColor 40%, var(--border-ink, #444));
+  border-radius: 0;
+  line-height: 1;
+}
+
+.article-content .sov-card__flag .fi {
+  font-size: 1.05rem;
+}
+
+.article-content .sov-card__meta {
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.8;
+  font-weight: 600;
+}
+
+.article-content .sov-card__lemma {
+  font-style: italic;
+  font-weight: 400;
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--color-on-surface);
+}
+
+.article-content .sov-card__def {
+  margin: 0;
+  padding: 0.5rem 0.7rem;
+  border-left: 2px solid color-mix(in srgb, var(--sov-accent, #5b6cff) 55%, transparent);
+  background: color-mix(in srgb, var(--sov-accent, #5b6cff) 8%, transparent);
+  font-size: 0.88rem;
+  line-height: 1.68;
+  color: var(--color-on-surface);
+}
+
+.article-content .sov-card__def p {
+  margin: 0;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.article-content .sov-card blockquote {
+  margin: 0;
+  border: none;
+  border-left: 2px solid color-mix(in srgb, var(--sov-accent, #5b6cff) 55%, transparent);
+  border-radius: 0;
+  padding: 0.5rem 0.7rem;
+  background: color-mix(in srgb, var(--sov-accent, #5b6cff) 8%, transparent);
+  font-size: 0.88rem;
+  line-height: 1.68;
+  color: var(--color-on-surface);
+}
+
+.article-content .sov-card blockquote p {
+  margin: 0;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.article-content .sov-card__note {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  opacity: 0.9;
+}
+
+.article-content .sov-card__cite {
+  margin: 0;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  opacity: 0.75;
+}
+
+.article-content .sov-card__cite a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.sov-card--us {
+  --sov-accent: #003494;
+}
+
+.sov-card--gb {
+  --sov-accent: #797300;
+}
+
+.sov-card--br {
+  --sov-accent: #118826;
+}
+
+.sov-card--fr {
+  --sov-accent: #9f020a;
+}
+
+.article-content :is(.sov-tweet, .article-tweet) {
+  max-width: 34rem;
+  margin: 1.25rem 0 1.75rem;
+  padding: 0.95rem 1.15rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--color-outline, #888) 45%, transparent);
+  border-radius: 0;
+  background: color-mix(in srgb, var(--color-surface-card, transparent) 92%, transparent);
+  font-size: 0.95rem;
+}
+
+.article-content :is(.sov-tweet, .article-tweet) p {
+  margin: 0;
+}
+
+.article-content :is(.sov-tweet__head, .article-tweet__head) {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 0.85rem;
+}
+
+.article-content :is(.sov-tweet__avatar, .article-tweet__avatar) {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 0%;
+  background: color-mix(in srgb, var(--color-primary, #7b8896) 25%, transparent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 300;
+  font-size: 1.25rem;
+}
+
+.article-content :is(.sov-tweet__id, .article-tweet__id) {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.article-content :is(.sov-tweet__name, .article-tweet__name) {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.article-content :is(.sov-tweet__handle, .article-tweet__handle) {
+  font-size: 0.82rem;
+  opacity: 0.75;
+}
+
+.article-content :is(.sov-tweet__body, .article-tweet__body) {
+  margin: 0 0 0.5rem !important;
+  font-size: 0.98rem;
+  line-height: 1.65;
+}
+
+.article-content :is(.sov-tweet__body, .article-tweet__body) em {
+  font-style: italic;
+}
+
+.article-content :is(.sov-tweet__cite, .article-tweet__cite) {
+  margin: 0 0 0.55rem !important;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  opacity: 0.8;
+}
+
+.article-content :is(.sov-tweet__cite, .article-tweet__cite) a {
+  text-decoration: none;
+}
+
+.article-content :is(.sov-tweet__note, .article-tweet__note) {
+  margin: 0 !important;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  opacity: 0.9;
+}

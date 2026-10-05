@@ -1,0 +1,22 @@
+{
+  "name": "archive-card/footer-dates-are-opt-in",
+  "block": "renderArchiveCard",
+  "args": [
+    {
+      "front_matter": {
+        "title": "Why I chose WSL",
+        "date": "2026-02-24",
+        "last_updated": "2026-08-22",
+        "description": "How a failed dual boot pushed me to WSL2."
+      }
+    },
+    {
+      "href": "/articles/wsl/",
+      "locale": "en",
+      "ctaLabel": "Read article",
+      "showFooterDates": true
+    }
+  ],
+  "selectors": ["div.ledger-card-foot", "date-evolution"],
+  "contains": ["Aug 22, 2026"]
+}

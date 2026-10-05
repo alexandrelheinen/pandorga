@@ -1,0 +1,8 @@
+{
+  "name": "lang-pill/portuguese",
+  "block": "renderLangPill",
+  "args": ["ptbr"],
+  "selectors": ["span.lang-pill"],
+  "contains": ["lang-pill--ptbr", "data-language=\"ptbr\"", ">PT<"],
+  "excludes": ["EN"]
+}

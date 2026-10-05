@@ -1,0 +1,8 @@
+{
+  "name": "lang-pill/english",
+  "block": "renderLangPill",
+  "args": ["enus"],
+  "selectors": ["span.lang-pill"],
+  "contains": ["lang-pill--enus", "data-language=\"enus\"", ">EN<"],
+  "excludes": ["PT"]
+}

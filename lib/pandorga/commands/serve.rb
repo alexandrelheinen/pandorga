@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "pathname"
+require "rbconfig"
 
 module Pandorga
   module Commands
@@ -14,10 +15,11 @@ module Pandorga
 
           config = %w[_config.yml]
           config << "_config_dev.yml" if root.join("_config_dev.yml").file?
-          env = {
+          env = ENV.to_h.merge(
             "CONTENT_API_BASE_URL" => "",
-            "JEKYLL_ENV" => "development"
-          }
+            "JEKYLL_ENV" => "development",
+            "PANDORGA_SITE_ROOT" => root.to_s
+          )
           cmd = [
             "bundle", "exec", "jekyll", "serve",
             "--unpublished",

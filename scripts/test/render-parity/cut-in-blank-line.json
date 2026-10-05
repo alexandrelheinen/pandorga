@@ -1,0 +1,9 @@
+{
+  "name": "cut-in-blank-line",
+  "markdown": "{% include cut-in.html src=\"/media/images/test.jpg\" alt=\"Test portrait\" %}\n\nFirst wrapping paragraph.\n\nSecond wrapping paragraph.",
+  "selectors": [
+    "figure.article-cut-in-plate",
+    "img.article-cut-in"
+  ],
+  "paragraphCount": 2
+}

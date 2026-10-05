@@ -1,0 +1,27 @@
+{
+  "name": "meta-strip/two-parts-one-separator",
+  "block": "renderMetaStrip",
+  "args": [
+    [
+      "02 Jan 2026",
+      "<span class=\"lang-pill\">EN</span>"
+    ],
+    {
+      "className": "writing-lead-meta"
+    }
+  ],
+  "selectors": [
+    "div.ledger-meta",
+    "span.ledger-meta-sep"
+  ],
+  "contains": [
+    "writing-lead-meta",
+    "aria-hidden=\"true\""
+  ],
+  "counts": {
+    "ledger-meta-sep": 1
+  },
+  "excludes": [
+    "code-technical"
+  ]
+}

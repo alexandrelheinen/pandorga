@@ -1,0 +1,12 @@
+{% if include.id %}
+<figure class="article-youtube-landscape my-8 mx-auto text-center w-full" style="margin: 1.5rem auto; max-width: 100%;">
+  <div style="display: flex; justify-content: center; aspect-ratio: 16 / 9;">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/{{ include.id }}" title="YouTube video"
+      frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen style="width: 100%; height: 100%; max-width: 100%; border-radius: 0;"></iframe>
+  </div>
+  {% if include.caption %}
+  <figcaption>{{ include.caption }}</figcaption>
+  {% endif %}
+</figure>
+{% endif %}

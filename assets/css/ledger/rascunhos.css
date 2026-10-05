@@ -1,0 +1,379 @@
+/* Ledger page styles: rascunhos. Owned by the rascunhos page; shared component rules
+   belong in assets/css/base.css under "Architectural Ledger blocks".
+
+   Every ledger sheet is linked on every page, so each selector here is scoped
+   to markup only this layout emits (.rascunhos-*) or to the blog page header
+   (.rascunhos-header). The sidebar is the exception by design: it is the same
+   .writing-rail block /pages/articles/ carries, styled once in writing.css and
+   placed here. Colour comes from the palette custom properties alone: a
+   literal hex would be correct in one theme and wrong in the other. */
+
+/* The page is a bound notebook: entries ruled off from one another, each
+   opening on its number in the log, and months naming each run. Both devices
+   are computed from `date` and `last_updated`. Nothing on this page counts
+   words, times a read, names a city or numbers a volume. */
+.rascunhos-main {
+  --rascunhos-plate: 6rem;
+  --rascunhos-rule: 1px solid var(--border-gentle-divider);
+}
+
+/* ══ Masthead ══
+   The shard sits in this wrapper rather than in the shared page-header
+   include, which every listing renders and which no single page may restyle. */
+.rascunhos-masthead {
+  position: relative;
+  margin-bottom: var(--space-2xl);
+}
+
+/* Sized to the masthead it accents. It used to be 24rem x 15rem, which fitted
+   while the filter deck was a strip under the title and made the masthead
+   260px tall; with the filter moved into the rail the masthead is 107px and a
+   15rem shard hung 50px into the body, cutting across the rail's keyword box.
+   An accent that reaches the content it is accenting is not an accent. */
+.rascunhos-shard {
+  top: calc(-1 * var(--space-2xl));
+  right: calc(-1 * var(--space-xl));
+  width: 16rem;
+  height: 9rem;
+  /* Page accent (ochre via `.page-accent--ochre`), not the triad secondary. */
+  background: var(--color-primary);
+}
+
+/* Between the 640px shard cut-off and the desktop layout a 24rem shard is
+   wider than the masthead is tall: at 768px it covered the title and the
+   standfirst and read as a mis-clipped slab rather than a corner accent. The
+   writing lead and the CV dossier carry the same correction. */
+@media (max-width: 1023px) {
+  .rascunhos-shard {
+    top: calc(-1 * var(--space-xl));
+    right: calc(-1 * var(--space-lg));
+    width: 12rem;
+    height: 8rem;
+  }
+}
+
+.rascunhos-header {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 0;
+}
+
+/* ══ Body: ledger column beside the filter rail ══
+   Same split as /pages/articles/, to the rem: the sidebar is the same block
+   on both writing listings, so it takes the same column on both. Below 1024px
+   the rail is the shared disclosure and the grid collapses. */
+.rascunhos-body {
+  display: block;
+}
+
+/* `.hidden` swaps the listing for the detail view; it has to beat the grid. */
+.rascunhos-body.hidden {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .rascunhos-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 16rem;
+    gap: var(--space-2xl);
+    align-items: start;
+  }
+
+  .rascunhos-ledger {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+  }
+
+  .rascunhos-body > .writing-rail {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}
+
+@media (min-width: 1280px) {
+  .rascunhos-body {
+    grid-template-columns: minmax(0, 1fr) 18rem;
+  }
+}
+
+/* A legend, not notation. The mono face came off legends and dates site-wide;
+   this is the same treatment `.ledger-kicker` carries in base.css. */
+.rascunhos-ledger-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding-bottom: var(--space-sm);
+  margin-bottom: var(--space-lg);
+  color: var(--color-on-surface-variant);
+  font-family: var(--font-body);
+  font-size: var(--type-meta);
+  font-weight: var(--weight-label);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--border-gentle-divider);
+}
+
+/* No gap: each entry is closed by the hairline under it, so the rows have to
+   touch or the ruling dashes itself between them. */
+.rascunhos-entries {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.rascunhos-state {
+  padding: var(--space-xl);
+  background: var(--color-surface-card);
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+}
+
+/* ══ The page ══
+   Every child of the ledger — entry, month heading — is the same band, so the
+   run of entries keeps one rhythm wherever a heading interrupts it.
+
+   The band used to be two columns, with a ruled margin on the left holding the
+   folio number and the revision note. Both are facts about the entry, so both
+   now sit in the entry's own ledger line, and a ruled column holding nothing
+   is a rule drawn for its own sake. */
+.rascunhos-band {
+  display: block;
+}
+
+/* The hover fill is painted on the whole band, so whatever sits hard against
+   the body's right edge ends up with the fill's edge drawn along its own
+   border. That is what the classification chip was doing: two rectangles
+   sharing an edge, reading as one mis-drawn box. The body keeps a gutter on
+   both sides and nothing touches the fill. */
+.rascunhos-band-body {
+  /* Named because the plate cancels exactly this padding to reach the rules
+     above and below it; a literal in both places would drift at the first
+     breakpoint that changes one of them. */
+  --rascunhos-body-pad-top: var(--space-lg);
+  --rascunhos-body-pad-bottom: var(--space-lg);
+  min-width: 0;
+  padding: var(--rascunhos-body-pad-top) var(--space-lg) var(--rascunhos-body-pad-bottom);
+}
+
+/* The folio: the entry's place in the log, assigned once over the whole corpus
+   so a filter cannot renumber it. A figure, which is the remaining case for
+   monospace on this site — and a run of them down the ledger only lines up
+   because the face is monospaced. It opens the line, so it takes the weight
+   the rest of the strip does not. */
+.rascunhos-folio {
+  color: var(--color-on-surface);
+  font-size: var(--type-meta);
+}
+
+/* The quieter half of the ledger line: it explains why an entry is where the
+   revision sort puts it without competing with the date it was written. Twin
+   of `.writing-revised` on the articles archive. */
+.rascunhos-revision {
+  color: color-mix(in srgb, var(--color-on-surface-variant) 78%, transparent);
+}
+
+/* ══ Rhythm: the month opening each run ══
+   Not small caps and not mono — it is a legend. The space above it is what
+   makes a month of six entries look different from a month of one. */
+.rascunhos-month > .rascunhos-band-body {
+  padding-top: var(--space-2xl);
+  padding-bottom: var(--space-xs);
+}
+
+.rascunhos-month-label {
+  margin: 0;
+  color: var(--color-on-surface-variant);
+  font-family: var(--font-body);
+  font-size: var(--type-meta);
+  font-weight: var(--weight-emphasis);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Entry titles — a step above the shared ledger-row scale so the notebook
+   line reads as a title, not a caption. */
+.rascunhos-row .ledger-row-title {
+  font-size: var(--type-card-lg);
+  line-height: 1.25;
+}
+
+/* ══ Ledger entry ══
+   Ruled paper, not a stack of cards: the shared row's card fill and padding
+   come off, and what separates two entries is the hairline under each one.
+   The fill returns on hover, which is the only moment a row needs to be an
+   object rather than a line on a page. */
+.ledger-row.rascunhos-row {
+  gap: 0;
+  padding: 0;
+  background: var(--color-surface-card);
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+  transition: background-color var(--motion-duration-fast) var(--motion-ease-default),
+    border-color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.ledger-row.rascunhos-row:hover {
+  background: var(--color-surface-high);
+  border-color: var(--color-primary);
+}
+
+.ledger-row.rascunhos-row:hover .ledger-row-title a {
+  color: var(--color-primary);
+}
+
+.rascunhos-row > .rascunhos-band-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.rascunhos-row .ledger-row-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+/* Date and language sit left, classification right, as in the mockup. */
+.rascunhos-row .ledger-row-head .ledger-meta {
+  margin-right: auto;
+}
+
+.rascunhos-row .ledger-row-copy {
+  max-width: var(--reading-measure, 45rem);
+}
+
+/* The row carries no read-more link — the title is the link. The mockup's
+   hover arrow is not reproduced: as an inline pseudo-element it reserves a
+   character of line width even while invisible, which tips a title that fits
+   on one line onto two. The shared row already answers the hover with a
+   surface step and a colour change on the title.
+
+   The focus ring used to be the secondary at 45%, which washed out to 1.92:1
+   against the card in light and 2.54:1 in dark — below the 3:1 a focus
+   indicator owes, and weaker than the browser ring it was replacing.
+   Full-strength primary is 6.67:1 and 8.10:1 on the same two surfaces. */
+.rascunhos-row .ledger-row-title a:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+/* Thumbnails are set on almost every exported post, so the entry carries a
+   small plate to scan by. The body only becomes two columns once an image is
+   actually in it — a post without one, or whose remote image 404s, keeps the
+   plain stacked entry rather than an indent against an empty gutter. */
+.rascunhos-row--illustrated > .rascunhos-band-body {
+  display: grid;
+  /* Three explicit rows — meta, title, preview — so the plate's `1 / -1`
+     resolves against a real explicit grid instead of collapsing to row 1 and
+     pushing the title down by the height of the image. */
+  grid-template-columns: var(--rascunhos-plate) minmax(0, 1fr);
+  grid-template-rows: auto auto auto;
+  column-gap: var(--space-lg);
+  row-gap: var(--space-sm);
+  align-items: start;
+}
+
+/* The plate is a column of the entry, not a stamp in its corner: it spans
+   every row of the body and stretches to the height they come out at, so an
+   entry with three lines of preview and an entry with one are both fully
+   faced. The negative block margin cancels the body's own padding, which puts
+   the top and bottom of the image on the rules that bound the entry — the
+   plate covers the card, rather than floating inside it. */
+.rascunhos-row--illustrated .rascunhos-row-media {
+  grid-column: 1;
+  grid-row: 1 / -1;
+  align-self: stretch;
+  margin-block: calc(-1 * var(--rascunhos-body-pad-top))
+                calc(-1 * var(--rascunhos-body-pad-bottom));
+}
+
+.rascunhos-row--illustrated > .rascunhos-band-body > :not(.rascunhos-row-media) {
+  grid-column: 2;
+}
+
+/* No aspect ratio: the height is whatever the entry beside it works out to,
+   and `object-fit: cover` below crops to it. A fixed ratio here would fight
+   the stretch and reintroduce the fixed plate. */
+.rascunhos-row-media {
+  width: var(--rascunhos-plate);
+  overflow: hidden;
+  background: var(--color-surface-container);
+}
+
+/* Grain. These are pasted-in crops, not hero images: held back far enough
+   that a column of them reads as texture beside the writing, and coming up to
+   full colour only for the entry under the cursor. */
+.rascunhos-row-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.55) contrast(1.03);
+  transition: filter var(--motion-duration-base) var(--motion-ease-default);
+}
+
+.rascunhos-row:hover .rascunhos-row-media img,
+.rascunhos-row:focus-within .rascunhos-row-media img {
+  filter: grayscale(0) contrast(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rascunhos-row-media img {
+    transition: none;
+  }
+}
+
+/* A phone spends its width on the sentence. The entry keeps its gutters but
+   loses most of the block padding. */
+@media (max-width: 767px) {
+  .rascunhos-band-body {
+    --rascunhos-body-pad-top: var(--space-sm);
+    padding-inline: var(--space-md);
+  }
+}
+
+/* Below the tablet breakpoint the plate goes, and the entry becomes pure
+   typography — the same call the home page's draft ledger makes, for the same
+   reason. Even at 4rem the plate left the excerpt about 23 characters a line
+   at 390px, which is not a measure, and it reserved a column of empty gutter
+   down the rest of the row. A thumbnail is decoration on a text ledger; the
+   sentence is not. */
+@media (max-width: 639px) {
+  .rascunhos-row--illustrated > .rascunhos-band-body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .rascunhos-row--illustrated .rascunhos-row-media {
+    display: none;
+  }
+}
+
+/* ══ Pagination ══
+   The buttons are `.pagination-nav-btn` from base.css, shared with the writing
+   index and sources; only the bar around them is local. */
+.rascunhos-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-lg);
+  margin-top: var(--space-lg);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-panel-contrast);
+}
+
+.rascunhos-pagination.hidden {
+  display: none;
+}
+
+/* Pagination count face/size live on `.pagination-count` in base.css.
+   Keep nowrap so "4 / 4" does not stack between the buttons at 390px. */
+.rascunhos-pagination > span {
+  white-space: nowrap;
+}
+

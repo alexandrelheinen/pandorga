@@ -1,0 +1,115 @@
+<script>
+  (function () {
+    var config = {
+      active: {{ site.shell_theme.active | default: "system" | jsonify }},
+      storageKey: {{ site.shell_theme.storage_key | default: "site-theme" | jsonify }},
+      available: {{ site.shell_theme.available | default: site.shell_theme.active | jsonify }}
+    };
+    var root = document.documentElement;
+    var media = window.matchMedia("(prefers-color-scheme: dark)");
+    var paletteChoices = config.available.filter(function (name) {
+      return name === "light" || name === "dark";
+    });
+    if (paletteChoices.length === 0) {
+      paletteChoices = ["light"];
+    }
+
+    function resolvePalette(choice) {
+      if (choice === "system") {
+        return media.matches ? "dark" : "light";
+      }
+      if (paletteChoices.indexOf(choice) !== -1) {
+        return choice;
+      }
+      return paletteChoices[0];
+    }
+
+    function applyTheme(choice) {
+      var palette = resolvePalette(choice);
+      root.setAttribute("data-theme", palette);
+      root.style.colorScheme = palette;
+      if (window.ShellTheme) {
+        window.ShellTheme.active = choice;
+        window.ShellTheme.resolved = palette;
+      }
+    }
+
+    var choice = config.active;
+    try {
+      var stored = localStorage.getItem(config.storageKey);
+      if (stored && config.available.indexOf(stored) !== -1) {
+        choice = stored;
+      }
+    } catch (e) { /* ignore */ }
+
+    applyTheme(choice);
+
+    window.ShellTheme = {
+      active: choice,
+      resolved: resolvePalette(choice),
+      storageKey: config.storageKey,
+      available: config.available.slice(),
+      paletteChoices: paletteChoices.slice(),
+      setTheme: function (name) {
+        if (config.available.indexOf(name) === -1) return;
+        try { localStorage.setItem(config.storageKey, name); } catch (e) { /* ignore */ }
+        this.active = name;
+        applyTheme(name);
+        document.dispatchEvent(new CustomEvent("shell-theme-change", {
+          detail: { choice: name, resolved: this.resolved }
+        }));
+      }
+    };
+
+    if (typeof media.addEventListener === "function") {
+      media.addEventListener("change", function () {
+        if (window.ShellTheme.active === "system") {
+          applyTheme("system");
+          document.dispatchEvent(new CustomEvent("shell-theme-change", {
+            detail: { choice: "system", resolved: window.ShellTheme.resolved }
+          }));
+        }
+      });
+    } else if (typeof media.addListener === "function") {
+      media.addListener(function () {
+        if (window.ShellTheme.active === "system") {
+          applyTheme("system");
+        }
+      });
+    }
+  })();
+</script>
+<script>
+  (function () {
+    var offsets = [-4, -3, -2, -1, 0, 1, 2, 3, 4];
+    var key = "site-prose-offset";
+
+    function read() {
+      try {
+        var n = Number(localStorage.getItem(key));
+        if (offsets.indexOf(n) !== -1) return n;
+      } catch (e) { /* ignore */ }
+      return 0;
+    }
+
+    function apply(n) {
+      if (offsets.indexOf(n) === -1) n = 0;
+      document.documentElement.style.setProperty("--prose-size-offset", n + "pt");
+      return n;
+    }
+
+    window.ShellProseSize = {
+      offsets: offsets.slice(),
+      storageKey: key,
+      read: read,
+      apply: apply,
+      set: function (n) {
+        n = apply(Number(n));
+        try { localStorage.setItem(key, String(n)); } catch (e) { /* ignore */ }
+        return n;
+      }
+    };
+
+    apply(read());
+  })();
+</script>

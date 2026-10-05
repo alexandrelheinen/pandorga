@@ -1,0 +1,327 @@
+/* Ledger page styles: sources. Owned by the sources page; shared component rules
+   belong in assets/css/base.css under "Architectural Ledger blocks".
+
+   The sources grid is the archive card from 43-blocks.html with three additions
+   the resources collection earns and no other listing has: a poster from
+   `thumbnail`, a row of four facet chips read off `type`, `category` and
+   `language`, and the publisher host from `link`. Every colour is a token, so
+   both palettes resolve from the same rules. */
+
+/* ── Shards ──
+   The page had no depth treatment of any kind, and it is the wrong shape for
+   the ambient pool the home bands carry: a pool beNewsreader a grid of many small
+   cards only darkens one corner of it. Shards instead, the two canonical
+   polygons from base.css, one at each end of the run — top right above the
+   grid, bottom left below it, the diagonal pair the CV dossier uses inside
+   one panel, opened out across the page. In dark the source cards stay
+   opaque so the shard reads in the gutter, not through the poster.
+
+   Neither container takes `overflow: hidden`: the masthead holds the filter
+   popover, which would be clipped by it. The offsets are therefore sized to
+   stay inside the page's own gutter at every width the shards survive, the
+   way the rascunhos masthead does it. The shared utility already unmounts
+   both below 640px. */
+/* The masthead outranks the grid because the filter popover opens out of it.
+   Lifting the header over its own shard puts the popover inside a stacking
+   context, and the grid below has to be lifted over the foot shard in the
+   same way — without this the cards would be painted over an open filter
+   panel. */
+.sources-masthead {
+  position: relative;
+  z-index: 2;
+}
+
+
+
+.sources-header {
+  position: relative;
+  z-index: 1;
+}
+
+.sources-header .page-header-tags {
+  color: var(--color-primary);
+  opacity: 0.85;
+}
+
+.sources-masthead-shard {
+  top: calc(-1 * var(--space-2xl));
+  right: calc(-1 * var(--space-xl));
+  width: 16rem;
+  height: 9rem;
+  background: var(--color-primary);
+}
+
+.sources-body {
+  position: relative;
+}
+
+/* A card is not positioned, so without this the shard — which is — would be
+   painted over the bottom row rather than beNewsreader it. The rule the whole
+   family answers to is that a backdrop never touches the object in front of
+   it. */
+.sources-body>.listing-card-grid,
+.sources-body>.source-pagination {
+  position: relative;
+  z-index: 1;
+}
+
+/* The foot of the page, beside the pagination. It reaches up beNewsreader the last
+   row of cards. In dark those cards are opaque again, so what shows is the
+   wedge in the gutter and the band across the pagination strip. */
+.sources-foot-shard {
+  left: calc(-1 * var(--space-xl));
+  bottom: calc(-1 * var(--space-lg));
+  width: 14rem;
+  height: 8rem;
+  background: color-mix(in srgb, var(--color-primary) 70%, transparent);
+}
+
+/* Below the desktop layout the page gutter halves, so the shards have to come
+   back inside it or they widen the document. */
+@media (max-width: 1023px) {
+  .sources-masthead-shard {
+    top: calc(-1 * var(--space-xl));
+    right: calc(-1 * var(--space-lg));
+    width: 12rem;
+    height: 8rem;
+  }
+
+  .sources-foot-shard {
+    left: calc(-1 * var(--space-lg));
+    width: 10rem;
+    height: 7rem;
+  }
+}
+
+/* Pagination hides rather than unmounts, so the cards keep their identity
+   between pages and the filter only has to toggle a class. */
+.resource-hidden {
+  display: none !important;
+}
+
+/* Three across at desktop rather than four: a card now carries a poster, a
+   summary and a footer, and a quarter of the row is too narrow for that. */
+.listing-card-grid--sources {
+  --listing-grid-cols: 2;
+  gap: var(--space-lg);
+}
+
+@media (min-width: 1024px) {
+  .listing-card-grid--sources {
+    --listing-grid-cols: 3;
+  }
+}
+
+@media (min-width: 1280px) {
+  .listing-card-grid--sources {
+    --listing-grid-cols: 3;
+  }
+}
+
+/* ── The source card ── */
+
+/* The poster is full-bleed: it sits outside .ledger-card-body, so the card's
+   own padding never boxes it in. A single hairline separates it from the text
+   block, which is the only depth cue the surface ladder allows. Thumbnails
+   arrive from other people's sites at wildly different crops, so the card
+   imposes one ratio and lets the fill do the rest.
+
+   That ratio is the video frame, 16:9 — the native size of the YouTube
+   thumbnails most of this collection links to (maxresdefault is 1280x720,
+   hq720 likewise). At 16:10 the fill cropped a slice off the top and bottom
+   of every one of them; at 16:9 they land whole. The card keeps the width
+   the grid gives it, so the change lands in the height. */
+.source-card>.ledger-poster {
+  aspect-ratio: 16 / 9;
+  border-bottom: 1px solid var(--border-gentle-subtle);
+}
+
+.source-card-title {
+  overflow-wrap: anywhere;
+}
+
+/* ── The facet row ──
+
+   A source declares four things about itself — medium, category, language,
+   country — and the card used to scatter them: two in the meta line above the
+   title, one in a chip row below the description, and the country nowhere at
+   all, even though every locale in the collection names one. They are one
+   fact about the source, so they are now one row of four chips.
+
+   The row is a single family: same height, same type, same hairline, each
+   carrying its own ink. Height is fixed rather than intrinsic, because the
+   chips do not all hold text — the country chip holds an image, and matching
+   heights by padding alone would leave it a pixel or two short of the rest.
+   Chips never wrap internally; the row wraps instead, so a narrow card breaks
+   between chips and not through one. */
+.source-facets {
+  --source-facet-height: 1.65rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+/* The category chip comes from the shared renderer, which wraps its output in
+   a .ledger-chip-row. `display: contents` dissolves that wrapper so the chip
+   joins this row as a sibling of the other three, rather than sitting in a
+   nested flex box that would set its own height. The shared renderer is left
+   exactly as it is. */
+.source-facets .ledger-chip-row {
+  display: contents;
+}
+
+/* One geometry for all four. The border is currentColor rather than a fixed
+   token, so each chip outlines itself in whatever ink it is already using and
+   the row stays a family across both palettes. The shared category chip is a
+   filled chip everywhere else on the site; here it outlines like its three
+   neighbors, and its hover still fills — which is how a reader can tell that
+   this one, alone, is a link. */
+.source-facets .source-facet,
+.source-facets .ledger-chip,
+.source-facets .lang-pill {
+  display: inline-flex;
+  align-items: center;
+  height: var(--source-facet-height);
+  padding: 0 var(--space-sm);
+  border: 1.5px solid color-mix(in srgb, currentColor 40%, var(--border-ink));
+  border-radius: var(--radius-card);
+  background: transparent;
+  white-space: nowrap;
+  font-size: var(--type-label);
+}
+
+/* The two chips this page owns. The shared pill and chip bring their own
+   type; these match it rather than inventing a second label voice. */
+.source-facet {
+  font-family: var(--font-label);
+  font-size: var(--type-label);
+  font-weight: var(--weight-label);
+  letter-spacing: 0.03em;
+  line-height: 1;
+  color: var(--color-on-surface-variant);
+}
+
+/* flag-icons sizes from the em, so the flag's own font-size is its height. */
+.source-facet--country {
+  padding-inline: 0.35rem;
+}
+
+.source-facet--country .fi {
+  font-size: var(--type-dek);
+}
+
+/* The publisher, sitting opposite the call to action on the footer rule. */
+.source-host {
+  color: var(--color-on-surface-variant);
+  text-transform: lowercase;
+  letter-spacing: 0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* Filter swatches: match the exact medium accent colours used by cards
+   (--color-res-youtube for red, --color-res-podcast for green,
+    --color-res-doc for amber/brown, --color-primary for website blue). */
+.source-swatch--youtube {
+  background: var(--color-res-youtube);
+}
+
+.source-swatch--podcast {
+  background: var(--color-res-podcast);
+}
+
+.source-swatch--document {
+  background: var(--color-res-doc);
+}
+
+.source-swatch--website {
+  background: var(--color-primary);
+}
+
+/* ── Pagination ── */
+
+/* Real UI over a real index, not a registry counter: the page reads how many
+   pages the current filter produced, and nothing else. The buttons themselves
+   are `.pagination-nav-btn` from base.css, shared with the other two
+   listings; only the bar around them is local. */
+.source-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-lg);
+  margin-top: var(--space-2xl);
+}
+
+.source-pagination:empty {
+  margin-top: 0;
+}
+
+/* ── Medium colour ──
+   A source is recognised by what it is before it is read — a video, a
+   podcast, a site — and the palette already carries a colour per medium
+   (--color-res-*). The redesign had flattened all four onto the brand triad,
+   which cost the fastest signal on the page. The colour drives the medium
+   chip and an edge on the card, so it reads at a glance without turning the
+   grid into a set of logos. */
+
+.source-card {
+  --source-accent: var(--color-tertiary);
+  border-left: 3px solid var(--source-accent);
+  background: var(--color-surface-card);
+}
+
+.source-card-media {
+  position: relative;
+}
+
+.source-card-media .ledger-frame-corners {
+  --frame-corner-size: 0.7rem;
+  inset: 0.3rem;
+  z-index: 2;
+}
+
+/* Align Sources posters with the Articles/detail plate dialect. */
+.source-card .ledger-poster {
+  border-bottom: 1px solid color-mix(in srgb, var(--source-accent) 40%, transparent);
+}
+
+/* Light paper densifies every `.ledger-card` border to `--border-ink-strong`
+   (base.css). That `border-color` rewrite also paints the left edge and
+   erases the medium accent — pin the left colour back after the light bump. */
+:root:not([data-theme="dark"]) .source-card,
+html[data-theme="light"] .source-card {
+  border-left-color: var(--source-accent);
+}
+
+/* Transparent resting cards work on the home and writing grids; on Sources
+   the poster + facet chip stack needs a solid plate in dark so the shard and
+   canvas do not read through the thumbnail. Restore the pre-transparent
+   ladder card (#1a1a1e). Light keeps the shared transparent rest. */
+[data-theme="dark"] .source-card {
+  background: #1a1a1e;
+}
+
+.source-card[data-medium="youtube"] {
+  --source-accent: var(--color-res-youtube);
+}
+
+.source-card[data-medium="podcast"] {
+  --source-accent: var(--color-res-podcast);
+}
+
+.source-card[data-medium="document"] {
+  --source-accent: var(--color-res-doc);
+}
+
+.source-card[data-medium="website"] {
+  --source-accent: var(--color-primary);
+}
+
+/* The medium chip and the card edge read the same custom property, so they
+   cannot drift apart: one colour, stated once, shown twice. */
+.source-facet--medium {
+  color: var(--source-accent);
+}

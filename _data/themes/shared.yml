@@ -1,0 +1,37 @@
+# Tokens shared by every colour theme. Light and dark only differ on colour
+# roles (see light.yml / dark.yml); fonts, motion, and geometry live here so
+# a palette swap cannot drift the type stack.
+#
+# Consumed by theme-context.liquid → theme-vars-block.liquid / font-loader.
+
+fonts:
+  title: "Cinzel Decorative"
+  subtitle: "Newsreader"
+  label: "Marcellus SC"
+  body: "Newsreader"
+  mono: "Courier Prime"
+  code: "Courier Prime"
+  cv_body: "Newsreader"
+  cv_body_weight: 400
+  # Generic CSS fallback after the named face (serif | sans-serif | monospace).
+  body_fallback: "sans-serif"
+  subtitle_fallback: "serif"
+  title_fallback: "serif"
+  label_fallback: "serif"
+  google_title_spec: "wght@400;700;900"
+  google_subtitle_spec: "ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,300;1,6..72,400;1,6..72,500"
+  google_label_spec: "wght@400;700"
+  google_body_spec: "wght@300;400;500;600;700"
+  google_mono_spec: "ital,wght@0,400;0,700;1,400;1,700"
+  google_code_spec: "ital,wght@0,300;0,400;0,700;1,400;1,700"
+  google_cv_body_spec: "wght@300;400;500;600;700"
+
+motion:
+  duration_fast: "0.15s"
+  duration_base: "0.4s"
+  duration_slow: "0.7s"
+  ease_default: "ease"
+  ease_out: "ease-out"
+
+geometry:
+  radius_card: "0"

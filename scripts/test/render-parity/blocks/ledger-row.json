@@ -1,0 +1,35 @@
+{
+  "name": "ledger-row/full",
+  "block": "renderLedgerRow",
+  "args": [
+    {
+      "slug": "deterministic-state",
+      "front_matter": {
+        "title": "Deterministic state execution",
+        "date": "2026-01-02",
+        "language": "ptbr",
+        "tags": ["Engineering"],
+        "description": "A note on replaying a state machine from its log."
+      }
+    },
+    { "href": "/posts/deterministic-state/", "locale": "pt-BR", "ctaLabel": "Ler apontamento" }
+  ],
+  "selectors": [
+    "article.ledger-row",
+    "div.ledger-row-head",
+    "div.ledger-meta",
+    "span.lang-pill",
+    "h3.ledger-row-title",
+    "p.ledger-row-copy",
+    "div.ledger-row-foot",
+    "div.ledger-chip-row",
+    "a.ledger-cta"
+  ],
+  "contains": [
+    "href=\"/posts/deterministic-state/\"",
+    ">Deterministic state execution<",
+    ">Ler apontamento<",
+    "A note on replaying a state machine from its log."
+  ],
+  "counts": { "ledger-meta-sep": 1 }
+}

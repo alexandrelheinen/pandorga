@@ -1,0 +1,13 @@
+{
+  "name": "cta-link/labelled",
+  "block": "renderCtaLink",
+  "args": ["/articles/deterministic-state/", "Read article", { "className": "home-cta" }],
+  "selectors": ["a.ledger-cta", "span.ledger-cta-arrow"],
+  "contains": [
+    "href=\"/articles/deterministic-state/\"",
+    ">Read article<",
+    ">chevron_right<",
+    "home-cta",
+    "aria-hidden=\"true\""
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "name": "poster-media/image",
+  "block": "renderPosterMedia",
+  "args": ["/media/projects/arco.png", "ARCO"],
+  "selectors": ["div.ledger-poster", "img"],
+  "forbidden": ["video"],
+  "contains": ["loading=\"lazy\"", "decoding=\"async\"", "alt=\"ARCO\"", "onerror="]
+}

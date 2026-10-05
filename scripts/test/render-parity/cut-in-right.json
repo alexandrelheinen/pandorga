@@ -1,0 +1,9 @@
+{
+  "name": "cut-in-right",
+  "markdown": "{% include cut-in.html src=\"/media/images/test.jpg\" alt=\"Test portrait\" side=\"right\" %}\nFollowing paragraph wraps around the cut-in.",
+  "selectors": [
+    "figure.article-cut-in-plate",
+    "figure.article-cut-in--right",
+    "img.article-cut-in"
+  ]
+}

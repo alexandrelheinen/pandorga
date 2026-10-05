@@ -1,0 +1,16 @@
+<style>
+  {% assign theme_name = "light" %}{% include theme/theme-vars-block.liquid %}
+  {% assign theme_name = "dark" %}{% include theme/theme-vars-block.liquid %}
+
+  /* One switch for the whole site: zeroing the duration scale stops every
+     transition and animation that reads it, so a new rule cannot forget to
+     opt in. It sits here rather than in the per-theme block because the
+     block is rendered once per palette and this is not a palette concern. */
+  @media (prefers-reduced-motion: reduce) {
+    :root, [data-theme] {
+      --motion-duration-fast: 0s;
+      --motion-duration-base: 0s;
+      --motion-duration-slow: 0s;
+    }
+  }
+</style>

@@ -1,0 +1,176 @@
+{% raw %}
+    function tocMinHeadings() {
+      var config = window.ContentRuntimeConfig || {};
+      var min = config.tocMinHeadings;
+      return typeof min === 'number' && min > 0 ? min : 3;
+    }
+
+    function resolveTocLang(frontMatter) {
+      var fm = frontMatter || {};
+      if (fm.language) return fm.language;
+      if (fm.layout === 'post') return 'ptbr';
+      if (fm.layout === 'article') return 'enus';
+      return 'enus';
+    }
+
+    function slugifyHeading(text) {
+      return String(text || '')
+        .trim()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '') || 'section';
+    }
+
+    function headingText(node) {
+      return String(node && node.textContent || '').replace(/\s+/g, ' ').trim();
+    }
+
+    function assignHeadingIds(root) {
+      if (!root) return;
+      var used = {};
+      root.querySelectorAll('h2, h3').forEach(function (heading) {
+        var text = headingText(heading);
+        if (!text) return;
+        var base = slugifyHeading(text);
+        var id = base;
+        var suffix = 2;
+        while (used[id] || !id) {
+          id = base + '-' + suffix;
+          suffix += 1;
+        }
+        used[id] = true;
+        heading.id = id;
+      });
+    }
+
+    function buildTocEntries(root) {
+      if (!root) return [];
+      var entries = [];
+      root.querySelectorAll('h2, h3').forEach(function (heading) {
+        var text = headingText(heading);
+        if (!text || !heading.id) return;
+        var tag = heading.tagName.toLowerCase();
+        if (tag !== 'h2' && tag !== 'h3') return;
+        entries.push({
+          id: heading.id,
+          text: text,
+          level: tag === 'h2' ? 2 : 3
+        });
+      });
+      return entries;
+    }
+
+    function buildTocListHtml(entries) {
+      var parts = ['<ul class="article-toc-list">'];
+      var h2 = 0;
+      var h3 = 0;
+      entries.forEach(function (entry) {
+        var num;
+        if (entry.level === 2) {
+          h2 += 1;
+          h3 = 0;
+          num = String(h2);
+        } else {
+          h3 += 1;
+          num = h2 + '.' + h3;
+        }
+        parts.push(
+          '<li class="article-toc-item article-toc-item--h', entry.level, '" data-toc-id="', escapeAttr(entry.id), '">',
+          '<a href="#', escapeAttr(entry.id), '" class="article-toc-link">',
+          '<span class="article-toc-num" aria-hidden="true">', escapeHtml(num), '</span>',
+          '<span class="article-toc-text">', escapeHtml(entry.text), '</span>',
+          '</a></li>'
+        );
+      });
+      parts.push('</ul>');
+      return parts.join('');
+    }
+
+    function buildTocTitleHtml(lang) {
+      return '<p class="article-toc-title">' + escapeHtml(translate('toc_title', lang)) + '</p>';
+    }
+
+    function removeArticleToc() {
+      Array.prototype.forEach.call(document.querySelectorAll('[data-article-toc]'), function (node) {
+        node.remove();
+      });
+    }
+
+    function mountArticleToc(options) {
+      options = options || {};
+      removeArticleToc();
+
+      var entries = options.entries || [];
+      if (entries.length < tocMinHeadings()) return;
+
+      var lang = options.lang || 'enus';
+      var listHtml = buildTocListHtml(entries);
+      var titleHtml = buildTocTitleHtml(lang);
+
+      if (options.sidebarEl) {
+        var sticky = options.sidebarEl.querySelector('.md\\:sticky') || options.sidebarEl.firstElementChild || options.sidebarEl;
+        var sidebarNav = document.createElement('nav');
+        sidebarNav.className = 'article-toc article-toc--sidebar';
+        sidebarNav.setAttribute('data-article-toc', 'sidebar');
+        sidebarNav.setAttribute('aria-label', translate('toc_title', lang));
+        sidebarNav.innerHTML = titleHtml + listHtml;
+        sticky.appendChild(sidebarNav);
+
+        bindTocScrollSpy(sidebarNav, entries);
+
+        var disclosure = document.createElement('details');
+        disclosure.className = 'article-toc article-toc--disclosure';
+        disclosure.setAttribute('data-article-toc', 'disclosure');
+        disclosure.innerHTML = [
+          '<summary class="article-toc-summary">',
+          '<span class="article-toc-summary-label">', escapeHtml(translate('toc_title', lang)), '</span>',
+          '<span class="material-symbols-outlined article-toc-summary-icon" aria-hidden="true">expand_more</span>',
+          '</summary>',
+          '<div class="article-toc-panel">', listHtml, '</div>'
+        ].join('');
+        var meta = sticky.querySelector('.article-meta');
+        if (meta) {
+          meta.insertAdjacentElement('afterend', disclosure);
+        } else {
+          sticky.appendChild(disclosure);
+        }
+      }
+    }
+
+    function bindTocScrollSpy(nav, entries) {
+      if (!nav || !entries || !entries.length || typeof IntersectionObserver === 'undefined') return;
+      var links = {};
+      nav.querySelectorAll('[data-toc-id]').forEach(function (li) {
+        links[li.getAttribute('data-toc-id')] = li;
+      });
+
+      var visible = Object.create(null);
+      var observer = new IntersectionObserver(function (records) {
+        records.forEach(function (rec) {
+          if (!rec.target.id) return;
+          if (rec.isIntersecting) visible[rec.target.id] = true;
+          else delete visible[rec.target.id];
+        });
+        var activeId = null;
+        entries.forEach(function (entry) {
+          if (visible[entry.id]) activeId = entry.id;
+        });
+        Object.keys(links).forEach(function (id) {
+          links[id].classList.toggle('is-active', id === activeId);
+        });
+      }, {
+        rootMargin: '-20% 0px -55% 0px',
+        threshold: [0, 1]
+      });
+
+      entries.forEach(function (entry) {
+        var el = document.getElementById(entry.id);
+        if (el) observer.observe(el);
+      });
+    }
+
+{% endraw %}

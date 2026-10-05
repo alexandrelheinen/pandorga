@@ -1,0 +1,836 @@
+/* Ledger page styles: cv. Owned by the cv page; shared component rules
+   belong in assets/css/base.css under "Architectural Ledger blocks".
+
+   The CV reads as a register: one dossier band at the top, then sections
+   whose titles sit in a sticky rail on the left while their entries run
+   past on the right. Depth is the four-step surface ladder — canvas,
+   panel, card, hover — never a shadow, and every corner is square. */
+
+/* Page accent: `.page-accent--green` is defined once in base.css and
+   applied on `<main class="cv-page page-accent--green">`. */
+
+/* ── Dossier band ──────────────────────────────────────────────────────
+   Title, tags, the standing disclaimer, and the two contact channels the
+   disclaimer points at, on the panel step of the ladder. */
+
+/* The disclaimer belongs to the header, so it sits close under it — the full
+   --space-3xl this used to carry read as two unrelated blocks rather than a
+   heading and its footnote. --space-lg is the nearest rung to a third of it. */
+.cv-dossier {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-panel-contrast);
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+  padding: var(--space-xl);
+  margin-bottom: var(--space-lg);
+}
+
+:root:not([data-theme="dark"]) .cv-dossier,
+:root:not([data-theme="dark"]) .cv-entry,
+:root:not([data-theme="dark"]) .cv-product,
+html[data-theme="light"] .cv-dossier,
+html[data-theme="light"] .cv-entry,
+html[data-theme="light"] .cv-product {
+  /* Match `.cv-disclaimer-box`: 1px gentle-subtle hairline on paper. */
+  border-width: 1px;
+}
+
+/* "Curriculum" at the shared page-title size is wider than the dossier's
+   old side inset. Keep a small inset on the phone; the title still fits. */
+@media (max-width: 639px) {
+  .cv-dossier {
+    padding-inline: var(--space-sm);
+  }
+}
+
+/* At 320px the padded column is narrower than "Curriculum" at --type-page.
+   The title alone borrows the card's side inset; contacts and tags keep it. */
+@media (max-width: 359px) {
+  main.cv-page {
+    padding-inline: var(--space-sm);
+  }
+
+  .cv-dossier .page-header-title {
+    margin-inline: calc(-1 * var(--space-sm));
+  }
+}
+
+@media (min-width: 768px) {
+  .cv-dossier {
+    padding: var(--space-2xl);
+  }
+}
+
+.cv-dossier-shard {
+  top: -4rem;
+  right: -3rem;
+  width: 16rem;
+  height: 16rem;
+  background: var(--color-secondary);
+}
+
+.cv-dossier-shard--beta {
+  top: auto;
+  right: auto;
+  left: -3rem;
+  bottom: -4rem;
+  width: 12rem;
+  height: 12rem;
+  background: var(--color-primary);
+}
+
+/* A shard is a corner accent. Between the 640px suppression breakpoint and the
+   desktop layout the panel is narrow enough that a 16rem shard stops being a
+   corner and starts crossing the title — "Curriculum Vitæ" was reading over a
+   tonal step at 768px. Same correction on the writing lead and the rascunhos
+   masthead, which had the same collision. */
+@media (max-width: 1023px) {
+  .cv-dossier-shard {
+    top: -2.5rem;
+    right: -2rem;
+    width: 9rem;
+    height: 9rem;
+  }
+
+  .cv-dossier-shard--beta {
+    top: auto;
+    left: -2rem;
+    bottom: -2.5rem;
+    width: 7rem;
+    height: 7rem;
+  }
+}
+
+.cv-dossier-inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-xl);
+}
+
+@media (min-width: 1024px) {
+  .cv-dossier-inner {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    align-items: end;
+    gap: var(--gutter);
+  }
+}
+
+.cv-dossier-head {
+  margin: 0;
+}
+
+/* Same masthead as the other listing pages: `.page-header-title` supplies
+   `--type-page` below 768px and `--type-page-lg` from there up. A container
+   cap used to shrink "Curriculum Vitæ" onto one line and left this title
+   smaller than Articles, Projects, and Rascunhos. */
+.cv-dossier .page-header-title {
+  margin-bottom: 0;
+}
+
+/* The header renderer joins the tags into one line, so they read as a
+   ledger classification strip rather than as chips. */
+.cv-dossier-tags {
+  display: block;
+  margin-top: var(--space-md);
+  color: var(--color-on-surface-variant);
+  letter-spacing: 0.06em;
+}
+
+.cv-dossier-standfirst {
+  max-width: var(--reading-measure);
+  margin-top: var(--space-md);
+  color: var(--color-on-surface-variant);
+  line-height: var(--leading-body);
+}
+
+.cv-dossier-aside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  border-top: 1px solid var(--border-gentle-divider);
+  padding-top: var(--space-lg);
+}
+
+
+
+@media (min-width: 1024px) {
+  .cv-dossier-aside {
+    align-self: stretch;
+    justify-content: center;
+    border-top: 0;
+    border-left: 1px solid var(--border-gentle-divider);
+    padding: 0 0 0 var(--gutter);
+  }
+}
+
+.cv-dossier-note {
+  color: var(--color-on-surface);
+  font-size: var(--type-body);
+  line-height: var(--leading-body);
+}
+
+.cv-dossier-note p {
+  margin: 0;
+}
+
+/* ── Contacts ──────────────────────────────────────────────────────────
+   The shared contact renderer is used unchanged; only its shape is
+   re-cut here, because a round avatar tile has no place in a register. */
+
+.professional-connections-grid.cv-contacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+/* The runtime puts `h-full` on the contact anchor. On one line that is a
+   no-op, but as soon as the tiles wrap — every width under ~640px — the
+   percentage resolves against the whole wrapped column and each tile paints
+   at the full stack height: two 67px cards became two 143px cards with 76px
+   of dead space each. The height has to come from the content. */
+.professional-connections-grid.cv-contacts .group {
+  flex: 1 1 11rem;
+  height: auto;
+  min-height: 0;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-surface-card);
+  border-color: var(--border-gentle-subtle);
+}
+
+.professional-connections-grid.cv-contacts .group:hover {
+  background: var(--color-surface-high);
+  border-color: var(--border-gentle-hover);
+}
+
+.cv-contacts .group>div:first-child {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0;
+  background: var(--color-surface-high);
+}
+
+.cv-contacts .group:hover>div:first-child {
+  background: var(--color-surface-container-high);
+}
+
+.cv-contacts .group .material-symbols-outlined {
+  font-size: var(--type-card);
+}
+
+/* ── Section register ──────────────────────────────────────────────────
+   Full-width rule, title in the left rail, entries on the right. */
+
+.cv-register,
+.cv-band {
+  border-top: 1px solid var(--border-gentle-divider);
+  padding-top: var(--space-xl);
+  scroll-margin-top: 7rem;
+}
+
+.cv-register+.cv-register,
+.cv-register+.cv-band {
+  margin-top: var(--space-3xl);
+}
+
+.cv-register {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-lg);
+}
+
+@media (min-width: 1024px) {
+  .cv-register {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
+    gap: var(--gutter);
+  }
+
+  .cv-register-rail {
+    position: sticky;
+    top: 7rem;
+    align-self: start;
+  }
+}
+
+.cv-register-title {
+  margin: 0;
+}
+
+.cv-register-rule {
+  display: block;
+  width: 2.5rem;
+  margin-top: var(--space-sm);
+  border-top: 2px solid var(--color-primary);
+}
+
+.cv-register-body {
+  min-width: 0;
+}
+
+/* ── Register entry: roles and degrees share one card ──────────────────
+   Label line names the organisation and its unit, display line names the
+   post, and any part whose field is empty is simply absent. */
+
+.cv-entry-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.cv-entry {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+  background: var(--color-surface-card);
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+}
+
+.cv-entry-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-xs) var(--space-md);
+}
+
+.cv-entry-ident {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+/* The organisation and the unit inside it are two halves of one address, so
+   they share the label face the department already used; only the ink tells
+   them apart, the company in the accent and the unit in the quiet variant. */
+.cv-entry-lead {
+  color: var(--color-secondary);
+  font-size: var(--type-dek);
+}
+
+/* `--color-outline-variant` is the border token: as ink it lands at 1.31:1 in
+   light and 1.74:1 in dark, so the separator disappeared. `--color-outline` is
+   the quietest token that still clears 4.5:1 on the card step (4.72 light,
+   5.44 dark). */
+.cv-entry-sep {
+  color: var(--color-outline);
+}
+
+.cv-entry-unit {
+  color: var(--color-on-surface-variant);
+  font-size: var(--type-dek);
+}
+
+.cv-entry-span {
+  color: var(--color-on-surface-variant);
+  white-space: nowrap;
+}
+
+/* Wide enough for two columns, the span sits opposite the role; once the
+   head wraps it starts where every other line of the card starts. */
+@media (min-width: 640px) {
+  .cv-entry-span {
+    margin-left: auto;
+  }
+}
+
+.cv-entry-title {
+  margin: 0;
+}
+
+/* A place is prose, not notation, so it reads in the body face rather than
+   mono — and on the same left edge as every other line of the card. The pin
+   icon and the indent it sat beNewsreader said nothing the word "France" does not
+   already say, and cost the entry its one straight margin. */
+.cv-entry-place {
+  color: var(--color-on-surface-variant);
+  letter-spacing: normal;
+}
+
+.cv-entry-copy {
+  max-width: var(--reading-measure);
+  color: var(--color-on-surface-variant);
+  line-height: var(--leading-body);
+}
+
+.cv-entry-copy p,
+.cv-entry-copy ul,
+.cv-entry-copy ol {
+  margin: 0 0 0.9em;
+}
+
+.cv-entry-copy> :last-child {
+  margin-bottom: 0;
+}
+
+.cv-entry-copy ul,
+.cv-entry-copy ol {
+  padding-left: 1.2rem;
+  list-style: disc;
+}
+
+.cv-entry-copy ol {
+  list-style: decimal;
+}
+
+.cv-entry-copy li {
+  margin-bottom: 0.35em;
+}
+
+.cv-entry-copy a {
+  color: var(--color-link);
+}
+
+.cv-entry-copy a:hover {
+  color: var(--color-link-hover);
+}
+
+.cv-entry-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-xs);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--border-gentle-divider);
+}
+
+.cv-entry-foot-label {
+  color: var(--color-on-surface-variant);
+}
+
+/* ── Summary ───────────────────────────────────────────────────────── */
+
+.cv-summary {
+  max-width: var(--reading-measure);
+  color: var(--color-on-surface);
+  font-size: var(--type-body);
+  line-height: var(--leading-body);
+  background: var(--color-surface-card);
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+  padding: var(--space-xl);
+}
+
+.cv-summary p {
+  margin: 0 0 1em;
+}
+
+.cv-summary p:last-child {
+  margin-bottom: 0;
+}
+
+/* Both paragraphs take the same weight. The first used to be set as a lede —
+   darker, 1.15rem, tighter leading — which made one summary look like two
+   different blocks stacked. */
+
+/* ── Products ──────────────────────────────────────────────────────── */
+
+.cv-product-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-md);
+}
+
+@media (min-width: 640px) {
+  .cv-product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .cv-product-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.cv-product {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+  background: var(--color-surface-card);
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+  transition: background-color var(--motion-duration-fast) var(--motion-ease-default), border-color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.cv-product:hover {
+  background: var(--color-surface-high);
+  border-color: color-mix(in srgb, var(--color-primary) 40%, var(--border-ink));
+}
+
+.cv-product-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-xs) var(--space-sm);
+}
+
+.cv-product-company,
+.cv-product-span {
+  color: var(--color-on-surface-variant);
+}
+
+.cv-product-span {
+  white-space: nowrap;
+}
+
+.cv-product-title {
+  margin: 0;
+}
+
+.cv-product-title a {
+  color: var(--color-on-surface);
+  text-decoration: none;
+  transition: color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.cv-product:hover .cv-product-title a {
+  color: var(--color-primary);
+}
+
+.cv-product-copy {
+  flex: 1;
+  margin: 0;
+  color: var(--color-on-surface-variant);
+  line-height: var(--leading-body);
+}
+
+.cv-product-foot {
+  margin-top: auto;
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--border-gentle-divider);
+}
+
+/* ── Languages: name, leader, level ────────────────────────────────── */
+
+.cv-language-list {
+  display: flex;
+  flex-direction: column;
+  max-width: 34rem;
+  background: var(--color-surface-card);
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+  padding: var(--space-lg);
+}
+
+.cv-language {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid var(--border-gentle-divider);
+}
+
+.cv-language:first-child {
+  border-top: 1px solid var(--border-gentle-divider);
+}
+
+.cv-language-name {
+  color: var(--color-on-surface);
+}
+
+.cv-language-rule {
+  flex: 1 1 auto;
+  min-width: var(--space-xl);
+  border-bottom: 1px dotted var(--color-outline-variant);
+  transform: translateY(-0.3rem);
+}
+
+.cv-language-level {
+  color: var(--color-on-surface-variant);
+  white-space: nowrap;
+}
+
+/* ── Timeline band ─────────────────────────────────────────────────────
+   The applet carries its own rail of controls, so it runs full width
+   under a band heading instead of inside the section rail. */
+
+.cv-band-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+
+.cv-band-head .section-title {
+  margin: 0;
+}
+
+.cv-timeline-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--gutter);
+}
+
+@media (min-width: 1024px) {
+  .cv-timeline-grid {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
+  }
+}
+
+.cv-timeline-rail-inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  background: var(--color-surface-card);
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+  padding: var(--space-xl);
+}
+
+@media (min-width: 1024px) {
+  .cv-timeline-rail-inner {
+    position: sticky;
+    top: 7rem;
+  }
+}
+
+.cv-timeline-control-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.cv-timeline-control-title,
+.cv-timeline-control-subtitle {
+  margin: 0;
+  color: var(--color-on-surface-variant);
+  letter-spacing: 0.12em;
+}
+
+.cv-timeline-control-subtitle {
+  font-size: var(--type-label);
+  margin-bottom: var(--space-xs);
+}
+
+.cv-timeline-options,
+.cv-timeline-legend,
+.cv-timeline-selection-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  color: var(--color-on-surface-variant);
+  font-size: var(--type-label-lg);
+}
+
+/* Lane chips share the listing-rail pill dialect (Articles / Rascunhos
+   filters): left accent rule, tinted active fill, label face. */
+.cv-timeline-options {
+  gap: 0;
+}
+
+.cv-timeline-legend {
+  gap: var(--space-sm);
+}
+
+.cv-timeline-legend li,
+.cv-timeline-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  color: var(--color-on-surface-variant);
+  font-size: var(--type-label-lg);
+}
+
+.cv-timeline-option {
+  cursor: pointer;
+  justify-content: flex-start;
+  padding: 0.35rem 0.5rem;
+  background: none;
+  border: 0;
+  border-left: 2px solid transparent;
+  font-family: var(--font-label);
+  font-size: var(--type-label-lg);
+  font-weight: var(--weight-label);
+  letter-spacing: 0.03em;
+  transition: background-color var(--motion-duration-fast) var(--motion-ease-default),
+    border-color var(--motion-duration-fast) var(--motion-ease-default),
+    color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.cv-timeline-option:hover {
+  background: var(--color-surface-high);
+  border-left-color: var(--color-outline-variant);
+  color: var(--color-on-surface);
+}
+
+.cv-timeline-option:has(input:checked) {
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  border-left-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.cv-timeline-option input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  pointer-events: none;
+}
+
+.cv-timeline-option input[type="checkbox"]:focus-visible+*,
+.cv-timeline-option:has(input:focus-visible) {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.cv-timeline-key {
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.cv-timeline-key--bar {
+  width: 2rem;
+  height: 0.75rem;
+}
+
+.cv-timeline-key--bar-thin {
+  width: 2rem;
+  height: 0.5rem;
+}
+
+/* The chart plots single-dated writing as round marks, so the key that
+   explains them stays round too. */
+.cv-timeline-key--dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 9999px;
+}
+
+/* Key fills read from the timeline lane tokens, the same categorical scale
+   the chart paints its bars from. They were Tailwind `bg-primary` /
+   `bg-tertiary` utilities, which collided the way the chart did — Job shared
+   a swatch with Article, Product with Post — and which additionally resolve
+   through `--color-primary`, rebound to green on this page by
+   `.page-accent--green`. A legend has to be the one thing on the page that
+   cannot drift from what it explains. */
+.cv-timeline-key--employment {
+  background: var(--timeline-employment);
+}
+
+.cv-timeline-key--education {
+  background: var(--timeline-education);
+}
+
+.cv-timeline-key--product {
+  background: var(--timeline-product);
+}
+
+.cv-timeline-key--project {
+  background: var(--timeline-project);
+}
+
+.cv-timeline-key--article {
+  background: var(--timeline-article);
+}
+
+.cv-timeline-key--post {
+  background: var(--timeline-post);
+}
+
+.cv-timeline-range,
+.cv-timeline-selection-empty {
+  margin: 0;
+  color: var(--color-on-surface-variant);
+}
+
+.cv-timeline-clear {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.cv-timeline-clear:hover {
+  color: var(--color-link-hover);
+}
+
+.cv-timeline-zoom-label {
+  color: var(--color-on-surface-variant);
+}
+
+.cv-timeline-canvas {
+  min-width: 0;
+}
+
+.cv-timeline-canvas .applet-canvas {
+  background: var(--color-background);
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+/* ── Dossier note and contact call to action ──
+   The disclaimer says the public sheet is a summary and that the full record
+   is available on request, which makes it the page's actual call to action
+   rather than a footnote. It gets an icon and a gentle tonal highlight, and
+   the contact channels below it are labelled as the action they are — there
+   is no public PDF to download, so asking is the path. */
+
+/* Now its own box below the header rather than a flex-row sibling of the
+   contact CTA, so it borrows the register's card shape — hairline border,
+   card-step surface — instead of the aside's tonal, border-left treatment. */
+/* Half the old gap below: the header group (dossier + disclaimer) still needs
+   air before the first register rule, but not the full band-sized break it
+   was taking. --space-xl is the nearest rung. */
+.cv-disclaimer-box {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: flex-start;
+  padding: var(--space-lg);
+  margin-bottom: var(--space-xl);
+  background: var(--color-surface-card);
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+}
+
+.material-symbols-outlined.cv-dossier-note-icon {
+  font-size: var(--type-card);
+  line-height: 1.5;
+  color: var(--color-tertiary);
+  flex-shrink: 0;
+}
+
+.cv-disclaimer-box .cv-dossier-note {
+  margin: 0;
+}
+
+.cv-disclaimer-box .cv-dossier-note p {
+  margin: 0;
+}
+
+.cv-disclaimer-box .cv-dossier-note p+p {
+  margin-top: var(--space-sm);
+}
+
+.cv-contact-cta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+.cv-contact-cta-label {
+  font-family: var(--font-label);
+  font-size: var(--type-meta);
+  letter-spacing: 0.12em;
+  color: var(--color-on-surface-variant);
+}

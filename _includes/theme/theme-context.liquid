@@ -1,0 +1,20 @@
+{% comment %}
+  Resolves the active colour theme from _config.yml → shell_theme.active and
+  _data/themes/<name>.yml. Fonts and other non-colour tokens come from
+  _data/themes/shared.yml so light/dark cannot drift apart on type.
+  Sets tc, tn, tl, sf (colors, neutrals, links, fonts), ts (static),
+  sm (motion), sg (geometry).
+{% endcomment %}
+{% assign theme_active = site.shell_theme.active | default: "system" %}
+{% assign theme_profile = site.data.themes[theme_active] %}
+{% if theme_profile == nil %}
+  {% assign theme_profile = site.data.themes.light %}
+{% endif %}
+{% assign theme_shared = site.data.themes.shared %}
+{% assign tc = theme_profile.colors %}
+{% assign tn = theme_profile.neutrals %}
+{% assign tl = theme_profile.links %}
+{% assign sf = theme_shared.fonts %}
+{% assign sm = theme_shared.motion %}
+{% assign sg = theme_shared.geometry %}
+{% assign ts = theme_profile.static %}

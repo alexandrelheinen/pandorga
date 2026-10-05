@@ -1,0 +1,868 @@
+{% include theme/theme-context.liquid %}
+
+  <!-- Timeline. The applet owns its own left rail of controls, so it runs as
+       a full-width band rather than inside the register's title rail. -->
+  <section class="cv-band" id="timeline-section">
+    <div class="cv-band-head">
+      <h2 class="section-title">Timeline</h2>
+    </div>
+
+    <div class="cv-timeline-grid">
+      <div class="cv-timeline-rail">
+        <div class="cv-timeline-rail-inner">
+          <div class="cv-timeline-control-group">
+            <h3 class="cv-timeline-control-title card-meta">Lanes</h3>
+            <ul class="cv-timeline-options font-body">
+              <li><label class="cv-timeline-option"><input type="checkbox" class="timeline-lane-toggle" data-lane="career" checked> Career</label></li>
+              <li><label class="cv-timeline-option"><input type="checkbox" class="timeline-lane-toggle" data-lane="education" checked> Education</label></li>
+              <li><label class="cv-timeline-option"><input type="checkbox" class="timeline-lane-toggle" data-lane="personal" checked> Personal</label></li>
+              <li><label class="cv-timeline-option"><input type="checkbox" class="timeline-lane-toggle" data-lane="articles" checked> Articles</label></li>
+              <li><label class="cv-timeline-option"><input type="checkbox" class="timeline-lane-toggle" data-lane="posts" checked> Posts / Rascunhos</label></li>
+            </ul>
+          </div>
+
+          <div class="cv-timeline-control-group" id="timeline-selection-panel" hidden>
+            <h3 class="cv-timeline-control-title card-meta">Selected period</h3>
+            <p id="timeline-selection-range" class="cv-timeline-range code-technical"></p>
+            <div id="timeline-selection-education-wrap" hidden>
+              <h4 class="cv-timeline-control-subtitle card-meta">Education</h4>
+              <ul id="timeline-selection-education" class="cv-timeline-selection-list font-body"></ul>
+            </div>
+            <div id="timeline-selection-projects-wrap" hidden>
+              <h4 class="cv-timeline-control-subtitle card-meta">Projects</h4>
+              <ul id="timeline-selection-projects" class="cv-timeline-selection-list font-body"></ul>
+            </div>
+            <p id="timeline-selection-empty" class="cv-timeline-selection-empty font-body" hidden>No items in this period.</p>
+            <button type="button" id="timeline-selection-clear" class="cv-timeline-clear card-meta">Clear selection</button>
+          </div>
+
+          <div class="cv-timeline-control-group">
+            <h3 class="cv-timeline-control-title card-meta">Writing</h3>
+            <label class="cv-timeline-option font-body">
+              <input type="checkbox" id="timeline-writing-expanded"> Show each piece
+            </label>
+          </div>
+
+          <div class="cv-timeline-control-group">
+            <h3 class="cv-timeline-control-title card-meta">Legend</h3>
+            <ul class="cv-timeline-legend font-body">
+              <li><span class="cv-timeline-key cv-timeline-key--bar cv-timeline-key--employment"></span>Job</li>
+              <li><span class="cv-timeline-key cv-timeline-key--bar-thin cv-timeline-key--product"></span>Product</li>
+              <li><span class="cv-timeline-key cv-timeline-key--bar cv-timeline-key--education"></span>Education</li>
+              <li><span class="cv-timeline-key cv-timeline-key--bar-thin cv-timeline-key--project"></span>Project</li>
+              <li><span class="cv-timeline-key cv-timeline-key--dot cv-timeline-key--article"></span>Article</li>
+              <li><span class="cv-timeline-key cv-timeline-key--dot cv-timeline-key--post"></span>Post</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="cv-timeline-canvas">
+        <div id="timeline-chart-wrapper" class="applet-canvas relative w-full overflow-x-auto">
+          <div id="timeline-chart" class="relative"></div>
+          <div id="timeline-zoom-controls" class="timeline-applet-control cv-timeline-zoom sticky left-0 z-10 flex items-center gap-2 border px-2 py-1.5 w-fit ml-2 mt-4 mb-4 pointer-events-auto">
+            <button type="button" id="timeline-zoom-out" class="timeline-zoom-btn timeline-applet-control font-label text-sm leading-none w-8 h-8 border text-on-surface-variant hover:border-primary hover:text-primary transition-colors" aria-label="Zoom out">−</button>
+            <span id="timeline-zoom-label" class="cv-timeline-zoom-label code-technical min-w-[3.5rem] text-center">2 yr</span>
+            <button type="button" id="timeline-zoom-in" class="timeline-zoom-btn timeline-applet-control font-label text-sm leading-none w-8 h-8 border text-on-surface-variant hover:border-primary hover:text-primary transition-colors" aria-label="Zoom in">+</button>
+          </div>
+          <div id="timeline-tooltip" class="timeline-applet-control hidden absolute z-20 max-w-xs border px-3 py-2 text-sm font-body text-on-surface-variant"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script type="application/json" id="timeline-data">{"meta":{},"events":[],"writing_buckets":{}}</script>
+
+  <style>
+    #timeline-chart .timeline-axis {
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      background: var(--color-surface-container-low);
+      border-bottom: 1px solid color-mix(in srgb, var(--color-outline-variant) 35%, transparent);
+    }
+    #timeline-chart .timeline-axis-gutter,
+    #timeline-chart .timeline-lane-label {
+      position: sticky;
+      left: 0;
+      z-index: 5;
+      background: var(--color-surface-container-low);
+      border-right: 1px solid color-mix(in srgb, var(--color-outline-variant) 35%, transparent);
+      box-sizing: border-box;
+      flex-shrink: 0;
+    }
+    #timeline-chart .timeline-axis-gutter {
+      z-index: 6;
+      align-self: stretch;
+    }
+    #timeline-chart .timeline-lane-row {
+      border-bottom: 1px solid color-mix(in srgb, var(--color-outline-variant) 20%, transparent);
+    }
+    #timeline-chart .timeline-bar {
+      position: absolute;
+      border-radius: 0;
+      cursor: default;
+      transition: opacity var(--motion-duration-fast) var(--motion-ease-default), box-shadow var(--motion-duration-fast) var(--motion-ease-default);
+      opacity: 0.68;
+      box-sizing: border-box;
+      border: 1px solid color-mix(in srgb, var(--color-surface) 35%, transparent);
+      z-index: 2;
+    }
+    #timeline-chart .timeline-bar:hover,
+    #timeline-chart .timeline-bar.is-highlighted {
+      opacity: 0.95;
+      z-index: 3;
+    }
+    #timeline-chart .timeline-bar.is-dimmed {
+      opacity: 0.28;
+    }
+    #timeline-chart .timeline-bar.is-selected-range {
+      opacity: 0.95;
+      box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-on-surface) 25%, transparent);
+      z-index: 2;
+    }
+    #timeline-chart .timeline-bar--ongoing::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 6px;
+      height: 100%;
+      background: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 2px,
+        color-mix(in srgb, var(--color-surface) 55%, transparent) 2px,
+        color-mix(in srgb, var(--color-surface) 55%, transparent) 4px
+      );
+    }
+    #timeline-chart .timeline-density-bar {
+      position: absolute;
+      bottom: 4px;
+      cursor: default;
+      box-sizing: border-box;
+    }
+    /* The lane tokens, not --color-primary/--color-tertiary: those are the UI
+       triad, and on this page `.page-accent--green` rebinds the primary, so
+       the article bars used to come out the same green as the education lane. */
+    #timeline-chart .timeline-density-bar--article {
+      background: color-mix(in srgb, var(--timeline-article) 62%, transparent);
+    }
+    #timeline-chart .timeline-density-bar--post {
+      background: color-mix(in srgb, var(--timeline-post) 62%, transparent);
+    }
+    #timeline-chart .timeline-marker {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      cursor: default;
+      opacity: 0.75;
+    }
+    #timeline-chart .timeline-selection-band {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      background: color-mix(in srgb, var(--color-tertiary) 12%, transparent);
+      border-left: 1px solid color-mix(in srgb, var(--color-tertiary) 45%, transparent);
+      border-right: 1px solid color-mix(in srgb, var(--color-tertiary) 45%, transparent);
+      pointer-events: none;
+      z-index: 1;
+    }
+    #timeline-chart .timeline-track-select {
+      cursor: crosshair;
+    }
+  </style>
+
+  <script>
+  (function () {
+    'use strict';
+
+    var el = document.getElementById('timeline-data');
+
+    function bootTimeline(payload) {
+    var meta = payload.meta || {};
+    var events = payload.events || [];
+    var buckets = Array.isArray(payload.writing_buckets) ? payload.writing_buckets : [];
+
+    var LABEL_W = 96;
+    var AXIS_H = 36;
+    var MS_DAY = 86400000;
+    var MS_YEAR = 365.25 * MS_DAY;
+    var zoomYears = 2;
+    var MIN_ZOOM_YEARS = 0.25;
+    var SUBLANE_H = 20;
+    var SUBLANE_GAP = 3;
+    var SUBLANE_H_THIN = 13;
+    var SUBLANE_GAP_THIN = 1;
+    var LANE_PAD = 10;
+    var BASE_LANE_H = { career: 56, education: 36, personal: 36, articles: 48, posts: 48 };
+
+    var laneVisible = { career: true, education: true, personal: true, articles: true, posts: true };
+    var writingExpanded = false;
+    var selection = null;
+    var barRegistry = [];
+
+    /* Lane colours come from the live CSS custom properties, not from Liquid.
+     *
+     * Baking them at build time resolved `shell_theme.active: system` to no
+     * palette and fell back to light, so the chart drew the light triad on a
+     * near-black canvas in dark mode and the theme toggle had no effect on
+     * it. Reading the computed properties instead picks up whichever palette
+     * `data-theme` currently names, and `refreshColors()` on the toggle's
+     * event keeps it that way.
+     *
+     * They are also their own tokens rather than the UI triad, because six
+     * event types have to be distinguishable and the triad only holds three:
+     * employment and article used to share `primary`, product and post shared
+     * `tertiary`. On this page `--color-primary` is additionally rebound to
+     * green by `.page-accent--green`, which would have collapsed the chart
+     * further. A categorical scale is the right instrument for a chart.
+     */
+    var COLORS = {};
+
+    function refreshColors() {
+      var cs = getComputedStyle(document.documentElement);
+      function token(name, fallback) {
+        var v = cs.getPropertyValue(name);
+        v = v ? v.trim() : '';
+        return v || fallback;
+      }
+      COLORS.employment = token('--timeline-employment', '#1c5a7a');
+      COLORS.education = token('--timeline-education', '#287445');
+      COLORS.product = token('--timeline-product', '#8a6a30');
+      COLORS.project = token('--timeline-project', '#5c5896');
+      COLORS.article = token('--timeline-article', '#a0543a');
+      COLORS.post = token('--timeline-post', '#4f7d72');
+    }
+
+    refreshColors();
+
+    var container = document.getElementById('timeline-chart');
+    var tooltip = document.getElementById('timeline-tooltip');
+    var wrapper = document.getElementById('timeline-chart-wrapper');
+    var selectionPanel = document.getElementById('timeline-selection-panel');
+    var selectionRange = document.getElementById('timeline-selection-range');
+    var selectionProjects = document.getElementById('timeline-selection-projects');
+    var selectionProjectsWrap = document.getElementById('timeline-selection-projects-wrap');
+    var selectionEducation = document.getElementById('timeline-selection-education');
+    var selectionEducationWrap = document.getElementById('timeline-selection-education-wrap');
+    var selectionEmpty = document.getElementById('timeline-selection-empty');
+    var selectionClear = document.getElementById('timeline-selection-clear');
+    var zoomInBtn = document.getElementById('timeline-zoom-in');
+    var zoomOutBtn = document.getElementById('timeline-zoom-out');
+    var zoomLabel = document.getElementById('timeline-zoom-label');
+    var selectionLayer = null;
+    var selectionBand = null;
+    var dragState = { active: false, anchorMs: 0 };
+
+    function parseDate(s) {
+      var p = s.split('-');
+      return new Date(+p[0], +p[1] - 1, +p[2] || 1);
+    }
+
+    function formatMonth(d) {
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+    }
+
+    function formatRange(ev) {
+      var rs = ev.meta && ev.meta.raw_start;
+      var re = ev.meta && ev.meta.raw_end;
+      if (ev.start === ev.end) return rs || ev.start;
+      var endLabel = ev.ongoing ? 'Present' : (re || ev.end.slice(0, 7));
+      return (rs || ev.start.slice(0, 7)) + ' – ' + endLabel;
+    }
+
+    var todayT = parseDate(meta.today || new Date().toISOString().slice(0, 10)).getTime();
+    var minT = Infinity;
+    var maxT = todayT;
+    events.forEach(function (ev) {
+      minT = Math.min(minT, parseDate(ev.start).getTime());
+      maxT = Math.max(maxT, parseDate(ev.end).getTime());
+    });
+    if (!isFinite(minT)) minT = maxT;
+
+    var minYear = new Date(minT).getFullYear();
+    var maxYear = new Date(maxT).getFullYear();
+    var rangeMs = maxT - minT || MS_DAY;
+    var chartW = 720;
+
+    function visibleChartWidth() {
+      return Math.max(480, (wrapper.clientWidth || 720) - LABEL_W);
+    }
+
+    function updateChartWidth() {
+      var visibleW = visibleChartWidth();
+      var maxZoomYears = Math.max(MIN_ZOOM_YEARS, rangeMs / MS_YEAR);
+      if (zoomYears > maxZoomYears) zoomYears = maxZoomYears;
+      chartW = Math.max(visibleW, visibleW * (rangeMs / (zoomYears * MS_YEAR)));
+    }
+
+    function formatZoomLabel() {
+      if (zoomYears >= 1) {
+        var rounded = Math.round(zoomYears * 10) / 10;
+        return (rounded % 1 === 0 ? rounded.toFixed(0) : rounded.toFixed(1)) + ' yr';
+      }
+      return Math.max(1, Math.round(zoomYears * 12)) + ' mo';
+    }
+
+    function updateZoomLabel() {
+      if (zoomLabel) zoomLabel.textContent = formatZoomLabel();
+    }
+
+    function changeZoom(direction) {
+      var maxZoomYears = Math.max(MIN_ZOOM_YEARS, rangeMs / MS_YEAR);
+      var factor = direction > 0 ? 0.75 : 1.33;
+      zoomYears = Math.max(MIN_ZOOM_YEARS, Math.min(maxZoomYears, zoomYears * factor));
+      updateZoomLabel();
+      render();
+      scrollToToday();
+    }
+
+    function scrollToToday() {
+      requestAnimationFrame(function () {
+        /* The right edge of the range is not today: a single far-future
+           entry (a dated draft, say) would otherwise open the chart on an
+           empty century. */
+        var todayX = xPosMs(todayT);
+        var maxScroll = Math.max(0, container.offsetWidth - wrapper.clientWidth);
+        wrapper.scrollLeft = Math.max(0, Math.min(maxScroll, todayX - wrapper.clientWidth + 24));
+      });
+    }
+
+    function xPos(dateStr) {
+      return LABEL_W + ((parseDate(dateStr).getTime() - minT) / rangeMs) * chartW;
+    }
+
+    function xPosMs(t) {
+      return LABEL_W + ((t - minT) / rangeMs) * chartW;
+    }
+
+    function width(startStr, endStr) {
+      return Math.max(2, xPos(endStr) - xPos(startStr));
+    }
+
+    function timeFromClientX(clientX) {
+      var rect = wrapper.getBoundingClientRect();
+      var x = clientX - rect.left + wrapper.scrollLeft - LABEL_W;
+      x = Math.max(0, Math.min(chartW, x));
+      return minT + (x / chartW) * rangeMs;
+    }
+
+    function overlapsRange(ev, startMs, endMs) {
+      var evStart = parseDate(ev.start).getTime();
+      var evEnd = parseDate(ev.end).getTime();
+      return evStart <= endMs && evEnd >= startMs;
+    }
+
+    function assignSublanes(items) {
+      var sorted = items.slice().sort(function (a, b) {
+        var diff = parseDate(a.start).getTime() - parseDate(b.start).getTime();
+        if (diff !== 0) return diff;
+        return parseDate(b.end).getTime() - parseDate(a.end).getTime();
+      });
+      var laneEnds = [];
+      sorted.forEach(function (item) {
+        var startT = parseDate(item.start).getTime();
+        var endT = parseDate(item.end).getTime();
+        var lane = 0;
+        for (; lane < laneEnds.length; lane++) {
+          if (startT >= laneEnds[lane]) break;
+        }
+        if (lane === laneEnds.length) laneEnds.push(endT);
+        else laneEnds[lane] = endT;
+        item._sublane = lane;
+      });
+      return Math.max(1, laneEnds.length);
+    }
+
+    function laneHeightFor(sublaneCount, base, laneH, gap) {
+      laneH = laneH == null ? SUBLANE_H : laneH;
+      gap = gap == null ? SUBLANE_GAP : gap;
+      return Math.max(base, LANE_PAD * 2 + sublaneCount * laneH + (sublaneCount - 1) * gap);
+    }
+
+    function sublaneTop(index, laneH, gap) {
+      laneH = laneH == null ? SUBLANE_H : laneH;
+      gap = gap == null ? SUBLANE_GAP : gap;
+      return LANE_PAD + index * (laneH + gap);
+    }
+
+    function showTip(html, x, y) {
+      tooltip.innerHTML = html;
+      tooltip.classList.remove('hidden');
+      var rect = wrapper.getBoundingClientRect();
+      var left = x - rect.left + wrapper.scrollLeft + 12;
+      var top = y - rect.top + wrapper.scrollTop + 12;
+      if (left + 280 > wrapper.scrollLeft + rect.width) left = x - rect.left + wrapper.scrollLeft - 290;
+      tooltip.style.left = left + 'px';
+      tooltip.style.top = top + 'px';
+    }
+
+    function hideTip() {
+      tooltip.classList.add('hidden');
+    }
+
+    function bindBar(bar, ev) {
+      bar.dataset.eventId = ev.id;
+      barRegistry.push({ bar: bar, ev: ev });
+      bar.addEventListener('mouseenter', function (e) {
+        var sub = ev.subtitle ? '<br><span class="text-tertiary">' + ev.subtitle + '</span>' : '';
+        showTip('<strong>' + ev.title + '</strong>' + sub + '<br>' + formatRange(ev), e.clientX, e.clientY);
+      });
+      bar.addEventListener('mousemove', function (e) {
+        showTip(tooltip.innerHTML, e.clientX, e.clientY);
+      });
+      bar.addEventListener('mouseleave', hideTip);
+    }
+
+    function writingGrain() {
+      // Coarser buckets when zoomed out so bars stay readable on a long career axis.
+      if (zoomYears >= 6) return 'year';
+      if (zoomYears >= 2.5) return 'quarter';
+      return 'month';
+    }
+
+    function bucketKeyForDate(dateStr, grain) {
+      var d = parseDate(dateStr);
+      var y = d.getFullYear();
+      var m = d.getMonth();
+      if (grain === 'year') return String(y);
+      if (grain === 'quarter') return y + '-Q' + (Math.floor(m / 3) + 1);
+      return y + '-' + String(m + 1).padStart(2, '0');
+    }
+
+    function bucketRange(key, grain) {
+      if (grain === 'year') {
+        return { start: key + '-01-01', end: key + '-12-31', label: key };
+      }
+      if (grain === 'quarter') {
+        var parts = key.split('-Q');
+        var y = parts[0];
+        var q = parseInt(parts[1], 10);
+        var startMonth = (q - 1) * 3 + 1;
+        var endMonth = startMonth + 2;
+        var endDay = endMonth === 2 ? 28 : ([4, 6, 9, 11].indexOf(endMonth) >= 0 ? 30 : 31);
+        return {
+          start: y + '-' + String(startMonth).padStart(2, '0') + '-01',
+          end: y + '-' + String(endMonth).padStart(2, '0') + '-' + String(endDay).padStart(2, '0'),
+          label: key
+        };
+      }
+      var ym = key.split('-');
+      var year = parseInt(ym[0], 10);
+      var month = parseInt(ym[1], 10);
+      var last = new Date(year, month, 0).getDate();
+      return {
+        start: key + '-01',
+        end: key + '-' + String(last).padStart(2, '0'),
+        label: key
+      };
+    }
+
+    function aggregateWritingBuckets(itemKey) {
+      var grain = writingGrain();
+      var map = {};
+      (buckets || []).forEach(function (monthBucket) {
+        var items = monthBucket[itemKey] || [];
+        items.forEach(function (item) {
+          var key = bucketKeyForDate(item.date || (monthBucket.month + '-01'), grain);
+          if (!map[key]) {
+            map[key] = { key: key, count: 0, items: [] };
+          }
+          map[key].count += 1;
+          map[key].items.push(item);
+        });
+      });
+      return Object.keys(map).sort().map(function (key) {
+        var entry = map[key];
+        var range = bucketRange(key, grain);
+        entry.start = range.start;
+        entry.end = range.end;
+        entry.label = range.label;
+        entry.grain = grain;
+        return entry;
+      });
+    }
+
+    function renderWritingDensity(track, itemKey, toneClass) {
+      var densBuckets = aggregateWritingBuckets(itemKey);
+      var maxCount = 1;
+      densBuckets.forEach(function (b) { maxCount = Math.max(maxCount, b.count); });
+      densBuckets.forEach(function (b) {
+        var bar = document.createElement('div');
+        bar.className = 'timeline-density-bar' + toneClass;
+        var h = 8 + (b.count / maxCount) * 28;
+        var left = xPos(b.start) - LABEL_W;
+        var rawW = width(b.start, b.end);
+        var gap = Math.min(3, Math.max(1, rawW * 0.08));
+        bar.style.left = (left + gap / 2) + 'px';
+        bar.style.width = Math.max(2, rawW - gap) + 'px';
+        bar.style.height = h + 'px';
+        bar.addEventListener('mouseenter', function (e) {
+          var list = (b.items || []).map(function (item) {
+            return '<span class="block truncate">' + item.title + '</span>';
+          }).join('');
+          showTip('<strong>' + b.label + '</strong> (' + b.count + ')<br>' + list, e.clientX, e.clientY);
+        });
+        bar.addEventListener('mouseleave', hideTip);
+        track.appendChild(bar);
+      });
+    }
+
+    function renderWritingMarkers(track, type) {
+      var writingItems = events.filter(function (e) { return e.type === type; });
+      var writingSublanes = assignSublanes(writingItems);
+      writingItems.forEach(function (ev) {
+        var m = document.createElement('div');
+        m.className = 'timeline-marker';
+        m.style.left = (xPos(ev.start) - LABEL_W) + 'px';
+        m.style.top = (sublaneTop(ev._sublane) + SUBLANE_H / 2) + 'px';
+        m.style.background = COLORS[ev.type];
+        bindBar(m, ev);
+        track.appendChild(m);
+      });
+      track.dataset.sublanes = writingSublanes;
+      return writingSublanes;
+    }
+
+    function renderSelectionList(listEl, items) {
+      listEl.innerHTML = '';
+      items.forEach(function (ev) {
+        var li = document.createElement('li');
+        var sub = ev.subtitle ? ' <span class="text-on-surface-variant">· ' + ev.subtitle + '</span>' : '';
+        if (ev.url) {
+          li.innerHTML = '<a href="' + ev.url + '" class="text-primary hover:underline">' + ev.title + '</a>' + sub +
+            '<br><span class="font-label text-xs text-on-surface-variant tabular-nums">' + formatRange(ev) + '</span>';
+        } else {
+          li.innerHTML = '<span class="text-on-surface">' + ev.title + '</span>' + sub +
+            '<br><span class="font-label text-xs text-on-surface-variant tabular-nums">' + formatRange(ev) + '</span>';
+        }
+        listEl.appendChild(li);
+      });
+    }
+
+    function applySelectionHighlight() {
+      barRegistry.forEach(function (entry) {
+        var bar = entry.bar;
+        var ev = entry.ev;
+        bar.classList.remove('is-dimmed', 'is-selected-range', 'is-highlighted');
+        if (!selection) return;
+        if (overlapsRange(ev, selection.startMs, selection.endMs)) {
+          bar.classList.add('is-selected-range');
+        } else if (ev.type === 'project' || ev.type === 'education') {
+          bar.classList.add('is-dimmed');
+        }
+      });
+    }
+
+    function updateSelectionPanel() {
+      if (!selection) {
+        selectionPanel.hidden = true;
+        return;
+      }
+      selectionPanel.hidden = false;
+      selectionRange.textContent = formatMonth(new Date(selection.startMs)) + ' – ' + formatMonth(new Date(selection.endMs));
+
+      var edu = events.filter(function (e) {
+        return e.type === 'education' && overlapsRange(e, selection.startMs, selection.endMs);
+      });
+      var projects = events.filter(function (e) {
+        return e.type === 'project' && overlapsRange(e, selection.startMs, selection.endMs);
+      });
+
+      selectionEducationWrap.hidden = edu.length === 0;
+      selectionProjectsWrap.hidden = projects.length === 0;
+      selectionEmpty.hidden = edu.length > 0 || projects.length > 0;
+
+      renderSelectionList(selectionEducation, edu);
+      renderSelectionList(selectionProjects, projects);
+      applySelectionHighlight();
+    }
+
+    function clearSelection() {
+      selection = null;
+      if (selectionBand) selectionBand.hidden = true;
+      updateSelectionPanel();
+      applySelectionHighlight();
+    }
+
+    function setSelection(startMs, endMs) {
+      if (Math.abs(endMs - startMs) < MS_DAY * 20) {
+        clearSelection();
+        return;
+      }
+      selection = {
+        startMs: Math.min(startMs, endMs),
+        endMs: Math.max(startMs, endMs)
+      };
+      if (selectionBand) {
+        selectionBand.hidden = false;
+        selectionBand.style.left = (xPosMs(selection.startMs) - LABEL_W) + 'px';
+        selectionBand.style.width = Math.max(2, xPosMs(selection.endMs) - xPosMs(selection.startMs)) + 'px';
+      }
+      updateSelectionPanel();
+    }
+
+    function setupSelectionDrag(track) {
+      track.addEventListener('mousedown', function (e) {
+        if (e.button !== 0 || e.target !== track) return;
+        dragState.active = true;
+        dragState.anchorMs = timeFromClientX(e.clientX);
+        setSelection(dragState.anchorMs, dragState.anchorMs);
+        e.preventDefault();
+      });
+    }
+
+    window.addEventListener('mousemove', function (e) {
+      if (!dragState.active) return;
+      setSelection(dragState.anchorMs, timeFromClientX(e.clientX));
+    });
+
+    window.addEventListener('mouseup', function () {
+      dragState.active = false;
+    });
+
+    function renderBars(track, items, color, barHeight, ongoingAllowed, laneH, gap) {
+      items.forEach(function (ev) {
+        var bar = document.createElement('div');
+        bar.className = 'timeline-bar' + (ongoingAllowed && ev.ongoing ? ' timeline-bar--ongoing' : '');
+        bar.style.left = (xPos(ev.start) - LABEL_W) + 'px';
+        bar.style.width = width(ev.start, ev.end) + 'px';
+        bar.style.top = sublaneTop(ev._sublane || 0, laneH, gap) + 'px';
+        bar.style.height = barHeight + 'px';
+        bar.style.background = color;
+        bindBar(bar, ev);
+        track.appendChild(bar);
+      });
+    }
+
+    function render() {
+      updateChartWidth();
+      container.innerHTML = '';
+      barRegistry = [];
+      container.style.width = (LABEL_W + chartW + 32) + 'px';
+
+      var y = 0;
+      var axis = document.createElement('div');
+      axis.className = 'timeline-axis flex';
+      axis.style.height = AXIS_H + 'px';
+      axis.style.width = (LABEL_W + chartW) + 'px';
+
+      var axisGutter = document.createElement('div');
+      axisGutter.className = 'timeline-axis-gutter shrink-0 h-full';
+      axisGutter.style.width = LABEL_W + 'px';
+      axis.appendChild(axisGutter);
+
+      var axisTrack = document.createElement('div');
+      axisTrack.className = 'relative shrink-0 h-full';
+      axisTrack.style.width = chartW + 'px';
+
+      for (var year = minYear; year <= maxYear + 1; year++) {
+        var d = year + '-01-01';
+        var x = xPos(d) - LABEL_W;
+        var tick = document.createElement('div');
+        tick.className = 'absolute font-label text-xs text-on-surface-variant';
+        tick.style.left = x + 'px';
+        tick.style.top = '10px';
+        tick.textContent = year;
+        axisTrack.appendChild(tick);
+      }
+      axis.appendChild(axisTrack);
+      container.appendChild(axis);
+      y += AXIS_H;
+
+      var lanesTop = y;
+
+      function addLane(key, label, renderFn, height) {
+        if (!laneVisible[key]) return;
+        var row = document.createElement('div');
+        row.className = 'timeline-lane-row flex';
+        row.style.height = height + 'px';
+        row.dataset.lane = key;
+
+        var lbl = document.createElement('div');
+        lbl.className = 'timeline-lane-label shrink-0 h-full flex items-center font-label text-xs text-on-surface-variant px-2';
+        lbl.style.width = LABEL_W + 'px';
+        lbl.textContent = label;
+        row.appendChild(lbl);
+
+        var track = document.createElement('div');
+        track.className = 'timeline-track-select relative shrink-0 h-full';
+        track.style.width = chartW + 'px';
+        renderFn(track);
+        row.appendChild(track);
+
+        container.appendChild(row);
+        y += height;
+      }
+
+      var jobs = events.filter(function (e) { return e.type === 'employment'; });
+      var products = events.filter(function (e) { return e.type === 'product'; });
+      var jobSublanes = assignSublanes(jobs);
+      var productSublanes = assignSublanes(products);
+      var jobBlockH = laneHeightFor(jobSublanes, BASE_LANE_H.career);
+      var productBlockH = products.length ? laneHeightFor(productSublanes, LANE_PAD + SUBLANE_H_THIN, SUBLANE_H_THIN, SUBLANE_GAP_THIN) : 0;
+      var careerH = jobBlockH + (products.length ? productBlockH + SUBLANE_GAP_THIN : 0);
+
+      addLane('career', 'Career', function (track) {
+        renderBars(track, jobs, COLORS.employment, 18, true);
+        products.forEach(function (ev) {
+          var bar = document.createElement('div');
+          bar.className = 'timeline-bar' + (ev.ongoing ? ' timeline-bar--ongoing' : '');
+          bar.style.left = (xPos(ev.start) - LABEL_W) + 'px';
+          bar.style.width = width(ev.start, ev.end) + 'px';
+          bar.style.top = (jobBlockH + SUBLANE_GAP_THIN + (ev._sublane || 0) * (SUBLANE_H_THIN + SUBLANE_GAP_THIN)) + 'px';
+          bar.style.height = '10px';
+          bar.style.background = COLORS.product;
+          bindBar(bar, ev);
+          track.appendChild(bar);
+        });
+        setupSelectionDrag(track);
+      }, careerH);
+
+      var eduItems = events.filter(function (e) { return e.type === 'education'; });
+      var eduSublanes = assignSublanes(eduItems);
+      addLane('education', 'Education', function (track) {
+        renderBars(track, eduItems, COLORS.education, 16, false);
+        setupSelectionDrag(track);
+      }, laneHeightFor(eduSublanes, BASE_LANE_H.education));
+
+      var projectItems = events.filter(function (e) { return e.type === 'project'; });
+      var projectSublanes = assignSublanes(projectItems);
+      addLane('personal', 'Personal', function (track) {
+        renderBars(track, projectItems, COLORS.project, 10, true, SUBLANE_H_THIN, SUBLANE_GAP_THIN);
+        setupSelectionDrag(track);
+      }, laneHeightFor(projectSublanes, BASE_LANE_H.personal, SUBLANE_H_THIN, SUBLANE_GAP_THIN));
+
+      var articleItems = events.filter(function (e) { return e.type === 'article'; });
+      var articleSublanes = writingExpanded ? assignSublanes(articleItems) : 1;
+      var articlesH = writingExpanded
+        ? laneHeightFor(articleSublanes, BASE_LANE_H.articles)
+        : BASE_LANE_H.articles;
+      addLane('articles', 'Articles', function (track) {
+        if (writingExpanded) renderWritingMarkers(track, 'article');
+        else renderWritingDensity(track, 'articles', 'timeline-density-bar--article');
+      }, articlesH);
+
+      var postItems = events.filter(function (e) { return e.type === 'post'; });
+      var postSublanes = writingExpanded ? assignSublanes(postItems) : 1;
+      var postsH = writingExpanded
+        ? laneHeightFor(postSublanes, BASE_LANE_H.posts)
+        : BASE_LANE_H.posts;
+      addLane('posts', 'Posts', function (track) {
+        if (writingExpanded) renderWritingMarkers(track, 'post');
+        else renderWritingDensity(track, 'posts', 'timeline-density-bar--post');
+      }, postsH);
+
+      var laneAreaH = y - lanesTop;
+      var gridLayer = document.createElement('div');
+      gridLayer.className = 'timeline-grid-layer absolute pointer-events-none';
+      gridLayer.style.left = LABEL_W + 'px';
+      gridLayer.style.top = lanesTop + 'px';
+      gridLayer.style.width = chartW + 'px';
+      gridLayer.style.height = laneAreaH + 'px';
+      gridLayer.style.zIndex = '0';
+      gridLayer.style.overflow = 'hidden';
+      for (var gridYear = minYear; gridYear <= maxYear + 1; gridYear++) {
+        var gridLine = document.createElement('div');
+        gridLine.className = 'absolute top-0';
+        gridLine.style.left = (xPos(gridYear + '-01-01') - LABEL_W) + 'px';
+        gridLine.style.width = '1px';
+        gridLine.style.height = laneAreaH + 'px';
+        gridLine.style.background = 'color-mix(in srgb, var(--color-outline-variant) 35%, transparent)';
+        gridLayer.appendChild(gridLine);
+      }
+      container.appendChild(gridLayer);
+
+      selectionLayer = document.createElement('div');
+      selectionLayer.className = 'absolute';
+      selectionLayer.style.left = LABEL_W + 'px';
+      selectionLayer.style.top = lanesTop + 'px';
+      selectionLayer.style.width = chartW + 'px';
+      selectionLayer.style.height = (y - lanesTop) + 'px';
+      selectionLayer.style.pointerEvents = 'none';
+      selectionLayer.style.zIndex = '1';
+
+      selectionBand = document.createElement('div');
+      selectionBand.className = 'timeline-selection-band';
+      selectionBand.hidden = !selection;
+      if (selection) {
+        selectionBand.style.left = (xPosMs(selection.startMs) - LABEL_W) + 'px';
+        selectionBand.style.width = Math.max(2, xPosMs(selection.endMs) - xPosMs(selection.startMs)) + 'px';
+      }
+      selectionLayer.appendChild(selectionBand);
+      container.appendChild(selectionLayer);
+
+      container.style.height = y + 'px';
+      container.style.minHeight = '';
+      applySelectionHighlight();
+    }
+
+    var resizeTimer;
+    window.addEventListener('resize', function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () {
+        render();
+        scrollToToday();
+      }, 150);
+    });
+
+    /* The bars carry their colour as an inline style, so a palette swap has to
+       redraw them — the CSS variables alone cannot reach an already-painted
+       bar. `shell-theme-change` is dispatched by theme/shell-theme-boot.html. */
+    document.addEventListener('shell-theme-change', function () {
+      refreshColors();
+      render();
+    });
+
+    document.querySelectorAll('.timeline-lane-toggle').forEach(function (cb) {
+      cb.addEventListener('change', function () {
+        laneVisible[cb.dataset.lane] = cb.checked;
+        render();
+      });
+    });
+
+    var expandCb = document.getElementById('timeline-writing-expanded');
+    if (expandCb) {
+      expandCb.addEventListener('change', function () {
+        writingExpanded = expandCb.checked;
+        render();
+      });
+    }
+
+    if (selectionClear) {
+      selectionClear.addEventListener('click', clearSelection);
+    }
+
+    if (zoomInBtn) {
+      zoomInBtn.addEventListener('click', function () { changeZoom(1); });
+    }
+    if (zoomOutBtn) {
+      zoomOutBtn.addEventListener('click', function () { changeZoom(-1); });
+    }
+
+    updateZoomLabel();
+    render();
+    scrollToToday();
+    }
+
+    function loadTimeline() {
+      var runtime = window.ContentRuntime;
+      /* The content base is empty when the JSON is served from the site root
+         (local preview), which is a valid source, not a missing one — gate on
+         the loader instead, and let the catch fall back to the inline stub. */
+      if (runtime && typeof runtime.loadJson === 'function') {
+        runtime.loadJson('data/timeline.json').then(bootTimeline).catch(function (error) {
+          console.error(error);
+          if (el) bootTimeline(JSON.parse(el.textContent));
+        });
+        return;
+      }
+      if (el) bootTimeline(JSON.parse(el.textContent));
+    }
+
+    loadTimeline();
+  })();
+  </script>

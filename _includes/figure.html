@@ -1,0 +1,36 @@
+{% if include.src %}
+{% assign _raw_src = include.src | strip %}
+{% comment %}Pages CMS Editor mode turns bare URLs into Markdown autolinks inside attrs.{% endcomment %}
+{% if _raw_src contains '](' and _raw_src contains ')' %}
+  {% assign _src_parts = _raw_src | split: '](' %}
+  {% assign _src_tail = _src_parts | last %}
+  {% assign _href_parts = _src_tail | split: ')' %}
+  {% assign _src = _href_parts | first %}
+{% elsif _raw_src contains '<' and _raw_src contains '>' %}
+  {% assign _src = _raw_src | remove: '<' | remove: '>' %}
+{% else %}
+  {% assign _src = _raw_src %}
+{% endif %}
+<figure style="margin: 1.5rem auto; text-align: center; max-width: {% if include.width %}{{ include.width }}{% else %}100{% endif %}%;">
+  {% assign _cap = include.caption | strip %}
+  {% if _cap != "" %}
+    {% assign _last = _cap | slice: -1, 1 %}
+    {% unless _last == '.' or _last == '!' or _last == '?' %}
+      {% assign _cap = _cap | append: '.' %}
+    {% endunless %}
+  {% endif %}
+  {% assign _lb_caption = _cap %}
+  {% if include.source %}
+    {% assign _src_part = include.source | strip %}
+    {% if _lb_caption != "" %}
+      {% assign _lb_caption = _lb_caption | append: ' Source: ' | append: _src_part %}
+    {% else %}
+      {% assign _lb_caption = 'Source: ' | append: _src_part %}
+    {% endif %}
+  {% endif %}
+  <img class="figure-lightbox-trigger" src="{{ _src }}" alt="{{ include.alt | default: include.caption }}" style="max-width: 100%; border-radius: 0;" tabindex="0" role="button" aria-label="Enlarge image"{% if _lb_caption != "" %} data-lightbox-caption="{{ _lb_caption | strip_html | escape }}"{% endif %}/>
+  {% if include.caption or include.source %}
+  <figcaption>{% if _cap != "" %}{{ _cap | markdownify | remove: '<p>' | remove: '</p>' }}{% endif %}{% if include.source %} Source: {{ include.source | strip | markdownify | remove: '<p>' | remove: '</p>' }}{% endif %}</figcaption>
+  {% endif %}
+</figure>
+{% endif %}

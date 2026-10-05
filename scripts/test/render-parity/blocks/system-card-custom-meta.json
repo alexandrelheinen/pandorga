@@ -1,0 +1,22 @@
+{
+  "name": "system-card/caller-supplied-meta-parts",
+  "block": "renderSystemCard",
+  "args": [
+    {
+      "front_matter": {
+        "project": "FRET",
+        "label": "Simulation",
+        "status": "Ongoing",
+        "tagline": "Freight routing under stochastic demand."
+      }
+    },
+    {
+      "href": "/projects/fret/",
+      "metaParts": ["<span class=\"ledger-status\">2023 — Ongoing</span>"]
+    }
+  ],
+  "selectors": ["div.ledger-meta", "span.ledger-status"],
+  "contains": ["2023 — Ongoing"],
+  "excludes": [">Simulation<"],
+  "counts": { "ledger-meta-sep": 0, "ledger-status": 1 }
+}
