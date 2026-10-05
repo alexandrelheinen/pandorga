@@ -1,1 +1,18 @@
 name: portfolio
+collection_slots:
+  - name: collection
+    required: true
+    contract: project
+detail: /projects/:slug/
+nav:
+  group: Profile
+home:
+  limit: 4
+export_fields:
+  - title
+  - key
+  - sort_order
+  - start_date
+  - status
+  - tags
+  - body

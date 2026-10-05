@@ -1,1 +1,25 @@
 name: cv
+collection_slots:
+  - name: jobs
+    required: true
+    contract: job
+  - name: products
+    required: true
+    contract: product
+  - name: profile
+    required: false
+    contract: data
+nav:
+  group: Profile
+home:
+  band: hero
+export_fields:
+  - title
+  - key
+  - company
+  - role
+  - start
+  - end
+  - location
+  - summary
+  - body_public

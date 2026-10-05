@@ -1,1 +1,20 @@
 name: blog
+collection_slots:
+  - name: collection
+    required: true
+    contract: writing
+detail: /posts/:slug/
+nav:
+  group: Writing
+home:
+  limit: 4
+export_fields:
+  - title
+  - key
+  - date
+  - tags
+  - language
+  - thumbnail
+  - description
+  - author
+  - body

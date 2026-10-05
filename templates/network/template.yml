@@ -1,1 +1,10 @@
 name: network
+collection_slots: []
+sources:
+  required: true
+  description: Page keys or writing collections that feed the graph
+nav:
+  group: References
+home:
+  band: index
+  group: references

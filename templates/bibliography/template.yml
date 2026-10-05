@@ -1,1 +1,18 @@
 name: bibliography
+collection_slots:
+  - name: collection
+    required: true
+    contract: bibliography
+cited_by:
+  required: true
+  description: Writing page keys whose citations feed this index
+nav: false
+home:
+  band: index
+  group: references
+export_fields:
+  - key
+  - title
+  - year
+  - author
+  - type

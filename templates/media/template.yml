@@ -1,1 +1,17 @@
 name: media
+collection_slots:
+  - name: collection
+    required: true
+    contract: resource
+nav:
+  group: References
+home:
+  band: index
+  group: references
+export_fields:
+  - title
+  - key
+  - link
+  - medium
+  - category
+  - body

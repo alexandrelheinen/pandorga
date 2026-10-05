@@ -1,6 +1,8 @@
 ---
 layout: shell
 ---
+{%- assign blog_locale = page.lang | default: site.pandorga.identity.locale | default: "en" -%}
+{%- assign blog_title = page.title | default: "Blog" -%}
 
 <main class="relative max-w-7xl mx-auto px-4 sm:px-8 md:px-16 pt-10 pb-16 rascunhos-main{% if page.accent and page.accent != 'blue' %} page-accent--{{ page.accent }}{% endif %}">
 
@@ -16,26 +18,24 @@ layout: shell
 
   <div id="blog-listing" class="rascunhos-body">
     {%- comment -%}
-      The sidebar is the one /pages/articles/ carries, in Portuguese: keyword
-      box, the facets as a list, and the licence. Same markup, same classes,
-      same controller — the filter that used to sit in a strip across the
-      masthead now lives here, which is what makes the two writing listings
-      one design rather than two that happen to share a corpus.
+      Same sidebar pattern as the articles listing: keyword box, facets, and
+      licence. Platform UI strings are English defaults; dates follow
+      site.pandorga.identity.locale (or page.lang).
     {%- endcomment -%}
     <aside class="writing-rail listing-filter" data-listing-filter-root hidden>
       <button type="button" class="writing-rail-trigger listing-filter-trigger"
               data-listing-filter-trigger aria-expanded="false"
               aria-controls="rascunhos-filter-panel">
         <span class="material-symbols-outlined" aria-hidden="true">filter_list</span>
-        <span class="font-label writing-rail-trigger-label">Filtrar</span>
+        <span class="font-label writing-rail-trigger-label">Filter</span>
       </button>
 
       <div id="rascunhos-filter-panel" class="writing-rail-panel" data-listing-filter-panel hidden>
-        <p class="listing-filter-group-label font-label text-on-surface-variant">Busca</p>
+        <p class="listing-filter-group-label font-label text-on-surface-variant">Keyword</p>
         <label class="writing-rail-search">
-          <span class="sr-only">Buscar nas entradas</span>
+          <span class="sr-only">Filter entries by keyword</span>
           <input type="search" class="listing-filter-search writing-rail-input font-body"
-                 data-listing-filter-q placeholder="Título, resumo, marca…" autocomplete="off">
+                 data-listing-filter-q placeholder="Title, summary, tag…" autocomplete="off">
           <span class="material-symbols-outlined writing-rail-search-icon" aria-hidden="true">search</span>
         </label>
         <div data-listing-filter-chips></div>
@@ -61,14 +61,14 @@ layout: shell
 
       <div class="rascunhos-entries" id="posts-list">
         <section id="empty-state" class="rascunhos-state">
-          <p class="font-body text-on-surface-variant italic">Carregando textos...</p>
+          <p class="font-body text-on-surface-variant italic">Loading entries...</p>
         </section>
         <section id="no-results" class="rascunhos-state hidden">
-          <p class="font-body text-on-surface-variant italic">Nada corresponde a estes filtros.</p>
+          <p class="font-body text-on-surface-variant italic">Nothing matches these filters yet.</p>
         </section>
       </div>
 
-      <div id="pagination-controls" class="rascunhos-pagination hidden" aria-label="Páginas do blog"></div>
+      <div id="pagination-controls" class="rascunhos-pagination hidden" aria-label="{{ blog_title }} pages"></div>
     </div>
   </div>
 
@@ -112,6 +112,8 @@ layout: shell
 
     var allPosts = [];
     var filterUi = null;
+    var dateLocale = '{{ blog_locale }}';
+    if (dateLocale === 'ptbr' || dateLocale === 'pt_BR') dateLocale = 'pt-BR';
 
     /* Folio number by slug. Assigned once over the whole log, oldest first, so
      * an entry keeps the number it was written under no matter which filter,
@@ -120,12 +122,12 @@ layout: shell
     var folioBySlug = Object.create(null);
 
     var SORT_LABELS = {
-      published: 'Ordem: data de escrita',
-      updated: 'Ordem: última revisão',
-      random: 'Ordem: aleatória'
+      published: 'Order: date written',
+      updated: 'Order: last revised',
+      random: 'Order: random'
     };
 
-    var MONTH_FORMAT = new Intl.DateTimeFormat('pt-BR', {
+    var MONTH_FORMAT = new Intl.DateTimeFormat(dateLocale, {
       month: 'long',
       year: 'numeric'
     });
@@ -177,25 +179,25 @@ layout: shell
 
     function buildChipGroups(tagCounts) {
       var tags = Object.keys(tagCounts).sort(function (a, b) {
-        return a.localeCompare(b, 'pt-BR');
+        return a.localeCompare(b, dateLocale);
       });
       // The count next to each tag is the number of entries that tag would
       // return, so the deck never offers a filter that leads nowhere.
       return [
         {
           key: 'tag',
-          label: 'Forma',
-          options: [{ value: null, label: 'Todas (' + allPosts.length + ')' }].concat(tags.map(function (tag) {
+          label: 'Form',
+          options: [{ value: null, label: 'All (' + allPosts.length + ')' }].concat(tags.map(function (tag) {
             return { value: tag, label: tag + ' (' + tagCounts[tag] + ')' };
           }))
         },
         {
           key: 'sort',
-          label: 'Ordenar por',
+          label: 'Order by',
           options: [
-            { value: 'published', label: 'Data de escrita' },
-            { value: 'updated', label: 'Última revisão' },
-            { value: 'random', label: 'Aleatória' }
+            { value: 'published', label: 'Date written' },
+            { value: 'updated', label: 'Last revised' },
+            { value: 'random', label: 'Random' }
           ]
         }
       ];
@@ -209,18 +211,17 @@ layout: shell
       if (orderEl) orderEl.textContent = SORT_LABELS[state.sort] || SORT_LABELS.published;
       if (!tallyEl) return;
       var total = allPosts.length;
-      var word = total === 1 ? 'entrada' : 'entradas';
+      var word = total === 1 ? 'entry' : 'entries';
       tallyEl.textContent = shown === total
         ? total + ' ' + word
-        : shown + ' de ' + total + ' ' + word;
+        : shown + ' of ' + total + ' ' + word;
     }
 
     /* ── Notebook furniture ──────────────────────────────────────────────
      * Two devices, both read straight off `date`: the run of months and the
-     * folio number. The months carry the rhythm on their own — a jump from
-     * Agosto de 2022 to Março de 2021 already says how long the pause was, so
-     * nothing spells it out. Nothing here counts words, estimates a reading
-     * time or names a place. */
+     * folio number. The months carry the rhythm on their own — a jump across
+     * years already says how long the pause was, so nothing spells it out.
+     * Nothing here counts words, estimates a reading time or names a place. */
 
     function monthKey(value) {
       return String(value).slice(0, 7);
@@ -256,11 +257,10 @@ layout: shell
 
     /* The entry's ledger line: folio, written, revised.
      *
-     * The shared block builds it as date plus the language pill, which on this
-     * page says only that a Portuguese notebook is in Portuguese — every entry
-     * carries the same [PT] and it distinguishes nothing. The three facts that
-     * do belong to an entry are its number in the log, the day it was written
-     * and the day it was last rewritten, so the strip is rebuilt with those.
+     * The shared block builds it as date plus the language pill. When every
+     * entry shares one language the pill distinguishes nothing, so the strip
+     * is rebuilt with the three facts that belong to an entry: its number in
+     * the log, the day it was written, and the day it was last rewritten.
      * The revision is derived from body edits alone, so it marks a rewrite and
      * not a change of tag.
      *
@@ -272,15 +272,15 @@ layout: shell
       var folio = folioBySlug[post.slug];
       var updated = postUpdated(post);
       var revised = updated && updated.slice(0, 10) !== String(fm.date || '').slice(0, 10)
-        ? '<span class="rascunhos-revision">Revisto em ' +
-          runtime.escapeHtml(runtime.formatDate(updated, 'pt-BR')) + '</span>'
+        ? '<span class="rascunhos-revision">Revised ' +
+          runtime.escapeHtml(runtime.formatDate(updated, dateLocale)) + '</span>'
         : '';
 
       return runtime.renderMetaStrip([
         // A figure in a column, which is the remaining case for monospace.
         folio ? '<span class="rascunhos-folio code-technical">#' +
           String(folio).padStart(2, '0') + '</span>' : '',
-        runtime.escapeHtml(runtime.formatDate(fm.date, 'pt-BR')),
+        runtime.escapeHtml(runtime.formatDate(fm.date, dateLocale)),
         revised
       ]);
     }
@@ -295,7 +295,7 @@ layout: shell
 
       var row = runtime.renderLedgerRow(post, {
         href: href,
-        locale: 'pt-BR',
+        locale: dateLocale,
         tagHref: tagHref
       });
       row.classList.add('rascunhos-row', 'rascunhos-band');
@@ -383,7 +383,7 @@ layout: shell
         first = false;
       });
 
-      listing.renderPagination(controls, currentPage, totalPages, { prev: 'Anterior', next: 'Próximo' });
+      listing.renderPagination(controls, currentPage, totalPages);
     }
 
     function showListing() {
@@ -406,13 +406,13 @@ layout: shell
       if (detailRoot) detailRoot.classList.remove('hidden');
 
       var fm = post.front_matter || {};
-      var lang = fm.language || 'ptbr';
+      var lang = fm.language || dateLocale;
 
       if (detailSidebar) {
         detailSidebar.innerHTML = runtime.buildTextSidebar({
           frontMatter: fm,
           fallbackTitle: post.slug,
-          dateHtml: runtime.renderDateEvolution(fm.date, fm.last_updated, 'pt-BR', {
+          dateHtml: runtime.renderDateEvolution(fm.date, fm.last_updated, dateLocale, {
             publishedLabel: runtime.translate('published', lang),
             updatedLabel: runtime.translate('updated', lang)
           })
@@ -450,7 +450,7 @@ layout: shell
         root: filterRoot,
         initialQuery: params.get('q') || '',
         initialTag: params.get('tag') || params.get('categoria') || params.get('category') || null,
-        // Default order: data de escrita.
+        // Default order: date written.
         initialSort: params.get('sort') || 'published',
         defaultSort: 'published',
         tagParam: 'tag',
@@ -467,22 +467,22 @@ layout: shell
     /* Citation and reuse, the rail's last group. Every word is the exported
      * licence record; the page states no terms of its own, and a manifest
      * without a licence leaves no block. Twin of the articles copy — the two
-     * listings wear the same sidebar, each in its own language. */
+     * listings wear the same sidebar with platform-default English labels. */
     function mountLicence(manifest) {
       if (!licenceEl) return;
       var licence = manifest && manifest.content_license;
       if (!licence || !licence.name) return;
 
-      var parts = ['<span class="writing-rail-licence-label font-label">Licenciamento &amp; reutilização</span>'];
+      var parts = ['<span class="writing-rail-licence-label font-label">Licensing &amp; reuse</span>'];
       var named = licence.id ? licence.name + ' (' + licence.id + ')' : licence.name;
-      parts.push('<p class="writing-rail-licence-copy font-body">Textos publicados sob ' +
+      parts.push('<p class="writing-rail-licence-copy font-body">Entries published under ' +
         runtime.escapeHtml(named) + '.</p>');
       if (licence.rights_holder) {
-        parts.push('<p class="writing-rail-licence-copy font-body">Atribuição a ' +
+        parts.push('<p class="writing-rail-licence-copy font-body">Attribution to ' +
           runtime.escapeHtml(licence.rights_holder) + '.</p>');
       }
       var href = licence.page_path || licence.url;
-      if (href) parts.push(runtime.renderCtaLink(href, 'Termos da licença'));
+      if (href) parts.push(runtime.renderCtaLink(href, 'Licence terms'));
 
       licenceEl.innerHTML = parts.join('');
       licenceEl.hidden = false;
@@ -522,7 +522,7 @@ layout: shell
     }).catch(function (error) {
       console.error(error);
       if (emptyState) {
-        emptyState.querySelector('p').textContent = 'Não foi possível carregar os textos agora.';
+        emptyState.querySelector('p').textContent = 'Entries could not be loaded right now.';
       }
     });
   })();
