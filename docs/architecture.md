@@ -41,8 +41,16 @@ talks to GitHub through Pages Functions. Auth and allowlists are site env
 vars; see [studio.md](studio.md). Schema coverage is still thin: only some
 templates ship Studio field fragments.
 
+## Optional Android shell
+
+`studio-mobile/` is an Expo WebView APK shell for Studio. It lives in the git
+repository and is excluded from the Ruby gem. Identity (Studio URL, Android
+package, app name, EAS project id) comes from env / EAS — see
+[studio-android.md](studio-android.md). Attaching APKs to releases is left to
+consuming sites.
+
 ## Deferred platform pieces
 
-Phase 6 in [spec.md](spec.md) still covers `pandorga new`, RubyGems
-publication, and a generic Android Studio app. They are out of the v1.0
-platform cut.
+Phase 6 in [spec.md](spec.md) covered `pandorga new`, RubyGems publication,
+and the generic Android Studio app. The first two landed in 1.1; Android
+ships in 1.2. Remaining work is keeping registry and template APIs stable.

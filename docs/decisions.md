@@ -27,7 +27,7 @@ Refs: `PLT-0.5`, [spec.md §13](spec.md)
 | GitHub home | `alexandrelheinen/pandorga` | Repo already exists; org move can wait for v1 |
 | Default theme | Architectural Ledger | Matches the first consumer; sites may override via `_data/themes/` |
 | Template keys vs site labels | Templates `blog` / `media`; site copy Drafts / Sources in `headers.yml` | URLs stay stable (`PLT-AC-9`) |
-| Android Studio | Phase 6 only | Keeps v0.1 focused on gem + web Studio |
+| Android Studio | Shipped in 1.2 (`studio-mobile/`, git only) | Kept out of the gem; identity via EAS/env |
 | Git history | Fresh orphan at extraction (§6.2) | Personal commits must not enter the public repo (`PLT-AC-2`) |
 | Pages Functions | Option A (`pandorga install-functions`) | Preferred in §5.1; spike `PLT-0.2` proves local copy |
 

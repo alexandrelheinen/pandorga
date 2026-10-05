@@ -1,0 +1,22 @@
+{
+  "cli": {
+    "version": ">= 13.2.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "preview": {
+      "distribution": "internal",
+      "android": { "buildType": "apk" }
+    },
+    "release": {
+      "distribution": "internal",
+      "autoIncrement": true,
+      "env": {
+        "STUDIO_WEB_APP_URL": "https://example.com/studio/"
+      },
+      "android": {
+        "buildType": "apk"
+      }
+    }
+  }
+}

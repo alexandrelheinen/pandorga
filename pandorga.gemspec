@@ -22,6 +22,8 @@ Gem::Specification.new do |spec|
   spec.metadata["source_code_uri"] = spec.homepage
   spec.metadata["changelog_uri"] = "#{spec.homepage}/blob/main/CHANGELOG.md"
 
+  # studio-mobile/ (Expo Android shell) stays in the git repo for clones but is
+  # intentionally omitted from the gem — Node/EAS tooling is not a gem runtime.
   spec.files = Dir.chdir(__dir__) do
     Dir[
       "lib/**/*",
@@ -41,7 +43,7 @@ Gem::Specification.new do |spec|
       "LICENSE",
       "README.md",
       "CHANGELOG.md"
-    ].select { |f| File.file?(f) }
+    ].select { |f| File.file?(f) && !f.start_with?("studio-mobile/") }
   end
   spec.bindir = "exe"
   spec.executables = ["pandorga"]

@@ -1,0 +1,28 @@
+name: studio-mobile
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "studio-mobile/**"
+      - ".github/workflows/studio-mobile.yml"
+  pull_request:
+    paths:
+      - "studio-mobile/**"
+      - ".github/workflows/studio-mobile.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: studio-mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: studio-mobile/package-lock.json
+      - run: npm ci
+      - run: npm test

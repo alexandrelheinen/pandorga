@@ -64,6 +64,7 @@ bundle exec pandorga serve
 | [docs/architecture.md](docs/architecture.md) | Shell, JSON, runtime, Studio |
 | [docs/upgrading.md](docs/upgrading.md) | Semver, `schema_version`, gem pins |
 | [docs/studio.md](docs/studio.md) | Studio env and schema compose |
+| [docs/studio-android.md](docs/studio-android.md) | Optional Expo Android WebView shell |
 | [docs/deploy/static.md](docs/deploy/static.md) | Static backend |
 | [docs/deploy/cloudflare.md](docs/deploy/cloudflare.md) | Pages + object store |
 | [docs/spec.md](docs/spec.md) | Migration plan and acceptance criteria |

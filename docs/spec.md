@@ -1,11 +1,12 @@
 # Platform and website separation migration plan
 
-Status: **v1.1 ships `pandorga new` and registry-driven listing runtimes**.
-RubyGems publish is ready (`gem build` / `gem push`); Android Studio remains
-deferred. Phase 0 spikes and §13 defaults are recorded in
-[decisions.md](decisions.md) (`PLT-0.1`–`PLT-0.5`). Sites use the page registry
-plus Jekyll layouts today; full §5.3 template packages continue to evolve. The
-phase narrative below is the migration plan that produced this cut.
+Status: **v1.2 ships a generic Expo Android Studio shell** under
+`studio-mobile/` (git only; not in the Ruby gem). v1.1 already shipped
+`pandorga new` and registry-driven listing runtimes; RubyGems publish remains
+ready (`gem build` / `gem push`). Phase 0 spikes and §13 defaults are recorded
+in [decisions.md](decisions.md) (`PLT-0.1`–`PLT-0.5`). Sites use the page
+registry plus Jekyll layouts today; full §5.3 template packages continue to
+evolve. The phase narrative below is the migration plan that produced this cut.
 
 This repository currently holds two mixed concepts. It contains a publishing platform, which includes a Jekyll shell, a browser runtime, an R2 exporter, the Studio, and testing gates. It also contains the website of a specific person, which includes content, a private CV, studies, visual identity, and Cloudflare configuration. This document outlines a plan to extract the platform into a public, polished, and documented repository. The `website` repository will remain as a content manager and specific site implementation that consumes the platform as a versioned dependency.
 
@@ -292,7 +293,10 @@ The Function operates without an embedded owner. `GITHUB_REPO` becomes mandatory
 
 Correct and Refine behaviors are updated. The guidelines package becomes a configurable URL (`STUDIO_GUIDELINES_URL`). Without it, Refine is disabled while Correct continues to function as outlined in `studio-proof.md`.
 
-Android support is planned for phase 6. The `applicationId`, URL, and app name will come from EAS variables. The platform will document how to generate the APK with custom identity.
+Android support ships in v1.2 as `studio-mobile/`. The `applicationId`, URL,
+app name, and EAS project id come from env / EAS variables
+(`STUDIO_WEB_APP_URL`, `STUDIO_ANDROID_PACKAGE` / `ANDROID_PACKAGE`,
+`STUDIO_APP_NAME`, `EAS_PROJECT_ID`). See [studio-android.md](studio-android.md).
 
 ### 5.6 Website extension points
 
@@ -463,7 +467,8 @@ Output requirements state that production is served by the pinned version, and a
 
 - **Done in 1.1:** `pandorga new` from `examples/minimal`; listing runtimes read collection/path from the registry (dual instances).
 - **Ready in 1.1:** publish to RubyGems (`gem build pandorga.gemspec && gem push`).
-- **Still open:** generic Android Studio application; keep registry and template APIs stable across minors.
+- **Done in 1.2:** generic Android Studio shell (`studio-mobile/`) with example.com defaults and EAS/env identity; docs in [studio-android.md](studio-android.md). APK attach-to-release workflows stay consumer-owned.
+- **Still open:** keep registry and template APIs stable across minors.
 
 ## 10. Versioning and cross-repository flow
 
@@ -509,5 +514,5 @@ Criteria are written in EARS format. Every criterion is referenced by at least o
 3. The account location must be chosen. The repository can sit in a personal account or an organization created for the project. An organization keeps the repository URL free of a proper name.
 4. The default theme needs definition. The current Architectural Ledger can become the public theme, or the website can maintain its own variation while the platform provides a more neutral theme.
 5. Drafts and Sources in documentation need confirmation. The templates are named `blog` and `media`, but this website continues to call the pages Drafts and Sources, and the URLs (`/pages/blog/`, `/pages/sources/`) will not change.
-6. The Android Studio inclusion must be scheduled. It will either enter in version 0.1 or wait for phase 6.
+6. The Android Studio inclusion ships in v1.2 (`studio-mobile/`, phase 6).
 7. The fresh history approach described in §6.2 requires confirmation.

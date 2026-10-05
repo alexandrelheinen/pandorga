@@ -31,3 +31,9 @@ bundle exec pandorga studio-schema path/to/site
 The command writes `studio/schema.yml` with a `media` block when templates
 need uploads, shared `components`, and `content` groups whose collection
 items match the registry.
+
+## Android shell
+
+An optional Expo WebView APK lives under `studio-mobile/` in the git
+repository (not in the Ruby gem). Configure Studio URL, package id, app name,
+and EAS project id via env — see [studio-android.md](studio-android.md).
