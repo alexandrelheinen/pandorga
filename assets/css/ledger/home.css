@@ -943,44 +943,38 @@ html[data-theme="light"] .home-hero-plate {
   }
 }
 
-/* ── Engineering artifacts ── */
+/* ── Engineering artifacts ──
+   Uniform dense cells (not the old 7/5 tension scale): four portfolio cards
+   on the home band were reading as oversized panels. Equal columns + a short
+   poster keep them catalogue-sized; the projects listing page is unchanged. */
 .home-system-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-lg);
-  /* Used to be align-items: start, to stop a short-summary card from being
-     stretched into its neighbor's poster height with empty card under its
-     links. Left at the grid's default (stretch) now instead: `.ledger-card`
-     and `.ledger-system-card` are already flex columns whose body grows
-     (`.ledger-card-copy {  flex: 1 }`) and whose footer is pinned to the
-     bottom (`.ledger-card-foot {  margin-top: auto }` in base.css), so the
-     extra height a short card gets from stretch reads as intentional air
-     above a bottom-anchored footer rather than as a dead gap under it. */
+  gap: var(--space-md);
+  align-items: stretch;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 700px) {
   .home-system-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-/* Asymmetric pairs — 7/5 then 5/7 — are the "tension scale" of the mockup,
-   and they keep two video posters from sitting at identical widths. */
-@media (min-width: 1024px) {
-  .home-system-grid {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    gap: var(--space-xl);
-  }
+.home-system-grid .ledger-system-card {
+  gap: var(--space-xs);
+  padding: var(--space-md);
+}
 
-  .home-system-grid>*:nth-child(4n + 1),
-  .home-system-grid>*:nth-child(4n) {
-    grid-column: span 7;
-  }
+.home-system-grid .ledger-system-card>.ledger-poster,
+.home-system-grid .ledger-system-card>.projects-plate {
+  width: auto;
+  margin: calc(var(--space-md) * -1) calc(var(--space-md) * -1) 0;
+  aspect-ratio: 2 / 1;
+}
 
-  .home-system-grid>*:nth-child(4n + 2),
-  .home-system-grid>*:nth-child(4n + 3) {
-    grid-column: span 5;
-  }
+.home-system-grid .ledger-system-card .ledger-card-title {
+  font-size: var(--type-card);
+  line-height: 1.2;
 }
 
 .home-system-grid .ledger-card-links {
@@ -991,7 +985,13 @@ html[data-theme="light"] .home-hero-plate {
   font-family: var(--font-body);
   font-size: var(--type-subtitle);
   font-weight: var(--weight-body);
+  line-height: var(--leading-body);
   color: var(--color-legend);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
 }
 
 

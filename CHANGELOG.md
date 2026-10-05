@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.3] — 2026-10-05
+
+### Changed
+
+- Home portfolio cards use a denser equal grid (projects listing layout untouched)
+- Corrects the 1.2.2 mis-target that compacted the projects index instead of the home band
+
 ## [1.2.2] — 2026-10-05
 
 ### Added
@@ -8,7 +15,6 @@
 
 ### Changed
 
-- Projects index cards are denser (shorter posters, tighter type) on the uniform Nx3 grid
 - Home draft cards are taller (~40%) so excerpts stay readable
 - Full example blog page is `Rascunhos` with `language: pt-BR`
 
