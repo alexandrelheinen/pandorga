@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0] — 2026-10-05
+
+### Added
+
+- Optional Expo Android Studio shell under `studio-mobile/` (git only; excluded from the gem)
+- Env/EAS identity: `STUDIO_WEB_APP_URL`, `STUDIO_ANDROID_PACKAGE` / `ANDROID_PACKAGE`, `STUDIO_APP_NAME`, `EAS_PROJECT_ID` (example.com defaults)
+- Docs: [docs/studio-android.md](docs/studio-android.md); CI workflow `studio-mobile.yml` (`npm ci && npm test`)
+
+### Changed
+
+- `pandorga new` pins `gem "pandorga", "~> 1.2"`
+
 ## [1.1.0] — 2026-10-05
 
 ### Added

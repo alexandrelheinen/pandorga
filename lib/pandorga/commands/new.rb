@@ -22,9 +22,9 @@ module Pandorga
 
         source "https://rubygems.org"
 
-        gem "pandorga", "~> 1.1"
+        gem "pandorga", "~> 1.2"
         # Local checkout: gem "pandorga", path: "../pandorga"
-        # GitHub tag: gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v1.1.0"
+        # GitHub tag: gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v1.2.0"
         gem "csv"
         gem "base64"
       RUBY

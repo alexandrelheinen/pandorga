@@ -19,10 +19,10 @@ Consumer sites should pin a release tag, not `main`:
 
 ```ruby
 # Gemfile — RubyGems (preferred once published)
-gem "pandorga", "~> 1.1"
+gem "pandorga", "~> 1.2"
 
 # Or pin a GitHub release tag
-gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v1.1.0"
+gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v1.2.0"
 ```
 
 After a bump, run `bundle update pandorga` and commit `Gemfile.lock`. Host
@@ -44,13 +44,20 @@ for the Pages + object-store order.
 
 ## RubyGems
 
-From 1.1.0, `pandorga new` pins `gem "pandorga", "~> 1.1"`. Publish a built
-gem when you have a RubyGems API key:
+`pandorga new` pins `gem "pandorga", "~> 1.2"`. Publish a built gem when you
+have a RubyGems API key:
 
 ```bash
 mise exec -- gem build pandorga.gemspec
-mise exec -- gem push pandorga-1.1.0.gem
+mise exec -- gem push pandorga-1.2.0.gem
 ```
 
 Until the gem appears on RubyGems, sites can keep the GitHub tag pin shown
-above. Android Studio remains a later minor (see [spec.md](spec.md) Phase 6).
+above.
+
+## Android shell (1.2+)
+
+From 1.2.0 the git repository includes `studio-mobile/` (not packaged in the
+gem). Clone the repo (or copy that tree), set `STUDIO_WEB_APP_URL` and related
+env vars, run `eas init`, then build an APK — see
+[studio-android.md](studio-android.md).
