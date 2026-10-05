@@ -1,8 +1,11 @@
 # Platform and website separation migration plan
 
-Status is **in progress**. Phase 0 spikes and §13 defaults are recorded in
-[decisions.md](decisions.md) (`PLT-0.1`–`PLT-0.5`). Implementation follows the
-phases below.
+Status: **v1.0 platform shipped**; Phase 6 items (`pandorga new`, RubyGems,
+Android Studio) deferred. Phase 0 spikes and §13 defaults are recorded in
+[decisions.md](decisions.md) (`PLT-0.1`–`PLT-0.5`). Sites use the page registry
+plus Jekyll layouts today; full §5.3 template packages and Studio `studio.yml`
+coverage remain thin and are still evolving. The phase narrative below is the
+migration plan that produced this cut.
 
 This repository currently holds two mixed concepts. It contains a publishing platform, which includes a Jekyll shell, a browser runtime, an R2 exporter, the Studio, and testing gates. It also contains the website of a specific person, which includes content, a private CV, studies, visual identity, and Cloudflare configuration. This document outlines a plan to extract the platform into a public, polished, and documented repository. The `website` repository will remain as a content manager and specific site implementation that consumes the platform as a versioned dependency.
 
@@ -446,13 +449,13 @@ Output requirements state that `vendor/pandorga/` must build on its own. This is
 
 ### Phase 4. Extraction and polish
 
-Create the public repository with a fresh history starting from `vendor/pandorga/`. Write the documentation outlined in §6.5, the examples in §6.6, `CHANGELOG`, `SECURITY.md`, CI configuration (gates, gitleaks, privacy, example builds, Studio build), reusable workflows, and the `v0.1.0` release. Publish the demo site.
+Create the public repository with a fresh history starting from `vendor/pandorga/`. Write the documentation outlined in §6.5, the examples in §6.6, `CHANGELOG`, `SECURITY.md`, CI configuration (gates, gitleaks, privacy, example builds, Studio build), reusable workflows, and the `v1.0.0` release. Publish the demo site.
 
 Output requirements state that a person without access to the `website` repository can follow `getting-started.md` and successfully run the minimal example locally.
 
 ### Phase 5. The cut in the website repository
 
-Replace the `path:` directive with `github:, tag: v0.1.0`. Remove the `vendor/pandorga/` directory. Website workflows update to call the reusable workflows. Adjust the build command in Cloudflare Pages if Option A from §5.1 is successful. Update `AGENTS.md`, `README.md`, and `CONTRIBUTING.md`. Dependabot begins monitoring the gem.
+Replace the `path:` directive with `github:, tag: v1.0.0`. Remove the `vendor/pandorga/` directory. Website workflows update to call the reusable workflows. Adjust the build command in Cloudflare Pages if Option A from §5.1 is successful. Update `AGENTS.md`, `README.md`, and `CONTRIBUTING.md`. Dependabot begins monitoring the gem.
 
 Output requirements state that production is served by the pinned version, and all current public URLs respond identically (`PLT-AC-9`).
 

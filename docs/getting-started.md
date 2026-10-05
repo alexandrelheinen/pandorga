@@ -35,6 +35,9 @@ flow; Studio env vars are optional and documented in [studio.md](studio.md).
 ## Next
 
 - [configuration.md](configuration.md) — `pandorga:` reference
+- [pages-and-templates.md](pages-and-templates.md) — registry and templates
+- [theming.md](theming.md) / [extending.md](extending.md) — tokens and overrides
+- [architecture.md](architecture.md) / [upgrading.md](upgrading.md) — layers and bumps
 - [deploy/static.md](deploy/static.md) — publish without an object store
 - [deploy/cloudflare.md](deploy/cloudflare.md) — Pages + R2
 - [deploy/netlify.md](deploy/netlify.md) / [deploy/github-pages.md](deploy/github-pages.md) — shell hosts

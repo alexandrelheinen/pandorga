@@ -44,7 +44,7 @@ build command. Git sources (`gem "pandorga", github: "…", tag: "v0.x"`) are
 supported by Bundler on Pages the same way as locally; no vendor cache is
 required. Confirmed against Pages v3 Ruby 3.4.4 docs and prior site builds that
 already use Bundler. Full end-to-end proof lands at Phase 5 cutover when the
-site pins `github:, tag: v0.1.0`.
+site pins `github:, tag: v1.0.0`.
 
 ### PLT-0.2 — Functions from the gem (Option A)
 

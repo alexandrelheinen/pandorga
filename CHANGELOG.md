@@ -9,12 +9,19 @@
 - `pandorga.content.backend` (`static` | `r2` | `object_store` | `s3`) wired to the runtime
 - S3-compatible publish (`S3_*` env aliases, `pandorga publish` → object-store sync)
 - Template layout selection from the registry (`cv`, `articles`, `blog`, …)
+- `studio.yml` for all seven templates; `pandorga studio-schema` composes Studio from the registry
+- Template packages with README, fixtures, and screenshot placeholders (`PLT-AC-4`)
+- Registry schema + generated `docs/configuration.md` (`PLT-AC-11`)
+- CV public-export allowlist gate (`PLT-AC-7`)
+- Gitleaks job in CI (`PLT-AC-1`)
 - Deploy notes for Netlify and GitHub Pages (shell + static backend)
+- Docs: architecture, pages-and-templates, theming, extending, upgrading
 - Fictional content for `examples/full`
 
 ### Changed
 
 - Home layout no longer hardcodes Portuguese CTAs or website kite art
+- Blog listing UI uses English platform defaults and identity locale
 - Export / content adapter / collections prefer `PandorgaRegistry` over fixed lists
 - Docs drop v0.1.0-only deploy wording; Cloudflare doc notes host-agnostic shell
 

@@ -38,10 +38,22 @@ bundle exec pandorga serve
 | `pandorga install-functions` | Copy `functions/` + `studio/` into the site root |
 | `pandorga studio-schema` | Compose Studio schema from templates |
 
-## Spec
+## Documentation
 
-Migration and acceptance criteria: [docs/spec.md](docs/spec.md).  
-Decisions: [docs/decisions.md](docs/decisions.md).
+| Doc | Topic |
+|---|---|
+| [docs/getting-started.md](docs/getting-started.md) | Minimal example locally |
+| [docs/configuration.md](docs/configuration.md) | `pandorga:` reference |
+| [docs/pages-and-templates.md](docs/pages-and-templates.md) | Registry and seven templates |
+| [docs/theming.md](docs/theming.md) | `_data/themes` and tokens |
+| [docs/extending.md](docs/extending.md) | Site overrides, hero art, Studio overrides |
+| [docs/architecture.md](docs/architecture.md) | Shell, JSON, runtime, Studio |
+| [docs/upgrading.md](docs/upgrading.md) | Semver, `schema_version`, gem pins |
+| [docs/studio.md](docs/studio.md) | Studio env and schema compose |
+| [docs/deploy/static.md](docs/deploy/static.md) | Static backend |
+| [docs/deploy/cloudflare.md](docs/deploy/cloudflare.md) | Pages + object store |
+| [docs/spec.md](docs/spec.md) | Migration plan and acceptance criteria |
+| [docs/decisions.md](docs/decisions.md) | Frozen decisions |
 
 ## License
 
