@@ -57,8 +57,8 @@ end
 end
 
 gemfile = DEST.join("Gemfile").read
-unless gemfile.include?('gem "pandorga", "~> 1.2"')
-  warn "FAIL test-new: Gemfile must pin pandorga ~> 1.2\n#{gemfile}"
+unless gemfile.include?('gem "pandorga", "~> 1.3"')
+  warn "FAIL test-new: Gemfile must pin pandorga ~> 1.3\n#{gemfile}"
   exit 1
 end
 unless gemfile.include?("path:") && gemfile.include?("github:")

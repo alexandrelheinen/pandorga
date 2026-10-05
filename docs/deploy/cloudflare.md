@@ -8,7 +8,9 @@ here because that is the supported editor host today.
 3. Set `pandorga.content.backend: r2` (or `object_store`) and
    `pandorga.content.base_url` to the public bucket URL.
 4. Publish content with `pandorga publish` **before** shipping a shell that
-   expects a new `schema_version`.
+   expects a new `schema_version`. If CI calls the gem publish script through a
+   site wrapper, export `PANDORGA_SITE_ROOT` to the site root first — otherwise
+   publish exits with an error (media would otherwise be skipped).
 5. Set Pages secrets: `GITHUB_REPO`, `STUDIO_ALLOWED_ORIGINS`, Clerk keys.
    Object-store publish needs `S3_*` or legacy `R2_*` credentials
    (`S3_ENDPOINT`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`).
