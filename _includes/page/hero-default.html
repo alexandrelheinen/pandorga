@@ -1,1 +1,18 @@
-{% comment %}Site overrides this include for custom hero art.{% endcomment %}
+{% comment %}
+  Neutral hero art slot. Sites override via pandorga.home.hero_art or by
+  replacing this include. The website kite art stays outside the gem.
+{% endcomment %}
+<svg class="home-hero-art-svg" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="heroDefaultGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="var(--color-primary, #3d4a5c)" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="var(--color-tertiary, #8a6a4a)" stop-opacity="0.2"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#heroDefaultGrad)"/>
+  <g fill="none" stroke="var(--color-outline, #5c6570)" stroke-opacity="0.35" stroke-width="2">
+    <path d="M120 640 L420 220 L780 220 L1080 640"/>
+    <path d="M420 220 L600 520 L780 220"/>
+    <circle cx="600" cy="360" r="48"/>
+  </g>
+</svg>

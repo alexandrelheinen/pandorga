@@ -26,21 +26,35 @@ REPO_ROOT = Pathname.new(ENV.fetch("PANDORGA_SITE_ROOT", Dir.pwd)).expand_path
 CONTENT_ROOT = Pathname.new(ARGV[0] || "content").expand_path
 OUTPUT_ROOT = Pathname.new(ARGV[1] || "_content_json").expand_path
 
+def load_site_config
+  config_path = REPO_ROOT.join("_config.yml")
+  return {} unless config_path.file?
+
+  YAML.safe_load(config_path.read, aliases: true) || {}
+rescue StandardError
+  {}
+end
+
+SITE_CONFIG = load_site_config.freeze
+
 def load_content_api_base_url
   if ENV.key?("CONTENT_API_BASE_URL")
     return ENV["CONTENT_API_BASE_URL"].to_s.chomp("/")
   end
 
-  config_path = REPO_ROOT.join("_config.yml")
-  raise "Missing _config.yml; set CONTENT_API_BASE_URL or configure content_api_base_url" unless config_path.file?
+  require "pandorga/registry"
+  backend = PandorgaRegistry.content_backend(SITE_CONFIG)
+  url = PandorgaRegistry.content_base_url(SITE_CONFIG)
 
-  config = YAML.safe_load(config_path.read) || {}
-  url = config["content_api_base_url"].to_s.strip
+  # Static backend serves JSON from the same origin — empty base is correct.
+  return "" if backend == "static"
+
   if url.empty?
-    raise "content_api_base_url is empty in _config.yml; set CONTENT_API_BASE_URL for local export"
+    raise "pandorga.content.base_url (or content_api_base_url) is required when " \
+          "pandorga.content.backend is #{backend.inspect}; set CONTENT_API_BASE_URL to override"
   end
 
-  url.chomp("/")
+  url
 end
 
 CONTENT_API_BASE_URL = load_content_api_base_url
@@ -293,12 +307,8 @@ PUBLIC_JOB_EXPORT_FIELDS = %w[
 ].freeze
 
 def load_writing_index_collections
-  config_path = REPO_ROOT.join("_config.yml")
-  return nil unless config_path.file?
-
   require "pandorga/registry"
-  config = YAML.safe_load(config_path.read, aliases: true) || {}
-  pages = PandorgaRegistry.pages(config)
+  pages = PandorgaRegistry.pages(SITE_CONFIG)
   return nil if pages.empty?
 
   PandorgaRegistry.writing_collections(pages)
@@ -662,18 +672,42 @@ ContentValidators.validate_all!(REPO_ROOT) unless ENV["CONTENT_EXPORT_SKIP_VALID
 # bytes/mtimes. CONTENT_EXPORT_CHANGED_PATHS(_FILE) skips chronology/rebuild
 # for untouched sources (still exports missing files; always rebuilds
 # writing_index, timeline, and manifest). Stale files are pruned afterward.
-files = {
-  "articles" => export_markdown_tree(CONTENT_ROOT.join("collections", "articles"), OUTPUT_ROOT.join("collections", "articles"), "article"),
-  "posts" => export_markdown_tree(CONTENT_ROOT.join("collections", "posts"), OUTPUT_ROOT.join("collections", "posts"), "post"),
-  "products" => export_markdown_tree(CONTENT_ROOT.join("collections", "products"), OUTPUT_ROOT.join("collections", "products"), "product"),
-  "projects" => export_markdown_tree(CONTENT_ROOT.join("collections", "projects"), OUTPUT_ROOT.join("collections", "projects"), "project"),
-  "jobs" => export_markdown_tree(CONTENT_ROOT.join("collections", "jobs"), OUTPUT_ROOT.join("collections", "jobs"), "job"),
-  "resources" => export_markdown_tree(CONTENT_ROOT.join("collections", "resources"), OUTPUT_ROOT.join("collections", "resources"), "resource"),
-  "page_fragments" => export_page_fragments(CONTENT_ROOT.join("pages"), OUTPUT_ROOT.join("pages")),
-  "page_headers" => export_page_headers(CONTENT_ROOT, OUTPUT_ROOT) << export_hero_portraits(CONTENT_ROOT, OUTPUT_ROOT),
-  "data" => export_data_tree(CONTENT_ROOT.join("collections", "data"), OUTPUT_ROOT.join("data")),
-  "bibliography" => export_bibliography(CONTENT_ROOT, OUTPUT_ROOT)
-}
+def export_collection_trees
+  require "pandorga/registry"
+  pages = PandorgaRegistry.pages(SITE_CONFIG)
+  writing = pages.empty? ? WRITING_INDEX_COLLECTIONS : PandorgaRegistry.writing_collections(pages)
+  shell = pages.empty? ? PandorgaRegistry::DEFAULT_SHELL_COLLECTIONS : PandorgaRegistry.shell_collection_dirs(pages)
+
+  trees = {}
+  writing.each do |collection, type|
+    trees[collection] = export_markdown_tree(
+      CONTENT_ROOT.join("collections", collection),
+      OUTPUT_ROOT.join("collections", collection),
+      type
+    )
+  end
+  shell.each do |collection, relative|
+    next if trees.key?(collection)
+
+    type = case collection
+           when "jobs" then "job"
+           when "resources" then "resource"
+           else collection.sub(/s\z/, "")
+           end
+    trees[collection] = export_markdown_tree(
+      CONTENT_ROOT.join(relative),
+      OUTPUT_ROOT.join(relative),
+      type
+    )
+  end
+  trees
+end
+
+files = export_collection_trees
+files["page_fragments"] = export_page_fragments(CONTENT_ROOT.join("pages"), OUTPUT_ROOT.join("pages"))
+files["page_headers"] = export_page_headers(CONTENT_ROOT, OUTPUT_ROOT) << export_hero_portraits(CONTENT_ROOT, OUTPUT_ROOT)
+files["data"] = export_data_tree(CONTENT_ROOT.join("collections", "data"), OUTPUT_ROOT.join("data"))
+files["bibliography"] = export_bibliography(CONTENT_ROOT, OUTPUT_ROOT)
 files.merge!(export_derived_data(CONTENT_ROOT, OUTPUT_ROOT))
 counts = files.transform_values(&:length)
 

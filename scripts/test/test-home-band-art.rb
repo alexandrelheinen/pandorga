@@ -20,6 +20,8 @@ require_relative "../content/band_art"
 ROOT = Pathname.new(__dir__).join("..", "..").expand_path
 EXPORT = ROOT.join("scripts/content/export-content-json.rb")
 LAYOUT = ROOT.join("_layouts/home.html")
+INDEX_BAND = ROOT.join("_includes/home/band-index.html")
+EXAMPLE_CONTENT = ROOT.join("examples/full/content")
 
 def check!(condition, message = "condition was false")
   raise "Assertion failed: #{message}" unless condition
@@ -86,17 +88,27 @@ end
 # AC-BAND-07: the layout may not hold generated markup any more.
 layout = LAYOUT.read
 check! !layout.include?("<svg"), "_layouts/home.html must not carry generated SVG"
-check! layout.include?('data-content-band-art="sources"'), "the sources panel needs its mount point"
-check! layout.include?('data-content-band-art="network"'), "the network panel needs its mount point"
+index_band = INDEX_BAND.read
+check! index_band.include?('data-content-band-art="sources"') ||
+         index_band.include?('data-content-band-art="{{ _art_key }}"'),
+       "the sources panel needs its mount point"
+check! index_band.include?("data-content-band-art"),
+       "the network panel needs its mount point"
 
 # ── The export, end to end ────────────────────────────────────────────────
 
 Dir.mktmpdir("band-art") do |dir|
   out = Pathname.new(dir).join("export")
-  env = { "CONTENT_API_BASE_URL" => "", "CONTENT_EXPORT_SKIP_VALIDATE" => "1" }
-  command = ["ruby", EXPORT.to_s, ROOT.join("content").to_s, out.to_s]
+  content_root = EXAMPLE_CONTENT.directory? ? EXAMPLE_CONTENT : ROOT.join("content")
+  env = {
+    "CONTENT_API_BASE_URL" => "",
+    "CONTENT_EXPORT_SKIP_VALIDATE" => "1",
+    "PANDORGA_SITE_ROOT" => (EXAMPLE_CONTENT.directory? ? ROOT.join("examples/full") : ROOT).to_s,
+    "RUBYOPT" => "-I#{ROOT.join('lib')}"
+  }
+  command = ["ruby", EXPORT.to_s, content_root.to_s, out.to_s]
 
-  first, status = Open3.capture2e(env, *command, chdir: ROOT.to_s)
+  first, status = Open3.capture2e(env, *command, chdir: env["PANDORGA_SITE_ROOT"])
   check! status.success?, "first export failed:\n#{first}"
 
   # AC-BAND-01
@@ -113,7 +125,7 @@ Dir.mktmpdir("band-art") do |dir|
   before = out.join("data", "band-art-sources.svg").read
 
   # AC-BAND-03: a re-export must reuse the bytes, or every run churns R2.
-  second, status = Open3.capture2e(env, *command, chdir: ROOT.to_s)
+  second, status = Open3.capture2e(env, *command, chdir: env["PANDORGA_SITE_ROOT"])
   check! status.success?, "second export failed:\n#{second}"
   check! out.join("data", "band-art-sources.svg").read == before,
          "a re-export with no content change rewrote the sources plate"

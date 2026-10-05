@@ -11,6 +11,12 @@ require_relative "content_writing_paths"
 require_relative "lib/text_excerpt"
 require_relative "lib/writing_entry"
 
+begin
+  require "pandorga/registry"
+rescue LoadError
+  # Exporter may load this file before the gem lib path is on $LOAD_PATH.
+end
+
 # Minimal site-like object built from /content for export-time derived data
 # (timeline, writing_index) without running a Jekyll build.
 class ContentSiteAdapter
@@ -22,11 +28,11 @@ class ContentSiteAdapter
     "jobs" => "collections/jobs"
   }.freeze
 
-
   attr_reader :collections, :data
 
-  def initialize(content_root, include_writing_index: true)
+  def initialize(content_root, include_writing_index: true, config: nil)
     @content_root = Pathname.new(content_root)
+    @config = config.is_a?(Hash) ? config : load_site_config
     @collections = build_collections
     @data = {
       "education" => load_yaml_array("collections/data/education.yml"),
@@ -36,8 +42,28 @@ class ContentSiteAdapter
 
   private
 
+  def load_site_config
+    root = Pathname.new(ENV.fetch("PANDORGA_SITE_ROOT", Dir.pwd)).expand_path
+    path = root.join("_config.yml")
+    return {} unless path.file?
+
+    YAML.safe_load(path.read, permitted_classes: [Date, Time], aliases: true) || {}
+  rescue StandardError
+    {}
+  end
+
+  def collection_dirs
+    return COLLECTION_DIRS unless defined?(PandorgaRegistry)
+
+    pages = PandorgaRegistry.pages(@config)
+    return COLLECTION_DIRS if pages.empty?
+
+    dirs = PandorgaRegistry.adapter_collection_dirs(pages)
+    dirs.empty? ? COLLECTION_DIRS : dirs
+  end
+
   def build_collections
-    COLLECTION_DIRS.each_with_object({}) do |(name, relative), hash|
+    collection_dirs.each_with_object({}) do |(name, relative), hash|
       hash[name] = OpenStruct.new(docs: load_collection_docs(relative, name))
     end
   end
@@ -78,7 +104,7 @@ class ContentSiteAdapter
 
   def build_writing_index
     entries = []
-    ContentWritingPaths::INDEX_BY_COLLECTION.each do |collection, relative_path|
+    index_collections.each do |collection, relative_path|
       directory = @content_root.join(relative_path)
       next unless directory.directory?
 
@@ -88,6 +114,19 @@ class ContentSiteAdapter
       end
     end
     entries
+  end
+
+  def index_collections
+    if defined?(PandorgaRegistry)
+      pages = PandorgaRegistry.pages(@config)
+      unless pages.empty?
+        map = PandorgaRegistry.writing_collections(pages)
+        return map.keys.each_with_object({}) do |name, hash|
+          hash[name] = "collections/#{name}"
+        end
+      end
+    end
+    ContentWritingPaths::INDEX_BY_COLLECTION
   end
 
   def build_writing_entry(absolute_path, collection)

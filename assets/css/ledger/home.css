@@ -79,8 +79,8 @@
   z-index: 1;
 }
 
-/* ── Hero Pandorga (atelier kite + ribbon) ──
-   Full painting restored; the wrapper opacity keeps it beNewsreader the copy. */
+/* ── Hero art slot (site supplies art via pandorga.home.hero_art) ── */
+.home-hero-art,
 .home-hero-pandorga {
   position: absolute;
   inset: 0;
@@ -90,6 +90,7 @@
   opacity: 0.42;
 }
 
+.home-hero-art-svg,
 .home-hero-pandorga-svg {
   width: 100%;
   height: 100%;
@@ -97,6 +98,7 @@
 }
 
 @media (max-width: 639px) {
+  .home-hero-art,
   .home-hero-pandorga {
     opacity: 0.28;
   }

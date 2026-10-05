@@ -20,18 +20,39 @@ module TagValidator
     return {} unless config_path.file?
 
     config = YAML.safe_load(config_path.read, permitted_classes: [Date, Time], aliases: true) || {}
-    taxonomies = config.dig("pandorga", "taxonomies")
-    return {} unless taxonomies.is_a?(Hash)
-
     vocab = {}
-    taxonomies.each do |collection, spec|
-      next unless spec.is_a?(Hash)
 
-      tags = spec["tags"]
-      next unless tags.is_a?(Array)
+    taxonomies = config.dig("pandorga", "taxonomies")
+    if taxonomies.is_a?(Hash)
+      taxonomies.each do |collection, spec|
+        next unless spec.is_a?(Hash)
 
-      vocab[collection.to_s] = tags.map(&:to_s).freeze
+        tags = spec["tags"]
+        next unless tags.is_a?(Array)
+
+        vocab[collection.to_s] = tags.map(&:to_s).freeze
+      end
     end
+
+    # Page-local taxonomy (pandorga.pages[].taxonomy) fills gaps.
+    pages = config.dig("pandorga", "pages")
+    if pages.is_a?(Array)
+      pages.each do |page|
+        next unless page.is_a?(Hash)
+
+        collection = page["collection"].to_s
+        next if collection.empty? || vocab.key?(collection)
+
+        spec = page["taxonomy"]
+        next unless spec.is_a?(Hash)
+
+        tags = spec["tags"]
+        next unless tags.is_a?(Array)
+
+        vocab[collection] = tags.map(&:to_s).freeze
+      end
+    end
+
     vocab
   end
 
@@ -42,6 +63,13 @@ module TagValidator
 
     config = YAML.safe_load(config_path.read, permitted_classes: [Date, Time], aliases: true) || {}
     max = config.dig("pandorga", "taxonomies", collection.to_s, "max")
+    if max.nil?
+      pages = config.dig("pandorga", "pages")
+      if pages.is_a?(Array)
+        page = pages.find { |p| p.is_a?(Hash) && p["collection"].to_s == collection.to_s }
+        max = page.dig("taxonomy", "max") if page.is_a?(Hash)
+      end
+    end
     max.nil? ? DEFAULT_MAX_TAGS : Integer(max)
   rescue ArgumentError, TypeError
     DEFAULT_MAX_TAGS

@@ -24,6 +24,7 @@ module Pandorga
         site.data["nav"] = PandorgaRegistry.build_nav(pages)
         site.data["pandorga_pages"] = pages
         site.data["pandorga_nav"] = site.data["nav"]
+        site.data["pandorga_home_bands"] = PandorgaRegistry.home_bands(pages)
 
         existing_keys = site.pages.map { |p| p.data["key"] }.compact
         pages.each do |entry|
@@ -42,7 +43,7 @@ module Pandorga
 
         rel_dir = path.sub(%r{\A/}, "").sub(%r{/\z}, "")
         page = ::Jekyll::PageWithoutAFile.new(site, site.source, rel_dir, "index.html")
-        page.data["layout"] = entry["layout"] || "pandorga/#{entry['template']}"
+        page.data["layout"] = PandorgaRegistry.layout_for(entry)
         page.data["key"] = entry["key"]
         page.data["title"] = entry["title"] if entry["title"]
         page.data["description"] = entry["description"] if entry["description"]

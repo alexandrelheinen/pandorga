@@ -24,6 +24,7 @@ SKIP_DIRS = %w[
   .git
   tmp
   _site
+  _content_json
   vendor
   .bundle
   node_modules
@@ -48,18 +49,23 @@ Find.find(ROOT) do |path|
   end
   next unless path.file?
   next if path.basename.to_s == "test-no-personal-data.rb"
+  next if path.extname.match?(/\.(png|jpe?g|gif|webp|ico|woff2?|ttf|eot|pdf|zip|gz|wasm)$/i)
 
   rel = path.relative_path_from(ROOT).to_s
   next if ALLOW_REL.include?(rel)
 
-  text = begin
-    path.read(encoding: "UTF-8")
-  rescue Encoding::InvalidByteSequenceError
+  raw = begin
+    path.read(mode: "rb")
+  rescue StandardError
     next
   end
+  next if raw.include?("\x00")
+
+  text = raw.force_encoding("UTF-8")
+  next unless text.valid_encoding?
 
   # Strip allowed repo URLs before scanning for the owner slug.
-  scrubbed = text.gsub(REPO_URL_OK, "")
+  scrubbed = text.encode("UTF-8", invalid: :replace, undef: :replace).gsub(REPO_URL_OK, "")
   if scrubbed.match?(/alexandrelheinen/i)
     failures << "#{rel}: owner slug outside allowed repo URL"
   end

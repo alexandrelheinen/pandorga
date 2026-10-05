@@ -1,0 +1,49 @@
+{%- comment -%}
+  One homepage listing band. Expects `band` from site.data.pandorga_home_bands.
+  Markup slots are filled by the home layout script from writing_index.json.
+{%- endcomment -%}
+{%- assign _accent = band.accent -%}
+{%- assign _limit = band.home.limit | default: 3 -%}
+{%- assign _featured = band.home.featured -%}
+{%- assign _lang = band.language | default: site.pandorga.identity.locale | default: "en" -%}
+{%- assign _path = band.path -%}
+{%- assign _cta = band.home.cta | default: "View all" -%}
+{%- assign _slot_id = "home-band-" | append: band.key -%}
+<section
+  id="home-{{ band.key }}"
+  class="home-band{% if band.contrast %} home-band--contrast{% endif %}{% if _accent != blank %} page-accent--{{ _accent }}{% endif %}"
+  {% if _lang != blank %}lang="{{ _lang }}"{% endif %}
+  data-home-band
+  data-home-kind="{{ band.kind }}"
+  data-home-key="{{ band.key }}"
+  data-home-collection="{{ band.collection }}"
+  data-home-path="{{ _path }}"
+  data-home-limit="{{ _limit }}"
+  data-home-featured="{{ _featured }}"
+  data-home-language="{{ _lang }}"
+>
+  <div class="home-band-inner">
+    <div class="ledger-section-banner" data-content-home-section="{{ band.section_key }}">
+      <div class="ledger-section-lead">
+        <span class="ledger-kicker" data-content-section-kicker></span>
+        <h2 class="section-title" data-content-section-title></h2>
+        <p class="home-section-note font-body" data-content-section-note></p>
+      </div>
+      <div class="home-section-aside">
+        <a class="ledger-cta" href="{{ _path }}">
+          <span>{{ _cta }}</span>
+          <span class="material-symbols-outlined ledger-cta-arrow" aria-hidden="true">chevron_right</span>
+        </a>
+      </div>
+    </div>
+    {%- if _featured -%}
+    <div id="{{ _slot_id }}-featured" data-home-featured-slot data-tag-base="{{ _path }}"></div>
+    {%- endif -%}
+    <div
+      id="{{ _slot_id }}"
+      class="{% if band.kind == 'blog' %}home-draft-list{% elsif band.kind == 'portfolio' %}home-system-grid{% else %}home-card-grid{% endif %}"
+      data-home-list
+      data-tag-base="{{ _path }}"
+    ></div>
+  </div>
+</section>

@@ -1,0 +1,43 @@
+{%- comment -%}
+  Grouped index band (sources / network / bibliography). Expects `band` with
+  kind=index and a pages array from PandorgaRegistry.home_bands.
+{%- endcomment -%}
+<section
+  id="home-{{ band.group }}"
+  class="home-band home-band--contrast home-band--index"
+  data-home-band
+  data-home-kind="index"
+  data-home-group="{{ band.group }}"
+>
+  <div class="home-band-inner">
+    <div class="ledger-section-banner" data-content-home-section="{{ band.section_key }}">
+      <div class="ledger-section-lead">
+        <span class="ledger-kicker" data-content-section-kicker></span>
+        <h2 class="section-title" data-content-section-title></h2>
+        <p class="home-section-note font-body" data-content-section-note></p>
+      </div>
+    </div>
+    <div class="home-index-split">
+      {%- for panel in band.pages -%}
+      {%- assign _panel_page = site.pages | where: "key", panel.key | first -%}
+      {%- assign _panel_title = panel.title | default: _panel_page.title | default: panel.key -%}
+      {%- assign _panel_path = panel.path | default: _panel_page.url -%}
+      {%- assign _art_key = panel.key -%}
+      {%- if panel.key == "resources" -%}{%- assign _art_key = "sources" -%}{%- endif -%}
+      <article class="home-index-panel"{% if panel.template == "bibliography" %} id="home-bib-panel"{% endif %}>
+        <span class="shard-accent home-index-shard" aria-hidden="true"></span>
+        {%- if panel.template == "bibliography" -%}
+        <figure class="home-index-plate" id="home-bib-plate" hidden></figure>
+        {%- else -%}
+        <figure class="home-index-plate" data-content-band-art="{{ _art_key }}" hidden></figure>
+        {%- endif -%}
+        <h3 class="section-title home-index-title">{{ _panel_title }}</h3>
+        <a class="ledger-cta" href="{{ _panel_path }}">
+          <span>Open</span>
+          <span class="material-symbols-outlined ledger-cta-arrow" aria-hidden="true">chevron_right</span>
+        </a>
+      </article>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>

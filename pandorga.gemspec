@@ -51,6 +51,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "jekyll-redirect-from", "~> 0.16"
   spec.add_dependency "jekyll-relative-links", "~> 0.6"
   spec.add_dependency "jekyll-scholar", "~> 7.3"
+  spec.add_dependency "ostruct", ">= 0.6"
 
   spec.add_development_dependency "rake", "~> 13.0"
 end
