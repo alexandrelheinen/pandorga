@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.5] — 2026-10-05
+
+### Fixed
+
+- Home specimen height is CSS-fixed (no ResizeObserver jump when switching
+  projects); mobile icon strip always reserves six compact slots; desktop
+  inventory sits in a panel over the tiled band
+
 ## [1.3.4] — 2026-10-05
 
 ### Fixed
