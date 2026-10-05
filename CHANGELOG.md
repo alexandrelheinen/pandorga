@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.6] — 2026-10-05
+
+### Fixed
+
+- Home specimen is taller so project tags are not clipped, with more space
+  between the poster and the project title
+
 ## [1.3.5] — 2026-10-05
 
 ### Fixed
