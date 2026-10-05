@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.2.4] — 2026-10-05
+
+### Fixed
+
+- An omitted `pandorga.content.backend` keeps a configured `base_url` or legacy `content_api_base_url` as an object-store origin. `static` remains the default only when no public URL is set, and an explicit `backend: static` still wins.
+
 ## [1.2.3] — 2026-10-05
 
 ### Changed

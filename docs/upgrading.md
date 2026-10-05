@@ -22,7 +22,7 @@ Consumer sites should pin a release tag, not `main`:
 gem "pandorga", "~> 1.2"
 
 # Or pin a GitHub release tag
-gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v1.2.3"
+gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v1.2.4"
 ```
 
 After a bump, run `bundle update pandorga` and commit `Gemfile.lock`. Host
@@ -48,7 +48,7 @@ for the Pages + object-store order.
 GitHub Release is published, [`.github/workflows/publish-gem.yml`](../.github/workflows/publish-gem.yml)
 pushes the gem via [Trusted Publishing](https://guides.rubygems.org/trusted-publishing/)
 (OIDC; no long-lived API key). The release tag must match `Pandorga::VERSION`
-(for example `v1.2.3`).
+(for example `v1.2.4`).
 
 One-time setup on [RubyGems.org](https://rubygems.org):
 
@@ -67,7 +67,7 @@ Manual publish (optional, local MFA may apply):
 
 ```bash
 mise exec -- gem build pandorga.gemspec
-mise exec -- gem push pandorga-1.2.3.gem
+mise exec -- gem push pandorga-1.2.4.gem
 ```
 
 ## Android shell (1.2+)

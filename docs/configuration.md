@@ -16,10 +16,11 @@ via `scripts/generate-configuration-doc.rb` (`PLT-AC-11`).
 
 | Key | Type | Notes |
 |---|---|---|
-| `backend` | `static` \| `r2` \| `object_store` \| `s3` | `static` serves JSON from `_site`. The others use `base_url` as the public object-store origin |
+| `backend` | `static` \| `r2` \| `object_store` \| `s3` | `static` serves JSON from `_site`. The others use `base_url` as the public object-store origin. Omitted plus a public URL selects `object_store` |
 | `base_url` | string | Public content origin when backend is not `static` |
 
 Legacy `content_api_base_url` still works as a fallback for `base_url`.
+When `backend` is omitted, a non-empty `base_url` or `content_api_base_url` selects `object_store`. With no origin, the default is `static`. An explicit `backend: static` still serves JSON from `_site` and clears the public URL at build time.
 
 ## `pandorga.home`
 

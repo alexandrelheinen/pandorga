@@ -256,9 +256,14 @@ module PandorgaRegistry
 
   def content_backend(config)
     raw = config.dig("pandorga", "content", "backend").to_s.strip
-    return "static" if raw.empty?
+    return raw unless raw.empty?
 
-    raw
+    # A public origin is the pre-registry signal that JSON lives on an object
+    # store. Static is the default only when no origin is configured; an
+    # explicit `backend: static` still wins and the build clears the URL.
+    return "object_store" unless content_base_url(config).empty?
+
+    "static"
   end
 
   def content_base_url(config)
