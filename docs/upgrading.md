@@ -53,7 +53,7 @@ pushes the gem via [Trusted Publishing](https://guides.rubygems.org/trusted-publ
 One-time setup on [RubyGems.org](https://rubygems.org):
 
 1. Create a **pending** trusted publisher for gem name `pandorga`
-   ([pending trusted publishers](https://rubygems.org/profile/pending_trusted_publishers)),
+   ([pending trusted publishers](https://rubygems.org/profile/oidc/pending_trusted_publishers)),
    pointing at [github.com/alexandrelheinen/pandorga](https://github.com/alexandrelheinen/pandorga)
    with workflow filename `publish-gem.yml` and environment `release`.
 2. Ensure the GitHub Environment `release` exists on that repository
