@@ -61,4 +61,4 @@ studies/**/__pycache__/
 # Annoying Windows artifacts
 *Zone.Identifier
 Thumbs.db
-Desktop.ini
+Desktop.ini*.gem
