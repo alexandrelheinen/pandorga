@@ -936,8 +936,10 @@ Letter-spacing in use, by frequency: `0.1em` (12), `0.08em` (10), `0.12em` (7),
   3px `primary` rule at its top-left corner as a structural mark. The three
   writing cards take `primary` / `secondary` / `tertiary` 2px top rules in
   rotation. The systems band is a specimen + inventory bench from 900px —
-  one large project plate (~7/12) beside a compact ledger rail (~5/12); both
-  keep 16:9 media. Below 768px the hero portrait runs to the screen edge, pulled
+  a 40% / 60% split: 16:9 specimen card beside a panel inventory rail whose
+  height matches the full specimen card, with equal-flex rows (thumb 16:9
+  left, meta right); list click updates the specimen, specimen click opens
+  the project. Below 768px the hero portrait runs to the screen edge, pulled
   out of the band's gutter by exactly `--gutter-mobile` on each side and losing
   its side hairlines, which at the edge would read as a frame cut off.
 * **Writing index.** Masthead over a hairline, then a `panelContrast` filter

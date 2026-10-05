@@ -216,30 +216,96 @@ layout: shell
           runtime.Listing.showErrorState(list, 'Projects could not be loaded right now.');
           return;
         }
-        if (specimenSlot) {
+        if (!specimenSlot || !inventorySlot) {
+          fill(list, portfolio, function (entry) {
+            return runtime.renderSystemCard(asItem(entry), {
+              href: entry.url || runtime.projectUrl(entry.slug),
+              tagHref: systemTagHref,
+              glyphFallback: true
+            });
+          }, 'Projects could not be loaded right now.');
+          return;
+        }
+
+        var selectedSlug = portfolio[0].slug;
+        var inventoryResizeObserver = null;
+
+        function syncInventoryHeight() {
+          if (!window.matchMedia('(min-width: 900px)').matches) {
+            inventorySlot.style.height = '';
+            return;
+          }
+          var specimen = specimenSlot.querySelector('.home-project-specimen');
+          if (!specimen) {
+            inventorySlot.style.height = '';
+            return;
+          }
+          inventorySlot.style.height = Math.round(specimen.getBoundingClientRect().height) + 'px';
+        }
+
+        function watchSpecimen(specimen) {
+          if (inventoryResizeObserver) {
+            inventoryResizeObserver.disconnect();
+            inventoryResizeObserver = null;
+          }
+          if (!specimen || typeof ResizeObserver === 'undefined') return;
+          inventoryResizeObserver = new ResizeObserver(function () {
+            syncInventoryHeight();
+          });
+          inventoryResizeObserver.observe(specimen);
+        }
+
+        function paintSpecimen(entry) {
           specimenSlot.innerHTML = '';
-          specimenSlot.appendChild(runtime.renderSystemCard(asItem(portfolio[0]), {
-            href: portfolio[0].url || runtime.projectUrl(portfolio[0].slug),
+          specimenSlot.appendChild(runtime.renderSystemCard(asItem(entry), {
+            href: entry.url || runtime.projectUrl(entry.slug),
             tagHref: systemTagHref,
             className: 'home-project-specimen ledger-card--edge-primary',
             frameCorners: true,
             glyphFallback: true
           }));
-        }
-        var rest = portfolio.slice(1);
-        if (inventorySlot) {
-          if (!rest.length) {
-            inventorySlot.hidden = true;
-            inventorySlot.innerHTML = '';
-          } else {
-            inventorySlot.hidden = false;
-            fill(inventorySlot, rest, function (entry) {
-              return runtime.renderProjectInventoryRow(asItem(entry), {
-                href: entry.url || runtime.projectUrl(entry.slug)
-              });
-            }, 'Projects could not be loaded right now.');
+          var specimen = specimenSlot.querySelector('.home-project-specimen');
+          watchSpecimen(specimen);
+          var poster = specimenSlot.querySelector('.ledger-poster img, .projects-plate');
+          if (poster && poster.tagName === 'IMG' && !poster.complete) {
+            poster.addEventListener('load', syncInventoryHeight, { once: true });
           }
+          window.requestAnimationFrame(syncInventoryHeight);
         }
+
+        function paintInventory() {
+          inventorySlot.hidden = false;
+          inventorySlot.innerHTML = '';
+          portfolio.forEach(function (entry) {
+            var row = runtime.renderProjectInventoryRow(asItem(entry), {
+              selectable: true,
+              selected: entry.slug === selectedSlug
+            });
+            function select() {
+              if (selectedSlug === entry.slug) return;
+              selectedSlug = entry.slug;
+              paintSpecimen(entry);
+              Array.prototype.forEach.call(inventorySlot.children, function (node) {
+                var isSelected = node.getAttribute('data-slug') === selectedSlug;
+                node.classList.toggle('is-selected', isSelected);
+                node.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+              });
+            }
+            row.addEventListener('click', select);
+            row.addEventListener('keydown', function (event) {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                select();
+              }
+            });
+            inventorySlot.appendChild(row);
+          });
+          window.requestAnimationFrame(syncInventoryHeight);
+        }
+
+        paintSpecimen(portfolio[0]);
+        paintInventory();
+        window.addEventListener('resize', syncInventoryHeight);
         return;
       }
 

@@ -325,16 +325,29 @@
     }
 
     /* Compact inventory row for the home portfolio bench — thumb + name +
-     * status only. Field-backed; no tagline or tag cloud. */
+     * status only. Field-backed; no tagline or tag cloud.
+     * When options.selectable is true the row selects the specimen instead
+     * of navigating; the specimen card itself opens the project. */
     function renderProjectInventoryRow(item, options) {
       options = options || {};
       var f = blockFields(item);
       var fm = f.fm;
       var href = options.href || '#';
       var name = fm.project || f.title;
+      var selectable = !!options.selectable;
+      var selected = !!options.selected;
+      var slug = item.slug || f.slug || '';
 
       var row = document.createElement('article');
-      row.className = 'home-project-inventory-row group';
+      row.className = 'home-project-inventory-row group' +
+        (selected ? ' is-selected' : '');
+      if (slug) row.setAttribute('data-slug', slug);
+
+      if (selectable) {
+        row.setAttribute('role', 'button');
+        row.setAttribute('tabindex', '0');
+        row.setAttribute('aria-pressed', selected ? 'true' : 'false');
+      }
 
       var media = renderPosterMedia(fm.thumbnail, name);
       if (!media && fm.icon) {
@@ -347,9 +360,14 @@
         html += '<div class="home-project-inventory-media">' + media + '</div>';
       }
       html += '<div class="home-project-inventory-body">';
-      html += '<h3 class="home-project-inventory-title card-title">' +
-        '<a class="ledger-card-stretch" href="' + escapeAttr(href) + '">' +
-        escapeHtml(name) + '</a></h3>';
+      if (selectable) {
+        html += '<h3 class="home-project-inventory-title card-title">' +
+          escapeHtml(name) + '</h3>';
+      } else {
+        html += '<h3 class="home-project-inventory-title card-title">' +
+          '<a class="ledger-card-stretch" href="' + escapeAttr(href) + '">' +
+          escapeHtml(name) + '</a></h3>';
+      }
       var meta = renderMetaStrip([
         fm.label ? escapeHtml(fm.label) : '',
         fm.status ? '<span class="ledger-status">' + escapeHtml(fm.status) + '</span>' : ''

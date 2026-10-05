@@ -568,6 +568,9 @@ button.studio-brand-home[aria-current="page"] {
   display: flex;
   flex-direction: column;
   gap: 0;
+  background: var(--panel);
+  border: 1px solid color-mix(in srgb, var(--outline-variant) 55%, transparent);
+  padding: var(--studio-space-xs);
 }
 
 .ledger-columns {
@@ -584,11 +587,15 @@ button.studio-brand-home[aria-current="page"] {
   border: 1px solid color-mix(in srgb, var(--outline-variant) 60%, transparent);
   border-radius: 0;
   cursor: pointer;
-  background: var(--background);
+  background: var(--surface-card);
   text-align: left;
   width: 100%;
   font: inherit;
   color: inherit;
+}
+
+.ledger-row:last-child {
+  margin-bottom: 0;
 }
 
 .ledger-row--writing {
@@ -712,7 +719,7 @@ button.studio-brand-home[aria-current="page"] {
     letter-spacing: 0.05em;
     text-transform: uppercase;
     color: var(--on-surface-variant);
-    background: var(--background);
+    background: var(--panel);
     border: 1px solid color-mix(in srgb, var(--outline-variant) 45%, transparent);
     border-bottom: 1px solid color-mix(in srgb, var(--outline-variant) 45%, transparent);
   }
@@ -1154,7 +1161,7 @@ button.studio-brand-home[aria-current="page"] {
 .list-empty {
   margin: 1rem 0;
   padding: var(--studio-space-sm) var(--studio-space-md);
-  background: var(--background);
+  background: var(--panel);
   border: 1px solid color-mix(in srgb, var(--outline-variant) 45%, transparent);
   color: var(--on-surface-variant);
 }
@@ -2576,8 +2583,9 @@ textarea.yaml-source.editor-surface {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  border-top: 1px solid color-mix(in srgb, var(--outline-variant) 55%, transparent);
-  padding-top: 0.5rem;
+  background: var(--panel);
+  border: 1px solid color-mix(in srgb, var(--outline-variant) 55%, transparent);
+  padding: var(--studio-space-xs);
 }
 
 .media-row {
@@ -2589,6 +2597,10 @@ textarea.yaml-source.editor-surface {
   border-bottom: 1px solid color-mix(in srgb, var(--outline-variant) 35%, transparent);
 }
 
+.media-row:last-child {
+  border-bottom: none;
+}
+
 .media-row-main {
   display: flex;
   align-items: center;
@@ -2598,7 +2610,7 @@ textarea.yaml-source.editor-surface {
   padding: 0.35rem 0.4rem;
   border: 0;
   border-radius: 0;
-  background: transparent;
+  background: var(--surface-card);
   color: inherit;
   font: inherit;
   text-align: left;
