@@ -20,6 +20,7 @@ export RUBYOPT="-I${ROOT}/lib${RUBYOPT:+ $RUBYOPT}"
 TESTS=(
   scripts/test/test-doctor.rb
   scripts/test/test-export.rb
+  scripts/test/test-registry-home.rb
   scripts/test/test-install-functions.rb
   scripts/test/test-no-personal-data.rb
   scripts/test/test-configuration-doc.rb
@@ -36,6 +37,7 @@ TESTS=(
   scripts/test/test-home-band-art.rb
   scripts/test/test-r2-json-sync.rb
   scripts/test/test-writing-slug-limits.rb
+  scripts/test/test-examples-build.rb
 )
 
 failed=0
