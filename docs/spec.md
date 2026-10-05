@@ -1,6 +1,8 @@
 # Platform and website separation migration plan
 
-Status is **proposed** (nothing implemented yet; awaiting owner decisions in §13).
+Status is **in progress**. Phase 0 spikes and §13 defaults are recorded in
+[decisions.md](decisions.md) (`PLT-0.1`–`PLT-0.5`). Implementation follows the
+phases below.
 
 This repository currently holds two mixed concepts. It contains a publishing platform, which includes a Jekyll shell, a browser runtime, an R2 exporter, the Studio, and testing gates. It also contains the website of a specific person, which includes content, a private CV, studies, visual identity, and Cloudflare configuration. This document outlines a plan to extract the platform into a public, polished, and documented repository. The `website` repository will remain as a content manager and specific site implementation that consumes the platform as a versioned dependency.
 
