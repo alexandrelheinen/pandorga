@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.4.2] — 2026-10-07
+
+### Changed
+
+- Home inventory resource badges are non-clickable indicators, stacked from the top
+
 ## [1.4.1] — 2026-10-07
 
 ### Changed

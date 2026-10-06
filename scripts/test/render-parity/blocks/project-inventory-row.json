@@ -32,7 +32,7 @@
     "p.home-project-inventory-copy",
     "span.home-project-inventory-glyph",
     "div.home-project-inventory-resources",
-    "a.home-project-inventory-resource"
+    "span.home-project-inventory-resource"
   ],
   "forbidden": [
     "ledger-card-stretch"

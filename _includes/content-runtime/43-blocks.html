@@ -473,39 +473,27 @@
     }
 
     /* Square resource marks for the home inventory rack — same fields as
-     * renderProjectLinks (github / article_url / external_url), icon-only. */
+     * renderProjectLinks (github / article_url / external_url), icon-only
+     * indicators (not links). */
     function renderProjectResourceBadges(fm) {
       var badges = [];
       if (fm.github) {
-        badges.push({
-          href: fm.github,
-          icon: 'code',
-          label: 'Code repository'
-        });
+        badges.push({ icon: 'code', label: 'Code' });
       }
       if (fm.article_url) {
-        badges.push({
-          href: fm.article_url,
-          icon: 'article',
-          label: 'Article'
-        });
+        badges.push({ icon: 'article', label: 'Article' });
       }
       if (fm.external_url) {
-        badges.push({
-          href: fm.external_url,
-          icon: 'public',
-          label: 'Site'
-        });
+        badges.push({ icon: 'public', label: 'Site' });
       }
       if (!badges.length) return '';
       return '<div class="home-project-inventory-resources" aria-label="Attached resources">' +
         badges.map(function (badge) {
-          return '<a class="home-project-inventory-resource" href="' +
-            escapeAttr(badge.href) + '" target="_blank" rel="noopener noreferrer" ' +
-            'title="' + escapeAttr(badge.label) + '" aria-label="' +
+          return '<span class="home-project-inventory-resource" title="' +
+            escapeAttr(badge.label) + '" aria-label="' +
             escapeAttr(badge.label) + '">' +
             '<span class="material-symbols-outlined" aria-hidden="true">' +
-            escapeHtml(badge.icon) + '</span></a>';
+            escapeHtml(badge.icon) + '</span></span>';
         }).join('') +
         '</div>';
     }
