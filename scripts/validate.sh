@@ -49,6 +49,7 @@ TESTS=(
   scripts/test/test-math-row-breaks.rb
   scripts/test/test-detail-render-parity.rb
   scripts/test/test-absent-field-absent-element.rb
+  scripts/test/test-ledger-blocks.rb
   scripts/test/test-home-band-art.rb
   scripts/test/test-r2-json-sync.rb
   scripts/test/test-writing-slug-limits.rb
