@@ -1,0 +1,31 @@
+{
+  "name": "project-specimen/initial badge on a thumbnail without an icon (PLT-AC-18)",
+  "block": "renderProjectSpecimen",
+  "args": [
+    {
+      "slug": "arco",
+      "front_matter": {
+        "project": "ARCO",
+        "thumbnail": "/media/projects/arco.png"
+      }
+    },
+    {
+      "href": "/projects/arco/"
+    }
+  ],
+  "selectors": [
+    "ledger-poster",
+    "span.home-specimen-badge",
+    "is-initial"
+  ],
+  "forbidden": [
+    "projects-plate",
+    "material-symbols-outlined"
+  ],
+  "contains": [
+    "aria-hidden=\"true\">A</span>"
+  ],
+  "counts": {
+    "home-specimen-badge": 1
+  }
+}

@@ -474,11 +474,10 @@
     }
 
     /* Home specimen — the featured project on the portfolio bench. A system
-     * card whose strip carries folio, label, start year and status, and whose
-     * title sits over the thumbnail (CSS overlays it only while the poster is
-     * present, so a dead image drops the title back into the body). Without a
-     * thumbnail the icon plate stands in, title below. `openLabel` adds a
-     * visual "open" cue; it is not a second link, the stretched title is. */
+     * card whose strip carries folio, label, start year and status, with the
+     * title below a 16:9 plate: the thumbnail (icon badge on it) or else the
+     * icon plate. `openLabel` adds a visual "open" cue; it is not a second
+     * link, the stretched title is. */
     function renderProjectSpecimen(item, options) {
       options = options || {};
       var f = blockFields(item);
@@ -502,18 +501,19 @@
         html += '<div class="home-specimen-strip">' + meta + status + '</div>';
       }
 
+      // The name's initial stands in for a missing icon, so every project
+      // carries the same badge and plate elements.
+      var mark = fm.icon
+        ? { cls: 'material-symbols-outlined', text: fm.icon }
+        : { cls: 'is-initial', text: String(name || '').charAt(0).toUpperCase() };
       var poster = renderPosterMedia(fm.thumbnail, name);
       html += '<div class="home-specimen-figure">';
       if (poster) {
-        html += poster;
-        if (fm.icon) {
-          html += '<span class="home-specimen-badge material-symbols-outlined" aria-hidden="true">' +
-            escapeHtml(fm.icon) + '</span>';
-        }
-      } else if (fm.icon) {
+        html += poster + '<span class="home-specimen-badge ' + mark.cls + '" aria-hidden="true">' +
+          escapeHtml(mark.text) + '</span>';
+      } else {
         html += '<div class="projects-plate projects-plate--mark" aria-hidden="true">' +
-          '<span class="material-symbols-outlined projects-plate-glyph">' +
-          escapeHtml(fm.icon) + '</span></div>';
+          '<span class="' + mark.cls + ' projects-plate-glyph">' + escapeHtml(mark.text) + '</span></div>';
       }
       html += '<h3 class="card-title ledger-card-title home-specimen-title"><a class="ledger-card-stretch" href="' +
         escapeAttr(href) + '">' + escapeHtml(name) + '</a></h3>';
