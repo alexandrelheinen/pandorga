@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.3.9] — 2026-10-06
+
+### Changed
+
+- Studio header uses a compact icon toolbar with a light / dark / system theme
+  menu; mobile collections toggle matches the public site menu icon
+- Left collections aside stays visible from 961px; navigation groups list
+  References before Portfolio
+- Expo launcher icons split `assets/studio/` (hex mark) vs `assets/website/`
+  (square site logo); hex frame is stroke-only with no gray fill plate
+
 ## [1.3.8] — 2026-10-06
 
 ### Fixed
