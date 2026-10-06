@@ -853,6 +853,27 @@ button.studio-brand-home[aria-current="page"] {
   cursor: not-allowed;
 }
 
+/* Toolbar tools keep full opacity when disabled — fading the whole control
+   makes Revert look shorter than Theme/Save/Export even at equal box height. */
+.studio-toolbar>.btn-tool:disabled,
+.studio-toolbar>.studio-theme-menu .btn-tool:disabled {
+  opacity: 1;
+  color: color-mix(in srgb, var(--on-surface-variant) 70%, transparent);
+  border-color: color-mix(in srgb, var(--outline-variant) 45%, transparent);
+  background: var(--background);
+  cursor: not-allowed;
+}
+
+.studio-toolbar>.btn-tool.btn-primary:disabled {
+  color: color-mix(in srgb, #fff 55%, var(--primary));
+  background: color-mix(in srgb, var(--primary) 45%, var(--background));
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--outline-variant));
+}
+
+[data-theme="dark"] .studio-toolbar>.btn-tool.btn-primary:disabled {
+  color: color-mix(in srgb, #0f1a22 55%, var(--primary));
+}
+
 .studio-body {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);

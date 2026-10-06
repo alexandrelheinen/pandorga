@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.31] — 2026-10-07
+
+### Fixed
+
+- Studio toolbar disabled tools no longer use opacity (which made Revert look
+  shorter than Theme/Save/Export at the same box height)
+
 ## [1.3.30] — 2026-10-07
 
 ### Fixed
