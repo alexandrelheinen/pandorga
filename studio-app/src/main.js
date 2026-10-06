@@ -1095,11 +1095,11 @@ function renderPendingReviewGate(clerk, emailHint) {
   app.append(box);
 }
 
-/** Left-nav / map section order (References before Portfolio). */
+/** Left-nav / map section order. */
 const NAV_GROUP_ORDER = [
   "Writing",
-  "References",
   "Portfolio",
+  "References",
   "Pages",
   "CV Summary",
   "Presentation",
@@ -1254,6 +1254,8 @@ function renderShell() {
     id: "studio-nav-panel",
   });
 
+  panel.append(renderMediaNavGroup());
+
   for (const [group, cols] of groups) {
     const open = state.navOpenGroups.has(group);
     const items = el("div", {
@@ -1313,14 +1315,6 @@ function renderShell() {
     ]);
 
     panel.append(el("div", { className: "studio-nav-group" }, [toggle, items]));
-
-    if (group === "Portfolio" || (group === "References" && !groups.has("Portfolio"))) {
-      panel.append(renderMediaNavGroup());
-    }
-  }
-
-  if (!groups.has("Portfolio") && !groups.has("References")) {
-    panel.append(renderMediaNavGroup());
   }
 
   const nav = el(
@@ -2056,7 +2050,7 @@ function renderYamlEditorPane() {
 
 function renderStudioMap() {
   const groups = collectionGroups(state.schema);
-  const sections = [];
+  const sections = [renderMediaMapSection()];
 
   for (const [group, cols] of groups) {
     const cards = cols.map((col) =>
@@ -2092,15 +2086,6 @@ function renderStudioMap() {
         el("div", { className: "studio-map-grid" }, cards),
       ])
     );
-
-    // Insert Media section after Portfolio (or after References if no Portfolio).
-    if (group === "Portfolio" || (group === "References" && !groups.has("Portfolio"))) {
-      sections.push(renderMediaMapSection());
-    }
-  }
-
-  if (!groups.has("Portfolio") && !groups.has("References")) {
-    sections.push(renderMediaMapSection());
   }
 
   // Split groups across two columns so wide screens read as a ledger board,
