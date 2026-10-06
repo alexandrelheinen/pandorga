@@ -817,49 +817,157 @@ function renderThemeMenu() {
   return el("div", { className: "studio-theme-menu" }, [btn, menu]);
 }
 
-function renderStudioToolbar() {
-  const saveLabel = state.saving ? "Saving…" : state.dirty ? "Save draft" : "Saved";
-  const saveIcon = state.saving ? "progress_activity" : state.dirty ? "save" : "check";
-  return el("div", { className: "studio-toolbar studio-icon-bar" }, [
+function isLocalDevHost() {
+  const host = String(window.location.hostname || "");
+  return host === "localhost" || host === "127.0.0.1" || host === "[::1]";
+}
+
+function collectionAllowsCreate(col = state.collection) {
+  if (!col || col.type !== "collection") return false;
+  return col.operations?.create !== false;
+}
+
+function collectionAllowsDelete(col = state.collection) {
+  if (!col) return false;
+  return col.operations?.delete === true;
+}
+
+function sanitizeEntryKey(raw) {
+  return String(raw || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+}
+
+function expandFilenamePattern(pattern, key) {
+  const now = new Date();
+  const y = String(now.getFullYear());
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  return String(pattern || "{key}.md")
+    .replaceAll("{year}", y)
+    .replaceAll("{month}", m)
+    .replaceAll("{day}", d)
+    .replaceAll("{key}", key);
+}
+
+function todayIsoDate() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+}
+
+function toolbarActionButton({
+  className,
+  title,
+  ariaLabel,
+  action = null,
+  disabled = false,
+  onClick,
+  icon,
+  label = null,
+  spinning = false,
+}) {
+  const kids = [
     el("span", {
-      className: "status-pill" + (state.error ? " error" : ""),
-      text: state.error
-        ? "Error"
-        : state.status || (state.session?.email || state.session?.userId || ""),
-      title: state.error || state.errorDetail || state.status || "",
+      className:
+        "material-symbols-outlined" + (spinning ? " studio-icon-spin" : ""),
+      text: icon,
+      "aria-hidden": "true",
     }),
-    el("span", { className: "spacer" }),
-    renderThemeMenu(),
-    el("button", {
-      className: "btn btn-icon",
+  ];
+  if (label) {
+    kids.push(el("span", { className: "btn-label", text: label }));
+  }
+  return el(
+    "button",
+    {
+      className,
       type: "button",
+      title,
+      "aria-label": ariaLabel,
+      "data-studio-action": action,
+      disabled,
+      onClick,
+    },
+    kids
+  );
+}
+
+function renderStudioToolbar({ menuToggle = null } = {}) {
+  const saveLabel = state.saving ? "Saving…" : state.dirty ? "Save" : "Saved";
+  const saveIcon = state.saving ? "progress_activity" : state.dirty ? "save" : "check";
+  const statusText = state.error ? "Error" : state.status || "";
+  const kids = [];
+  if (statusText) {
+    kids.push(
+      el("span", {
+        className: "status-pill" + (state.error ? " error" : ""),
+        text: statusText,
+        title: state.error || state.errorDetail || state.status || "",
+      })
+    );
+  }
+  kids.push(el("span", { className: "spacer" }));
+  kids.push(renderThemeMenu());
+  kids.push(
+    toolbarActionButton({
+      className: "btn btn-tool",
       title: "Revert all edits to the last loaded or saved version",
-      "aria-label": "Discard edits",
-      "data-studio-action": "discard",
+      ariaLabel: "Discard edits",
+      action: "discard",
       disabled: !state.file || !state.dirty || !state.baseline,
       onClick: () => discardChanges(),
-    }, [materialIcon("undo")]),
-    el("button", {
-      className: "btn btn-icon btn-primary",
-      type: "button",
+      icon: "undo",
+      label: "Revert",
+    })
+  );
+  kids.push(
+    toolbarActionButton({
+      className: "btn btn-tool btn-primary",
       title: state.saving
         ? "Saving this draft"
         : state.dirty
           ? "Commit this draft"
           : "No edits to commit yet",
-      "aria-label": saveLabel,
-      "data-studio-action": "save",
+      ariaLabel: saveLabel,
+      action: "save",
       disabled: state.saving || !state.file || !state.dirty,
       onClick: () => saveCurrent(),
-    }, [
-      el("span", {
-        className:
-          "material-symbols-outlined" + (state.saving ? " studio-icon-spin" : ""),
-        text: saveIcon,
-        "aria-hidden": "true",
-      }),
-    ]),
-  ]);
+      icon: saveIcon,
+      label: saveLabel,
+      spinning: state.saving,
+    })
+  );
+  if (state.file && collectionAllowsDelete()) {
+    kids.push(
+      toolbarActionButton({
+        className: "btn btn-tool btn-danger",
+        title: "Delete this entry from the repository",
+        ariaLabel: "Delete entry",
+        action: "delete",
+        onClick: () => deleteCurrentEntry(),
+        icon: "delete",
+        label: "Delete",
+      })
+    );
+  }
+  if (isLocalDevHost()) {
+    kids.push(
+      toolbarActionButton({
+        className: "btn btn-tool btn-reexport",
+        title: "Reexport content JSON locally and reload",
+        ariaLabel: "Reexport locally",
+        action: "reexport",
+        onClick: () => reexportLocalContent(),
+        icon: "sync",
+        label: "Reexport",
+      })
+    );
+  }
+  if (menuToggle) kids.push(menuToggle);
+  return el("div", { className: "studio-toolbar studio-icon-bar" }, kids);
 }
 
 function clerkUserEmail(clerk) {
@@ -1108,7 +1216,7 @@ function renderShell() {
     "aria-current": !state.collection && !state.mediaOpen ? "page" : null,
     onClick: () => goHome(),
   }, [
-    studioMark({ size: 40 }),
+    studioMark({ size: 24 }),
     el("span", { className: "studio-brand-copy" }, [
       el("span", { className: "studio-brand-name", text: "Studio" }),
     ]),
@@ -1128,6 +1236,7 @@ function renderShell() {
       renderShell();
     },
   }, [
+    studioMark({ size: 22, label: "" }),
     el("span", {
       className: "studio-nav-menu-label sr-only",
       text: currentNavLabel(),
@@ -1220,12 +1329,12 @@ function renderShell() {
       "aria-label": "Collections",
     },
     [
-      el("div", { className: "studio-nav-bar" }, [brand, menuToggle]),
+      el("div", { className: "studio-nav-bar" }, [brand]),
       panel,
     ]
   );
 
-  const toolbar = renderStudioToolbar();
+  const toolbar = renderStudioToolbar({ menuToggle });
 
   const main = el("div", { className: "studio-main" }, [
     toolbar,
@@ -1565,7 +1674,7 @@ function syncCommitButtons() {
   const save = document.querySelector("[data-studio-action='save']");
   const discard = document.querySelector("[data-studio-action='discard']");
   if (save) {
-    const saveLabel = state.saving ? "Saving…" : state.dirty ? "Save draft" : "Saved";
+    const saveLabel = state.saving ? "Saving…" : state.dirty ? "Save" : "Saved";
     save.disabled = state.saving || !state.file || !state.dirty;
     save.title = state.saving
       ? "Saving this draft"
@@ -1582,6 +1691,8 @@ function syncCommitButtons() {
           : "check";
       icon.classList.toggle("studio-icon-spin", state.saving);
     }
+    const label = save.querySelector(".btn-label");
+    if (label) label.textContent = saveLabel;
   }
   if (discard) {
     discard.disabled = !state.file || !state.dirty || !state.baseline;
@@ -2354,6 +2465,24 @@ function taxonomyChips(item) {
 function renderLedgerRow(item, writing) {
   const metaText = formatEntryListMeta(item, state.collection);
   const open = () => openFile(item.path);
+  const canDelete = collectionAllowsDelete();
+
+  const deleteBtn = canDelete
+    ? el(
+        "button",
+        {
+          className: "btn btn-icon ledger-delete-btn",
+          type: "button",
+          title: `Delete ${item.title || item.name || "entry"}`,
+          "aria-label": `Delete ${item.title || item.name || "entry"}`,
+          onClick: (e) => {
+            e.stopPropagation();
+            deleteEntry(item.path, item.sha);
+          },
+        },
+        [materialIcon("delete")]
+      )
+    : null;
 
   if (!writing) {
     const titleBlock = el("div", { className: "ledger-copy" }, [
@@ -2366,14 +2495,28 @@ function renderLedgerRow(item, writing) {
         : null,
     ]);
     return el(
-      "button",
+      "div",
       {
-        className: "ledger-row",
-        type: "button",
+        className: "ledger-row ledger-row--plain",
+        role: "button",
+        tabindex: "0",
         title: entryHint(item),
         onClick: open,
+        onKeydown: (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            open();
+          }
+        },
       },
-      [thumbnailNode(item), titleBlock]
+      [
+        thumbnailNode(item),
+        titleBlock,
+        el("div", { className: "ledger-ops" }, [
+          deleteBtn,
+          materialIcon("chevron_right", "ledger-ops-icon"),
+        ]),
+      ]
     );
   }
 
@@ -2394,7 +2537,8 @@ function renderLedgerRow(item, writing) {
 
   const taxonomy = taxonomyChips(item) || el("div", { className: "ledger-taxonomy" });
 
-  const ops = el("div", { className: "ledger-ops", "aria-hidden": "true" }, [
+  const ops = el("div", { className: "ledger-ops" }, [
+    deleteBtn,
     el("span", { className: "ledger-ops-edit", text: "Edit" }),
     materialIcon("chevron_right", "ledger-ops-icon"),
   ]);
@@ -2470,6 +2614,21 @@ function renderListHeader(collection, { entryCount = null } = {}) {
         text:
           entryCount === 1 ? "1 entry" : `${entryCount} entries`,
       })
+    );
+  }
+  if (collectionAllowsCreate(collection)) {
+    titleRow.push(
+      el(
+        "button",
+        {
+          className: "btn btn-tool btn-primary list-new-btn",
+          type: "button",
+          title: `Add a new ${label} entry`,
+          "aria-label": `New ${label} entry`,
+          onClick: () => createNewEntry(),
+        },
+        [materialIcon("add"), el("span", { className: "btn-label", text: "New" })]
+      )
     );
   }
   return el("header", { className: "list-register" }, [
@@ -3702,6 +3861,158 @@ function discardChanges() {
   clearError();
   state.status = `Reverted ${state.file}`;
   renderShell();
+}
+
+async function reexportLocalContent() {
+  state.status = "Reexporting…";
+  clearError();
+  renderShell();
+  try {
+    const res = await fetch("/__dev/reexport", {
+      method: "POST",
+      headers: { Accept: "application/json" },
+    });
+    let data = {};
+    try {
+      data = await res.json();
+    } catch {
+      data = {};
+    }
+    if (!res.ok || !data.ok) {
+      throw new Error((data && data.error) || `Export failed: ${res.status}`);
+    }
+    state.status = "Reexported — reloading…";
+    renderShell();
+    setTimeout(() => {
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.set("_refresh", String(Date.now()));
+        window.location.replace(url.toString());
+      } catch {
+        window.location.reload();
+      }
+    }, 200);
+  } catch (err) {
+    captureError(err);
+    renderShell();
+  }
+}
+
+async function createNewEntry() {
+  const col = state.collection;
+  if (!collectionAllowsCreate(col)) return;
+  const raw = window.prompt(`New ${col.label || "entry"} key (slug):`);
+  if (raw == null) return;
+  const key = sanitizeEntryKey(raw);
+  if (!key) {
+    state.error = "Key must use letters, numbers, or hyphens.";
+    state.errorDetail = "";
+    renderShell();
+    return;
+  }
+  const filename = expandFilenamePattern(col.filename, key);
+  const path = `${String(col.path || "").replace(/\/$/, "")}/${filename}`;
+
+  const fields = emptyItemFromFields(col.fields || []);
+  for (const field of col.fields || []) {
+    if (
+      field?.hidden &&
+      field.name &&
+      Object.prototype.hasOwnProperty.call(field, "default")
+    ) {
+      fields[field.name] = field.default;
+    }
+  }
+  fields.key = key;
+  if (!fields.title) fields.title = key;
+  if (String(col.filename || "").includes("{year}") && !fields.date) {
+    fields.date = todayIsoDate();
+  }
+
+  let content;
+  if (col.format === "yaml") {
+    content = dumpYaml(pruneEmptyFields({ ...fields }, col.fields));
+  } else {
+    content = rebuildDocument("---\n---\n\n", {
+      fields,
+      body: "\n",
+      format: col.format || "yaml-frontmatter",
+    });
+  }
+  if (!content.endsWith("\n")) content += "\n";
+
+  state.status = `Creating ${path}…`;
+  clearError();
+  renderShell();
+  try {
+    let exists = false;
+    try {
+      await studioApi.getFile(path);
+      exists = true;
+    } catch (err) {
+      if (err.status !== 404 && err.code !== "not_found") throw err;
+    }
+    if (exists) throw new Error(`${path} already exists`);
+
+    await studioApi.putFile({
+      path,
+      content,
+      sha: null,
+      message: `studio: create ${path}`,
+    });
+    invalidateTreeCache(col.name);
+    state.status = `Created ${path}`;
+    await selectCollection(col);
+    await openFile(path);
+  } catch (err) {
+    captureError(err);
+    renderShell();
+  }
+}
+
+async function deleteEntry(path, sha = null) {
+  const col = state.collection;
+  if (!collectionAllowsDelete(col) || !path) return;
+  const name = String(path).split("/").pop() || path;
+  if (!window.confirm(`Delete ${name}? This commits a deletion to main.`)) {
+    return;
+  }
+  state.status = `Deleting ${path}…`;
+  clearError();
+  renderShell();
+  try {
+    let fileSha = sha;
+    if (!fileSha) {
+      const data = await studioApi.getFile(path);
+      fileSha = data.sha;
+    }
+    await studioApi.deleteFile({
+      path,
+      sha: fileSha,
+      message: `studio: delete ${path}`,
+    });
+    invalidateTreeCache(col?.name);
+    if (state.file === path) {
+      destroyBodyEditor();
+      state.file = null;
+      state.baseline = null;
+      state.sha = null;
+      state.dirty = false;
+      state.fields = {};
+      state.body = "";
+    }
+    state.status = `Deleted ${path}`;
+    if (col) await selectCollection(col);
+    else renderShell();
+  } catch (err) {
+    captureError(err);
+    renderShell();
+  }
+}
+
+async function deleteCurrentEntry() {
+  if (!state.file) return;
+  await deleteEntry(state.file, state.sha);
 }
 
 async function saveCurrent() {

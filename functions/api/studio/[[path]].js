@@ -7,6 +7,7 @@ import { verifyClerkRequest } from "./_lib/auth.js";
 import {
   getFile,
   putFile,
+  deleteFile,
   putBinaryFile,
   getFileMeta,
   listDir,
@@ -291,6 +292,32 @@ export async function onRequest(context) {
           path,
           commit: result.commit?.sha || null,
           content: result.content || null,
+        },
+        200,
+        request
+      );
+    }
+
+    if (head === "file" && request.method === "DELETE") {
+      const body = await request.json();
+      const path = normalizeRepoPath(body.path || "");
+      if (!path) return json({ error: "invalid_path" }, 400, request);
+      let sha = body.sha || null;
+      if (!sha) {
+        const existing = await getFileMeta(env, path);
+        sha = existing?.sha || null;
+      }
+      if (!sha) return json({ error: "not_found" }, 404, request);
+      const result = await deleteFile(env, {
+        path,
+        message: body.message,
+        sha,
+      });
+      return json(
+        {
+          ok: true,
+          path,
+          commit: result.commit?.sha || null,
         },
         200,
         request

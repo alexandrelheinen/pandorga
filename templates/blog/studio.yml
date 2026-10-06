@@ -9,7 +9,7 @@ collection:
   format: yaml-frontmatter
   filename: "{year}-{month}-{day}-{key}.md"
   operations:
-    delete: false
+    delete: true
   view:
     primary: title
     fields: [thumbnail, title, date, published, language, key]

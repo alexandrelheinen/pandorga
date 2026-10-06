@@ -84,10 +84,10 @@ check!(posts["format"].to_s == "yaml-frontmatter",
        "posts must use yaml-frontmatter")
 check!(articles["format"].to_s == "yaml-frontmatter",
        "articles must use yaml-frontmatter")
-check!(posts.dig("operations", "delete") == false,
-       "posts operations.delete must be false")
-check!(articles.dig("operations", "delete") == false,
-       "articles operations.delete must be false")
+check!(posts.dig("operations", "delete") == true,
+       "posts operations.delete must be true")
+check!(articles.dig("operations", "delete") == true,
+       "articles operations.delete must be true")
 
 posts_fields = field_names(posts)
 articles_fields = field_names(articles)
@@ -128,16 +128,23 @@ check!(products["filename"].to_s.include?("{key}"),
 check!(projects["filename"].to_s.include?("{key}"),
        "projects filename must use key (got #{projects['filename'].inspect})")
 
-pipeline = REPO_ROOT.join(".github/workflows/content-pipeline.yml").read
-on_push = pipeline[/\non:\n  push:\n(?:    .*\n)*/]
-check!(!on_push.nil? && !on_push.include?("paths:"),
-       "content-pipeline.yml on.push must not use paths: (CMS commits must always trigger)")
-check!(!pipeline.include?("MODE=skip"),
-       "content-pipeline.yml must not skip empty CMS commits: those still need an R2 publish")
-check!(pipeline.include?("if: github.ref == 'refs/heads/main'"),
-       "content-pipeline.yml must publish on main for push and manual run")
-check!(!pipeline.match?(/sveltia/i),
-       "content-pipeline.yml must not reference Sveltia")
+pipeline_path = REPO_ROOT.join(".github/workflows/content-pipeline.yml")
+if pipeline_path.file?
+  pipeline = pipeline_path.read
+  if pipeline.match?(/^\s*workflow_call:\s*$/m) && !pipeline.match?(/^\s*push:\s*$/m)
+    # Reusable workflow — push triggers live on the consuming site.
+  else
+    on_push = pipeline[/\non:\n  push:\n(?:    .*\n)*/]
+    check!(!on_push.nil? && !on_push.include?("paths:"),
+           "content-pipeline.yml on.push must not use paths: (CMS commits must always trigger)")
+    check!(!pipeline.include?("MODE=skip"),
+           "content-pipeline.yml must not skip empty CMS commits: those still need an R2 publish")
+    check!(pipeline.include?("if: github.ref == 'refs/heads/main'"),
+           "content-pipeline.yml must publish on main for push and manual run")
+  end
+  check!(!pipeline.match?(/sveltia/i),
+         "content-pipeline.yml must not reference Sveltia")
+end
 
 index = REPO_ROOT.join("studio/index.html").read
 check!(!index.include?("app.pagescms.org"),

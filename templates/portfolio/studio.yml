@@ -9,7 +9,7 @@ collection:
   format: yaml-frontmatter
   filename: "{key}.md"
   operations:
-    delete: false
+    delete: true
   view:
     primary: project
     fields: [thumbnail, project, start_date, end_date, icon, key, status, sort_order]

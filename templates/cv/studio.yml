@@ -10,7 +10,7 @@ collections:
     format: yaml-frontmatter
     filename: "{primary}.md"
     operations:
-      delete: false
+      delete: true
     view:
       primary: position
       fields: [company, position, department, engagement, start, end]
@@ -66,7 +66,7 @@ collections:
     format: yaml-frontmatter
     filename: "{key}.md"
     operations:
-      delete: false
+      delete: true
     view:
       primary: product
       fields: [company, product, start_date, end_date, key]

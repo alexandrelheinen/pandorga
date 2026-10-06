@@ -48,6 +48,11 @@ export const studioApi = {
       method: "PUT",
       body: JSON.stringify({ path, content, message, sha }),
     }),
+  deleteFile: ({ path, message, sha }) =>
+    api("file", {
+      method: "DELETE",
+      body: JSON.stringify({ path, message, sha }),
+    }),
   listMedia: (dirPath) =>
     api(`media?path=${encodeURIComponent(dirPath || "content/media")}`),
   uploadMedia: ({ path, content_base64, message }) =>

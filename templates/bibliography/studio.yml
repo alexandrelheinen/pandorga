@@ -8,7 +8,7 @@ collection:
   format: yaml
   filename: "{primary}.yml"
   operations:
-    delete: false
+    delete: true
   view:
     primary: title
     fields: [type, title, author, year]

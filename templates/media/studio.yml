@@ -9,7 +9,7 @@ collection:
   format: yaml-frontmatter
   filename: "{primary}.md"
   operations:
-    delete: false
+    delete: true
   view:
     primary: name
     fields: [name, category, type, language]

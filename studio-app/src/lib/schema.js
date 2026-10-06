@@ -45,7 +45,7 @@ function normalizeSchema(raw) {
           listMetaFields: Array.isArray(view.list_meta_fields)
             ? view.list_meta_fields.map(String)
             : null,
-          operations: entry.operations || { delete: false },
+          operations: entry.operations || { delete: true },
         });
       }
     }

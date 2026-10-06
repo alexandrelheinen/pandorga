@@ -130,6 +130,29 @@ export async function putFile(env, { path, content, message, sha }) {
   return res.json();
 }
 
+/** Delete a file. GitHub Contents DELETE requires the current blob sha. */
+export async function deleteFile(env, { path, message, sha }) {
+  if (!sha) {
+    const err = new Error("sha required to delete");
+    err.status = 400;
+    err.code = "sha_required";
+    throw err;
+  }
+  const res = await gh(env, `/contents/${path}`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      message: message || `studio: delete ${path}`,
+      sha,
+      branch: "main",
+    }),
+  });
+  if (!res.ok) {
+    throw githubFail("delete", res, await res.text());
+  }
+  return res.json();
+}
+
 /**
  * Put a binary file. `contentBase64` is already base64 of raw bytes
  * (GitHub Contents API create/update limit: 100 MB; Studio caps lower).
