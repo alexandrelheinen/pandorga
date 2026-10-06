@@ -792,7 +792,7 @@ function renderThemeMenu() {
   ));
 
   const btn = el("button", {
-    className: "btn btn-icon",
+    className: "btn btn-tool",
     type: "button",
     title: "Theme",
     "aria-label": "Theme",
@@ -812,6 +812,7 @@ function renderThemeMenu() {
       text: THEME_MENU_ICONS[themeChoice()] || THEME_MENU_ICONS.system,
       "aria-hidden": "true",
     }),
+    el("span", { className: "btn-label", text: "Theme" }),
   ]);
 
   return el("div", { className: "studio-theme-menu" }, [btn, menu]);
@@ -895,11 +896,12 @@ function toolbarActionButton({
   );
 }
 
-function renderStudioToolbar({ menuToggle = null } = {}) {
+function renderStudioToolbar({ brand = null, menuToggle = null } = {}) {
   const saveLabel = state.saving ? "Saving…" : state.dirty ? "Save" : "Saved";
   const saveIcon = state.saving ? "progress_activity" : state.dirty ? "save" : "check";
   const statusText = state.error ? "Error" : state.status || "";
   const kids = [];
+  if (brand) kids.push(brand);
   if (statusText) {
     kids.push(
       el("span", {
@@ -1210,13 +1212,13 @@ function renderShell() {
   const menuOpen = !!state.navMenuOpen;
 
   const brand = el("button", {
-    className: "studio-brand studio-brand-home",
+    className: "studio-brand studio-brand-home studio-brand-toolbar",
     type: "button",
     title: "Studio home",
     "aria-current": !state.collection && !state.mediaOpen ? "page" : null,
     onClick: () => goHome(),
   }, [
-    studioMark({ size: 24 }),
+    studioMark({ size: 22 }),
     el("span", { className: "studio-brand-copy" }, [
       el("span", { className: "studio-brand-name", text: "Studio" }),
     ]),
@@ -1236,7 +1238,6 @@ function renderShell() {
       renderShell();
     },
   }, [
-    studioMark({ size: 22, label: "" }),
     el("span", {
       className: "studio-nav-menu-label sr-only",
       text: currentNavLabel(),
@@ -1328,16 +1329,12 @@ function renderShell() {
       className: "studio-nav" + (menuOpen ? " is-open" : ""),
       "aria-label": "Collections",
     },
-    [
-      el("div", { className: "studio-nav-bar" }, [brand]),
-      panel,
-    ]
+    [panel]
   );
 
-  const toolbar = renderStudioToolbar({ menuToggle });
+  const toolbar = renderStudioToolbar({ brand, menuToggle });
 
   const main = el("div", { className: "studio-main" }, [
-    toolbar,
     renderErrorBanner(),
     renderStudioBreadcrumb(),
     el("div", {
@@ -1346,7 +1343,7 @@ function renderShell() {
     }),
   ]);
 
-  app.append(el("div", { className: "studio-shell" }, [nav, main]));
+  app.append(el("div", { className: "studio-shell" }, [toolbar, nav, main]));
   renderMain();
   syncThemeMenuUi();
   if (!window.__studioMenuDismissBound) {
