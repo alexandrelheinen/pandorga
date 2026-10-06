@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.4.1] — 2026-10-07
+
+### Changed
+
+- Studio top-bar brand: icon-only on mobile; no gray current-page plate on desktop
+
 ## [1.4.0] — 2026-10-07
 
 ### Added

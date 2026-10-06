@@ -332,6 +332,12 @@ button.studio-brand-home[aria-current="page"] {
   background: var(--surface-high);
 }
 
+/* Toolbar brand stays flush — no filled plate. */
+button.studio-brand-home.studio-brand-toolbar:hover,
+button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
+  background: transparent;
+}
+
 .studio-brand .studio-mark {
   display: block;
   width: 1.35rem;
@@ -2563,9 +2569,19 @@ textarea.body-source.editor-surface {
     justify-content: center;
   }
 
-  /* Keep Icon + Studio readable; only action labels collapse to icons. */
+  /* Mobile top bar: mark only — wordmark is desktop. */
+  .studio-toolbar .studio-brand-toolbar {
+    width: var(--studio-toolbar-control-h);
+    min-width: var(--studio-toolbar-control-h);
+    padding: 0;
+    column-gap: 0;
+    grid-template-columns: var(--studio-brand-mark);
+    justify-items: center;
+  }
+
+  .studio-toolbar .studio-brand-toolbar .studio-brand-copy,
   .studio-toolbar .studio-brand-toolbar .studio-brand-name {
-    display: inline;
+    display: none;
   }
 
   .studio-nav {
