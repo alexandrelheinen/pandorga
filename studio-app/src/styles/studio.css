@@ -1915,6 +1915,7 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
 }
 
 .editor-format-toolbar {
+  --editor-tool-size: 2.35rem;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -1928,10 +1929,15 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 2rem;
-  height: 2rem;
+  box-sizing: border-box;
+  width: var(--editor-tool-size);
+  min-width: var(--editor-tool-size);
+  max-width: var(--editor-tool-size);
+  height: var(--editor-tool-size);
+  min-height: var(--editor-tool-size);
+  max-height: var(--editor-tool-size);
   margin: 0;
-  padding: 0 0.35rem;
+  padding: 0;
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -1940,6 +1946,8 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
   font: inherit;
   font-size: 0.82rem;
   font-weight: 600;
+  line-height: 1;
+  overflow: hidden;
 }
 
 .editor-toolbar-btn:hover {
@@ -1960,10 +1968,15 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
 }
 
 .editor-toolbar-select {
+  box-sizing: border-box;
+  height: var(--editor-tool-size);
+  min-height: var(--editor-tool-size);
+  max-height: var(--editor-tool-size);
   border: 1px solid color-mix(in srgb, var(--outline-variant) 70%, transparent);
   background: var(--background);
-  padding: 0.25rem 0.4rem;
+  padding: 0 0.4rem;
   font-size: 0.82rem;
+  line-height: 1;
   max-width: 8.5rem;
 }
 

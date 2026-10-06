@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.3] — 2026-10-07
+
+### Changed
+
+- Studio format toolbar buttons (H1–H4, icons, case toggles) and the color
+  select share one locked square size
+
 ## [1.4.2] — 2026-10-07
 
 ### Changed
