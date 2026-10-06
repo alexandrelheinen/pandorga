@@ -17,8 +17,6 @@ import {
   loadPageSizePreference,
   savePageSizePreference,
   formatEntryListMeta,
-  itemTags,
-  collectDistinctTags,
 } from "./lib/list-controls.js";
 import {
   yamlEditKind,
@@ -212,8 +210,6 @@ const state = {
   listPageSizeByCollection: Object.create(null),
   /** Per-collection current page (1-based; session only). */
   listPageByCollection: Object.create(null),
-  /** Per-collection tag filter (session only; writing lists). */
-  listTagByCollection: Object.create(null),
   /** In-session nav entry counts keyed by collection name. */
   navCountByCollection: Object.create(null),
   /** Session tree cache: collection name → { items }. Avoids re-fetch on revisit. */
@@ -435,6 +431,7 @@ function mediaOpts() {
     render: () => renderShell(),
     captureError,
     clearError,
+    goHome,
   };
 }
 
@@ -548,19 +545,6 @@ function resetListPage() {
   const name = state.collection?.name;
   if (!name) return;
   state.listPageByCollection[name] = 1;
-}
-
-function currentListTag() {
-  const name = state.collection?.name;
-  if (!name) return "";
-  return state.listTagByCollection[name] || "";
-}
-
-function setListTag(tag) {
-  const name = state.collection?.name;
-  if (!name) return;
-  state.listTagByCollection[name] = String(tag || "");
-  resetListPage();
 }
 
 function rememberNavCount(col, count) {
@@ -1194,9 +1178,8 @@ function renderMediaNavGroup() {
  */
 function renderErrorBanner() {
   if (!state.error) return null;
-  // The collection list and the media library both paint their own
-  // .list-error panel with the same sentence while no file is open.
-  if (!state.file) return null;
+  // The collection list already paints .list-error with the same sentence.
+  if (!state.file && !state.mediaOpen) return null;
   const actions = [];
   if (state.errorCode === "conflict" && state.file) {
     const path = state.file;
@@ -2158,12 +2141,10 @@ function renderListPane() {
   const query = currentListQuery();
   const sortId = currentListSortId();
   const pageSizeId = currentListPageSizeId();
-  const tagFilter = currentListTag();
   const writing = isWritingCollection();
   const filtered = applyListControls(state.items, {
     query,
     sortId,
-    tag: writing ? tagFilter : "",
   });
   const pageInfo = paginateItems(filtered, {
     pageSizeId,
@@ -2280,8 +2261,6 @@ function renderListPane() {
     ]),
   ]);
 
-  const tagChips = writing ? renderTagFilterChips(state.items, tagFilter) : null;
-
   let emptyNode = null;
   if (!filtered.length) {
     if (state.error) {
@@ -2306,9 +2285,7 @@ function renderListPane() {
     } else {
       emptyNode = el("p", {
         className: "list-empty",
-        text: tagFilter
-          ? "No entries match this tag filter."
-          : "No entries match this search.",
+        text: "No entries match this search.",
       });
     }
   }
@@ -2351,7 +2328,7 @@ function renderListPane() {
   // Title already shows total entry count — list-count only when range/filter adds info.
   let countText = "";
   if (state.items.length > 0) {
-    const filteredNote = query || tagFilter;
+    const filteredNote = query;
     if (!filtered.length) {
       countText = filteredNote ? `0 of ${state.items.length}` : "";
     } else if (pageInfo.pageSize == null) {
@@ -2370,7 +2347,6 @@ function renderListPane() {
     ? el("div", { className: "ledger-columns", "aria-hidden": "true" }, [
         el("span", { className: "ledger-col-thumb" }),
         el("span", { className: "ledger-col-manuscript", text: "Manuscript" }),
-        el("span", { className: "ledger-col-taxonomy", text: "Taxonomy" }),
         el("span", { className: "ledger-col-ops", text: "Operations" }),
       ])
     : null;
@@ -2378,7 +2354,6 @@ function renderListPane() {
   return el("div", { className: "pane" }, [
     header,
     controls,
-    tagChips,
     countText
       ? el("p", { className: "list-count", text: countText })
       : null,
@@ -2386,48 +2361,6 @@ function renderListPane() {
     el("div", { className: "ledger-list" }, rows.length ? rows : [emptyNode]),
     pager,
   ]);
-}
-
-function renderTagFilterChips(items, activeTag) {
-  const tags = collectDistinctTags(items);
-  if (!tags.length) return null;
-  const chips = [
-    el("button", {
-      className:
-        "list-tag-chip" + (!activeTag ? " is-active" : ""),
-      type: "button",
-      text: `All (${items.length})`,
-      "aria-pressed": !activeTag ? "true" : "false",
-      onClick: () => {
-        setListTag("");
-        renderMain();
-      },
-    }),
-  ];
-  for (const tag of tags) {
-    const count = items.filter((item) =>
-      itemTags(item).some((t) => t.toLowerCase() === tag.toLowerCase())
-    ).length;
-    if (!count) continue;
-    const active = activeTag.toLowerCase() === tag.toLowerCase();
-    chips.push(
-      el("button", {
-        className: "list-tag-chip" + (active ? " is-active" : ""),
-        type: "button",
-        text: `${tag} (${count})`,
-        "aria-pressed": active ? "true" : "false",
-        onClick: () => {
-          setListTag(active ? "" : tag);
-          renderMain();
-        },
-      })
-    );
-  }
-  return el("div", {
-    className: "list-tag-filters",
-    role: "group",
-    "aria-label": "Filter by tag",
-  }, chips);
 }
 
 function languageChip(itemOrFields) {
@@ -2438,18 +2371,6 @@ function languageChip(itemOrFields) {
     text: lang.toUpperCase(),
     title: `Language: ${lang}`,
   });
-}
-
-function taxonomyChips(item) {
-  const tags = itemTags(item);
-  if (!tags.length) return null;
-  return el(
-    "div",
-    { className: "ledger-taxonomy" },
-    tags.map((tag) =>
-      el("span", { className: "ledger-tag", text: tag })
-    )
-  );
 }
 
 function renderLedgerOps(item, { open }) {
@@ -2540,8 +2461,6 @@ function renderLedgerRow(item, writing) {
       : null,
   ]);
 
-  const taxonomy = taxonomyChips(item) || el("div", { className: "ledger-taxonomy" });
-
   return el(
     "div",
     {
@@ -2557,7 +2476,7 @@ function renderLedgerRow(item, writing) {
         }
       },
     },
-    [thumbnailNode(item), manuscript, taxonomy, ops]
+    [thumbnailNode(item), manuscript, ops]
   );
 }
 

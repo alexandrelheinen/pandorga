@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.3.27] — 2026-10-07
+
+### Changed
+
+- Remove category tag pills and taxonomy column from Articles and Rascunhos lists
+
 ## [1.3.26] — 2026-10-06
 
 ### Changed
