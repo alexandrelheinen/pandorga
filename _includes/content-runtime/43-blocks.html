@@ -324,9 +324,15 @@
       ].join('');
     }
 
-    /* Compact inventory row for the home portfolio bench.
-     * Desktop: index + thumb + title + project icon. Mobile strip uses the
-     * thumb/initial only. Selectable rows update the specimen. */
+    function twoDigits(value) {
+      var label = String(Number(value));
+      return label.length < 2 ? '0' + label : label;
+    }
+
+    /* Rack card for the home portfolio bench.
+     * Desktop: thumb (or icon, or initial) beside a code line, title and
+     * tagline. The mobile strip shows the project glyph only. Selectable rows
+     * update the specimen. */
     function renderProjectInventoryRow(item, options) {
       options = options || {};
       var f = blockFields(item);
@@ -352,22 +358,28 @@
 
       var media = renderPosterMedia(fm.thumbnail, name);
       var initial = String(name || '?').charAt(0).toUpperCase();
-      if (!media) {
+      if (!media && fm.icon) {
+        media = '<div class="home-project-inventory-mark" aria-hidden="true">' +
+          '<span class="material-symbols-outlined">' + escapeHtml(fm.icon) + '</span></div>';
+      } else if (!media) {
         media = '<div class="home-project-inventory-mark home-project-inventory-mark--initial" aria-hidden="true">' +
           escapeHtml(initial) + '</div>';
       }
 
-      var html = '';
-      if (index != null && index !== '') {
-        var label = String(Number(index));
-        if (label.length < 2) label = '0' + label;
-        html += '<span class="home-project-inventory-index" aria-hidden="true">' +
-          escapeHtml(label) + '</span>';
-      }
-      if (media) {
-        html += '<div class="home-project-inventory-media">' + media + '</div>';
-      }
+      var html = '<div class="home-project-inventory-media">' + media + '</div>';
       html += '<div class="home-project-inventory-body">';
+
+      var code = renderMetaStrip([
+        index != null && index !== ''
+          ? '<span class="home-project-inventory-index">' + escapeHtml(twoDigits(index)) + '</span>'
+          : '',
+        fm.label ? escapeHtml(fm.label) : ''
+      ]);
+      var status = fm.status ? '<span class="ledger-status">' + escapeHtml(fm.status) + '</span>' : '';
+      if (code || status) {
+        html += '<div class="home-project-inventory-code">' + code + status + '</div>';
+      }
+
       if (selectable) {
         html += '<h3 class="home-project-inventory-title card-title">' +
           escapeHtml(name) + '</h3>';
@@ -375,6 +387,9 @@
         html += '<h3 class="home-project-inventory-title card-title">' +
           '<a class="ledger-card-stretch" href="' + escapeAttr(href) + '">' +
           escapeHtml(name) + '</a></h3>';
+      }
+      if (fm.tagline) {
+        html += '<p class="home-project-inventory-copy font-body">' + escapeHtml(fm.tagline) + '</p>';
       }
       html += '</div>';
       if (fm.icon) {
@@ -441,16 +456,112 @@
       // Outbound links only. `.ledger-card-foot` draws a rule above itself, so
       // an empty one rules off nothing; renderLedgerRow and renderArchiveCard
       // guard it the same way.
-      var links = [];
-      if (fm.github) links.push(renderCtaLink(fm.github, options.repoLabel || 'Repository', { icon: 'code' }));
-      if (fm.article_url) links.push(renderCtaLink(fm.article_url, options.articleLabel || 'Article', { icon: 'article' }));
-      if (fm.external_url) links.push(renderCtaLink(fm.external_url, options.externalLabel || 'Visit', { icon: 'public' }));
-      if (links.length) {
-        html += '<div class="ledger-card-foot ledger-card-links">' + links.join('') + '</div>';
+      var links = renderProjectLinks(fm, options);
+      if (links) {
+        html += '<div class="ledger-card-foot ledger-card-links">' + links + '</div>';
       }
 
       card.innerHTML = html;
       return card;
+    }
+
+    function renderProjectLinks(fm, options) {
+      var links = [];
+      if (fm.github) links.push(renderCtaLink(fm.github, options.repoLabel || 'Repository', { icon: 'code' }));
+      if (fm.article_url) links.push(renderCtaLink(fm.article_url, options.articleLabel || 'Article', { icon: 'article' }));
+      if (fm.external_url) links.push(renderCtaLink(fm.external_url, options.externalLabel || 'Visit', { icon: 'public' }));
+      return links.join('');
+    }
+
+    /* Home specimen — the featured project on the portfolio bench. A system
+     * card whose strip carries folio, label, start year and status, and whose
+     * title sits over the thumbnail (CSS overlays it only while the poster is
+     * present, so a dead image drops the title back into the body). Without a
+     * thumbnail the icon plate stands in, title below. `openLabel` adds a
+     * visual "open" cue; it is not a second link, the stretched title is. */
+    function renderProjectSpecimen(item, options) {
+      options = options || {};
+      var f = blockFields(item);
+      var fm = f.fm;
+      var href = options.href || '#';
+      var name = fm.project || f.title;
+
+      var card = document.createElement('article');
+      card.className = 'ledger-system-card home-project-specimen group';
+
+      var year = String(fm.start_date || '').match(/^\d{4}/);
+      var meta = renderMetaStrip([
+        options.folio ? '<span class="home-specimen-folio">#' + escapeHtml(twoDigits(options.folio)) + '</span>' : '',
+        fm.label ? escapeHtml(fm.label) : '',
+        year ? '<span>' + escapeHtml(year[0]) + '</span>' : ''
+      ]);
+      var status = fm.status ? '<span class="ledger-status">' + escapeHtml(fm.status) + '</span>' : '';
+
+      var html = '';
+      if (meta || status) {
+        html += '<div class="home-specimen-strip">' + meta + status + '</div>';
+      }
+
+      var poster = renderPosterMedia(fm.thumbnail, name);
+      html += '<div class="home-specimen-figure">';
+      if (poster) {
+        html += poster;
+        if (fm.icon) {
+          html += '<span class="home-specimen-badge material-symbols-outlined" aria-hidden="true">' +
+            escapeHtml(fm.icon) + '</span>';
+        }
+      } else if (fm.icon) {
+        html += '<div class="projects-plate projects-plate--mark" aria-hidden="true">' +
+          '<span class="material-symbols-outlined projects-plate-glyph">' +
+          escapeHtml(fm.icon) + '</span></div>';
+      }
+      html += '<h3 class="card-title ledger-card-title home-specimen-title"><a class="ledger-card-stretch" href="' +
+        escapeAttr(href) + '">' + escapeHtml(name) + '</a></h3>';
+      html += '</div>';
+
+      var summary = fm.tagline || f.preview;
+      if (summary) {
+        html += '<p class="ledger-card-copy font-body">' + escapeHtml(summary) + '</p>';
+      }
+
+      html += renderTagChips(f.tags, { hrefFor: options.tagHref });
+
+      var links = renderProjectLinks(fm, options);
+      var open = options.openLabel
+        ? '<span class="home-specimen-open" aria-hidden="true"><span>' + escapeHtml(options.openLabel) +
+          '</span><span class="material-symbols-outlined">arrow_forward</span></span>'
+        : '';
+      if (links || open) {
+        html += '<div class="ledger-card-foot home-specimen-foot">' +
+          (links ? '<div class="ledger-card-links">' + links + '</div>' : '') + open + '</div>';
+      }
+
+      card.innerHTML = html;
+      return card;
+    }
+
+    /* Tape under the rack: position counter, progress, wrap-around steps.
+     * `position` is 1-based. One project has nowhere to step to. */
+    function renderProjectTape(position, total) {
+      var count = Number(total) || 0;
+      var at = Number(position) || 0;
+      if (count < 2 || at < 1 || at > count) return '';
+      var fill = Math.round((at / count) * 100);
+      var step = function (delta, label, glyph) {
+        return '<button type="button" class="home-project-tape-step" data-home-tape-step="' + delta +
+          '" aria-label="' + label + '"><span class="material-symbols-outlined" aria-hidden="true">' +
+          glyph + '</span></button>';
+      };
+      return [
+        '<div class="home-project-tape">',
+        step(-1, 'Previous project', 'chevron_left'),
+        '<span class="home-project-tape-count">',
+        escapeHtml(twoDigits(at) + ' / ' + twoDigits(count)), '</span>',
+        '<span class="home-project-tape-track" aria-hidden="true">',
+        '<span class="home-project-tape-fill" style="width: ', fill, '%"></span></span>',
+        step(1, 'Next project', 'chevron_right'),
+        '</div>'
+      ].join('');
     }
 
 {% endraw %}

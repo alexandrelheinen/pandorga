@@ -1,0 +1,32 @@
+{
+  "name": "project-specimen/icon plate without a thumbnail (PLT-AC-13)",
+  "block": "renderProjectSpecimen",
+  "args": [
+    {
+      "slug": "bossa",
+      "front_matter": {
+        "project": "Bossa",
+        "icon": "music_note",
+        "tagline": "Edge nodes for street ensembles."
+      }
+    },
+    {
+      "href": "/projects/bossa/"
+    }
+  ],
+  "selectors": [
+    "div.home-specimen-figure",
+    "projects-plate--mark",
+    "h3.ledger-card-title"
+  ],
+  "forbidden": [
+    "ledger-poster",
+    "home-specimen-badge",
+    "home-specimen-strip",
+    "home-specimen-open"
+  ],
+  "contains": [
+    ">music_note<",
+    ">Bossa<"
+  ]
+}

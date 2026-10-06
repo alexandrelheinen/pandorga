@@ -1,0 +1,29 @@
+{
+  "name": "project-inventory-row/icon mark without a thumbnail (PLT-AC-15)",
+  "block": "renderProjectInventoryRow",
+  "args": [
+    {
+      "slug": "bossa",
+      "front_matter": {
+        "project": "Bossa",
+        "icon": "music_note"
+      }
+    },
+    {
+      "selectable": true,
+      "selected": true
+    }
+  ],
+  "selectors": [
+    "div.home-project-inventory-mark",
+    "h3.home-project-inventory-title"
+  ],
+  "forbidden": [
+    "ledger-poster",
+    "home-project-inventory-mark--initial"
+  ],
+  "contains": [
+    "aria-pressed=\"true\"",
+    "is-selected"
+  ]
+}

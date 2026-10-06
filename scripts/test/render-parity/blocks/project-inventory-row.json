@@ -1,0 +1,46 @@
+{
+  "name": "project-inventory-row/rack card (PLT-AC-15)",
+  "block": "renderProjectInventoryRow",
+  "args": [
+    {
+      "slug": "arco",
+      "front_matter": {
+        "project": "ARCO",
+        "thumbnail": "/media/projects/arco.png",
+        "icon": "route",
+        "label": "Simulation",
+        "status": "Ongoing",
+        "tagline": "A city-scale race replayed from telemetry."
+      }
+    },
+    {
+      "selectable": true,
+      "selected": false,
+      "index": 2
+    }
+  ],
+  "selectors": [
+    "article.home-project-inventory-row",
+    "div.home-project-inventory-media",
+    "div.ledger-poster",
+    "div.home-project-inventory-code",
+    "span.home-project-inventory-index",
+    "span.ledger-status",
+    "h3.home-project-inventory-title",
+    "p.home-project-inventory-copy",
+    "span.home-project-inventory-glyph"
+  ],
+  "forbidden": [
+    "ledger-card-stretch"
+  ],
+  "contains": [
+    ">02<",
+    ">Simulation<",
+    ">Ongoing<",
+    ">ARCO<",
+    ">A city-scale race replayed from telemetry.<",
+    ">route<",
+    "aria-pressed=\"false\"",
+    "data-slug=\"arco\""
+  ]
+}
