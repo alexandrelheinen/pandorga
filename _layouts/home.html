@@ -247,8 +247,8 @@ layout: shell
           return 0;
         }
 
-        /* Specimen and inventory sizes are CSS-fixed (no ResizeObserver), so
-           swapping projects never moves the band. */
+        /* Specimen grows with its tagline and wrapping chips; the rack
+           stretches to the same row via the bench grid. */
         function paintSpecimen(entry) {
           specimenSlot.innerHTML = '';
           specimenSlot.appendChild(runtime.renderProjectSpecimen(asItem(entry), {

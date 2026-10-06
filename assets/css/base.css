@@ -831,6 +831,8 @@ a.no-underline:active {
 }
 
 .ledger-chip {
+  flex: 0 0 auto;
+  white-space: nowrap;
   font-family: var(--font-label);
   font-size: var(--type-cta);
   font-weight: var(--weight-label);

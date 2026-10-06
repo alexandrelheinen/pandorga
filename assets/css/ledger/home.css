@@ -944,12 +944,13 @@ html[data-theme="light"] .home-hero-plate {
 }
 
 /* ── Engineering artifacts: specimen bench ──
-   A specimen card beside a filing rack of project cards. The specimen has a
-   fixed height, so swapping projects never resizes the band. Every plate is
-   16:9, the ratio the thumbnails are drawn at, with the title below it; the
-   tagline takes the height left. From 900px the specimen is half the band and the rack a
-   narrower column beside it, the rest left blank. Below 900px the rack is
-   an icon strip above the specimen, one column per project. */
+   A specimen card beside a filing rack of project cards. The specimen keeps a
+   min-height floor so short projects still fill the bench, and grows with its
+   tagline and wrapping tag chips — the same chip wrap the projects index uses.
+   Every plate is 16:9, the ratio the thumbnails are drawn at, with the title
+   below it. From 900px the specimen is half the band and the rack a narrower
+   column beside it, the rest left blank. Below 900px the rack is an icon strip
+   above the specimen, one column per project. */
 .home-projects-bench {
   --home-specimen-height: 32rem;
   --home-icon-btn-size: 2.75rem;
@@ -965,7 +966,8 @@ html[data-theme="light"] .home-hero-plate {
 }
 
 .home-project-specimen {
-  height: var(--home-specimen-height);
+  min-height: var(--home-specimen-height);
+  height: auto;
   overflow: hidden;
   gap: var(--space-sm);
   padding: var(--space-md);
@@ -997,29 +999,45 @@ html[data-theme="light"] .home-hero-plate {
   min-width: 0;
 }
 
+/* Same chrome voice as `.projects-page .ledger-meta` (label face), stepped
+   up to `--type-label-lg` on the specimen so the strip above the plate
+   matches the featured scale instead of body-meta. The rack keeps the
+   plain label step. */
 .home-specimen-strip .ledger-meta,
 .home-project-inventory-code .ledger-meta {
   min-width: 0;
   flex-wrap: nowrap;
   overflow: hidden;
   white-space: nowrap;
+  font-family: var(--font-label);
+  font-size: var(--type-label);
+  letter-spacing: 0.03em;
+}
+
+.home-specimen-strip .ledger-meta {
+  font-size: var(--type-label-lg);
 }
 
 .home-specimen-folio,
 .home-project-inventory-index {
   color: var(--color-primary);
+  font-size: inherit;
 }
 
 .home-specimen-strip>.ledger-status,
 .home-project-inventory-code>.ledger-status {
   flex: 0 0 auto;
   font-family: var(--font-label);
-  font-size: var(--type-micro);
+  font-size: var(--type-label);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   line-height: 1.4;
   padding: 0.1rem 0.45rem;
   background: color-mix(in srgb, var(--color-secondary) 14%, transparent);
+}
+
+.home-specimen-strip>.ledger-status {
+  font-size: var(--type-label-lg);
 }
 
 /* The figure holds the plate and, always below it, the title. The badge
@@ -1109,32 +1127,27 @@ html[data-theme="light"] .home-hero-plate {
   white-space: nowrap;
 }
 
-/* The tagline takes whatever height the plate leaves, clipped at a whole
-   line by the clamp; the chips and the foot keep to the bottom edge. */
+/* Full tagline, same as `.ledger-system-card` on the projects index — no
+   clamp and no flex-shrink that would crop mid-sentence. The chip row wraps
+   whole pills to the next line (never mid-label); spare height still parks
+   them and the foot on the floor. */
 .home-project-specimen .ledger-card-copy {
-  flex: 0 1 auto;
-  min-height: 0;
+  flex: 0 0 auto;
   font-size: var(--type-body);
   line-height: var(--leading-body);
   color: var(--color-on-surface-variant);
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: var(--home-specimen-copy-lines, 4);
-  line-clamp: var(--home-specimen-copy-lines, 4);
-  overflow: hidden;
 }
 
 .home-project-specimen .ledger-chip-row {
   flex: 0 0 auto;
-  flex-wrap: nowrap;
-  overflow: hidden;
+  flex-wrap: wrap;
   gap: var(--space-xs);
   margin: auto 0 0;
 }
 
 .home-specimen-foot {
   flex: 0 0 auto;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: var(--space-md);
   margin-top: auto;
   padding-top: var(--space-md);
@@ -1253,7 +1266,7 @@ html[data-theme="light"] .home-hero-plate {
 
 @media (min-width: 900px) {
 
-  /* The rack panel stretches to the specimen's fixed height. */
+  /* The rack panel stretches to the specimen's content height. */
   .home-projects-bench {
     --home-specimen-height: 36rem;
     display: grid;
