@@ -261,19 +261,25 @@ a {
   margin: 0;
   border-bottom: 0;
   column-gap: 0.55rem;
-  grid-template-columns: 1.35rem auto;
+  --studio-brand-mark: 1.35rem;
+  grid-template-columns: var(--studio-brand-mark) auto;
   box-sizing: border-box;
+  align-items: center;
 }
 
 .studio-brand-toolbar .studio-mark {
-  width: 1.35rem;
-  height: 1.35rem;
+  width: var(--studio-brand-mark);
+  height: var(--studio-brand-mark);
 }
 
 .studio-brand-toolbar .studio-brand-name {
-  font-family: var(--font-label);
-  font-size: 1rem;
-  letter-spacing: 0.06em;
+  font-family: var(--font-title);
+  /* Cinzel Decorative cap height is ~0.83em; size so the first S matches the mark. */
+  font-size: calc(var(--studio-brand-mark) / 0.83);
+  font-weight: 400;
+  font-synthesis: none;
+  line-height: 1;
+  letter-spacing: 0.02em;
   text-transform: none;
   color: var(--on-surface);
 }
