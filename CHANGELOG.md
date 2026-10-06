@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.3.7] — 2026-10-06
+
+### Added
+
+- Home projects band specimen bench: project specimen, rack card, and tape
+  blocks, with inventory rows and glyph/initial fallbacks when an icon is
+  missing
+
+### Fixed
+
+- Specimen stays half-width and 16:9; title always sits below the plate with
+  roomier copy and links; drafting tape removed from the home layout
+
 ## [1.3.6] — 2026-10-05
 
 ### Fixed
