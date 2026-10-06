@@ -215,14 +215,15 @@ omits(
 separatorCount('renderSystemCard / label without status drops the separator', ['Simulation', ''], 0);
 
 // PLT-AC-14: the home specimen and its rack card carry only what the project
-// declares. A project that is only a name is a title and nothing else.
+// declares. A project that is only a name is its initial plate (PLT-AC-18)
+// and a title, nothing else.
 omits(
   'renderProjectSpecimen / project with no media, meta, tags, or links',
   'renderProjectSpecimen',
   [{ front_matter: { project: 'Bossa' } }, { href: '/projects/bossa/' }],
   [
     'ledger-poster',
-    'projects-plate',
+    'material-symbols-outlined',
     'home-specimen-badge',
     'home-specimen-strip',
     'ledger-meta',

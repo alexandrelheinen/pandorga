@@ -39,14 +39,15 @@ filing rack of selectable project cards. Every element is backed by a
 collection field; a missing field means a missing element.
 
 - `PLT-AC-13` When the band renders, the specimen card shall carry a strip
-  with the project's folio, `label`, `start_date` year and `status`; its
-  16:9 `thumbnail` plate with the title set over it (or the 16:9 `icon` plate
-  with the title below it); the `tagline`; the `tags`; and the outbound
-  `github`, `article_url` and `external_url` links. The title is its only
-  link to the project page.
-- `PLT-AC-14` When a project lacks `thumbnail`, `icon`, `label`, `status`,
+  with the project's folio, `label`, `start_date` year and `status`; a 16:9
+  plate, the `thumbnail` with the `icon` as a badge (or the `icon` plate),
+  with the title always below it; the `tagline`; the `tags`; and the
+  outbound `github`, `article_url` and `external_url` links. The title is
+  its only link to the project page.
+- `PLT-AC-14` When a project lacks `thumbnail`, `label`, `status`,
   `start_date`, `tagline`, `tags` or outbound links, the specimen card and its
-  rack card shall render no element for that field.
+  rack card shall render no element for that field. A missing `icon` is
+  covered by `PLT-AC-18`.
 - `PLT-AC-15` When the viewport is at least 900px wide, the specimen shall
   take half the band and the rack a narrower column beside it, leaving the
   rest blank. Each project shall appear in the rack as a card with its folio,
@@ -58,8 +59,12 @@ collection field; a missing field means a missing element.
 - `PLT-AC-17` When the viewport is narrower than 900px, the rack shall be a
   strip of icon buttons above the specimen, one per project (up to six), that
   together span the band's width.
+- `PLT-AC-18` When a project lacks `icon`, the first letter of its name shall
+  stand in for it wherever the icon would appear: the specimen badge, the
+  specimen plate, the rack mark and the strip button. The elements and the
+  behavior shall be those of a project with an icon.
 
-`PLT-AC-13` and `-14` are covered by the block fixtures under
+`PLT-AC-13`, `-14` and `-18` are covered by the block fixtures under
 `scripts/test/render-parity/blocks/` and by the absent-field gate; `-15` and
 `-17` are layout behavior verified in the browser.
 
