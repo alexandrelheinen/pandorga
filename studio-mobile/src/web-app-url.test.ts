@@ -132,12 +132,14 @@ describe('release contract', () => {
     assert.match(envExample, /STUDIO_APP_NAME=/);
   });
 
-  it('ships a 1024px hexagon icon, adaptive icon, and splash', () => {
-    for (const name of ['icon.png', 'adaptive-icon.png', 'splash.png']) {
-      const bytes = readFileSync(join(mobileRoot, 'assets', name));
-      assert.equal(bytes.subarray(1, 4).toString('ascii'), 'PNG');
-      assert.equal(bytes.readUInt32BE(16), 1024);
-      assert.equal(bytes.readUInt32BE(20), 1024);
+  it('ships 1024px Studio and Website launcher PNG sets', () => {
+    for (const set of ['studio', 'website'] as const) {
+      for (const name of ['icon.png', 'adaptive-icon.png', 'splash.png']) {
+        const bytes = readFileSync(join(mobileRoot, 'assets', set, name));
+        assert.equal(bytes.subarray(1, 4).toString('ascii'), 'PNG');
+        assert.equal(bytes.readUInt32BE(16), 1024);
+        assert.equal(bytes.readUInt32BE(20), 1024);
+      }
     }
   });
 });
