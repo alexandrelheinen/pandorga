@@ -583,37 +583,43 @@ button.studio-brand-home[aria-current="page"] {
   z-index: 1;
 }
 
-/* Equal desktop tools — fixed height; theme wrapper matches the tools. */
+/* Equal desktop tools — one locked box for Theme + Revert + Save + Export.
+   Theme lives in a wrapper; its button must use the same fixed height as
+   siblings (not height:100%), or filled vs outline buttons look uneven. */
 .studio-toolbar>.studio-theme-menu,
 .studio-toolbar>.btn-tool {
   flex: 0 0 6rem;
+  width: 6rem;
   height: var(--studio-toolbar-control-h);
+  min-height: var(--studio-toolbar-control-h);
+  max-height: var(--studio-toolbar-control-h);
   box-sizing: border-box;
+  align-self: center;
 }
 
 .studio-toolbar>.studio-theme-menu {
   display: flex;
   align-items: stretch;
+  position: relative;
 }
 
-/* Stretch only the button inside the theme wrapper — do not override
-   fixed height on direct .btn-tool siblings (height:100% was resolving
-   to the brand-driven toolbar content box and made Theme look shorter). */
-.studio-toolbar>.studio-theme-menu .btn-tool {
+.studio-toolbar>.studio-theme-menu .btn-tool,
+.studio-toolbar>.btn-tool {
   box-sizing: border-box;
   width: 100%;
-  height: 100%;
-  min-height: 0;
+  height: var(--studio-toolbar-control-h);
+  min-height: var(--studio-toolbar-control-h);
+  max-height: var(--studio-toolbar-control-h);
+  margin: 0;
   padding: 0 0.45rem;
+  border-width: 1px;
+  border-style: solid;
+  line-height: 1;
+  overflow: hidden;
+  display: inline-flex;
   justify-content: center;
   align-items: center;
-}
-
-.studio-toolbar>.btn-tool {
-  min-height: 0;
-  padding: 0 0.45rem;
-  justify-content: center;
-  align-items: center;
+  gap: 0.35rem;
 }
 
 .studio-toolbar .studio-nav-menu-toggle {
@@ -638,12 +644,13 @@ button.studio-brand-home[aria-current="page"] {
 
 .btn-tool {
   gap: 0.35rem;
-  min-height: 2.35rem;
+  min-height: var(--studio-toolbar-control-h, 2.35rem);
   padding: 0 0.55rem;
   font-family: var(--font-label);
   border: 1px solid color-mix(in srgb, var(--outline-variant) 70%, transparent);
   background: var(--background);
   box-sizing: border-box;
+  line-height: 1;
 }
 
 .btn-tool:hover:not(:disabled) {
@@ -2507,17 +2514,22 @@ textarea.body-source.editor-surface {
 
   .studio-toolbar>.studio-theme-menu,
   .studio-toolbar>.btn-tool {
-    flex: 0 0 2.35rem;
+    flex: 0 0 var(--studio-toolbar-control-h);
+    width: var(--studio-toolbar-control-h);
+    height: var(--studio-toolbar-control-h);
+    min-height: var(--studio-toolbar-control-h);
+    max-height: var(--studio-toolbar-control-h);
   }
 
   .studio-toolbar .btn-tool .btn-label {
     display: none;
   }
 
-  .studio-toolbar .btn-tool {
-    width: 2.35rem;
-    min-width: 2.35rem;
-    padding: 0.3rem;
+  .studio-toolbar>.studio-theme-menu .btn-tool,
+  .studio-toolbar>.btn-tool {
+    width: 100%;
+    min-width: 0;
+    padding: 0;
   }
 
   .studio-toolbar-status {

@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.30] — 2026-10-07
+
+### Fixed
+
+- Studio top-bar Theme/Revert/Save/Export share one locked height box
+  (min/max/height), including the Theme menu wrapper button
+
 ## [1.3.29] — 2026-10-07
 
 ### Changed
