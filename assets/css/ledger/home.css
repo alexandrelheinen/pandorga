@@ -943,12 +943,13 @@ html[data-theme="light"] .home-hero-plate {
   }
 }
 
-/* ── Engineering artifacts: specimen + index folio ──
-   Fixed specimen chrome (16:9 plate + reserved body). Mobile icon strip
-   always reserves six equal slots at a fixed button height. Desktop inventory
-   sits in a panel container matched to the specimen height via CSS, not JS. */
+/* ── Engineering artifacts: specimen bench ──
+   A specimen card beside a filing rack of project cards, with the tape under
+   the rack. The specimen height is fixed so swapping projects never reflows
+   the band; its plate takes whatever height the body leaves. Below 900px the
+   rack is the six-slot icon strip above the specimen, the tape below it. */
 .home-projects-bench {
-  --home-specimen-height: 32rem;
+  --home-specimen-height: 34rem;
   --home-icon-btn-size: 2.75rem;
   --home-project-icon-count: 6;
   display: flex;
@@ -957,55 +958,131 @@ html[data-theme="light"] .home-hero-plate {
   gap: var(--space-md);
 }
 
+.home-project-inventory {
+  order: -1;
+}
+
 .home-project-specimen {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-  padding: var(--space-md);
-  padding-bottom: var(--space-lg);
-  max-width: none;
-  width: 100%;
   height: var(--home-specimen-height);
   overflow: hidden;
-  border: 0;
-  background: var(--color-panel-contrast);
+  gap: var(--space-sm);
+  padding: var(--space-md);
   box-sizing: border-box;
 }
 
-:root:not([data-theme="dark"]) .home-project-specimen,
-html[data-theme="light"] .home-project-specimen,
-[data-theme="dark"] .home-project-specimen {
-  border: 0;
+/* The triad top rule (`.ledger-card--edge-primary`), restated at a weight
+   that beats the light-paper hairline reset on `.ledger-system-card`. */
+:root .home-projects-bench .home-project-specimen,
+:root .home-projects-bench .home-project-specimen:hover {
+  border-top: 2px solid var(--color-primary);
 }
 
-.home-project-specimen>.ledger-poster,
-.home-project-specimen>.projects-plate {
-  flex: 0 0 auto;
-  width: auto;
-  margin: calc(var(--space-md) * -1) calc(var(--space-md) * -1) 0;
-  aspect-ratio: 16 / 9;
-  max-height: calc(var(--home-specimen-height) * 0.5);
-  position: relative;
+.home-band--contrast .home-project-specimen {
+  background: var(--color-surface-card-contrast);
+}
+
+.home-band--contrast .home-project-specimen:hover {
+  background: var(--color-surface-high-contrast);
+}
+
+.home-specimen-strip,
+.home-project-inventory-code {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+.home-specimen-strip .ledger-meta,
+.home-project-inventory-code .ledger-meta {
+  min-width: 0;
+  flex-wrap: nowrap;
   overflow: hidden;
+  white-space: nowrap;
 }
 
-.home-project-specimen>.ledger-poster img,
-.home-project-specimen>.ledger-poster video {
-  width: 100%;
+.home-specimen-folio,
+.home-project-inventory-index {
+  color: var(--color-primary);
+}
+
+.home-specimen-strip>.ledger-status,
+.home-project-inventory-code>.ledger-status {
+  flex: 0 0 auto;
+  font-family: var(--font-label);
+  font-size: var(--type-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.4;
+  padding: 0.1rem 0.45rem;
+  background: color-mix(in srgb, var(--color-secondary) 14%, transparent);
+}
+
+/* The figure holds the plate and the title. With a poster the two share one
+   grid cell and the title sits on a scrim over the image; when the image
+   fails, renderPosterMedia removes it and the title falls back under the
+   plate (or alone) without a script having to notice. */
+.home-specimen-figure {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  align-content: start;
+  gap: var(--space-sm);
+}
+
+/* No plate: the card reads as text, so its spare height goes under the
+   copy and the foot keeps to the bottom edge. */
+.home-specimen-figure:not(:has(> .ledger-poster, > .projects-plate)) {
+  flex: 0 0 auto;
+}
+
+.home-specimen-figure:not(:has(> .ledger-poster, > .projects-plate))~.home-specimen-foot {
+  margin-top: auto;
+}
+
+.home-specimen-figure:has(> .projects-plate) {
+  grid-template-rows: minmax(0, 1fr) auto;
+  align-content: stretch;
+}
+
+.home-specimen-figure:has(> .ledger-poster) {
+  grid-template-rows: minmax(0, 1fr);
+  align-content: stretch;
+  gap: 0;
+}
+
+.home-specimen-figure>.ledger-poster {
+  grid-area: 1 / 1;
   height: 100%;
-  object-fit: cover;
+  min-height: 0;
+  aspect-ratio: auto;
+}
+
+.home-specimen-figure>.projects-plate {
+  min-height: 0;
+  height: 100%;
+  aspect-ratio: auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface-high);
+  color: var(--color-primary);
+}
+
+.home-specimen-figure .projects-plate-glyph {
+  font-size: 3rem;
 }
 
 /* Glyph plates have no .ledger-poster::after — mirror the image corners. */
-.home-project-specimen>.projects-plate::after {
+.home-specimen-figure>.projects-plate::after {
   content: "";
   --frame-corner-size: 0.7rem;
   --frame-corner-thickness: 1px;
   position: absolute;
   inset: 0.3rem;
   pointer-events: none;
-  z-index: 2;
   background:
     linear-gradient(var(--color-primary), var(--color-primary)) top left / var(--frame-corner-size) var(--frame-corner-thickness) no-repeat,
     linear-gradient(var(--color-primary), var(--color-primary)) top left / var(--frame-corner-thickness) var(--frame-corner-size) no-repeat,
@@ -1017,72 +1094,101 @@ html[data-theme="light"] .home-project-specimen,
     linear-gradient(var(--color-primary), var(--color-primary)) bottom right / var(--frame-corner-thickness) var(--frame-corner-size) no-repeat;
 }
 
-.home-project-specimen .projects-plate--mark {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-surface-high);
-  color: var(--color-primary);
-}
-
-.home-project-specimen .projects-plate-glyph {
-  font-size: 3rem;
-}
-
-.home-project-specimen .ledger-meta {
+.home-specimen-figure>.home-specimen-badge {
   display: none;
 }
 
-.home-project-specimen .ledger-card-title,
-.home-project-specimen .ledger-card-title a {
-  flex: 0 0 auto;
-  font-family: var(--font-content-title);
-  font-size: var(--type-card-lg);
-  font-weight: var(--weight-title);
-  font-synthesis: none;
-  line-height: 1.2;
-  color: var(--color-on-surface);
-  min-height: calc(1.2em * 1);
-  margin: var(--space-sm) 0 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.home-specimen-figure:has(> .ledger-poster)>.home-specimen-badge {
+  grid-area: 1 / 1;
+  justify-self: end;
+  align-self: start;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin: var(--space-sm);
+  font-size: 1.25rem;
+  background: var(--color-surface-card);
+  color: var(--color-primary);
 }
 
-.home-project-specimen:hover .ledger-card-title a,
-.home-project-specimen:focus-within .ledger-card-title a {
-  color: var(--color-primary);
+.home-project-specimen .home-specimen-title {
+  margin: 0;
+  font-size: var(--type-card-lg);
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+/* The scrim is on-primary-fixed, the one ink that stays dark in both
+   themes, so the title keeps its contrast over any photograph. */
+.home-specimen-figure:has(> .ledger-poster)>.home-specimen-title {
+  grid-area: 1 / 1;
+  align-self: end;
+  z-index: 3;
+  padding: var(--space-2xl) var(--space-md) var(--space-md);
+  background: linear-gradient(to bottom,
+      transparent,
+      color-mix(in srgb, var(--color-on-primary-fixed) 88%, transparent));
+}
+
+.home-specimen-figure:has(> .ledger-poster)>.home-specimen-title a,
+.home-project-specimen:hover .home-specimen-figure:has(> .ledger-poster)>.home-specimen-title a {
+  color: var(--color-primary-fixed);
 }
 
 .home-project-specimen .ledger-card-copy {
   flex: 0 0 auto;
-  font-family: var(--font-body);
   font-size: var(--type-body);
-  font-weight: var(--weight-body);
   line-height: var(--leading-body);
   color: var(--color-on-surface-variant);
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   overflow: hidden;
-  min-height: calc(var(--type-body) * var(--leading-body) * 3);
-  margin: 0;
+  min-height: calc(var(--type-body) * var(--leading-body) * 2);
 }
 
 .home-project-specimen .ledger-chip-row {
-  display: flex;
-  flex-wrap: wrap;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  overflow: hidden;
   gap: var(--space-xs);
   margin: 0;
-  margin-top: auto;
-  flex: 0 0 auto;
-  max-height: none;
-  overflow: visible;
 }
 
-.home-project-specimen .ledger-card-links {
-  display: none;
+.home-specimen-foot {
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  margin-top: 0;
+}
+
+.home-specimen-foot .ledger-card-links {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.home-specimen-open {
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
+.home-project-specimen:hover .home-specimen-open {
+  color: var(--color-on-primary, var(--color-surface));
+  border-color: var(--color-link-hover);
+  background: var(--color-primary);
+}
+
+.home-project-specimen:hover .home-specimen-open .ledger-cta-arrow {
+  transform: translateX(4px);
 }
 
 /* Mobile: six equal icon slots, fixed button height (empty slots stay empty). */
@@ -1092,7 +1198,6 @@ html[data-theme="light"] .home-project-specimen,
   gap: var(--space-xs);
   min-width: 0;
   min-height: 0;
-  height: auto !important;
   overflow: visible;
   background: transparent;
   border: 0;
@@ -1104,22 +1209,16 @@ html[data-theme="light"] .home-project-specimen,
   display: flex;
   align-items: center;
   justify-content: center;
-  flex: none;
-  width: auto;
   min-width: 0;
   height: var(--home-icon-btn-size);
-  aspect-ratio: auto;
-  gap: 0;
   padding: 0;
   border: 1px solid var(--border-gentle-divider);
   background: var(--color-panel-contrast);
   cursor: pointer;
-  box-shadow: none;
   transition: background-color var(--motion-duration-fast) var(--motion-ease-default),
     border-color var(--motion-duration-fast) var(--motion-ease-default);
 }
 
-.home-project-inventory-index,
 .home-project-inventory-media,
 .home-project-inventory-body {
   display: none;
@@ -1129,9 +1228,6 @@ html[data-theme="light"] .home-project-specimen,
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: auto;
-  height: auto;
-  margin: 0;
   font-size: 1.25rem;
   line-height: 1;
   color: var(--color-on-surface-variant);
@@ -1154,7 +1250,6 @@ html[data-theme="light"] .home-project-specimen,
   outline: 1px solid var(--color-primary);
   outline-offset: -1px;
   background: var(--color-surface-high);
-  box-shadow: none;
 }
 
 .home-project-inventory-row.is-selected .home-project-inventory-glyph,
@@ -1169,93 +1264,156 @@ html[data-theme="light"] .home-project-specimen,
   background: var(--color-surface-high-contrast);
 }
 
-.home-project-inventory-row .ledger-meta {
-  display: none;
+/* Tape: arrows, counter, progress. */
+.home-project-tape {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.home-project-tape-step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid var(--border-gentle-divider);
+  background: var(--color-surface-card);
+  color: var(--color-on-surface);
+  cursor: pointer;
+  transition: color var(--motion-duration-fast) var(--motion-ease-default),
+    border-color var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+.home-project-tape-step:hover,
+.home-project-tape-step:focus-visible {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.home-project-tape-step .material-symbols-outlined {
+  font-size: 1.25rem;
+}
+
+.home-project-tape-count {
+  flex: 0 0 auto;
+  font-family: var(--font-mono);
+  font-size: var(--type-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-on-surface-variant);
+}
+
+.home-project-tape-track {
+  position: relative;
+  flex: 1 1 auto;
+  height: 2px;
+  background: var(--border-gentle-divider);
+}
+
+.home-project-tape-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--color-primary);
+  transition: width var(--motion-duration-base) var(--motion-ease-default);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .home-project-tape-fill,
+  .home-project-specimen:hover .home-specimen-open .ledger-cta-arrow {
+    transition: none;
+    transform: none;
+  }
 }
 
 @media (min-width: 900px) {
+
+  /* Specimen spans both rows; the rack panel and the tape stack beside it
+     and together match its height. */
   .home-projects-bench {
-    --home-specimen-height: 36rem;
+    --home-specimen-height: 38rem;
     display: grid;
-    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
-    gap: var(--space-xl);
-    align-items: stretch;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    column-gap: var(--space-xl);
+    row-gap: 0;
   }
 
-  .home-project-specimen {
-    height: var(--home-specimen-height);
+  .home-project-specimen-slot {
+    grid-column: 1;
+    grid-row: 1 / span 2;
   }
 
-  /* Panel container over the tiled band — not bare rows on the grid. */
   .home-project-inventory {
+    order: 0;
+    grid-column: 2;
+    grid-row: 1;
     display: flex;
     flex-direction: column;
-    height: var(--home-specimen-height);
+    gap: var(--space-sm);
+    min-height: 0;
     overflow: hidden;
-    gap: 0;
-    padding: 0;
+    padding: var(--space-md) var(--space-md) var(--space-sm);
     background: var(--color-panel-contrast);
-    border: 1px solid var(--border-gentle-divider);
+  }
+
+  .home-project-tape-slot {
+    grid-column: 2;
+    grid-row: 2;
+    padding: var(--space-sm) var(--space-md) var(--space-md);
+    background: var(--color-panel-contrast);
+  }
+
+  .home-project-tape-slot:empty {
+    padding: 0;
+  }
+
+  .home-project-specimen .home-specimen-title {
+    font-size: var(--type-title);
+  }
+
+  .home-specimen-figure:has(> .ledger-poster)>.home-specimen-title {
+    padding: var(--space-3xl) var(--space-lg) var(--space-lg);
   }
 
   .home-project-inventory-row {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
     flex: 1 1 0;
-    width: auto;
+    justify-content: flex-start;
+    gap: var(--space-md);
     height: auto;
     min-height: 0;
-    aspect-ratio: auto;
-    gap: var(--space-md);
     padding: var(--space-sm) var(--space-md);
-    border: 0;
-    border-bottom: 1px solid var(--border-gentle-divider);
-    background: transparent;
+    border: 1px solid var(--border-gentle-divider);
+    background: var(--color-surface-card);
     outline: none;
   }
 
-  .home-project-inventory-row:last-child {
-    border-bottom: 0;
+  .home-band--contrast .home-project-inventory-row {
+    background: var(--color-surface-card-contrast);
   }
 
-  .home-project-inventory-row.is-selected {
+  .home-project-inventory-row.is-selected,
+  .home-band--contrast .home-project-inventory-row.is-selected {
     background: var(--color-surface-high);
-    border-color: transparent;
+    border-color: var(--border-gentle-divider);
     outline: none;
     box-shadow: inset 3px 0 0 var(--color-primary);
-  }
-
-  .home-project-inventory-index {
-    display: block;
-    flex: 0 0 1.75rem;
-    font-family: var(--font-mono);
-    font-size: var(--type-caption);
-    letter-spacing: 0.04em;
-    color: var(--color-on-surface-variant);
-    line-height: 1;
-    text-align: right;
-  }
-
-  .home-project-inventory-row.is-selected .home-project-inventory-index,
-  .home-project-inventory-row:hover .home-project-inventory-index,
-  .home-project-inventory-row:focus-visible .home-project-inventory-index {
-    color: var(--color-primary);
   }
 
   .home-project-inventory-media {
     display: block;
     flex: 0 0 auto;
-    width: 5.5rem;
-    align-self: center;
-    height: auto;
-    min-width: 0;
-    min-height: 0;
-    aspect-ratio: 16 / 9;
+    width: 3.5rem;
+    height: 3.5rem;
     overflow: hidden;
     background: var(--color-surface-high);
-    border: 1px solid var(--border-gentle-subtle);
+  }
+
+  .home-project-inventory-row.is-selected .home-project-inventory-media {
+    outline: 1px solid var(--color-primary);
+    outline-offset: 2px;
   }
 
   .home-project-inventory-media .ledger-poster,
@@ -1263,7 +1421,6 @@ html[data-theme="light"] .home-project-specimen,
     width: 100%;
     height: 100%;
     aspect-ratio: auto;
-    border: 0;
     overflow: hidden;
     background: var(--color-surface-high);
   }
@@ -1272,18 +1429,15 @@ html[data-theme="light"] .home-project-specimen,
     display: none;
   }
 
-  .home-project-inventory-media .ledger-poster img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
   .home-project-inventory-mark {
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--color-primary);
+  }
+
+  .home-project-inventory-mark .material-symbols-outlined {
+    font-size: 1.5rem;
   }
 
   .home-project-inventory-mark--initial {
@@ -1294,33 +1448,23 @@ html[data-theme="light"] .home-project-specimen,
     color: var(--color-on-surface);
   }
 
-  .home-project-inventory-mark .material-symbols-outlined {
-    font-size: 1.25rem;
-  }
-
   .home-project-inventory-body {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 0;
+    gap: 0.1rem;
     flex: 1 1 0;
     min-width: 0;
-    padding: 0;
   }
 
   .home-project-inventory-title {
     margin: 0;
-    font-family: var(--font-content-title);
-    font-size: var(--type-card);
-    font-weight: var(--weight-title);
-    font-synthesis: none;
+    font-size: var(--type-label-lg);
     line-height: 1.25;
     color: var(--color-on-surface);
-  }
-
-  .home-project-inventory-title a {
-    color: inherit;
-    text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .home-project-inventory-row:hover .home-project-inventory-title,
@@ -1329,15 +1473,23 @@ html[data-theme="light"] .home-project-specimen,
     color: var(--color-primary);
   }
 
-  .home-project-inventory-glyph {
-    flex: 0 0 auto;
-    width: 1.75rem;
-    height: 1.75rem;
-    margin-left: auto;
-    font-size: 1.25rem;
+  .home-project-inventory-copy {
+    margin: 0;
+    font-size: var(--type-meta);
+    font-weight: var(--weight-body);
+    line-height: 1.4;
+    color: var(--color-on-surface-variant);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Two classes: the glyph also carries .material-symbols-outlined, whose
+     font stylesheet loads after this one and sets display. */
+  .home-project-inventory-row .home-project-inventory-glyph {
+    display: none;
   }
 }
-
 
 @media (min-width: 768px) {}
 

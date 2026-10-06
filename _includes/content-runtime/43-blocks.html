@@ -371,7 +371,7 @@
 
       var code = renderMetaStrip([
         index != null && index !== ''
-          ? '<span class="home-project-inventory-index">' + escapeHtml(twoDigits(index)) + '</span>'
+          ? '<span class="code-technical home-project-inventory-index">' + escapeHtml(twoDigits(index)) + '</span>'
           : '',
         fm.label ? escapeHtml(fm.label) : ''
       ]);
@@ -491,7 +491,7 @@
 
       var year = String(fm.start_date || '').match(/^\d{4}/);
       var meta = renderMetaStrip([
-        options.folio ? '<span class="home-specimen-folio">#' + escapeHtml(twoDigits(options.folio)) + '</span>' : '',
+        options.folio ? '<span class="code-technical home-specimen-folio">#' + escapeHtml(twoDigits(options.folio)) + '</span>' : '',
         fm.label ? escapeHtml(fm.label) : '',
         year ? '<span>' + escapeHtml(year[0]) + '</span>' : ''
       ]);
@@ -528,8 +528,9 @@
 
       var links = renderProjectLinks(fm, options);
       var open = options.openLabel
-        ? '<span class="home-specimen-open" aria-hidden="true"><span>' + escapeHtml(options.openLabel) +
-          '</span><span class="material-symbols-outlined">arrow_forward</span></span>'
+        ? '<span class="ledger-cta ledger-cta--emphasis home-specimen-open" aria-hidden="true"><span>' +
+          escapeHtml(options.openLabel) +
+          '</span><span class="material-symbols-outlined ledger-cta-arrow">chevron_right</span></span>'
         : '';
       if (links || open) {
         html += '<div class="ledger-card-foot home-specimen-foot">' +

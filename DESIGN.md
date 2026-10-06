@@ -935,11 +935,18 @@ Letter-spacing in use, by frequency: `0.1em` (12), `0.08em` (10), `0.12em` (7),
   writing, rascunhos, systems, ideas graph. The featured band carries a 6rem ×
   3px `primary` rule at its top-left corner as a structural mark. The three
   writing cards take `primary` / `secondary` / `tertiary` 2px top rules in
-  rotation. The systems band is a specimen + inventory bench from 900px —
-  a 40% / 60% split: 16:9 specimen card beside a panel inventory rail whose
-  height matches the full specimen card, with equal-flex rows (thumb 16:9
-  left, meta right); list click updates the specimen, specimen click opens
-  the project. Below 768px the hero portrait runs to the screen edge, pulled
+  rotation. The systems band is a specimen bench from 900px — a 7 : 4 split:
+  a fixed-height specimen system card (2px `primary` top rule; strip with
+  folio, label, start year and status; title on an `onPrimaryFixed` scrim
+  over the poster, or below the icon plate; tagline, tags, outbound links and
+  an emphasis "Open project" cue) beside a `panelContrast` filing rack of
+  equal-flex project cards (square thumb, code line, title, tagline; the
+  selected card steps to `surfaceHigh` with a 3px `primary` inset rule) and a
+  tape under the rack (wrap-around arrows, `NN / NN` counter, progress rule).
+  Rack click or tape step swaps the specimen in place; specimen click opens
+  the project. Below 900px the rack is a six-slot icon strip above the
+  specimen and the tape sits beneath it. Contract: `PLT-AC-13`–`17` in
+  `templates/portfolio/README.md`. Below 768px the hero portrait runs to the screen edge, pulled
   out of the band's gutter by exactly `--gutter-mobile` on each side and losing
   its side hairlines, which at the edge would read as a frame cut off.
 * **Writing index.** Masthead over a hairline, then a `panelContrast` filter

@@ -240,19 +240,52 @@ layout: shell
           return portfolio.filter(function (entry) { return entry.slug === slug; })[0] || portfolio[0];
         }
 
+        var tapeSlot = section.querySelector('[data-home-tape]');
+
+        function positionOf(slug) {
+          for (var i = 0; i < portfolio.length; i += 1) {
+            if (portfolio[i].slug === slug) return i;
+          }
+          return 0;
+        }
+
+        /* Specimen and inventory sizes are CSS-fixed (no ResizeObserver), so
+           swapping projects never moves the band. */
         function paintSpecimen(entry) {
           specimenSlot.innerHTML = '';
-          /* No card-level drafting corners / edge tick — markers live on the
-             poster plate only, so they do not overlap the image. Meta strip
-             is suppressed; tags take that slot below the plate. Specimen and
-             inventory sizes are CSS-fixed (no ResizeObserver). */
-          specimenSlot.appendChild(runtime.renderSystemCard(asItem(entry), {
+          specimenSlot.appendChild(runtime.renderProjectSpecimen(asItem(entry), {
             href: entry.url || runtime.projectUrl(entry.slug),
             tagHref: systemTagHref,
-            className: 'home-project-specimen',
-            glyphFallback: true,
-            metaParts: []
+            folio: positionOf(entry.slug) + 1,
+            openLabel: 'Open project'
           }));
+        }
+
+        /* The tape is rebuilt on every step, so put focus back on the arrow
+           the reader was pressing. */
+        function paintTape() {
+          if (!tapeSlot) return;
+          var focused = document.activeElement;
+          var focusedStep = focused && tapeSlot.contains(focused)
+            ? focused.getAttribute('data-home-tape-step')
+            : null;
+          tapeSlot.innerHTML = runtime.renderProjectTape(positionOf(selectedSlug) + 1, portfolio.length);
+          if (focusedStep) {
+            var again = tapeSlot.querySelector('[data-home-tape-step="' + focusedStep + '"]');
+            if (again) again.focus();
+          }
+        }
+
+        function select(slug) {
+          if (selectedSlug === slug) return;
+          selectedSlug = slug;
+          paintSpecimen(entryBySlug(slug));
+          Array.prototype.forEach.call(inventorySlot.children, function (node) {
+            var isSelected = node.getAttribute('data-slug') === selectedSlug;
+            node.classList.toggle('is-selected', isSelected);
+            node.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+          });
+          paintTape();
         }
 
         function paintInventory() {
@@ -267,29 +300,30 @@ layout: shell
               selected: entry.slug === selectedSlug,
               index: i + 1
             });
-            function select() {
-              if (selectedSlug === entry.slug) return;
-              selectedSlug = entry.slug;
-              paintSpecimen(entry);
-              Array.prototype.forEach.call(inventorySlot.children, function (node) {
-                var isSelected = node.getAttribute('data-slug') === selectedSlug;
-                node.classList.toggle('is-selected', isSelected);
-                node.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
-              });
-            }
-            row.addEventListener('click', select);
+            row.addEventListener('click', function () { select(entry.slug); });
             row.addEventListener('keydown', function (event) {
               if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
-                select();
+                select(entry.slug);
               }
             });
             inventorySlot.appendChild(row);
           });
         }
 
+        if (tapeSlot) {
+          tapeSlot.addEventListener('click', function (event) {
+            var step = event.target.closest('[data-home-tape-step]');
+            if (!step) return;
+            var delta = Number(step.getAttribute('data-home-tape-step'));
+            var next = (positionOf(selectedSlug) + delta + portfolio.length) % portfolio.length;
+            select(portfolio[next].slug);
+          });
+        }
+
         paintSpecimen(entryBySlug(selectedSlug));
         paintInventory();
+        paintTape();
         return;
       }
 

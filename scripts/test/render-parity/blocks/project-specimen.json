@@ -61,7 +61,8 @@
   ],
   "counts": {
     "ledger-card-stretch": 1,
-    "ledger-cta": 3,
+    "ledger-cta": 4,
+    "ledger-cta-icon": 3,
     "ledger-chip": 2,
     "ledger-meta-sep": 2
   }
