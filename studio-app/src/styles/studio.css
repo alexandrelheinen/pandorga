@@ -2853,13 +2853,6 @@ textarea.yaml-source.editor-surface {
   font-weight: 600;
 }
 
-.media-hint {
-  margin: 0.55rem 0 0;
-  color: var(--on-surface-variant);
-  font-size: 0.9rem;
-  max-width: 42rem;
-}
-
 .media-toolbar {
   display: flex;
   flex-wrap: wrap;

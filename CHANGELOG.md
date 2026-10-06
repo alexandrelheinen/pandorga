@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.3.25] — 2026-10-06
+
+### Changed
+
+- Drop the Media library disclaimer under the title
+
 ## [1.3.24] — 2026-10-06
 
 ### Fixed

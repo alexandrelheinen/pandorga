@@ -203,11 +203,6 @@ export function renderMediaPane(opts) {
     fileInput,
   ]);
 
-  const hint = el("p", {
-    className: "media-hint",
-    text: "Click an image, video, or HTML file to preview it. Use Copy for the public path (/media/…) and Delete to remove a file (commits to main).",
-  });
-
   let body;
   if (state.mediaLoading) {
     body = el("p", { className: "loading-msg", text: "Loading media…" });
@@ -225,7 +220,6 @@ export function renderMediaPane(opts) {
     el("header", { className: "media-header" }, [
       el("h1", { className: "media-title", text: "Media" }),
       breadcrumb,
-      hint,
     ]),
     toolbar,
     body,
