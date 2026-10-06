@@ -205,7 +205,7 @@ export function renderMediaPane(opts) {
 
   const hint = el("p", {
     className: "media-hint",
-    text: "Click an image, video, or HTML file to preview it. Copy the public path into includes (e.g. /media/images/…). Deletes stay in GitHub/IDE.",
+    text: "Click an image, video, or HTML file to preview it. Use Copy for the public path (/media/…) and Delete to remove a file (commits to main).",
   });
 
   let body;
@@ -314,16 +314,48 @@ function renderMediaRow(item, opts) {
       ]),
     ]),
     !isDir && publicPath
-      ? el("button", {
-          className: "btn media-copy-btn",
-          type: "button",
-          text: "Copy path",
-          title: publicPath,
-          disabled: !!state.mediaBusy,
-          onClick: () => void copyPath(publicPath, opts),
-        })
+      ? renderMediaOps(item, publicPath, opts)
       : null,
   ].filter(Boolean));
+}
+
+function renderMediaOps(item, publicPath, opts) {
+  const { el, materialIcon, state } = opts;
+  const busy = !!state.mediaBusy;
+  const copyBtn = el(
+    "button",
+    {
+      className: "btn btn-icon media-op-btn media-copy-btn",
+      type: "button",
+      title: `Copy ${publicPath}`,
+      "aria-label": `Copy path ${publicPath}`,
+      disabled: busy,
+      onClick: (e) => {
+        e.stopPropagation();
+        void copyPath(publicPath, opts);
+      },
+    },
+    [materialIcon("content_copy")]
+  );
+  const deleteBtn = el(
+    "button",
+    {
+      className: "btn btn-icon media-op-btn media-delete-btn",
+      type: "button",
+      title: `Delete ${item.name}`,
+      "aria-label": `Delete ${item.name}`,
+      disabled: busy,
+      onClick: (e) => {
+        e.stopPropagation();
+        void deleteMediaFile(item, opts);
+      },
+    },
+    [materialIcon("delete")]
+  );
+  return el("div", { className: "media-ops", role: "group", "aria-label": "Operations" }, [
+    copyBtn,
+    deleteBtn,
+  ]);
 }
 
 /** One overlay for the page, same chrome as the public figure lightbox. */
@@ -478,6 +510,43 @@ async function copyPath(publicPath, opts) {
     state.status = publicPath;
   }
   render();
+}
+
+async function deleteMediaFile(item, opts) {
+  const { api, state, render, captureError, clearError } = opts;
+  const path = item?.path;
+  if (!path || item.type === "dir") return;
+  const name = item.name || String(path).split("/").pop() || path;
+  if (
+    !window.confirm(
+      `Delete ${name}?\n\nThis commits a deletion to main and cannot be undone from Studio.`
+    )
+  ) {
+    return;
+  }
+  clearError();
+  state.mediaBusy = true;
+  state.status = `Deleting ${path}…`;
+  render();
+  try {
+    let sha = item.sha || null;
+    if (!sha) {
+      const data = await api.getFile(path);
+      sha = data.sha;
+    }
+    await api.deleteFile({
+      path,
+      sha,
+      message: `studio: delete ${path}`,
+    });
+    state.mediaBusy = false;
+    state.status = `Deleted ${path}`;
+    await openMediaDir(state.mediaPath, opts);
+  } catch (err) {
+    state.mediaBusy = false;
+    captureError(err);
+    render();
+  }
 }
 
 export async function openMediaDir(dirPath, opts) {

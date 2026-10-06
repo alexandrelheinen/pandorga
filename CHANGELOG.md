@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.23] — 2026-10-06
+
+### Changed
+
+- Media library rows use bordered Copy and Delete icon buttons; delete confirms
+  then commits removal via the existing Studio file DELETE API
+
 ## [1.3.11] — 2026-10-06
 
 ### Fixed
