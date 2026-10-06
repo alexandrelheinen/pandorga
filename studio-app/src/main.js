@@ -2088,12 +2088,6 @@ function renderStudioMap() {
     );
   }
 
-  // Split groups across two columns so wide screens read as a ledger board,
-  // not a single skinny stack in empty space.
-  const splitAt = Math.ceil(sections.length / 2);
-  const colA = sections.slice(0, splitAt);
-  const colB = sections.slice(splitAt);
-
   return el("div", { className: "pane studio-map" }, [
     el("span", {
       className: "studio-shard studio-shard--lead",
@@ -2103,20 +2097,15 @@ function renderStudioMap() {
       className: "studio-shard studio-shard--beta studio-shard--trail",
       "aria-hidden": "true",
     }),
-    el("header", { className: "studio-map-header" }, [
-      el("p", { className: "studio-map-kicker", text: "Studio" }),
-      el("h1", { text: "Studio map" }),
-      el("p", {
-        className: "studio-map-lede",
-        text: "Pick a collection, page, or the media library. Groups match the left navigation.",
-      }),
-    ]),
-    el("div", { className: "studio-map-board", role: "navigation", "aria-label": "Collections map" }, [
-      el("div", { className: "studio-map-col" }, colA),
-      colB.length
-        ? el("div", { className: "studio-map-col" }, colB)
-        : null,
-    ]),
+    el(
+      "div",
+      {
+        className: "studio-map-board",
+        role: "navigation",
+        "aria-label": "Collections map",
+      },
+      sections
+    ),
   ]);
 }
 
