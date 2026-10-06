@@ -60,12 +60,12 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     slug: 'studio',
     version: readAppVersion(),
     orientation: 'portrait',
-    icon: './assets/icon.png',
+    icon: './assets/studio/icon.png',
     scheme: 'studio',
     userInterfaceStyle: 'automatic',
     newArchEnabled: true,
     splash: {
-      image: './assets/splash.png',
+      image: './assets/studio/splash.png',
       resizeMode: 'contain',
       backgroundColor: LIGHT_CANVAS,
     },
@@ -73,7 +73,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       package: readAndroidPackage(),
       softwareKeyboardLayoutMode: 'resize',
       adaptiveIcon: {
-        foregroundImage: './assets/adaptive-icon.png',
+        foregroundImage: './assets/studio/adaptive-icon.png',
         backgroundColor: LIGHT_CANVAS,
       },
     },
