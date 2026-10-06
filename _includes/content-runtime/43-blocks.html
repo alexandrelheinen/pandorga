@@ -375,9 +375,8 @@
           : '',
         fm.label ? escapeHtml(fm.label) : ''
       ]);
-      var status = fm.status ? '<span class="ledger-status">' + escapeHtml(fm.status) + '</span>' : '';
-      if (code || status) {
-        html += '<div class="home-project-inventory-code">' + code + status + '</div>';
+      if (code) {
+        html += '<div class="home-project-inventory-code">' + code + '</div>';
       }
 
       if (selectable) {
@@ -404,8 +403,8 @@
       return row;
     }
 
-    /* System card — the project shape. Carries the fields projects actually
-     * have: label, status, and a repository link. */
+    /* System card — the project shape. Carries label and outbound links;
+     * listing pages pass their own metaParts when they want period/status. */
     function renderSystemCard(item, options) {
       options = options || {};
       var f = blockFields(item);
@@ -429,11 +428,10 @@
           '<span class="material-symbols-outlined projects-plate-glyph">' +
           escapeHtml(fm.icon) + '</span></div>';
       }
-      // Callers may supply their own strip parts; the default is whatever the
-      // project declares about itself.
+      // Callers may supply their own strip parts; home defaults to label only
+      // (ongoing/completed is noise on the bench).
       var parts = options.metaParts || [
-        fm.label ? escapeHtml(fm.label) : '',
-        fm.status ? '<span class="ledger-status">' + escapeHtml(fm.status) + '</span>' : ''
+        fm.label ? escapeHtml(fm.label) : ''
       ];
       var head = renderMetaStrip(parts);
       if (head) html += head;
@@ -474,10 +472,10 @@
     }
 
     /* Home specimen — the featured project on the portfolio bench. A system
-     * card whose strip carries folio, label, start year and status, with the
-     * title below a 16:9 plate: the thumbnail (icon badge on it) or else the
-     * icon plate. `openLabel` adds a visual "open" cue; it is not a second
-     * link, the stretched title is. */
+     * card whose strip carries folio, label and start year, with the title
+     * below a 16:9 plate: the thumbnail (icon badge on it) or else the icon
+     * plate. `openLabel` adds a visual "open" cue; it is not a second link,
+     * the stretched title is. */
     function renderProjectSpecimen(item, options) {
       options = options || {};
       var f = blockFields(item);
@@ -494,11 +492,10 @@
         fm.label ? escapeHtml(fm.label) : '',
         year ? '<span>' + escapeHtml(year[0]) + '</span>' : ''
       ]);
-      var status = fm.status ? '<span class="ledger-status">' + escapeHtml(fm.status) + '</span>' : '';
 
       var html = '';
-      if (meta || status) {
-        html += '<div class="home-specimen-strip">' + meta + status + '</div>';
+      if (meta) {
+        html += '<div class="home-specimen-strip">' + meta + '</div>';
       }
 
       // The name's initial stands in for a missing icon, so every project
