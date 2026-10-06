@@ -295,6 +295,11 @@ button.studio-brand-home {
   font: inherit;
 }
 
+button.studio-brand-home.studio-brand-toolbar {
+  width: auto;
+  flex: 0 0 auto;
+}
+
 button.studio-brand-home:hover,
 button.studio-brand-home[aria-current="page"] {
   background: var(--surface-high);
@@ -496,6 +501,9 @@ button.studio-brand-home[aria-current="page"] {
   background: var(--background);
   min-width: 0;
   font-family: var(--font-label);
+  position: relative;
+  z-index: 30;
+  flex-wrap: nowrap;
 }
 
 .studio-toolbar .status-pill {
