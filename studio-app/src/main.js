@@ -435,7 +435,6 @@ function mediaOpts() {
     render: () => renderShell(),
     captureError,
     clearError,
-    goHome,
   };
 }
 
@@ -1195,8 +1194,9 @@ function renderMediaNavGroup() {
  */
 function renderErrorBanner() {
   if (!state.error) return null;
-  // The collection list already paints .list-error with the same sentence.
-  if (!state.file && !state.mediaOpen) return null;
+  // The collection list and the media library both paint their own
+  // .list-error panel with the same sentence while no file is open.
+  if (!state.file) return null;
   const actions = [];
   if (state.errorCode === "conflict" && state.file) {
     const path = state.file;

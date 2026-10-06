@@ -985,16 +985,28 @@ button.studio-brand-home[aria-current="page"] {
   line-height: 1.25;
 }
 
-.ledger-ops {
+/* Shared verbatim with Media library rows (`.media-ops`, `.media-op-btn`,
+   `.media-copy-btn`, `.media-delete-btn`) — one declaration, two class
+   vocabularies, so the two lists' row operations cannot drift apart. */
+.ledger-ops,
+.media-ops {
   display: inline-flex;
   align-items: center;
   justify-content: flex-end;
   gap: 0.35rem;
   white-space: nowrap;
+}
+
+.ledger-ops {
   padding-top: 0.1rem;
 }
 
-.ledger-op-btn {
+.media-ops {
+  flex-shrink: 0;
+}
+
+.ledger-op-btn,
+.media-op-btn {
   width: 2.35rem;
   min-width: 2.35rem;
   min-height: 2.35rem;
@@ -1004,25 +1016,29 @@ button.studio-brand-home[aria-current="page"] {
   color: var(--on-surface);
 }
 
-.ledger-op-btn .material-symbols-outlined {
+.ledger-op-btn .material-symbols-outlined,
+.media-op-btn .material-symbols-outlined {
   font-size: 1.15rem;
   line-height: 1;
   font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 24;
 }
 
-.ledger-edit-btn:hover {
+.ledger-edit-btn:hover,
+.media-copy-btn:hover {
   background: var(--surface-high);
   border-color: color-mix(in srgb, var(--primary) 40%, var(--outline-variant));
   color: var(--primary);
 }
 
-.ledger-delete-btn {
+.ledger-delete-btn,
+.media-delete-btn {
   color: var(--error);
   border-color: color-mix(in srgb, var(--error) 45%, var(--outline-variant));
   background: color-mix(in srgb, var(--error) 6%, var(--background));
 }
 
-.ledger-delete-btn:hover {
+.ledger-delete-btn:hover,
+.media-delete-btn:hover {
   background: color-mix(in srgb, var(--error) 14%, var(--background));
   border-color: color-mix(in srgb, var(--error) 60%, var(--outline-variant));
 }
@@ -2801,23 +2817,12 @@ textarea.yaml-source.editor-surface {
   font-size: 0.9rem;
 }
 
-/* —— Media library —— */
-
-.media-pane {
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-  padding: 1rem 1.25rem 1.5rem;
-  overflow: auto;
-  min-height: 0;
-}
-
-.media-header h1.media-title {
-  margin: 0 0 0.35rem;
-  font-family: var(--font-display);
-  font-size: 1.55rem;
-  font-weight: 600;
-}
+/* —— Media library ——
+   Chrome shared with collection list panes (register header, controls
+   shelf, row list) comes from .list-register / .list-controls / .ledger-*
+   — see that block above. Only Media's own look (breadcrumb, file tiles,
+   hidden file input) is declared here. .media-pane inherits .pane's
+   padding/overflow untouched. */
 
 .media-breadcrumb {
   display: flex;
@@ -2853,17 +2858,6 @@ textarea.yaml-source.editor-surface {
   font-weight: 600;
 }
 
-.media-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.55rem;
-}
-
-.media-toolbar .spacer {
-  flex: 1;
-}
-
 .media-file-input {
   position: absolute;
   width: 1px;
@@ -2872,46 +2866,11 @@ textarea.yaml-source.editor-surface {
   pointer-events: none;
 }
 
-.media-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  background: var(--panel);
-  border: 1px solid color-mix(in srgb, var(--outline-variant) 55%, transparent);
-  padding: var(--studio-space-xs);
-}
-
-.media-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.5rem;
-  align-items: center;
-  padding: 0.25rem 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--outline-variant) 35%, transparent);
-}
-
-.media-row:last-child {
-  border-bottom: none;
-}
-
-.media-row-main {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  min-width: 0;
-  margin: 0;
-  padding: 0.35rem 0.4rem;
-  border: 0;
-  border-radius: 0;
-  background: var(--surface-card);
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-.media-row-main:hover {
-  background: var(--surface-high);
+/* Media rows reuse `.ledger-row.ledger-row--plain` for framing (border,
+   padding, hover, the thumb/copy/ops column layout) — only the preview
+   cursor is Media-specific. */
+.media-row--preview {
+  cursor: zoom-in;
 }
 
 .media-thumb {
@@ -2941,79 +2900,10 @@ textarea.yaml-source.editor-surface {
   color: var(--on-surface-variant);
 }
 
-.media-row-body {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  min-width: 0;
-}
-
-.media-row-name {
-  font-weight: 600;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.media-row-meta {
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  color: var(--on-surface-variant);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.media-ops {
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.35rem;
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-
-.media-op-btn {
-  width: 2.35rem;
-  min-width: 2.35rem;
-  min-height: 2.35rem;
-  padding: 0.3rem;
-  border: 1px solid color-mix(in srgb, var(--outline-variant) 70%, transparent);
-  background: var(--background);
-  color: var(--on-surface);
-}
-
-.media-op-btn .material-symbols-outlined {
-  font-size: 1.15rem;
-  line-height: 1;
-  font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 24;
-}
-
-.media-copy-btn:hover {
-  background: var(--surface-high);
-  border-color: color-mix(in srgb, var(--primary) 40%, var(--outline-variant));
-  color: var(--primary);
-}
-
-.media-delete-btn {
-  color: var(--error);
-  border-color: color-mix(in srgb, var(--error) 45%, var(--outline-variant));
-  background: color-mix(in srgb, var(--error) 6%, var(--background));
-}
-
-.media-delete-btn:hover {
-  background: color-mix(in srgb, var(--error) 14%, var(--background));
-  border-color: color-mix(in srgb, var(--error) 60%, var(--outline-variant));
-}
-
-.media-row-main--preview {
-  cursor: zoom-in;
-}
-
-.media-row-main--preview:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 3px;
-}
+/* .media-ops / .media-op-btn / .media-copy-btn / .media-delete-btn share
+   their declarations with the collection-list ops block above
+   (`.ledger-ops`, `.ledger-op-btn`, `.ledger-edit-btn:hover`,
+   `.ledger-delete-btn`) via grouped selectors — see that block. */
 
 /* Same overlay as the public figure lightbox (`assets/css/article.css`).
    Studio does not load that sheet, so the chrome is repeated here with
