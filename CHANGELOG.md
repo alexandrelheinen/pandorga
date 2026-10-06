@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.24] — 2026-10-06
+
+### Fixed
+
+- Studio top-bar tools share one height again: a later `height: 100%` rule on
+  direct `.btn-tool` children was overriding the fixed size and growing
+  Revert/Save/Export to the brand line while Theme stayed shorter
+
 ## [1.3.23] — 2026-10-06
 
 ### Changed
