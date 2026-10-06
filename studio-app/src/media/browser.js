@@ -105,70 +105,6 @@ export function buildBreadcrumb(dirPath, root = MEDIA_ROOT) {
 }
 
 /**
- * Register-style header shared with collection list panes: kicker line,
- * title row with a live item count, and the two Media-only ops (New folder,
- * Upload) in the same `.list-new-btn`-anchored slot collections use for
- * their single "New" action. See `renderListHeader` in `main.js`.
- */
-function renderMediaHeader(opts, { items, fileInput }) {
-  const { el, materialIcon, state } = opts;
-  const dirs = items.filter((i) => i.type === "dir").length;
-  const files = items.length - dirs;
-  const countText = state.mediaLoading
-    ? ""
-    : items.length
-      ? `${dirs} ${dirs === 1 ? "folder" : "folders"} · ${files} ${files === 1 ? "file" : "files"}`
-      : "Empty folder";
-
-  const titleRow = [el("h1", { className: "list-pane-title", text: "Media" })];
-  if (countText) {
-    titleRow.push(el("span", { className: "list-pane-count", text: countText }));
-  }
-  titleRow.push(
-    el(
-      "button",
-      {
-        className: "btn btn-tool list-new-btn",
-        type: "button",
-        title: "Create a new folder here",
-        "aria-label": "New folder",
-        disabled: !!state.mediaBusy,
-        onClick: () => void createFolder(opts),
-      },
-      [materialIcon("create_new_folder"), el("span", { className: "btn-label", text: "Folder" })]
-    ),
-    el(
-      "button",
-      {
-        className: "btn btn-tool btn-primary",
-        type: "button",
-        title: "Upload files into this folder",
-        "aria-label": "Upload files",
-        disabled: !!state.mediaBusy,
-        onClick: () => fileInput.click(),
-      },
-      [
-        materialIcon(
-          state.mediaBusy ? "progress_activity" : "upload",
-          state.mediaBusy ? "studio-icon-spin" : ""
-        ),
-        el("span", { className: "btn-label", text: state.mediaBusy ? "Working…" : "Upload" }),
-      ]
-    )
-  );
-
-  return el("header", { className: "list-register" }, [
-    el("p", { className: "list-register-kicker" }, [
-      el("span", { className: "list-register-mark", "aria-hidden": "true" }),
-      el("span", { text: "Register // Media" }),
-      el("span", { className: "list-register-sep", "aria-hidden": "true", text: "/" }),
-      el("span", { text: "Library index" }),
-    ]),
-    el("div", { className: "list-register-title-row" }, titleRow),
-  ]);
-}
-
-/**
  * @param {object} opts
  * @param {typeof import("../api/client.js").studioApi} opts.api
  * @param {object} opts.state
@@ -178,9 +114,20 @@ function renderMediaHeader(opts, { items, fileInput }) {
  * @param {() => void} opts.render
  * @param {(err: any) => void} opts.captureError
  * @param {() => void} opts.clearError
+ * @param {() => void} opts.goHome
  */
 export function renderMediaPane(opts) {
-  const { state, el } = opts;
+  const {
+    api,
+    state,
+    el,
+    materialIcon,
+    resolveMediaUrl,
+    render,
+    captureError,
+    clearError,
+    goHome,
+  } = opts;
 
   const dirPath = state.mediaPath || MEDIA_ROOT;
   const items = state.mediaItems || [];
@@ -228,38 +175,55 @@ export function renderMediaPane(opts) {
     },
   });
 
-  const header = renderMediaHeader(opts, { items, fileInput });
-
-  // Same bordered shelf as the collection list's search/sort toolbar
-  // (`.list-controls`); the folder breadcrumb is Media's one control.
-  const controls = el("div", { className: "list-controls media-controls" }, [breadcrumb]);
+  const toolbar = el("div", { className: "media-toolbar" }, [
+    el("button", {
+      className: "btn btn-nav",
+      type: "button",
+      title: "Back to Studio map",
+      onClick: () => goHome(),
+    }, [
+      materialIcon("chevron_left", "btn-nav-icon"),
+      el("span", { text: "Studio map" }),
+    ]),
+    el("span", { className: "spacer" }),
+    el("button", {
+      className: "btn",
+      type: "button",
+      text: "New folder",
+      disabled: !!state.mediaBusy,
+      onClick: () => void createFolder(opts),
+    }),
+    el("button", {
+      className: "btn btn-primary",
+      type: "button",
+      text: state.mediaBusy ? "Working…" : "Upload",
+      disabled: !!state.mediaBusy,
+      onClick: () => fileInput.click(),
+    }),
+    fileInput,
+  ]);
 
   let body;
   if (state.mediaLoading) {
     body = el("p", { className: "loading-msg", text: "Loading media…" });
-  } else if (state.error && !items.length) {
-    // Same shape as the collection list's load-error panel.
-    body = el("div", { className: "list-error" }, [
-      el("p", {
-        className: "list-error-title",
-        text: "Could not load this folder.",
-      }),
-      el("p", { className: "list-error-message", text: state.error }),
-      state.errorDetail
-        ? el("pre", { className: "list-error-detail", text: state.errorDetail })
-        : null,
-    ]);
   } else if (!items.length) {
     body = el("p", {
-      className: "list-empty",
+      className: "empty-msg",
       text: "This folder is empty. Upload a file or create a subfolder.",
     });
   } else {
     const rows = items.map((item) => renderMediaRow(item, opts));
-    body = el("div", { className: "ledger-list", role: "list" }, rows);
+    body = el("div", { className: "media-grid" }, rows);
   }
 
-  return el("div", { className: "pane media-pane" }, [header, controls, body, fileInput]);
+  return el("div", { className: "pane media-pane" }, [
+    el("header", { className: "media-header" }, [
+      el("h1", { className: "media-title", text: "Media" }),
+      breadcrumb,
+    ]),
+    toolbar,
+    body,
+  ]);
 }
 
 function renderMediaRow(item, opts) {
@@ -310,13 +274,6 @@ function renderMediaRow(item, opts) {
   const metaParts = [];
   if (!isDir && item.size) metaParts.push(formatBytes(item.size));
   if (publicPath) metaParts.push(publicPath);
-  const metaText = metaParts.join(" · ") || (isDir ? "Folder" : "");
-
-  // Same copy block shape as a collection's `.ledger-row` title + meta line.
-  const body = el("span", { className: "ledger-copy" }, [
-    el("span", { className: "ledger-title", text: item.name }),
-    metaText ? el("span", { className: "ledger-meta", text: metaText }) : null,
-  ]);
 
   const openOrCopy = isDir
     ? () => void openMediaDir(item.path, opts)
@@ -330,33 +287,45 @@ function renderMediaRow(item, opts) {
       ? `Preview ${item.name}`
       : `Copy ${publicPath}`;
 
-  const ops = !isDir && publicPath ? renderMediaOps(item, publicPath, opts) : null;
+  const ops = !isDir && publicPath
+    ? renderMediaOps(item, publicPath, opts)
+    : null;
 
-  const activate = (event) => {
-    if (state.mediaBusy) return;
-    openOrCopy(event);
-  };
-
-  // Whole row is the click/keyboard target, exactly like `.ledger-row`
-  // (ops buttons below stop propagation the same way `ledger-ops` do).
   return el(
     "div",
     {
       className:
-        "ledger-row ledger-row--plain media-row" +
+        "media-row" +
+        (isDir ? " media-row--dir" : "") +
         (kind ? " media-row--preview" : ""),
       role: "button",
-      tabindex: "0",
+      tabindex: state.mediaBusy ? "-1" : "0",
       title: rowTitle,
-      onClick: activate,
+      "aria-disabled": state.mediaBusy ? "true" : "false",
+      onClick: (e) => {
+        if (state.mediaBusy) return;
+        if (e.target.closest(".media-ops")) return;
+        openOrCopy(e);
+      },
       onKeydown: (e) => {
+        if (state.mediaBusy) return;
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          activate(e);
+          openOrCopy(e);
         }
       },
     },
-    [preview, body, ops]
+    [
+      preview,
+      el("span", { className: "media-row-body" }, [
+        el("span", { className: "media-row-name", text: item.name }),
+        el("span", {
+          className: "media-row-meta",
+          text: metaParts.join(" · ") || (isDir ? "Folder" : ""),
+        }),
+      ]),
+      ops,
+    ].filter(Boolean)
   );
 }
 

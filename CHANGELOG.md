@@ -4,15 +4,7 @@
 
 ### Changed
 
-- Media library pane shares the collection list's shell: the same
-  `.list-register` header (kicker, title, live item count), `.list-controls`
-  toolbar shelf (now holding the folder breadcrumb), and `.ledger-list` /
-  `.ledger-row` row framing. New folder and Upload sit in the title row like
-  a collection's New button; row ops CSS is shared verbatim with
-  `.ledger-ops`/`.ledger-op-btn` instead of duplicated. Dropped the
-  in-pane "Studio map" back button (redundant with the brand logo and
-  sidebar) and the in-pane load error now uses the same `.list-error` panel
-  collections use.
+- Media library rows are single bordered cards with Copy/Delete inside, matching collection list ops
 
 ## [1.3.25] — 2026-10-06
 
