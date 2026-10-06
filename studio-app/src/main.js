@@ -900,20 +900,20 @@ function renderStudioToolbar({ brand = null, menuToggle = null } = {}) {
   const saveLabel = state.saving ? "Saving…" : state.dirty ? "Save" : "Saved";
   const saveIcon = state.saving ? "progress_activity" : state.dirty ? "save" : "check";
   const statusText = state.error ? "Error" : state.status || "";
-  const kids = [];
-  if (brand) kids.push(brand);
-  if (statusText) {
-    kids.push(
-      el("span", {
-        className: "status-pill" + (state.error ? " error" : ""),
-        text: statusText,
-        title: state.error || state.errorDetail || state.status || "",
-      })
-    );
-  }
-  kids.push(el("span", { className: "spacer" }));
-  kids.push(renderThemeMenu());
-  kids.push(
+
+  const brandCluster = el("div", { className: "studio-toolbar-brand" }, [
+    brand,
+    statusText
+      ? el("span", {
+          className: "status-pill studio-toolbar-status" + (state.error ? " error" : ""),
+          text: statusText,
+          title: state.error || state.errorDetail || state.status || "",
+        })
+      : null,
+  ]);
+
+  const actions = [
+    renderThemeMenu(),
     toolbarActionButton({
       className: "btn btn-tool",
       title: "Revert all edits to the last loaded or saved version",
@@ -923,9 +923,7 @@ function renderStudioToolbar({ brand = null, menuToggle = null } = {}) {
       onClick: () => discardChanges(),
       icon: "undo",
       label: "Revert",
-    })
-  );
-  kids.push(
+    }),
     toolbarActionButton({
       className: "btn btn-tool btn-primary",
       title: state.saving
@@ -940,10 +938,10 @@ function renderStudioToolbar({ brand = null, menuToggle = null } = {}) {
       icon: saveIcon,
       label: saveLabel,
       spinning: state.saving,
-    })
-  );
+    }),
+  ];
   if (state.file && collectionAllowsDelete()) {
-    kids.push(
+    actions.push(
       toolbarActionButton({
         className: "btn btn-tool btn-danger",
         title: "Delete this entry from the repository",
@@ -956,7 +954,7 @@ function renderStudioToolbar({ brand = null, menuToggle = null } = {}) {
     );
   }
   if (isLocalDevHost()) {
-    kids.push(
+    actions.push(
       toolbarActionButton({
         className: "btn btn-tool btn-reexport",
         title: "Reexport content JSON locally and reload",
@@ -968,8 +966,14 @@ function renderStudioToolbar({ brand = null, menuToggle = null } = {}) {
       })
     );
   }
+
+  const kids = [
+    brandCluster,
+    el("span", { className: "spacer", "aria-hidden": "true" }),
+    el("div", { className: "studio-toolbar-actions", role: "toolbar", "aria-label": "Studio actions" }, actions),
+  ];
   if (menuToggle) kids.push(menuToggle);
-  return el("div", { className: "studio-toolbar studio-icon-bar" }, kids);
+  return el("header", { className: "studio-toolbar studio-icon-bar" }, kids);
 }
 
 function clerkUserEmail(clerk) {
