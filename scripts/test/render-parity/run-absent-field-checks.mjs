@@ -214,6 +214,45 @@ omits(
 
 separatorCount('renderSystemCard / label without status drops the separator', ['Simulation', ''], 0);
 
+// PLT-AC-14: the home specimen and its rack card carry only what the project
+// declares. A project that is only a name is a title and nothing else.
+omits(
+  'renderProjectSpecimen / project with no media, meta, tags, or links',
+  'renderProjectSpecimen',
+  [{ front_matter: { project: 'Bossa' } }, { href: '/projects/bossa/' }],
+  [
+    'ledger-poster',
+    'projects-plate',
+    'home-specimen-badge',
+    'home-specimen-strip',
+    'ledger-meta',
+    'ledger-status',
+    'ledger-card-copy',
+    'ledger-chip-row',
+    'ledger-card-foot'
+  ]
+);
+
+omits(
+  'renderProjectSpecimen / a start_date with no year renders no year',
+  'renderProjectSpecimen',
+  [{ front_matter: { project: 'Bossa', start_date: 'someday' } }, { href: '/projects/bossa/' }],
+  ['home-specimen-strip', 'ledger-meta']
+);
+
+omits(
+  'renderProjectInventoryRow / project with no index, label, status, or tagline',
+  'renderProjectInventoryRow',
+  [{ slug: 'bossa', front_matter: { project: 'Bossa' } }, { selectable: true }],
+  [
+    'home-project-inventory-code',
+    'home-project-inventory-index',
+    'ledger-status',
+    'home-project-inventory-copy',
+    'ledger-poster'
+  ]
+);
+
 // The listing preview is derived from description, then excerpt, then body.
 // With all three absent there is nothing to say, so there is no paragraph.
 omits(

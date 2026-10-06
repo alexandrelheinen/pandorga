@@ -1,0 +1,68 @@
+{
+  "name": "project-specimen/full (PLT-AC-13)",
+  "block": "renderProjectSpecimen",
+  "args": [
+    {
+      "slug": "arco",
+      "front_matter": {
+        "project": "ARCO",
+        "thumbnail": "/media/projects/arco.png",
+        "icon": "route",
+        "label": "Simulation",
+        "status": "Ongoing",
+        "start_date": "2024-03-01",
+        "tagline": "A city-scale race replayed from telemetry.",
+        "tags": [
+          "Systems",
+          "Rust"
+        ],
+        "github": "https://github.com/example/arco",
+        "article_url": "/articles/arco/",
+        "external_url": "https://arco.example"
+      }
+    },
+    {
+      "href": "/projects/arco/",
+      "folio": 1,
+      "openLabel": "Open project"
+    }
+  ],
+  "selectors": [
+    "article.ledger-system-card",
+    "article.home-project-specimen",
+    "div.home-specimen-strip",
+    "div.ledger-meta",
+    "span.ledger-status",
+    "div.home-specimen-figure",
+    "div.ledger-poster",
+    "img",
+    "span.home-specimen-badge",
+    "h3.ledger-card-title",
+    "a.ledger-card-stretch",
+    "p.ledger-card-copy",
+    "div.ledger-chip-row",
+    "div.ledger-card-links",
+    "span.home-specimen-open"
+  ],
+  "forbidden": [
+    "projects-plate"
+  ],
+  "contains": [
+    ">#01<",
+    ">Simulation<",
+    ">2024<",
+    ">Ongoing<",
+    ">ARCO<",
+    ">Repository<",
+    ">Article<",
+    ">Visit<",
+    ">Open project<",
+    "href=\"/projects/arco/\""
+  ],
+  "counts": {
+    "ledger-card-stretch": 1,
+    "ledger-cta": 3,
+    "ledger-chip": 2,
+    "ledger-meta-sep": 2
+  }
+}
