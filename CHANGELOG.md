@@ -1,5 +1,32 @@
 # Changelog
 
+## [1.4.0] — 2026-10-07
+
+### Added
+
+- Studio collection rows: bordered Edit/Delete icon ops with delete confirm
+- Studio media library: bordered Copy/Delete icon ops inside row cards; delete
+  commits through the file DELETE API
+- Home project inventory: vertical code / article / site resource badges when
+  those fields are present; rack column widened slightly
+
+### Changed
+
+- Studio chrome: redesigned top bar, theme menu, equal-width action tools,
+  title-face wordmark sized to the mark, Media library shell aligned with
+  collection lists
+- Studio writing lists (Articles, Rascunhos): remove category filter chips and
+  per-row taxonomy column
+- Studio Media library: drop the disclaimer under the title
+- Home project bench: drop ongoing/completed status pills from the specimen strip
+
+### Fixed
+
+- Studio toolbar Theme/Revert/Save/Export share one locked height; disabled
+  tools mute color instead of opacity so Revert does not look shorter
+- Studio sidebar keeps scroll position when expanding nav groups
+- Studio brand home no longer swallows the top-bar action cluster
+
 ## [1.3.31] — 2026-10-07
 
 ### Fixed
