@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.10] — 2026-10-06
+
+### Fixed
+
+- Home specimen height is measured from the tallest project and locked, so
+  swapping projects no longer resizes the bench or the inventory; taglines
+  and wrapping chips still fit without clipping
+
 ## [1.3.9] — 2026-10-06
 
 ### Changed

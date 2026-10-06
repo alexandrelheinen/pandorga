@@ -944,9 +944,11 @@ html[data-theme="light"] .home-hero-plate {
 }
 
 /* ── Engineering artifacts: specimen bench ──
-   A specimen card beside a filing rack of project cards. The specimen keeps a
-   min-height floor so short projects still fill the bench, and grows with its
-   tagline and wrapping tag chips — the same chip wrap the projects index uses.
+   A specimen card beside a filing rack of project cards. Height is locked to
+   the tallest project (home.html measures once, then sets
+   `--home-specimen-height`), so swapping projects never resizes the band or
+   the inventory. Taglines stay full length and chips wrap whole pills like
+   the projects index; spare height parks chips and the foot on the floor.
    Every plate is 16:9, the ratio the thumbnails are drawn at, with the title
    below it. From 900px the specimen is half the band and the rack a narrower
    column beside it, the rest left blank. Below 900px the rack is an icon strip
@@ -966,8 +968,7 @@ html[data-theme="light"] .home-hero-plate {
 }
 
 .home-project-specimen {
-  min-height: var(--home-specimen-height);
-  height: auto;
+  height: var(--home-specimen-height);
   overflow: hidden;
   gap: var(--space-sm);
   padding: var(--space-md);
@@ -1266,7 +1267,7 @@ html[data-theme="light"] .home-hero-plate {
 
 @media (min-width: 900px) {
 
-  /* The rack panel stretches to the specimen's content height. */
+  /* Desktop fallback before JS measures the tallest specimen. */
   .home-projects-bench {
     --home-specimen-height: 36rem;
     display: grid;
