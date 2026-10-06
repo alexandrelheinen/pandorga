@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.11] — 2026-10-06
+
+### Fixed
+
+- Studio SPA rebuild embeds the real Clerk Frontend API host again (was baking
+  `clerk.example.com` into `studio/`); Vite refuses placeholder publishable keys
+
 ## [1.3.10] — 2026-10-06
 
 ### Fixed

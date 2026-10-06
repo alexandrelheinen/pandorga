@@ -22,7 +22,7 @@ Consumer sites should pin a release tag, not `main`:
 gem "pandorga", "~> 1.3"
 
 # Or pin a GitHub release tag
-gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v1.3.10"
+gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v1.3.11"
 ```
 
 After a bump, run `bundle update pandorga` and commit `Gemfile.lock`. Host
@@ -48,7 +48,7 @@ for the Pages + object-store order.
 GitHub Release is published, [`.github/workflows/publish-gem.yml`](../.github/workflows/publish-gem.yml)
 pushes the gem via [Trusted Publishing](https://guides.rubygems.org/trusted-publishing/)
 (OIDC; no long-lived API key). The release tag must match `Pandorga::VERSION`
-(for example `v1.3.10`).
+(for example `v1.3.11`).
 
 Site wrappers that `exec` the gem publish script **must** export
 `PANDORGA_SITE_ROOT` to the Jekyll site root. Without it, publish exits with an
@@ -72,7 +72,7 @@ Manual publish (optional, local MFA may apply):
 
 ```bash
 mise exec -- gem build pandorga.gemspec
-mise exec -- gem push pandorga-1.3.10.gem
+mise exec -- gem push pandorga-1.3.11.gem
 ```
 
 ## Android shell (1.2+)
