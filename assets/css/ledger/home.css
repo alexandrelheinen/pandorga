@@ -946,8 +946,8 @@ html[data-theme="light"] .home-hero-plate {
 /* ── Engineering artifacts: specimen bench ──
    A specimen card beside a filing rack of project cards. The specimen has a
    fixed height, so swapping projects never resizes the band. Every plate is
-   16:9, the ratio the thumbnails are drawn at; the tagline takes the height
-   the plate leaves. From 900px the specimen is half the band and the rack a
+   16:9, the ratio the thumbnails are drawn at, with the title below it; the
+   tagline takes the height left. From 900px the specimen is half the band and the rack a
    narrower column beside it, the rest left blank. Below 900px the rack is
    an icon strip above the specimen, one column per project. */
 .home-projects-bench {
@@ -1022,18 +1022,13 @@ html[data-theme="light"] .home-hero-plate {
   background: color-mix(in srgb, var(--color-secondary) 14%, transparent);
 }
 
-/* The figure holds the plate and the title. With a poster the two share one
-   grid cell and the title sits on a scrim over the image; when the image
-   fails, renderPosterMedia removes it and the title falls back under the
-   plate (or alone) without a script having to notice. */
+/* The figure holds the plate and, always below it, the title. The badge
+   shares the poster's grid cell; when the image fails, renderPosterMedia
+   removes it and the badge hides with it. */
 .home-specimen-figure {
   flex: 0 0 auto;
   display: grid;
-  gap: var(--space-sm);
-}
-
-.home-specimen-figure:has(> .ledger-poster) {
-  gap: 0;
+  gap: var(--space-md);
 }
 
 .home-specimen-figure>.ledger-poster,
@@ -1054,6 +1049,16 @@ html[data-theme="light"] .home-hero-plate {
 
 .home-specimen-figure .projects-plate-glyph {
   font-size: 3rem;
+}
+
+.home-specimen-figure .is-initial {
+  font-family: var(--font-content-title);
+  font-weight: var(--weight-title);
+  line-height: 1;
+}
+
+.home-specimen-figure:has(> .ledger-poster)>.home-specimen-badge.is-initial {
+  font-size: var(--type-subtitle);
 }
 
 /* Glyph plates have no .ledger-poster::after — mirror the image corners. */
@@ -1104,23 +1109,6 @@ html[data-theme="light"] .home-hero-plate {
   white-space: nowrap;
 }
 
-/* The scrim is on-primary-fixed, the one ink that stays dark in both
-   themes, so the title keeps its contrast over any photograph. */
-.home-specimen-figure:has(> .ledger-poster)>.home-specimen-title {
-  grid-area: 1 / 1;
-  align-self: end;
-  z-index: 3;
-  padding: var(--space-xl) var(--space-md) var(--space-sm);
-  background: linear-gradient(to bottom,
-      transparent,
-      color-mix(in srgb, var(--color-on-primary-fixed) 88%, transparent));
-}
-
-.home-specimen-figure:has(> .ledger-poster)>.home-specimen-title a,
-.home-project-specimen:hover .home-specimen-figure:has(> .ledger-poster)>.home-specimen-title a {
-  color: var(--color-primary-fixed);
-}
-
 /* The tagline takes whatever height the plate leaves, clipped at a whole
    line by the clamp; the chips and the foot keep to the bottom edge. */
 .home-project-specimen .ledger-card-copy {
@@ -1147,18 +1135,25 @@ html[data-theme="light"] .home-hero-plate {
 .home-specimen-foot {
   flex: 0 0 auto;
   flex-wrap: nowrap;
+  gap: var(--space-md);
   margin-top: auto;
+  padding-top: var(--space-md);
 }
 
 .home-project-specimen .ledger-chip-row~.home-specimen-foot {
-  margin-top: 0;
+  margin-top: var(--space-xs);
 }
 
 .home-specimen-foot .ledger-card-links {
   position: relative;
   z-index: 1;
   min-width: 0;
+  display: flex;
+  align-items: center;
   flex-wrap: wrap;
+  gap: var(--space-sm) var(--space-lg);
+  padding-top: 0;
+  border-top: 0;
 }
 
 .home-specimen-open {

@@ -937,8 +937,9 @@ Letter-spacing in use, by frequency: `0.1em` (12), `0.08em` (10), `0.12em` (7),
   writing cards take `primary` / `secondary` / `tertiary` 2px top rules in
   rotation. The systems band is a specimen bench. The specimen is a
   fixed-height system card (2px `primary` top rule; strip with folio, label,
-  start year and status; a 16:9 plate with the title on an `onPrimaryFixed`
-  scrim over the poster, or below the icon plate; a tagline clamped to the
+  start year and status; a 16:9 plate, the poster with an icon badge or the
+  icon plate, the name's initial standing in for a missing icon; the title
+  always below the plate; a tagline clamped to the
   height the plate leaves; tags, outbound links and an emphasis "Open
   project" cue). From 900px it takes 50% of the band, beside a 34%
   `panelContrast` filing rack of equal-flex project cards (16:9 thumb, code
