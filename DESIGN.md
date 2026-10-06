@@ -935,17 +935,18 @@ Letter-spacing in use, by frequency: `0.1em` (12), `0.08em` (10), `0.12em` (7),
   writing, rascunhos, systems, ideas graph. The featured band carries a 6rem ×
   3px `primary` rule at its top-left corner as a structural mark. The three
   writing cards take `primary` / `secondary` / `tertiary` 2px top rules in
-  rotation. The systems band is a specimen bench from 900px — a 7 : 4 split:
-  a fixed-height specimen system card (2px `primary` top rule; strip with
-  folio, label, start year and status; title on an `onPrimaryFixed` scrim
-  over the poster, or below the icon plate; tagline, tags, outbound links and
-  an emphasis "Open project" cue) beside a `panelContrast` filing rack of
-  equal-flex project cards (square thumb, code line, title, tagline; the
-  selected card steps to `surfaceHigh` with a 3px `primary` inset rule) and a
-  tape under the rack (wrap-around arrows, `NN / NN` counter, progress rule).
-  Rack click or tape step swaps the specimen in place; specimen click opens
-  the project. Below 900px the rack is a six-slot icon strip above the
-  specimen and the tape sits beneath it. Contract: `PLT-AC-13`–`17` in
+  rotation. The systems band is a specimen bench. The specimen is a
+  fixed-height system card (2px `primary` top rule; strip with folio, label,
+  start year and status; a 16:9 plate with the title on an `onPrimaryFixed`
+  scrim over the poster, or below the icon plate; a tagline clamped to the
+  height the plate leaves; tags, outbound links and an emphasis "Open
+  project" cue). From 900px it takes 50% of the band, beside a 34%
+  `panelContrast` filing rack of equal-flex project cards (16:9 thumb, code
+  line, title, tagline; the selected card steps to `surfaceHigh` with a 3px
+  `primary` inset rule), the rest left blank. Rack click swaps the specimen
+  in place; specimen click opens the project. Below 900px the rack is an
+  icon strip above the specimen, one equal column per project (up to six)
+  so it spans the band. Contract: `PLT-AC-13`–`17` in
   `templates/portfolio/README.md`. Below 768px the hero portrait runs to the screen edge, pulled
   out of the band's gutter by exactly `--gutter-mobile` on each side and losing
   its side hairlines, which at the edge would read as a frame cut off.

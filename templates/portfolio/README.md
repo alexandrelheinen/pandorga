@@ -34,31 +34,32 @@ Optional: `title`, `nav`, `home` (default limit 4).
 
 ## Home band
 
-The home band is a specimen bench: one featured project card, a filing rack
-of selectable project cards, and a tape that steps through them. Every
-element is backed by a collection field; a missing field means a missing
-element.
+The home band is a specimen bench: one featured project card beside a
+filing rack of selectable project cards. Every element is backed by a
+collection field; a missing field means a missing element.
 
 - `PLT-AC-13` When the band renders, the specimen card shall carry a strip
   with the project's folio, `label`, `start_date` year and `status`; its
-  `thumbnail` plate with the title set over it (or the `icon` plate with the
-  title below it); the `tagline`; the `tags`; and the outbound `github`,
-  `article_url` and `external_url` links. The title is its only link to the
-  project page.
+  16:9 `thumbnail` plate with the title set over it (or the 16:9 `icon` plate
+  with the title below it); the `tagline`; the `tags`; and the outbound
+  `github`, `article_url` and `external_url` links. The title is its only
+  link to the project page.
 - `PLT-AC-14` When a project lacks `thumbnail`, `icon`, `label`, `status`,
   `start_date`, `tagline`, `tags` or outbound links, the specimen card and its
   rack card shall render no element for that field.
-- `PLT-AC-15` When the viewport is at least 900px wide, each project shall
-  appear in the rack as a card with its folio, `label`, `status`, title,
-  `tagline` and a `thumbnail` (or `icon`, or initial) mark. Selecting a card
-  shall swap the specimen in place and mark that card `aria-pressed="true"`.
-- `PLT-AC-16` When the band holds two or more projects, the tape shall show
-  the position as `NN / NN` with previous and next buttons that wrap around.
-  With fewer than two projects the tape shall not render.
+- `PLT-AC-15` When the viewport is at least 900px wide, the specimen shall
+  take half the band and the rack a narrower column beside it, leaving the
+  rest blank. Each project shall appear in the rack as a card with its folio,
+  `label`, `status`, title, `tagline` and a 16:9 `thumbnail` (or `icon`, or
+  initial) mark. Selecting a card shall swap the specimen in place and mark
+  that card `aria-pressed="true"`.
+- `PLT-AC-16` Withdrawn: the tape of previous and next arrows was removed;
+  the rack is the only way to change the specimen.
 - `PLT-AC-17` When the viewport is narrower than 900px, the rack shall be a
-  strip of six icon buttons above the specimen, with the tape below it.
+  strip of icon buttons above the specimen, one per project (up to six), that
+  together span the band's width.
 
-`PLT-AC-13`, `-14` and `-16` are covered by the block fixtures under
+`PLT-AC-13` and `-14` are covered by the block fixtures under
 `scripts/test/render-parity/blocks/` and by the absent-field gate; `-15` and
 `-17` are layout behavior verified in the browser.
 

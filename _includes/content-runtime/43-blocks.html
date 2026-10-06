@@ -541,28 +541,4 @@
       return card;
     }
 
-    /* Tape under the rack: position counter, progress, wrap-around steps.
-     * `position` is 1-based. One project has nowhere to step to. */
-    function renderProjectTape(position, total) {
-      var count = Number(total) || 0;
-      var at = Number(position) || 0;
-      if (count < 2 || at < 1 || at > count) return '';
-      var fill = Math.round((at / count) * 100);
-      var step = function (delta, label, glyph) {
-        return '<button type="button" class="home-project-tape-step" data-home-tape-step="' + delta +
-          '" aria-label="' + label + '"><span class="material-symbols-outlined" aria-hidden="true">' +
-          glyph + '</span></button>';
-      };
-      return [
-        '<div class="home-project-tape">',
-        step(-1, 'Previous project', 'chevron_left'),
-        '<span class="home-project-tape-count">',
-        escapeHtml(twoDigits(at) + ' / ' + twoDigits(count)), '</span>',
-        '<span class="home-project-tape-track" aria-hidden="true">',
-        '<span class="home-project-tape-fill" style="width: ', fill, '%"></span></span>',
-        step(1, 'Next project', 'chevron_right'),
-        '</div>'
-      ].join('');
-    }
-
 {% endraw %}

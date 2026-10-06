@@ -944,12 +944,14 @@ html[data-theme="light"] .home-hero-plate {
 }
 
 /* ── Engineering artifacts: specimen bench ──
-   A specimen card beside a filing rack of project cards, with the tape under
-   the rack. The specimen height is fixed so swapping projects never reflows
-   the band; its plate takes whatever height the body leaves. Below 900px the
-   rack is the six-slot icon strip above the specimen, the tape below it. */
+   A specimen card beside a filing rack of project cards. The specimen has a
+   fixed height, so swapping projects never resizes the band. Every plate is
+   16:9, the ratio the thumbnails are drawn at; the tagline takes the height
+   the plate leaves. From 900px the specimen is half the band and the rack a
+   narrower column beside it, the rest left blank. Below 900px the rack is
+   an icon strip above the specimen, one column per project. */
 .home-projects-bench {
-  --home-specimen-height: 34rem;
+  --home-specimen-height: 32rem;
   --home-icon-btn-size: 2.75rem;
   --home-project-icon-count: 6;
   display: flex;
@@ -988,6 +990,7 @@ html[data-theme="light"] .home-hero-plate {
 .home-specimen-strip,
 .home-project-inventory-code {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-sm);
@@ -1024,45 +1027,23 @@ html[data-theme="light"] .home-hero-plate {
    fails, renderPosterMedia removes it and the title falls back under the
    plate (or alone) without a script having to notice. */
 .home-specimen-figure {
-  flex: 1 1 auto;
-  min-height: 0;
+  flex: 0 0 auto;
   display: grid;
-  align-content: start;
   gap: var(--space-sm);
 }
 
-/* No plate: the card reads as text, so its spare height goes under the
-   copy and the foot keeps to the bottom edge. */
-.home-specimen-figure:not(:has(> .ledger-poster, > .projects-plate)) {
-  flex: 0 0 auto;
-}
-
-.home-specimen-figure:not(:has(> .ledger-poster, > .projects-plate))~.home-specimen-foot {
-  margin-top: auto;
-}
-
-.home-specimen-figure:has(> .projects-plate) {
-  grid-template-rows: minmax(0, 1fr) auto;
-  align-content: stretch;
-}
-
 .home-specimen-figure:has(> .ledger-poster) {
-  grid-template-rows: minmax(0, 1fr);
-  align-content: stretch;
   gap: 0;
 }
 
-.home-specimen-figure>.ledger-poster {
+.home-specimen-figure>.ledger-poster,
+.home-specimen-figure>.projects-plate {
   grid-area: 1 / 1;
-  height: 100%;
-  min-height: 0;
-  aspect-ratio: auto;
+  width: 100%;
+  aspect-ratio: 16 / 9;
 }
 
 .home-specimen-figure>.projects-plate {
-  min-height: 0;
-  height: 100%;
-  aspect-ratio: auto;
   position: relative;
   display: flex;
   align-items: center;
@@ -1118,11 +1099,9 @@ html[data-theme="light"] .home-hero-plate {
   margin: 0;
   font-size: var(--type-card-lg);
   line-height: 1.2;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* The scrim is on-primary-fixed, the one ink that stays dark in both
@@ -1131,7 +1110,7 @@ html[data-theme="light"] .home-hero-plate {
   grid-area: 1 / 1;
   align-self: end;
   z-index: 3;
-  padding: var(--space-2xl) var(--space-md) var(--space-md);
+  padding: var(--space-xl) var(--space-md) var(--space-sm);
   background: linear-gradient(to bottom,
       transparent,
       color-mix(in srgb, var(--color-on-primary-fixed) 88%, transparent));
@@ -1142,17 +1121,19 @@ html[data-theme="light"] .home-hero-plate {
   color: var(--color-primary-fixed);
 }
 
+/* The tagline takes whatever height the plate leaves, clipped at a whole
+   line by the clamp; the chips and the foot keep to the bottom edge. */
 .home-project-specimen .ledger-card-copy {
-  flex: 0 0 auto;
+  flex: 0 1 auto;
+  min-height: 0;
   font-size: var(--type-body);
   line-height: var(--leading-body);
   color: var(--color-on-surface-variant);
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
+  -webkit-line-clamp: var(--home-specimen-copy-lines, 4);
+  line-clamp: var(--home-specimen-copy-lines, 4);
   overflow: hidden;
-  min-height: calc(var(--type-body) * var(--leading-body) * 2);
 }
 
 .home-project-specimen .ledger-chip-row {
@@ -1160,12 +1141,16 @@ html[data-theme="light"] .home-hero-plate {
   flex-wrap: nowrap;
   overflow: hidden;
   gap: var(--space-xs);
-  margin: 0;
+  margin: auto 0 0;
 }
 
 .home-specimen-foot {
   flex: 0 0 auto;
   flex-wrap: nowrap;
+  margin-top: auto;
+}
+
+.home-project-specimen .ledger-chip-row~.home-specimen-foot {
   margin-top: 0;
 }
 
@@ -1191,7 +1176,14 @@ html[data-theme="light"] .home-hero-plate {
   transform: translateX(4px);
 }
 
-/* Mobile: six equal icon slots, fixed button height (empty slots stay empty). */
+@media (prefers-reduced-motion: reduce) {
+  .home-project-specimen:hover .home-specimen-open .ledger-cta-arrow {
+    transform: none;
+  }
+}
+
+/* Mobile: one equal column per project (the script sets the count, up to
+   six), so the strip spans the band; fixed button height. */
 .home-project-inventory {
   display: grid;
   grid-template-columns: repeat(var(--home-project-icon-count, 6), minmax(0, 1fr));
@@ -1264,118 +1256,30 @@ html[data-theme="light"] .home-hero-plate {
   background: var(--color-surface-high-contrast);
 }
 
-/* Tape: arrows, counter, progress. */
-.home-project-tape {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-}
-
-.home-project-tape-step {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-  width: 2rem;
-  height: 2rem;
-  padding: 0;
-  border: 1px solid var(--border-gentle-divider);
-  background: var(--color-surface-card);
-  color: var(--color-on-surface);
-  cursor: pointer;
-  transition: color var(--motion-duration-fast) var(--motion-ease-default),
-    border-color var(--motion-duration-fast) var(--motion-ease-default);
-}
-
-.home-project-tape-step:hover,
-.home-project-tape-step:focus-visible {
-  color: var(--color-primary);
-  border-color: var(--color-primary);
-}
-
-.home-project-tape-step .material-symbols-outlined {
-  font-size: 1.25rem;
-}
-
-.home-project-tape-count {
-  flex: 0 0 auto;
-  font-family: var(--font-mono);
-  font-size: var(--type-mono);
-  font-variant-numeric: tabular-nums;
-  color: var(--color-on-surface-variant);
-}
-
-.home-project-tape-track {
-  position: relative;
-  flex: 1 1 auto;
-  height: 2px;
-  background: var(--border-gentle-divider);
-}
-
-.home-project-tape-fill {
-  position: absolute;
-  inset: 0 auto 0 0;
-  background: var(--color-primary);
-  transition: width var(--motion-duration-base) var(--motion-ease-default);
-}
-
-@media (prefers-reduced-motion: reduce) {
-
-  .home-project-tape-fill,
-  .home-project-specimen:hover .home-specimen-open .ledger-cta-arrow {
-    transition: none;
-    transform: none;
-  }
-}
-
 @media (min-width: 900px) {
 
-  /* Specimen spans both rows; the rack panel and the tape stack beside it
-     and together match its height. */
+  /* The rack panel stretches to the specimen's fixed height. */
   .home-projects-bench {
-    --home-specimen-height: 38rem;
+    --home-specimen-height: 36rem;
     display: grid;
-    grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
-    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 50%) minmax(18rem, 34%);
     column-gap: var(--space-xl);
-    row-gap: 0;
-  }
-
-  .home-project-specimen-slot {
-    grid-column: 1;
-    grid-row: 1 / span 2;
+    align-items: stretch;
   }
 
   .home-project-inventory {
     order: 0;
-    grid-column: 2;
-    grid-row: 1;
     display: flex;
     flex-direction: column;
     gap: var(--space-sm);
     min-height: 0;
     overflow: hidden;
-    padding: var(--space-md) var(--space-md) var(--space-sm);
+    padding: var(--space-md);
     background: var(--color-panel-contrast);
-  }
-
-  .home-project-tape-slot {
-    grid-column: 2;
-    grid-row: 2;
-    padding: var(--space-sm) var(--space-md) var(--space-md);
-    background: var(--color-panel-contrast);
-  }
-
-  .home-project-tape-slot:empty {
-    padding: 0;
   }
 
   .home-project-specimen .home-specimen-title {
     font-size: var(--type-title);
-  }
-
-  .home-specimen-figure:has(> .ledger-poster)>.home-specimen-title {
-    padding: var(--space-3xl) var(--space-lg) var(--space-lg);
   }
 
   .home-project-inventory-row {
@@ -1405,8 +1309,8 @@ html[data-theme="light"] .home-hero-plate {
   .home-project-inventory-media {
     display: block;
     flex: 0 0 auto;
-    width: 3.5rem;
-    height: 3.5rem;
+    width: 5.5rem;
+    aspect-ratio: 16 / 9;
     overflow: hidden;
     background: var(--color-surface-high);
   }

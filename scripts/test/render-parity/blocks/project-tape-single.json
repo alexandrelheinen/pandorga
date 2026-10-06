@@ -1,9 +1,0 @@
-{
-  "name": "project-tape/one project renders no tape (PLT-AC-16)",
-  "block": "renderProjectTape",
-  "args": [
-    1,
-    1
-  ],
-  "empty": true
-}

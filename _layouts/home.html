@@ -234,13 +234,11 @@ layout: shell
           eligible: function () { return true; }
         });
         var selectedSlug = (featuredPick && featuredPick.slug) || portfolio[0].slug;
-        var iconSlots = 6;
+        var iconSlots = Math.min(portfolio.length, 6);
 
         function entryBySlug(slug) {
           return portfolio.filter(function (entry) { return entry.slug === slug; })[0] || portfolio[0];
         }
-
-        var tapeSlot = section.querySelector('[data-home-tape]');
 
         function positionOf(slug) {
           for (var i = 0; i < portfolio.length; i += 1) {
@@ -261,21 +259,6 @@ layout: shell
           }));
         }
 
-        /* The tape is rebuilt on every step, so put focus back on the arrow
-           the reader was pressing. */
-        function paintTape() {
-          if (!tapeSlot) return;
-          var focused = document.activeElement;
-          var focusedStep = focused && tapeSlot.contains(focused)
-            ? focused.getAttribute('data-home-tape-step')
-            : null;
-          tapeSlot.innerHTML = runtime.renderProjectTape(positionOf(selectedSlug) + 1, portfolio.length);
-          if (focusedStep) {
-            var again = tapeSlot.querySelector('[data-home-tape-step="' + focusedStep + '"]');
-            if (again) again.focus();
-          }
-        }
-
         function select(slug) {
           if (selectedSlug === slug) return;
           selectedSlug = slug;
@@ -285,14 +268,13 @@ layout: shell
             node.classList.toggle('is-selected', isSelected);
             node.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
           });
-          paintTape();
         }
 
         function paintInventory() {
           inventorySlot.hidden = false;
           inventorySlot.innerHTML = '';
-          /* Always reserve six mobile columns so one project does not stretch
-             a single giant button across the band. */
+          /* One mobile column per project, up to six a row, so the strip
+             always spans the band. */
           inventorySlot.style.setProperty('--home-project-icon-count', String(iconSlots));
           portfolio.forEach(function (entry, i) {
             var row = runtime.renderProjectInventoryRow(asItem(entry), {
@@ -311,19 +293,8 @@ layout: shell
           });
         }
 
-        if (tapeSlot) {
-          tapeSlot.addEventListener('click', function (event) {
-            var step = event.target.closest('[data-home-tape-step]');
-            if (!step) return;
-            var delta = Number(step.getAttribute('data-home-tape-step'));
-            var next = (positionOf(selectedSlug) + delta + portfolio.length) % portfolio.length;
-            select(portfolio[next].slug);
-          });
-        }
-
         paintSpecimen(entryBySlug(selectedSlug));
         paintInventory();
-        paintTape();
         return;
       }
 
