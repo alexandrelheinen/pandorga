@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.8] — 2026-10-06
+
+### Fixed
+
+- Home specimen grows with its tagline and wrapping tag chips instead of
+  clipping under a fixed height; pills stay one line (row wraps whole chips)
+- Specimen strip above the plate uses the projects label chrome at a larger
+  step so it matches the featured scale
+
 ## [1.3.7] — 2026-10-06
 
 ### Added
