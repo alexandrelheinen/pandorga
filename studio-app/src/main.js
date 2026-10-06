@@ -2452,19 +2452,31 @@ function taxonomyChips(item) {
   );
 }
 
-function renderLedgerRow(item, writing) {
-  const metaText = formatEntryListMeta(item, state.collection);
-  const open = () => openFile(item.path);
+function renderLedgerOps(item, { open }) {
   const canDelete = collectionAllowsDelete();
-
+  const label = item.title || item.name || "entry";
+  const editBtn = el(
+    "button",
+    {
+      className: "btn btn-icon ledger-op-btn ledger-edit-btn",
+      type: "button",
+      title: `Edit ${label}`,
+      "aria-label": `Edit ${label}`,
+      onClick: (e) => {
+        e.stopPropagation();
+        open();
+      },
+    },
+    [materialIcon("edit")]
+  );
   const deleteBtn = canDelete
     ? el(
         "button",
         {
-          className: "btn btn-icon ledger-delete-btn",
+          className: "btn btn-icon ledger-op-btn ledger-delete-btn",
           type: "button",
-          title: `Delete ${item.title || item.name || "entry"}`,
-          "aria-label": `Delete ${item.title || item.name || "entry"}`,
+          title: `Delete ${label}`,
+          "aria-label": `Delete ${label}`,
           onClick: (e) => {
             e.stopPropagation();
             deleteEntry(item.path, item.sha);
@@ -2473,6 +2485,16 @@ function renderLedgerRow(item, writing) {
         [materialIcon("delete")]
       )
     : null;
+  return el("div", { className: "ledger-ops", role: "group", "aria-label": "Operations" }, [
+    editBtn,
+    deleteBtn,
+  ]);
+}
+
+function renderLedgerRow(item, writing) {
+  const metaText = formatEntryListMeta(item, state.collection);
+  const open = () => openFile(item.path);
+  const ops = renderLedgerOps(item, { open });
 
   if (!writing) {
     const titleBlock = el("div", { className: "ledger-copy" }, [
@@ -2499,14 +2521,7 @@ function renderLedgerRow(item, writing) {
           }
         },
       },
-      [
-        thumbnailNode(item),
-        titleBlock,
-        el("div", { className: "ledger-ops" }, [
-          deleteBtn,
-          materialIcon("chevron_right", "ledger-ops-icon"),
-        ]),
-      ]
+      [thumbnailNode(item), titleBlock, ops]
     );
   }
 
@@ -2526,12 +2541,6 @@ function renderLedgerRow(item, writing) {
   ]);
 
   const taxonomy = taxonomyChips(item) || el("div", { className: "ledger-taxonomy" });
-
-  const ops = el("div", { className: "ledger-ops" }, [
-    deleteBtn,
-    el("span", { className: "ledger-ops-edit", text: "Edit" }),
-    materialIcon("chevron_right", "ledger-ops-icon"),
-  ]);
 
   return el(
     "div",
@@ -3964,7 +3973,7 @@ async function deleteEntry(path, sha = null) {
   const col = state.collection;
   if (!collectionAllowsDelete(col) || !path) return;
   const name = String(path).split("/").pop() || path;
-  if (!window.confirm(`Delete ${name}? This commits a deletion to main.`)) {
+  if (!window.confirm(`Delete ${name}?\n\nThis commits a deletion to main and cannot be undone from Studio.`)) {
     return;
   }
   state.status = `Deleting ${path}…`;
