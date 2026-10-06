@@ -297,6 +297,25 @@ function navGroupDomId(group) {
   );
 }
 
+/** Expand/collapse a left-nav group without rebuilding the shell (keeps scroll). */
+function toggleNavGroup(group) {
+  const open = !state.navOpenGroups.has(group);
+  if (open) state.navOpenGroups.add(group);
+  else state.navOpenGroups.delete(group);
+
+  const items = document.getElementById(navGroupDomId(group));
+  if (!items) return;
+  items.hidden = !open;
+  const toggle = items
+    .closest(".studio-nav-group")
+    ?.querySelector(".studio-nav-group-toggle");
+  if (toggle) {
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    const icon = toggle.querySelector(".material-symbols-outlined");
+    if (icon) icon.textContent = open ? "expand_more" : "chevron_right";
+  }
+}
+
 function collectionHint(col) {
   const cleaned = sanitizeUiCopy(col.description);
   if (cleaned) return cleaned;
@@ -1154,9 +1173,7 @@ function renderMediaNavGroup() {
     "aria-expanded": open ? "true" : "false",
     "aria-controls": items.id,
     onClick: () => {
-      if (state.navOpenGroups.has(group)) state.navOpenGroups.delete(group);
-      else state.navOpenGroups.add(group);
-      renderShell();
+      toggleNavGroup(group);
     },
   }, [
     el("span", {
@@ -1302,9 +1319,7 @@ function renderShell() {
       "aria-expanded": open ? "true" : "false",
       "aria-controls": items.id,
       onClick: () => {
-        if (state.navOpenGroups.has(group)) state.navOpenGroups.delete(group);
-        else state.navOpenGroups.add(group);
-        renderShell();
+        toggleNavGroup(group);
       },
     }, [
       el("span", {
