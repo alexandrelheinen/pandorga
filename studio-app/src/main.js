@@ -200,8 +200,10 @@ const state = {
   aiProofSelection: null,
   /** Open left-nav accordion groups (start empty = all folded). */
   navOpenGroups: new Set(),
-  /** Mobile nav disclosure (≤960px); ignored on wide layouts. */
+  /** Mobile nav disclosure (≤960px); desktop left aside from 961px up. */
   navMenuOpen: false,
+  /** Theme menu (light / dark / system) in the icon toolbar. */
+  themeMenuOpen: false,
   /** Per-collection list query (session memory). */
   listQueryByCollection: Object.create(null),
   /** Per-collection sort id (session + localStorage). */
@@ -374,6 +376,11 @@ function currentNavLabel() {
 
 function closeNavMenu() {
   state.navMenuOpen = false;
+}
+
+function closeStudioMenus() {
+  closeNavMenu();
+  closeThemeMenu();
 }
 
 function goHome() {
@@ -693,15 +700,166 @@ function el(tag, attrs = {}, children = []) {
   return node;
 }
 
-function setTheme(theme) {
-  document.documentElement.setAttribute("data-theme", theme);
-  localStorage.setItem("studio-theme", theme);
+const THEME_CHOICE_KEY = "studio-theme";
+const THEME_MENU_ICONS = { light: "light_mode", dark: "dark_mode", system: "routine" };
+
+function themeChoice() {
+  const saved = localStorage.getItem(THEME_CHOICE_KEY);
+  if (saved === "light" || saved === "dark" || saved === "system") return saved;
+  return "system";
+}
+
+function resolvedTheme() {
+  const choice = themeChoice();
+  if (choice === "dark") return "dark";
+  if (choice === "light") return "light";
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function setThemeChoice(choice) {
+  localStorage.setItem(THEME_CHOICE_KEY, choice);
+  applyResolvedTheme();
+  syncThemeMenuUi();
+}
+
+function applyResolvedTheme() {
+  document.documentElement.setAttribute("data-theme", resolvedTheme());
 }
 
 function initTheme() {
-  const saved = localStorage.getItem("studio-theme");
-  if (saved) setTheme(saved);
-  else if (window.matchMedia("(prefers-color-scheme: dark)").matches) setTheme("dark");
+  applyResolvedTheme();
+  const mq = window.matchMedia("(prefers-color-scheme: dark)");
+  if (typeof mq.addEventListener === "function") {
+    mq.addEventListener("change", () => {
+      if (themeChoice() === "system") applyResolvedTheme();
+    });
+  }
+}
+
+function closeThemeMenu() {
+  state.themeMenuOpen = false;
+}
+
+function syncThemeMenuUi() {
+  const active = themeChoice();
+  const icon = document.querySelector("[data-studio-theme-icon]");
+  if (icon) icon.textContent = THEME_MENU_ICONS[active] || THEME_MENU_ICONS.system;
+  for (const item of document.querySelectorAll("[data-theme-choice]")) {
+    const choice = item.getAttribute("data-theme-choice");
+    const selected = choice === active;
+    item.setAttribute("aria-checked", selected ? "true" : "false");
+    item.classList.toggle("is-selected", selected);
+  }
+  const btn = document.querySelector("[data-studio-action='theme-menu']");
+  const menu = document.getElementById("studio-theme-menu");
+  if (btn && menu) {
+    btn.setAttribute("aria-expanded", state.themeMenuOpen ? "true" : "false");
+    menu.hidden = !state.themeMenuOpen;
+  }
+}
+
+function renderThemeMenu() {
+  const choices = [
+    { id: "light", label: "Light", icon: "light_mode" },
+    { id: "dark", label: "Dark", icon: "dark_mode" },
+    { id: "system", label: "System", icon: "routine" },
+  ];
+  const menu = el("div", {
+    className: "studio-theme-menu-panel",
+    id: "studio-theme-menu",
+    role: "menu",
+    "aria-label": "Choose color theme",
+    hidden: !state.themeMenuOpen,
+  }, choices.map((c) =>
+    el("button", {
+      className: "studio-theme-choice",
+      type: "button",
+      role: "menuitemradio",
+      "data-theme-choice": c.id,
+      "aria-checked": themeChoice() === c.id ? "true" : "false",
+      onClick: (e) => {
+        e.stopPropagation();
+        setThemeChoice(c.id);
+        state.themeMenuOpen = false;
+        syncThemeMenuUi();
+        const frame = $("#preview-frame");
+        if (frame) void mountMermaidPreview(frame);
+      },
+    }, [
+      materialIcon(c.icon),
+      el("span", { text: c.label }),
+    ])
+  ));
+
+  const btn = el("button", {
+    className: "btn btn-icon",
+    type: "button",
+    title: "Theme",
+    "aria-label": "Theme",
+    "data-studio-action": "theme-menu",
+    "aria-haspopup": "true",
+    "aria-expanded": state.themeMenuOpen ? "true" : "false",
+    "aria-controls": "studio-theme-menu",
+    onClick: (e) => {
+      e.stopPropagation();
+      state.themeMenuOpen = !state.themeMenuOpen;
+      syncThemeMenuUi();
+    },
+  }, [
+    el("span", {
+      className: "material-symbols-outlined",
+      "data-studio-theme-icon": "true",
+      text: THEME_MENU_ICONS[themeChoice()] || THEME_MENU_ICONS.system,
+      "aria-hidden": "true",
+    }),
+  ]);
+
+  return el("div", { className: "studio-theme-menu" }, [btn, menu]);
+}
+
+function renderStudioToolbar() {
+  const saveLabel = state.saving ? "Saving…" : state.dirty ? "Save draft" : "Saved";
+  const saveIcon = state.saving ? "progress_activity" : state.dirty ? "save" : "check";
+  return el("div", { className: "studio-toolbar studio-icon-bar" }, [
+    el("span", {
+      className: "status-pill" + (state.error ? " error" : ""),
+      text: state.error
+        ? "Error"
+        : state.status || (state.session?.email || state.session?.userId || ""),
+      title: state.error || state.errorDetail || state.status || "",
+    }),
+    el("span", { className: "spacer" }),
+    renderThemeMenu(),
+    el("button", {
+      className: "btn btn-icon",
+      type: "button",
+      title: "Revert all edits to the last loaded or saved version",
+      "aria-label": "Discard edits",
+      "data-studio-action": "discard",
+      disabled: !state.file || !state.dirty || !state.baseline,
+      onClick: () => discardChanges(),
+    }, [materialIcon("undo")]),
+    el("button", {
+      className: "btn btn-icon btn-primary",
+      type: "button",
+      title: state.saving
+        ? "Saving this draft"
+        : state.dirty
+          ? "Commit this draft"
+          : "No edits to commit yet",
+      "aria-label": saveLabel,
+      "data-studio-action": "save",
+      disabled: state.saving || !state.file || !state.dirty,
+      onClick: () => saveCurrent(),
+    }, [
+      el("span", {
+        className:
+          "material-symbols-outlined" + (state.saving ? " studio-icon-spin" : ""),
+        text: saveIcon,
+        "aria-hidden": "true",
+      }),
+    ]),
+  ]);
 }
 
 function clerkUserEmail(clerk) {
@@ -827,13 +985,31 @@ function renderPendingReviewGate(clerk, emailHint) {
   app.append(box);
 }
 
+/** Left-nav / map section order (References before Portfolio). */
+const NAV_GROUP_ORDER = [
+  "Writing",
+  "References",
+  "Portfolio",
+  "Pages",
+  "CV Summary",
+  "Presentation",
+  "Profile",
+];
+
 function collectionGroups(schema) {
   const map = new Map();
   for (const c of schema.collections) {
     if (!map.has(c.group)) map.set(c.group, []);
     map.get(c.group).push(c);
   }
-  return map;
+  const ordered = new Map();
+  for (const group of NAV_GROUP_ORDER) {
+    if (map.has(group)) ordered.set(group, map.get(group));
+  }
+  for (const [group, cols] of map) {
+    if (!ordered.has(group)) ordered.set(group, cols);
+  }
+  return ordered;
 }
 
 /** Left-nav Media section (Library → content/media browser). */
@@ -942,6 +1118,9 @@ function renderShell() {
     className: "studio-nav-menu-toggle",
     type: "button",
     title: menuOpen ? "Close collections menu" : "Open collections menu",
+    "aria-label": menuOpen
+      ? `Close menu (${currentNavLabel()})`
+      : `Open menu (${currentNavLabel()})`,
     "aria-expanded": menuOpen ? "true" : "false",
     "aria-controls": "studio-nav-panel",
     onClick: () => {
@@ -950,12 +1129,12 @@ function renderShell() {
     },
   }, [
     el("span", {
-      className: "studio-nav-menu-label",
+      className: "studio-nav-menu-label sr-only",
       text: currentNavLabel(),
     }),
     el("span", {
       className: "material-symbols-outlined",
-      text: menuOpen ? "expand_less" : "expand_more",
+      text: menuOpen ? "close" : "menu",
       "aria-hidden": "true",
     }),
   ]);
@@ -1046,57 +1225,7 @@ function renderShell() {
     ]
   );
 
-  const toolbar = el("div", { className: "studio-toolbar" }, [
-    el("span", {
-      className: "status-pill" + (state.error ? " error" : ""),
-      text: state.error
-        ? "Error"
-        : state.status || (state.session?.email || state.session?.userId || ""),
-      title: state.error || state.errorDetail || state.status || "",
-    }),
-    el("span", { className: "spacer" }),
-    el("button", {
-      className: "btn",
-      type: "button",
-      text:
-        document.documentElement.getAttribute("data-theme") === "dark"
-          ? "Dark"
-          : "Light",
-      title: "Toggle light / dark theme",
-      "data-studio-action": "theme",
-      onClick: (e) => {
-        const cur = document.documentElement.getAttribute("data-theme");
-        const next = cur === "dark" ? "light" : "dark";
-        setTheme(next);
-        e.currentTarget.textContent = next === "dark" ? "Dark" : "Light";
-        // Mermaid bakes palette at render time — redraw on theme flip.
-        const frame = $("#preview-frame");
-        if (frame) void mountMermaidPreview(frame);
-      },
-    }),
-    el("button", {
-      className: "btn",
-      type: "button",
-      text: "Discard",
-      title: "Revert all edits to the last loaded or saved version",
-      "data-studio-action": "discard",
-      disabled: !state.file || !state.dirty || !state.baseline,
-      onClick: () => discardChanges(),
-    }),
-    el("button", {
-      className: "btn btn-primary",
-      type: "button",
-      text: state.saving ? "Saving…" : state.dirty ? "Save" : "Saved",
-      title: state.saving
-        ? "Saving this draft"
-        : state.dirty
-          ? "Commit this draft"
-          : "No edits to commit yet",
-      "data-studio-action": "save",
-      disabled: state.saving || !state.file || !state.dirty,
-      onClick: () => saveCurrent(),
-    }),
-  ]);
+  const toolbar = renderStudioToolbar();
 
   const main = el("div", { className: "studio-main" }, [
     toolbar,
@@ -1110,6 +1239,16 @@ function renderShell() {
 
   app.append(el("div", { className: "studio-shell" }, [nav, main]));
   renderMain();
+  syncThemeMenuUi();
+  if (!window.__studioMenuDismissBound) {
+    window.__studioMenuDismissBound = true;
+    document.addEventListener("click", () => {
+      if (state.themeMenuOpen) {
+        state.themeMenuOpen = false;
+        syncThemeMenuUi();
+      }
+    });
+  }
 }
 
 function renderStudioBreadcrumb() {
@@ -1426,13 +1565,23 @@ function syncCommitButtons() {
   const save = document.querySelector("[data-studio-action='save']");
   const discard = document.querySelector("[data-studio-action='discard']");
   if (save) {
+    const saveLabel = state.saving ? "Saving…" : state.dirty ? "Save draft" : "Saved";
     save.disabled = state.saving || !state.file || !state.dirty;
-    save.textContent = state.saving ? "Saving…" : state.dirty ? "Save" : "Saved";
     save.title = state.saving
       ? "Saving this draft"
       : state.dirty
         ? "Commit this draft"
         : "No edits to commit yet";
+    save.setAttribute("aria-label", saveLabel);
+    const icon = save.querySelector(".material-symbols-outlined");
+    if (icon) {
+      icon.textContent = state.saving
+        ? "progress_activity"
+        : state.dirty
+          ? "save"
+          : "check";
+      icon.classList.toggle("studio-icon-spin", state.saving);
+    }
   }
   if (discard) {
     discard.disabled = !state.file || !state.dirty || !state.baseline;
