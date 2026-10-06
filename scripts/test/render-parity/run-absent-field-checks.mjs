@@ -250,7 +250,8 @@ omits(
     'home-project-inventory-index',
     'ledger-status',
     'home-project-inventory-copy',
-    'ledger-poster'
+    'ledger-poster',
+    'home-project-inventory-resources'
   ]
 );
 

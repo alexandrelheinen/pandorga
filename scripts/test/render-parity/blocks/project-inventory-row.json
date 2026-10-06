@@ -10,7 +10,10 @@
         "icon": "route",
         "label": "Simulation",
         "status": "Ongoing",
-        "tagline": "A city-scale race replayed from telemetry."
+        "tagline": "A city-scale race replayed from telemetry.",
+        "github": "https://github.com/example/arco",
+        "article_url": "/articles/arco/",
+        "external_url": "https://example.com/arco"
       }
     },
     {
@@ -25,10 +28,11 @@
     "div.ledger-poster",
     "div.home-project-inventory-code",
     "span.home-project-inventory-index",
-    "span.ledger-status",
     "h3.home-project-inventory-title",
     "p.home-project-inventory-copy",
-    "span.home-project-inventory-glyph"
+    "span.home-project-inventory-glyph",
+    "div.home-project-inventory-resources",
+    "a.home-project-inventory-resource"
   ],
   "forbidden": [
     "ledger-card-stretch"
@@ -36,10 +40,12 @@
   "contains": [
     ">02<",
     ">Simulation<",
-    ">Ongoing<",
     ">ARCO<",
     ">A city-scale race replayed from telemetry.<",
     ">route<",
+    ">code<",
+    ">article<",
+    ">public<",
     "aria-pressed=\"false\"",
     "data-slug=\"arco\""
   ]

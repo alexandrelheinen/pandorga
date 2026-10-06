@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.28] — 2026-10-07
+
+### Changed
+
+- Home project inventory rows widen slightly and show a vertical column of
+  square code / article / site badges when those fields are present
+
 ## [1.3.27] — 2026-10-07
 
 ### Changed

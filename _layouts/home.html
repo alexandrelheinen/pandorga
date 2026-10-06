@@ -330,8 +330,12 @@ layout: shell
               selected: entry.slug === selectedSlug,
               index: i + 1
             });
-            row.addEventListener('click', function () { select(entry.slug); });
+            row.addEventListener('click', function (event) {
+              if (event.target.closest('.home-project-inventory-resources')) return;
+              select(entry.slug);
+            });
             row.addEventListener('keydown', function (event) {
+              if (event.target.closest('.home-project-inventory-resources')) return;
               if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
                 select(entry.slug);
