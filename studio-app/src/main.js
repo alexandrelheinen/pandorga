@@ -976,12 +976,12 @@ function renderStudioToolbar({ brand = null, menuToggle = null } = {}) {
     actions.push(
       toolbarActionButton({
         className: "btn btn-tool btn-reexport",
-        title: "Reexport content JSON locally and reload",
-        ariaLabel: "Reexport locally",
+        title: "Export content JSON locally and reload",
+        ariaLabel: "Export locally",
         action: "reexport",
         onClick: () => reexportLocalContent(),
         icon: "sync",
-        label: "Reexport",
+        label: "Export",
       })
     );
   }
@@ -989,7 +989,7 @@ function renderStudioToolbar({ brand = null, menuToggle = null } = {}) {
   const kids = [
     brandCluster,
     el("span", { className: "spacer", "aria-hidden": "true" }),
-    el("div", { className: "studio-toolbar-actions", role: "toolbar", "aria-label": "Studio actions" }, actions),
+    ...actions,
   ];
   if (menuToggle) kids.push(menuToggle);
   return el("header", { className: "studio-toolbar studio-icon-bar" }, kids);
