@@ -71,7 +71,9 @@ not call the Actions API.
 ### Production
 
 After load, the chip shows the latest run on the configured workflow. After
-Save (or create / delete / media commit), it tracks **that** commit SHA:
+Save (or create / delete / media commit), it tracks **that** commit SHA.
+Status polls update the chip in place so the editor keeps focus for the
+whole run.
 
 | State | Meaning |
 |---|---|

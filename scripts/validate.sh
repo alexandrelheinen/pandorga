@@ -73,6 +73,11 @@ if ! node scripts/test/test-studio-pipeline-config.mjs; then
   failed=1
 fi
 
+echo "-- scripts/test/test-studio-pipeline-focus.mjs"
+if ! node scripts/test/test-studio-pipeline-focus.mjs; then
+  failed=1
+fi
+
 if [[ "$failed" -ne 0 ]]; then
   echo "VALIDATE FAILED"
   exit 1

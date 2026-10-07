@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.7] — 2026-10-07
+
+### Fixed
+
+- Studio keeps the editor focused while the content-pipeline chip is spinning.
+  Status polls patch the toolbar chip instead of rebuilding the shell.
+
 ## [1.4.6] — 2026-10-07
 
 ### Fixed
