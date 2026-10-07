@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.4.6] — 2026-10-07
+
+### Fixed
+
+- Pipeline config resolution no longer swallows `_config.yml` read failures as
+  a silent “unconfigured”; returns a clear message when
+  `pandorga.content.workflow` is missing
+- Studio chip surfaces pipeline-status API errors on boot, not only after Save
+
+### Added
+
+- Gate `test-studio-pipeline-config.mjs` for `parseContentWorkflowFromConfig`
+
 ## [1.4.5] — 2026-10-07
 
 ### Changed

@@ -949,12 +949,14 @@ function applyPipelinePayload(data) {
   if (data.state === "unconfigured") {
     state.pipeline.state = "unconfigured";
     state.pipeline.message =
+      data.message ||
       "Set pandorga.content.workflow in _config.yml (e.g. content-pipeline.yml)";
     return;
   }
   state.pipeline.state = data.state || "idle";
   if (data.state === "error") {
-    state.pipeline.message = "Content pipeline failed for this commit.";
+    state.pipeline.message =
+      data.message || "Content pipeline failed for this commit.";
   }
 }
 
@@ -966,12 +968,9 @@ async function refreshPipelineStatus(sha = null) {
     applyPipelinePayload(data);
     renderShell();
   } catch (err) {
-    const code = err?.code || "";
-    if (code === "actions_forbidden" || code === "github_unconfigured") {
-      state.pipeline.state = "error";
-      state.pipeline.message = String(err.message || err);
-      renderShell();
-    }
+    state.pipeline.state = "error";
+    state.pipeline.message = String(err.message || err);
+    renderShell();
   }
 }
 

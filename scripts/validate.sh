@@ -68,6 +68,11 @@ for test in "${TESTS[@]}"; do
   fi
 done
 
+echo "-- scripts/test/test-studio-pipeline-config.mjs"
+if ! node scripts/test/test-studio-pipeline-config.mjs; then
+  failed=1
+fi
+
 if [[ "$failed" -ne 0 ]]; then
   echo "VALIDATE FAILED"
   exit 1

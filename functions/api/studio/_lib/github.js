@@ -307,21 +307,40 @@ export async function resolveContentWorkflowConfig(env) {
 
   try {
     const file = await getFile(env, "_config.yml");
-    if (file?.content) {
-      const parsed = parseContentWorkflowFromConfig(file.content);
-      if (parsed.workflow) {
-        return {
-          workflow: parsed.workflow,
-          ref: parsed.workflowRef || envRef || "main",
-          source: "config",
-        };
-      }
+    if (!file?.content) {
+      return {
+        workflow: null,
+        ref: envRef || "main",
+        source: null,
+        error: "config_missing",
+        message: "_config.yml was not found on main.",
+      };
     }
-  } catch {
-    /* fall through to unconfigured */
+    const parsed = parseContentWorkflowFromConfig(file.content);
+    if (parsed.workflow) {
+      return {
+        workflow: parsed.workflow,
+        ref: parsed.workflowRef || envRef || "main",
+        source: "config",
+      };
+    }
+    return {
+      workflow: null,
+      ref: envRef || "main",
+      source: null,
+      error: "workflow_unset",
+      message:
+        "Set pandorga.content.workflow in _config.yml (e.g. content-pipeline.yml).",
+    };
+  } catch (err) {
+    return {
+      workflow: null,
+      ref: envRef || "main",
+      source: null,
+      error: err.code || "config_read_failed",
+      message: String(err.message || err),
+    };
   }
-
-  return { workflow: null, ref: envRef || "main", source: null };
 }
 
 /**
@@ -345,8 +364,11 @@ export async function getContentPipelineStatus(env, sha) {
       sha: commitSha,
       state: "unconfigured",
       run: null,
-      error: null,
-      source: null,
+      error: resolved.error || "workflow_unset",
+      source: resolved.source,
+      message:
+        resolved.message ||
+        "Set pandorga.content.workflow in _config.yml (e.g. content-pipeline.yml).",
     };
   }
   if (commitSha && !/^[0-9a-f]{7,40}$/.test(commitSha)) {
