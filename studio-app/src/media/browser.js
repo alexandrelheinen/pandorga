@@ -544,13 +544,16 @@ async function deleteMediaFile(item, opts) {
       const data = await api.getFile(path);
       sha = data.sha;
     }
-    await api.deleteFile({
+    const deleted = await api.deleteFile({
       path,
       sha,
       message: `studio: delete ${path}`,
     });
     state.mediaBusy = false;
     state.status = `Deleted ${path}`;
+    if (typeof opts.onCommitted === "function") {
+      opts.onCommitted(deleted?.commit);
+    }
     await openMediaDir(state.mediaPath, opts);
   } catch (err) {
     state.mediaBusy = false;
@@ -600,12 +603,15 @@ async function createFolder(opts) {
   state.status = `Creating ${name}…`;
   render();
   try {
-    await api.createMediaFolder({
+    const created = await api.createMediaFolder({
       path,
       message: `studio: mkdir ${path}`,
     });
     state.mediaBusy = false;
     state.status = `Created ${toPublicPath(path) || path}`;
+    if (typeof opts.onCommitted === "function") {
+      opts.onCommitted(created?.commit);
+    }
     await openMediaDir(state.mediaPath, opts);
   } catch (err) {
     state.mediaBusy = false;
@@ -619,6 +625,7 @@ async function uploadFiles(files, opts) {
   clearError();
   const dir = state.mediaPath || MEDIA_ROOT;
   let ok = 0;
+  let lastCommit = null;
   state.mediaBusy = true;
 
   for (const file of files) {
@@ -643,6 +650,7 @@ async function uploadFiles(files, opts) {
       });
       ok += 1;
       state.status = `Uploaded ${result.public_path || toPublicPath(path)}`;
+      lastCommit = result?.commit || lastCommit;
     } catch (err) {
       captureError(err);
       state.mediaBusy = false;
@@ -653,5 +661,8 @@ async function uploadFiles(files, opts) {
 
   state.mediaBusy = false;
   if (ok) state.status = ok === 1 ? state.status : `Uploaded ${ok} files`;
+  if (ok && lastCommit && typeof opts.onCommitted === "function") {
+    opts.onCommitted(lastCommit);
+  }
   await openMediaDir(dir, opts);
 }

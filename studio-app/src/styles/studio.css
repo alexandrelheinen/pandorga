@@ -719,6 +719,67 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
   background: color-mix(in srgb, #746f30 45%, var(--panel));
 }
 
+/* Content-pipeline status chip (production) / Export sync colors (local). */
+.pipeline-chip {
+  cursor: default;
+}
+
+.pipeline-chip:not(:disabled) {
+  cursor: pointer;
+}
+
+.pipeline-awaiting,
+.btn-reexport.pipeline-running,
+.pipeline-running {
+  color: #5c4b00;
+  border-color: color-mix(in srgb, #e0a100 55%, var(--outline-variant));
+  background: color-mix(in srgb, #f5c84c 50%, var(--background));
+}
+
+.pipeline-ok,
+.btn-reexport.pipeline-ok {
+  color: #14532d;
+  border-color: color-mix(in srgb, #22c55e 50%, var(--outline-variant));
+  background: color-mix(in srgb, #86efac 45%, var(--background));
+}
+
+.pipeline-error,
+.btn-reexport.pipeline-error,
+.pipeline-stalled {
+  color: #7f1d1d;
+  border-color: color-mix(in srgb, #ef4444 50%, var(--outline-variant));
+  background: color-mix(in srgb, #fca5a5 40%, var(--background));
+}
+
+.pipeline-idle {
+  color: var(--on-surface-variant);
+  border-color: var(--outline-variant);
+  background: var(--surface-container);
+}
+
+[data-theme="dark"] .pipeline-awaiting,
+[data-theme="dark"] .pipeline-running,
+[data-theme="dark"] .btn-reexport.pipeline-running {
+  color: #f5e6a3;
+  border-color: color-mix(in srgb, #e0a100 45%, var(--outline-variant));
+  background: color-mix(in srgb, #746f30 50%, var(--panel));
+}
+
+[data-theme="dark"] .pipeline-ok,
+[data-theme="dark"] .btn-reexport.pipeline-ok {
+  color: #bbf7d0;
+  border-color: color-mix(in srgb, #22c55e 45%, var(--outline-variant));
+  background: color-mix(in srgb, #14532d 55%, var(--panel));
+}
+
+[data-theme="dark"] .pipeline-error,
+[data-theme="dark"] .btn-reexport.pipeline-error,
+[data-theme="dark"] .pipeline-stalled {
+  color: #fecaca;
+  border-color: color-mix(in srgb, #ef4444 45%, var(--outline-variant));
+  background: color-mix(in srgb, #7f1d1d 55%, var(--panel));
+}
+
 .studio-icon-bar .btn-icon {
   width: var(--studio-list-control-height);
   min-width: var(--studio-list-control-height);

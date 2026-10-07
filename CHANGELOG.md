@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.4.4] — 2026-10-07
+
+### Added
+
+- Studio content-pipeline status: after Save in production, poll GitHub Actions
+  for `STUDIO_CONTENT_WORKFLOW` on the commit SHA (Waiting / Exporting / Live /
+  Failed). Local Export keeps a real reexport button with the same sync colors.
+- `GET /api/studio/pipeline-status?sha=` on the Studio Function
+
+### Changed
+
+- Studio docs: document `STUDIO_CONTENT_WORKFLOW`, Actions read on the PAT, and
+  the toolbar indicator states
+
 ## [1.4.3] — 2026-10-07
 
 ### Changed

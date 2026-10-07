@@ -27,9 +27,20 @@ auth_src = auth.read
 paths_src = github.read
 gh_src = gh.read
 
-%w[session tree file media search rewrite].each do |route|
+%w[session tree file media search rewrite pipeline-status].each do |route|
   check!(api_src.include?(route), "API router missing #{route.inspect} route")
 end
+
+check!(gh_src.include?("getContentPipelineStatus"),
+       "github helper must expose getContentPipelineStatus")
+check!(gh_src.include?("STUDIO_CONTENT_WORKFLOW") || api_src.include?("STUDIO_CONTENT_WORKFLOW"),
+       "pipeline status must read STUDIO_CONTENT_WORKFLOW")
+check!(gh_src.include?("mapWorkflowRunState"),
+       "pipeline status must map Actions run status to UI state")
+check!(REPO_ROOT.join("studio-app/src/api/client.js").read.include?("pipelineStatus"),
+       "SPA client must call pipeline-status")
+check!(REPO_ROOT.join("studio-app/src/main.js").read.include?("armPipelineWatch"),
+       "SPA must watch the content pipeline after save")
 
 check!(api_src.include?("media/folder") || api_src.include?('"folder"'),
        "API router should expose media folder create")

@@ -13,6 +13,7 @@ import {
   listDir,
   listEntries,
   peekMeta,
+  getContentPipelineStatus,
 } from "./_lib/github.js";
 import { normalizeRepoPath, listSchemaCollections } from "./_lib/paths.js";
 import { clientAddress, isMutatingMethod, takeToken } from "./_lib/rate-limit.js";
@@ -158,6 +159,31 @@ export async function onRequest(context) {
         200,
         request
       );
+    }
+
+    // Content-pipeline status for the commit SHA returned by Save (Actions read).
+    if (head === "pipeline-status" && request.method === "GET") {
+      const url = new URL(request.url);
+      const sha = String(url.searchParams.get("sha") || "").trim();
+      const override = String(url.searchParams.get("workflow") || "").trim();
+      const statusEnv = override
+        ? { ...env, STUDIO_CONTENT_WORKFLOW: override }
+        : env;
+      try {
+        const status = await getContentPipelineStatus(statusEnv, sha);
+        return json(status, 200, request);
+      } catch (err) {
+        const status = err.status || 500;
+        return json(
+          {
+            error: err.code || "server_error",
+            message: String(err.message || err),
+            detail: err.detail ? String(err.detail).slice(0, 400) : undefined,
+          },
+          status,
+          request
+        );
+      }
     }
 
     if (head === "tree" && request.method === "GET") {

@@ -216,6 +216,135 @@ export async function listDir(env, dirPath) {
   return entries.filter((e) => e.type === "file");
 }
 
+/**
+ * Map a GitHub Actions workflow run to Studio pipeline UI state.
+ * @param {{ status?: string, conclusion?: string|null }|null} run
+ * @returns {"awaiting_run"|"running"|"ok"|"error"}
+ */
+export function mapWorkflowRunState(run) {
+  if (!run) return "awaiting_run";
+  const status = String(run.status || "");
+  if (status === "completed") {
+    return run.conclusion === "success" ? "ok" : "error";
+  }
+  return "running";
+}
+
+/**
+ * Look up the content-pipeline workflow run for a commit SHA.
+ * Requires the PAT to have Actions read (fine-grained: Actions → Read).
+ *
+ * @param {object} env
+ * @param {string} sha
+ * @returns {Promise<{
+ *   mode: "production",
+ *   workflow: string|null,
+ *   sha: string,
+ *   state: "awaiting_run"|"running"|"ok"|"error"|"unconfigured",
+ *   run: object|null,
+ *   error: string|null
+ * }>}
+ */
+export async function getContentPipelineStatus(env, sha) {
+  const workflowFile = String(env.STUDIO_CONTENT_WORKFLOW || "").trim();
+  const ref = String(env.STUDIO_CONTENT_WORKFLOW_REF || "main").trim() || "main";
+  const commitSha = String(sha || "").trim().toLowerCase();
+
+  if (!workflowFile) {
+    return {
+      mode: "production",
+      workflow: null,
+      sha: commitSha,
+      state: "unconfigured",
+      run: null,
+      error: null,
+    };
+  }
+  if (!/^[0-9a-f]{7,40}$/.test(commitSha)) {
+    const err = new Error("sha required (7–40 hex chars)");
+    err.status = 400;
+    err.code = "invalid_sha";
+    throw err;
+  }
+
+  const wfRes = await gh(
+    env,
+    `/actions/workflows/${encodeURIComponent(workflowFile)}`
+  );
+  if (wfRes.status === 404) {
+    return {
+      mode: "production",
+      workflow: workflowFile,
+      sha: commitSha,
+      state: "unconfigured",
+      run: null,
+      error: "workflow_not_found",
+    };
+  }
+  if (wfRes.status === 401 || wfRes.status === 403) {
+    const text = await wfRes.text();
+    if (wfRes.status === 403 && isGithubRateLimit(403, text)) {
+      throw githubFail("actions", wfRes, text);
+    }
+    const err = new Error(
+      "GitHub token cannot read Actions. Grant Actions: Read on the fine-grained PAT."
+    );
+    err.status = 403;
+    err.code = "actions_forbidden";
+    err.detail = String(text || "").slice(0, 400);
+    throw err;
+  }
+  if (!wfRes.ok) {
+    throw githubFail("actions", wfRes, await wfRes.text());
+  }
+
+  const workflow = await wfRes.json();
+  const runsPath =
+    `/actions/workflows/${workflow.id}/runs` +
+    `?branch=${encodeURIComponent(ref)}` +
+    `&head_sha=${encodeURIComponent(commitSha)}` +
+    `&per_page=5`;
+  const runsRes = await gh(env, runsPath);
+  if (runsRes.status === 401 || runsRes.status === 403) {
+    const text = await runsRes.text();
+    if (runsRes.status === 403 && isGithubRateLimit(403, text)) {
+      throw githubFail("actions", runsRes, text);
+    }
+    const err = new Error(
+      "GitHub token cannot read Actions. Grant Actions: Read on the fine-grained PAT."
+    );
+    err.status = 403;
+    err.code = "actions_forbidden";
+    err.detail = String(text || "").slice(0, 400);
+    throw err;
+  }
+  if (!runsRes.ok) {
+    throw githubFail("actions", runsRes, await runsRes.text());
+  }
+
+  const payload = await runsRes.json();
+  const runs = Array.isArray(payload.workflow_runs) ? payload.workflow_runs : [];
+  const run = runs[0] || null;
+  const state = mapWorkflowRunState(run);
+
+  return {
+    mode: "production",
+    workflow: workflowFile,
+    sha: commitSha,
+    state,
+    run: run
+      ? {
+          id: run.id,
+          status: run.status || null,
+          conclusion: run.conclusion || null,
+          html_url: run.html_url || null,
+          updated_at: run.updated_at || null,
+        }
+      : null,
+    error: null,
+  };
+}
+
 /** Very small front-matter peek for tree listings (title/date/thumbnail + list meta). */
 export function peekMeta(raw) {
   const empty = {

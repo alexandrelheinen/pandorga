@@ -73,4 +73,10 @@ export const studioApi = {
       method: "POST",
       body: JSON.stringify(payload),
     }),
+  /** Content-pipeline run for a commit SHA (production). */
+  pipelineStatus: (sha, workflow = null) => {
+    const params = new URLSearchParams({ sha: String(sha || "") });
+    if (workflow) params.set("workflow", String(workflow));
+    return api(`pipeline-status?${params.toString()}`);
+  },
 };

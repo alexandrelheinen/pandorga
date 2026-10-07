@@ -202,6 +202,19 @@ const state = {
   navMenuOpen: false,
   /** Theme menu (light / dark / system) in the icon toolbar. */
   themeMenuOpen: false,
+  /**
+   * Content publish indicator (local Export animation or production Actions).
+   * state: idle | syncing | awaiting_run | running | ok | error | stalled | unconfigured
+   */
+  pipeline: {
+    state: "idle",
+    sha: "",
+    runUrl: "",
+    message: "",
+    pollGen: 0,
+  },
+  /** Local Export button in flight. */
+  reexporting: false,
   /** Per-collection list query (session memory). */
   listQueryByCollection: Object.create(null),
   /** Per-collection sort id (session + localStorage). */
@@ -432,6 +445,7 @@ function mediaOpts() {
     captureError,
     clearError,
     goHome,
+    onCommitted: (commitSha) => armPipelineWatch(commitSha),
   };
 }
 
@@ -825,6 +839,192 @@ function isLocalDevHost() {
   return host === "localhost" || host === "127.0.0.1" || host === "[::1]";
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function pipelineChipMeta(pipelineState) {
+  switch (pipelineState) {
+    case "syncing":
+    case "running":
+      return {
+        label: "Exporting…",
+        icon: "progress_activity",
+        className: "pipeline-chip pipeline-running",
+        spinning: true,
+        title: "Content export is running",
+      };
+    case "awaiting_run":
+      return {
+        label: "Waiting…",
+        icon: "schedule",
+        className: "pipeline-chip pipeline-awaiting",
+        spinning: false,
+        title: "Waiting for the content pipeline run",
+      };
+    case "ok":
+      return {
+        label: "Live",
+        icon: "check_circle",
+        className: "pipeline-chip pipeline-ok",
+        spinning: false,
+        title: "Content pipeline succeeded for this commit",
+      };
+    case "error":
+      return {
+        label: "Failed",
+        icon: "error",
+        className: "pipeline-chip pipeline-error",
+        spinning: false,
+        title: state.pipeline.message || "Content pipeline failed",
+      };
+    case "stalled":
+      return {
+        label: "No run",
+        icon: "hourglass_disabled",
+        className: "pipeline-chip pipeline-stalled",
+        spinning: false,
+        title: "No pipeline run appeared for this commit yet",
+      };
+    case "unconfigured":
+      return {
+        label: "Pipeline",
+        icon: "cloud_off",
+        className: "pipeline-chip pipeline-idle",
+        spinning: false,
+        title: "STUDIO_CONTENT_WORKFLOW is not set on the Studio API",
+      };
+    default:
+      return {
+        label: "Pipeline",
+        icon: "cloud",
+        className: "pipeline-chip pipeline-idle",
+        spinning: false,
+        title: "Content pipeline status",
+      };
+  }
+}
+
+function renderPipelineChip() {
+  const meta = pipelineChipMeta(state.pipeline.state);
+  const runUrl = state.pipeline.runUrl;
+  const kids = [
+    el("span", {
+      className:
+        "material-symbols-outlined" + (meta.spinning ? " studio-icon-spin" : ""),
+      text: meta.icon,
+      "aria-hidden": "true",
+    }),
+    el("span", { className: "btn-label", text: meta.label }),
+  ];
+  return el(
+    "button",
+    {
+      className: `btn btn-tool ${meta.className}`,
+      type: "button",
+      title: meta.title,
+      "aria-label": meta.label,
+      role: "status",
+      "data-studio-action": "pipeline-status",
+      disabled: !runUrl,
+      onClick: () => {
+        if (!runUrl) return;
+        try {
+          window.open(runUrl, "_blank", "noopener,noreferrer");
+        } catch {
+          /* ignore */
+        }
+      },
+    },
+    kids
+  );
+}
+
+/**
+ * After a production Save, poll Actions for the content-pipeline run on this SHA.
+ */
+function armPipelineWatch(commitSha) {
+  const sha = String(commitSha || "").trim().toLowerCase();
+  if (!sha || isLocalDevHost()) return;
+  const gen = ++state.pipeline.pollGen;
+  state.pipeline.state = "awaiting_run";
+  state.pipeline.sha = sha;
+  state.pipeline.runUrl = "";
+  state.pipeline.message = "";
+  renderShell();
+  void pollPipelineStatus(gen, sha);
+}
+
+async function pollPipelineStatus(gen, sha) {
+  const started = Date.now();
+  const STALL_MS = 10 * 60 * 1000;
+  const MAX_MS = 30 * 60 * 1000;
+  let softFails = 0;
+
+  while (gen === state.pipeline.pollGen) {
+    const elapsed = Date.now() - started;
+    if (elapsed > MAX_MS) {
+      if (state.pipeline.state === "running" || state.pipeline.state === "awaiting_run") {
+        state.pipeline.state = "stalled";
+        state.pipeline.message = "Timed out waiting for the content pipeline.";
+        renderShell();
+      }
+      return;
+    }
+
+    try {
+      const data = await studioApi.pipelineStatus(sha);
+      if (gen !== state.pipeline.pollGen) return;
+      softFails = 0;
+      state.pipeline.runUrl = data.run?.html_url || state.pipeline.runUrl || "";
+      state.pipeline.message = "";
+
+      if (data.state === "unconfigured") {
+        state.pipeline.state = "unconfigured";
+        renderShell();
+        return;
+      }
+      if (data.state === "ok" || data.state === "error") {
+        state.pipeline.state = data.state;
+        if (data.state === "error") {
+          state.pipeline.message = "Content pipeline failed for this commit.";
+        }
+        renderShell();
+        return;
+      }
+      if (data.state === "running") {
+        state.pipeline.state = "running";
+      } else if (data.state === "awaiting_run") {
+        if (elapsed > STALL_MS) {
+          state.pipeline.state = "stalled";
+          renderShell();
+          return;
+        }
+        state.pipeline.state = "awaiting_run";
+      }
+      renderShell();
+    } catch (err) {
+      if (gen !== state.pipeline.pollGen) return;
+      softFails += 1;
+      const code = err?.code || "";
+      if (code === "actions_forbidden" || code === "github_unconfigured") {
+        state.pipeline.state = "error";
+        state.pipeline.message = String(err.message || err);
+        renderShell();
+        return;
+      }
+      if (softFails >= 5) {
+        state.pipeline.state = "error";
+        state.pipeline.message = String(err.message || err);
+        renderShell();
+        return;
+      }
+    }
+
+    await sleep(elapsed < 60_000 ? 2500 : 7000);
+  }
+}
+
 function collectionAllowsCreate(col = state.collection) {
   if (!col || col.type !== "collection") return false;
   return col.operations?.create !== false;
@@ -956,17 +1156,28 @@ function renderStudioToolbar({ brand = null, menuToggle = null } = {}) {
     );
   }
   if (isLocalDevHost()) {
+    const exportBusy = state.reexporting || state.pipeline.state === "syncing";
     actions.push(
       toolbarActionButton({
-        className: "btn btn-tool btn-reexport",
-        title: "Export content JSON locally and reload",
-        ariaLabel: "Export locally",
+        className:
+          "btn btn-tool btn-reexport" +
+          (exportBusy ? " pipeline-running" : "") +
+          (state.pipeline.state === "ok" && !exportBusy ? " pipeline-ok" : "") +
+          (state.pipeline.state === "error" && !exportBusy ? " pipeline-error" : ""),
+        title: exportBusy
+          ? "Exporting content JSON locally"
+          : "Export content JSON locally and reload",
+        ariaLabel: exportBusy ? "Exporting locally" : "Export locally",
         action: "reexport",
+        disabled: exportBusy,
         onClick: () => reexportLocalContent(),
-        icon: "sync",
-        label: "Export",
+        icon: exportBusy ? "progress_activity" : "sync",
+        label: exportBusy ? "Exporting…" : "Export",
+        spinning: exportBusy,
       })
     );
+  } else if (state.pipeline.state !== "idle") {
+    actions.push(renderPipelineChip());
   }
 
   const kids = [
@@ -3782,6 +3993,10 @@ function discardChanges() {
 }
 
 async function reexportLocalContent() {
+  if (state.reexporting) return;
+  state.reexporting = true;
+  state.pipeline.state = "syncing";
+  state.pipeline.message = "";
   state.status = "Reexporting…";
   clearError();
   renderShell();
@@ -3799,6 +4014,7 @@ async function reexportLocalContent() {
     if (!res.ok || !data.ok) {
       throw new Error((data && data.error) || `Export failed: ${res.status}`);
     }
+    state.pipeline.state = "ok";
     state.status = "Reexported — reloading…";
     renderShell();
     setTimeout(() => {
@@ -3811,8 +4027,12 @@ async function reexportLocalContent() {
       }
     }, 200);
   } catch (err) {
+    state.pipeline.state = "error";
+    state.pipeline.message = String(err.message || err);
     captureError(err);
     renderShell();
+  } finally {
+    state.reexporting = false;
   }
 }
 
@@ -3872,7 +4092,7 @@ async function createNewEntry() {
     }
     if (exists) throw new Error(`${path} already exists`);
 
-    await studioApi.putFile({
+    const created = await studioApi.putFile({
       path,
       content,
       sha: null,
@@ -3880,6 +4100,7 @@ async function createNewEntry() {
     });
     invalidateTreeCache(col.name);
     state.status = `Created ${path}`;
+    armPipelineWatch(created?.commit);
     await selectCollection(col);
     await openFile(path);
   } catch (err) {
@@ -3904,7 +4125,7 @@ async function deleteEntry(path, sha = null) {
       const data = await studioApi.getFile(path);
       fileSha = data.sha;
     }
-    await studioApi.deleteFile({
+    const deleted = await studioApi.deleteFile({
       path,
       sha: fileSha,
       message: `studio: delete ${path}`,
@@ -3920,6 +4141,7 @@ async function deleteEntry(path, sha = null) {
       state.body = "";
     }
     state.status = `Deleted ${path}`;
+    armPipelineWatch(deleted?.commit);
     if (col) await selectCollection(col);
     else renderShell();
   } catch (err) {
@@ -3999,6 +4221,7 @@ async function saveCurrent() {
     captureBaseline();
     // List thumbs/titles may have changed — drop session tree for this collection.
     if (col?.name) invalidateTreeCache(col.name);
+    armPipelineWatch(result?.commit);
   } catch (err) {
     captureError(err);
   } finally {
