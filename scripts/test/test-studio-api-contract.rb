@@ -45,6 +45,76 @@ check!(REPO_ROOT.join("studio-app/src/main.js").read.include?("armPipelineWatch"
        "SPA must watch the content pipeline after save")
 check!(REPO_ROOT.join("studio-app/src/main.js").read.include?("refreshPipelineStatus"),
        "SPA must hydrate pipeline status on boot")
+
+# Pipeline polls used to call renderShell(), which wipes #app and remounts
+# TipTap. That drops editor focus for the whole run.
+def function_source(source, name)
+  re = /(?:async\s+)?function\s+#{Regexp.escape(name)}\s*\(/
+  m = source.match(re)
+  raise "missing function #{name}" unless m
+  i = m.end(0)
+  paren = 1
+  while i < source.length && paren.positive?
+    c = source[i]
+    if c == "'" || c == '"' || c == "`"
+      q = c
+      i += 1
+      while i < source.length && source[i] != q
+        i += source[i] == "\\" ? 2 : 1
+      end
+      i += 1
+    elsif c == "/" && source[i + 1] == "/"
+      nl = source.index("\n", i)
+      i = nl ? nl + 1 : source.length
+    else
+      paren += 1 if c == "("
+      paren -= 1 if c == ")"
+      i += 1
+    end
+  end
+  i += 1 while i < source.length && source[i] != "{"
+  raise "missing body #{name}" if i >= source.length
+  depth = 0
+  start = i
+  while i < source.length
+    c = source[i]
+    if c == "{"
+      depth += 1
+      i += 1
+    elsif c == "}"
+      depth -= 1
+      return source[start..i] if depth == 0
+      i += 1
+    elsif c == "'" || c == '"' || c == "`"
+      q = c
+      i += 1
+      while i < source.length && source[i] != q
+        i += source[i] == "\\" ? 2 : 1
+      end
+      i += 1
+    elsif c == "/" && source[i + 1] == "/"
+      nl = source.index("\n", i)
+      i = nl ? nl + 1 : source.length
+    else
+      i += 1
+    end
+  end
+  raise "unclosed function #{name}"
+end
+
+studio_main = REPO_ROOT.join("studio-app/src/main.js").read
+%w[pollPipelineStatus refreshPipelineStatus armPipelineWatch].each do |fn|
+  body = function_source(studio_main, fn)
+  check!(!body.include?("renderShell"),
+         "#{fn} must not rebuild the shell (that drops editor focus while the chip spins)")
+  check!(body.include?("syncPipelineChip"),
+         "#{fn} must patch the pipeline chip in place")
+end
+reexport = function_source(studio_main, "reexportLocalContent")
+check!(!reexport.include?("renderShell"),
+       "local export must not rebuild the shell while the button spins")
+check!(reexport.include?("syncLocalExportButton"),
+       "local export must patch the export button in place")
 check!(!REPO_ROOT.join("studio-app/src/main.js").read.match?(/action:\s*"delete"/),
        "toolbar must not include a Delete action")
 

@@ -907,9 +907,20 @@ function pipelineChipMeta(pipelineState) {
   }
 }
 
+function pipelineChipViewKey() {
+  const meta = pipelineChipMeta(state.pipeline.state);
+  return JSON.stringify([
+    meta.className,
+    meta.spinning,
+    meta.icon,
+    meta.label,
+    meta.title,
+    state.pipeline.runUrl || "",
+  ]);
+}
+
 function renderPipelineChip() {
   const meta = pipelineChipMeta(state.pipeline.state);
-  const runUrl = state.pipeline.runUrl;
   const kids = [
     el("span", {
       className:
@@ -928,11 +939,13 @@ function renderPipelineChip() {
       "aria-label": meta.label,
       role: "status",
       "data-studio-action": "pipeline-status",
-      disabled: !runUrl,
+      "data-pipeline-key": pipelineChipViewKey(),
+      disabled: !state.pipeline.runUrl,
       onClick: () => {
-        if (!runUrl) return;
+        const url = state.pipeline.runUrl;
+        if (!url) return;
         try {
-          window.open(runUrl, "_blank", "noopener,noreferrer");
+          window.open(url, "_blank", "noopener,noreferrer");
         } catch {
           /* ignore */
         }
@@ -940,6 +953,18 @@ function renderPipelineChip() {
     },
     kids
   );
+}
+
+/**
+ * Swap the toolbar chip only. renderShell() wipes #app and remounts the
+ * editor, so a poll tick would steal focus for the whole pipeline run.
+ */
+function syncPipelineChip() {
+  const current = document.querySelector("[data-studio-action='pipeline-status']");
+  if (!current) return;
+  const key = pipelineChipViewKey();
+  if (current.getAttribute("data-pipeline-key") === key) return;
+  current.replaceWith(renderPipelineChip());
 }
 
 function applyPipelinePayload(data) {
@@ -966,11 +991,11 @@ async function refreshPipelineStatus(sha = null) {
   try {
     const data = await studioApi.pipelineStatus(sha || null);
     applyPipelinePayload(data);
-    renderShell();
+    syncPipelineChip();
   } catch (err) {
     state.pipeline.state = "error";
     state.pipeline.message = String(err.message || err);
-    renderShell();
+    syncPipelineChip();
   }
 }
 
@@ -985,7 +1010,7 @@ function armPipelineWatch(commitSha) {
   state.pipeline.sha = sha;
   state.pipeline.runUrl = "";
   state.pipeline.message = "";
-  renderShell();
+  syncPipelineChip();
   void pollPipelineStatus(gen, sha);
 }
 
@@ -1001,7 +1026,7 @@ async function pollPipelineStatus(gen, sha) {
       if (state.pipeline.state === "running" || state.pipeline.state === "awaiting_run") {
         state.pipeline.state = "stalled";
         state.pipeline.message = "Timed out waiting for the content pipeline.";
-        renderShell();
+        syncPipelineChip();
       }
       return;
     }
@@ -1013,15 +1038,15 @@ async function pollPipelineStatus(gen, sha) {
       applyPipelinePayload(data);
 
       if (data.state === "unconfigured" || data.state === "ok" || data.state === "error") {
-        renderShell();
+        syncPipelineChip();
         return;
       }
       if (data.state === "awaiting_run" && elapsed > STALL_MS) {
         state.pipeline.state = "stalled";
-        renderShell();
+        syncPipelineChip();
         return;
       }
-      renderShell();
+      syncPipelineChip();
     } catch (err) {
       if (gen !== state.pipeline.pollGen) return;
       softFails += 1;
@@ -1029,13 +1054,13 @@ async function pollPipelineStatus(gen, sha) {
       if (code === "actions_forbidden" || code === "github_unconfigured") {
         state.pipeline.state = "error";
         state.pipeline.message = String(err.message || err);
-        renderShell();
+        syncPipelineChip();
         return;
       }
       if (softFails >= 5) {
         state.pipeline.state = "error";
         state.pipeline.message = String(err.message || err);
-        renderShell();
+        syncPipelineChip();
         return;
       }
     }
@@ -1117,6 +1142,61 @@ function toolbarActionButton({
   );
 }
 
+function localExportPresentation() {
+  const exportBusy = state.reexporting || state.pipeline.state === "syncing";
+  return {
+    exportBusy,
+    className:
+      "btn btn-tool btn-reexport" +
+      (exportBusy ? " pipeline-running" : "") +
+      (state.pipeline.state === "ok" && !exportBusy ? " pipeline-ok" : "") +
+      (state.pipeline.state === "error" && !exportBusy ? " pipeline-error" : ""),
+    title: exportBusy
+      ? "Exporting content JSON locally"
+      : "Export content JSON locally and reload",
+    ariaLabel: exportBusy ? "Exporting locally" : "Export locally",
+    icon: exportBusy ? "progress_activity" : "sync",
+    label: exportBusy ? "Exporting…" : "Export",
+  };
+}
+
+/** Patch the local Export button without remounting the editor. */
+function syncLocalExportButton() {
+  const btn = document.querySelector("[data-studio-action='reexport']");
+  if (!btn) return;
+  const exp = localExportPresentation();
+  btn.className = exp.className;
+  btn.title = exp.title;
+  btn.setAttribute("aria-label", exp.ariaLabel);
+  btn.disabled = exp.exportBusy;
+  const icon = btn.querySelector(".material-symbols-outlined");
+  if (icon) {
+    icon.textContent = exp.icon;
+    icon.classList.toggle("studio-icon-spin", exp.exportBusy);
+  }
+  const label = btn.querySelector(".btn-label");
+  if (label) label.textContent = exp.label;
+}
+
+function syncToolbarStatus() {
+  const brand = document.querySelector(".studio-toolbar-brand");
+  if (!brand) return;
+  const statusText = state.error ? "Error" : state.status || "";
+  let pill = brand.querySelector(".studio-toolbar-status");
+  if (!statusText) {
+    if (pill) pill.remove();
+    return;
+  }
+  if (!pill) {
+    pill = el("span", { className: "status-pill studio-toolbar-status" });
+    brand.append(pill);
+  }
+  pill.className =
+    "status-pill studio-toolbar-status" + (state.error ? " error" : "");
+  pill.textContent = statusText;
+  pill.title = state.error || state.errorDetail || state.status || "";
+}
+
 function renderStudioToolbar({ brand = null, menuToggle = null } = {}) {
   const saveLabel = state.saving ? "Saving…" : state.dirty ? "Save" : "Saved";
   const saveIcon = state.saving ? "progress_activity" : state.dirty ? "save" : "check";
@@ -1137,24 +1217,18 @@ function renderStudioToolbar({ brand = null, menuToggle = null } = {}) {
 
   // Theme → pipeline/Export → Revert → Save. Pipeline chip is always present.
   if (isLocalDevHost()) {
-    const exportBusy = state.reexporting || state.pipeline.state === "syncing";
+    const exp = localExportPresentation();
     actions.push(
       toolbarActionButton({
-        className:
-          "btn btn-tool btn-reexport" +
-          (exportBusy ? " pipeline-running" : "") +
-          (state.pipeline.state === "ok" && !exportBusy ? " pipeline-ok" : "") +
-          (state.pipeline.state === "error" && !exportBusy ? " pipeline-error" : ""),
-        title: exportBusy
-          ? "Exporting content JSON locally"
-          : "Export content JSON locally and reload",
-        ariaLabel: exportBusy ? "Exporting locally" : "Export locally",
+        className: exp.className,
+        title: exp.title,
+        ariaLabel: exp.ariaLabel,
         action: "reexport",
-        disabled: exportBusy,
+        disabled: exp.exportBusy,
         onClick: () => reexportLocalContent(),
-        icon: exportBusy ? "progress_activity" : "sync",
-        label: exportBusy ? "Exporting…" : "Export",
-        spinning: exportBusy,
+        icon: exp.icon,
+        label: exp.label,
+        spinning: exp.exportBusy,
       })
     );
   } else {
@@ -1428,6 +1502,21 @@ function renderErrorBanner() {
     el("p", { className: "studio-error-message", text: state.error }),
     el("div", { className: "studio-error-actions" }, actions),
   ]);
+}
+
+/** Show or hide the failure banner without rebuilding the editor. */
+function syncErrorBanner() {
+  const main = document.querySelector(".studio-main");
+  if (!main) return;
+  const existing = main.querySelector(":scope > .studio-error-banner");
+  const next = renderErrorBanner();
+  if (existing && next) existing.replaceWith(next);
+  else if (existing && !next) existing.remove();
+  else if (!existing && next) {
+    const crumb = main.querySelector(".studio-breadcrumb");
+    if (crumb) crumb.before(next);
+    else main.prepend(next);
+  }
 }
 
 function renderShell() {
@@ -4008,7 +4097,9 @@ async function reexportLocalContent() {
   state.pipeline.message = "";
   state.status = "Reexporting…";
   clearError();
-  renderShell();
+  syncToolbarStatus();
+  syncErrorBanner();
+  syncLocalExportButton();
   try {
     const res = await fetch("/__dev/reexport", {
       method: "POST",
@@ -4023,9 +4114,11 @@ async function reexportLocalContent() {
     if (!res.ok || !data.ok) {
       throw new Error((data && data.error) || `Export failed: ${res.status}`);
     }
+    state.reexporting = false;
     state.pipeline.state = "ok";
     state.status = "Reexported — reloading…";
-    renderShell();
+    syncToolbarStatus();
+    syncLocalExportButton();
     setTimeout(() => {
       try {
         const url = new URL(window.location.href);
@@ -4036,12 +4129,13 @@ async function reexportLocalContent() {
       }
     }, 200);
   } catch (err) {
+    state.reexporting = false;
     state.pipeline.state = "error";
     state.pipeline.message = String(err.message || err);
     captureError(err);
-    renderShell();
-  } finally {
-    state.reexporting = false;
+    syncToolbarStatus();
+    syncErrorBanner();
+    syncLocalExportButton();
   }
 }
 
