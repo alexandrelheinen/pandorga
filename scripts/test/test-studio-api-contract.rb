@@ -33,14 +33,20 @@ end
 
 check!(gh_src.include?("getContentPipelineStatus"),
        "github helper must expose getContentPipelineStatus")
-check!(gh_src.include?("STUDIO_CONTENT_WORKFLOW") || api_src.include?("STUDIO_CONTENT_WORKFLOW"),
-       "pipeline status must read STUDIO_CONTENT_WORKFLOW")
+check!(gh_src.include?("parseContentWorkflowFromConfig"),
+       "pipeline status must read pandorga.content.workflow from _config.yml")
+check!(gh_src.include?("resolveContentWorkflowConfig"),
+       "pipeline status must resolve workflow from config (env optional override)")
 check!(gh_src.include?("mapWorkflowRunState"),
        "pipeline status must map Actions run status to UI state")
 check!(REPO_ROOT.join("studio-app/src/api/client.js").read.include?("pipelineStatus"),
        "SPA client must call pipeline-status")
 check!(REPO_ROOT.join("studio-app/src/main.js").read.include?("armPipelineWatch"),
        "SPA must watch the content pipeline after save")
+check!(REPO_ROOT.join("studio-app/src/main.js").read.include?("refreshPipelineStatus"),
+       "SPA must hydrate pipeline status on boot")
+check!(!REPO_ROOT.join("studio-app/src/main.js").read.match?(/action:\s*"delete"/),
+       "toolbar must not include a Delete action")
 
 check!(api_src.include?("media/folder") || api_src.include?('"folder"'),
        "API router should expose media folder create")

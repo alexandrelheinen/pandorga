@@ -12,12 +12,17 @@ bundle exec pandorga install-functions
 | Variable | Notes |
 |---|---|
 | `GITHUB_REPO` | `owner/name` — **required**, no default |
-| `GITHUB_TOKEN` | Fine-grained PAT: Contents **read/write**, and Actions **read** when using the pipeline indicator |
+| `GITHUB_TOKEN` | Fine-grained PAT: Contents **read/write**, and Actions **read** for the pipeline indicator |
 | `STUDIO_ALLOWED_ORIGINS` | Comma-separated exact Origins |
 | `CLERK_*` | Auth (see Clerk docs) |
 | `STUDIO_GUIDELINES_URL` | Optional; enables Refine |
-| `STUDIO_CONTENT_WORKFLOW` | Optional; workflow file under `.github/workflows/` (e.g. `content-pipeline.yml`). Enables the production pipeline status chip after Save |
-| `STUDIO_CONTENT_WORKFLOW_REF` | Optional; branch to query (default `main`) |
+
+Optional overrides (prefer site `_config.yml` instead):
+
+| Variable | Notes |
+|---|---|
+| `STUDIO_CONTENT_WORKFLOW` | Override workflow file; normally unused |
+| `STUDIO_CONTENT_WORKFLOW_REF` | Override branch (default `main`) |
 
 Compose the schema from templates and the page registry. Each registered
 page contributes its template `studio.yml`; removing the page drops those
@@ -38,35 +43,51 @@ items match the registry.
 
 Studio Save commits to `main` through the GitHub Contents API. Publishing
 JSON to the site’s object store is usually a separate Actions workflow on
-that push. The toolbar shows whether that second step finished.
+that push. The toolbar always shows a chip for that second step (between
+Theme and Revert).
+
+### Site config (`_config.yml`)
+
+Point Studio at the workflow in the site config — this is **not** a secret:
+
+```yaml
+pandorga:
+  content:
+    backend: r2
+    workflow: content-pipeline.yml
+    # workflow_ref: main   # optional
+```
+
+The Function reads `_config.yml` from the repo over the Contents API. An
+optional `STUDIO_CONTENT_WORKFLOW` env var overrides the file (local experiments
+only).
 
 ### Local (`localhost` / `127.0.0.1`)
 
-The **Export** button stays a real control. It calls `POST /__dev/reexport`,
-shows an exporting animation, then reloads. It does not call the Actions API.
+The **Export** button sits in the same toolbar slot. It calls
+`POST /__dev/reexport`, shows an exporting animation, then reloads. It does
+not call the Actions API.
 
 ### Production
 
-There is no Export control. After a successful Save (or create / delete /
-media commit), a status chip appears in that slot:
+After load, the chip shows the latest run on the configured workflow. After
+Save (or create / delete / media commit), it tracks **that** commit SHA:
 
 | State | Meaning |
 |---|---|
-| Waiting… (orange) | Commit succeeded; no matching workflow run yet |
+| Pipeline (muted) | Idle / no recent run |
+| Waiting… (orange) | Commit succeeded; no matching run yet |
 | Exporting… (orange, spinning) | Run is `queued` / `in_progress` |
-| Live (green) | Run completed with `conclusion=success` for that commit SHA |
+| Live (green) | Run completed with `conclusion=success` |
 | Failed (red) | Run failed or cancelled, or Actions API denied |
 | No run | No run appeared within about ten minutes |
 
-The chip correlates by **exact `head_sha`**, not “latest run on main”. Click
-opens the run URL when one exists.
+Click opens the run URL when one exists.
 
-API: `GET /api/studio/pipeline-status?sha=<commit>`. The Save response already
-includes `commit` (Git commit SHA). Set `STUDIO_CONTENT_WORKFLOW` on the
-Pages Function env or the indicator stays idle / reports unconfigured.
+API: `GET /api/studio/pipeline-status` (optional `?sha=<commit>`). The Save
+response includes `commit` (Git commit SHA).
 
-The PAT needs **Actions: Read** in addition to Contents write. Without it the
-chip turns red with an authorization message instead of spinning forever.
+The PAT needs **Actions: Read** in addition to Contents write.
 
 ## Android shell
 

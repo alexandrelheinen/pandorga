@@ -892,7 +892,9 @@ function pipelineChipMeta(pipelineState) {
         icon: "cloud_off",
         className: "pipeline-chip pipeline-idle",
         spinning: false,
-        title: "STUDIO_CONTENT_WORKFLOW is not set on the Studio API",
+        title:
+          state.pipeline.message ||
+          "Set pandorga.content.workflow in _config.yml (e.g. content-pipeline.yml)",
       };
     default:
       return {
@@ -940,6 +942,39 @@ function renderPipelineChip() {
   );
 }
 
+function applyPipelinePayload(data) {
+  state.pipeline.runUrl = data.run?.html_url || state.pipeline.runUrl || "";
+  if (data.sha) state.pipeline.sha = String(data.sha).toLowerCase();
+  state.pipeline.message = "";
+  if (data.state === "unconfigured") {
+    state.pipeline.state = "unconfigured";
+    state.pipeline.message =
+      "Set pandorga.content.workflow in _config.yml (e.g. content-pipeline.yml)";
+    return;
+  }
+  state.pipeline.state = data.state || "idle";
+  if (data.state === "error") {
+    state.pipeline.message = "Content pipeline failed for this commit.";
+  }
+}
+
+/** Hydrate the always-visible chip from the latest workflow run (or a SHA). */
+async function refreshPipelineStatus(sha = null) {
+  if (isLocalDevHost()) return;
+  try {
+    const data = await studioApi.pipelineStatus(sha || null);
+    applyPipelinePayload(data);
+    renderShell();
+  } catch (err) {
+    const code = err?.code || "";
+    if (code === "actions_forbidden" || code === "github_unconfigured") {
+      state.pipeline.state = "error";
+      state.pipeline.message = String(err.message || err);
+      renderShell();
+    }
+  }
+}
+
 /**
  * After a production Save, poll Actions for the content-pipeline run on this SHA.
  */
@@ -976,31 +1011,16 @@ async function pollPipelineStatus(gen, sha) {
       const data = await studioApi.pipelineStatus(sha);
       if (gen !== state.pipeline.pollGen) return;
       softFails = 0;
-      state.pipeline.runUrl = data.run?.html_url || state.pipeline.runUrl || "";
-      state.pipeline.message = "";
+      applyPipelinePayload(data);
 
-      if (data.state === "unconfigured") {
-        state.pipeline.state = "unconfigured";
+      if (data.state === "unconfigured" || data.state === "ok" || data.state === "error") {
         renderShell();
         return;
       }
-      if (data.state === "ok" || data.state === "error") {
-        state.pipeline.state = data.state;
-        if (data.state === "error") {
-          state.pipeline.message = "Content pipeline failed for this commit.";
-        }
+      if (data.state === "awaiting_run" && elapsed > STALL_MS) {
+        state.pipeline.state = "stalled";
         renderShell();
         return;
-      }
-      if (data.state === "running") {
-        state.pipeline.state = "running";
-      } else if (data.state === "awaiting_run") {
-        if (elapsed > STALL_MS) {
-          state.pipeline.state = "stalled";
-          renderShell();
-          return;
-        }
-        state.pipeline.state = "awaiting_run";
       }
       renderShell();
     } catch (err) {
@@ -1114,8 +1134,35 @@ function renderStudioToolbar({ brand = null, menuToggle = null } = {}) {
       : null,
   ]);
 
-  const actions = [
-    renderThemeMenu(),
+  const actions = [renderThemeMenu()];
+
+  // Theme → pipeline/Export → Revert → Save. Pipeline chip is always present.
+  if (isLocalDevHost()) {
+    const exportBusy = state.reexporting || state.pipeline.state === "syncing";
+    actions.push(
+      toolbarActionButton({
+        className:
+          "btn btn-tool btn-reexport" +
+          (exportBusy ? " pipeline-running" : "") +
+          (state.pipeline.state === "ok" && !exportBusy ? " pipeline-ok" : "") +
+          (state.pipeline.state === "error" && !exportBusy ? " pipeline-error" : ""),
+        title: exportBusy
+          ? "Exporting content JSON locally"
+          : "Export content JSON locally and reload",
+        ariaLabel: exportBusy ? "Exporting locally" : "Export locally",
+        action: "reexport",
+        disabled: exportBusy,
+        onClick: () => reexportLocalContent(),
+        icon: exportBusy ? "progress_activity" : "sync",
+        label: exportBusy ? "Exporting…" : "Export",
+        spinning: exportBusy,
+      })
+    );
+  } else {
+    actions.push(renderPipelineChip());
+  }
+
+  actions.push(
     toolbarActionButton({
       className: "btn btn-tool",
       title: "Revert all edits to the last loaded or saved version",
@@ -1140,45 +1187,8 @@ function renderStudioToolbar({ brand = null, menuToggle = null } = {}) {
       icon: saveIcon,
       label: saveLabel,
       spinning: state.saving,
-    }),
-  ];
-  if (state.file && collectionAllowsDelete()) {
-    actions.push(
-      toolbarActionButton({
-        className: "btn btn-tool btn-danger",
-        title: "Delete this entry from the repository",
-        ariaLabel: "Delete entry",
-        action: "delete",
-        onClick: () => deleteCurrentEntry(),
-        icon: "delete",
-        label: "Delete",
-      })
-    );
-  }
-  if (isLocalDevHost()) {
-    const exportBusy = state.reexporting || state.pipeline.state === "syncing";
-    actions.push(
-      toolbarActionButton({
-        className:
-          "btn btn-tool btn-reexport" +
-          (exportBusy ? " pipeline-running" : "") +
-          (state.pipeline.state === "ok" && !exportBusy ? " pipeline-ok" : "") +
-          (state.pipeline.state === "error" && !exportBusy ? " pipeline-error" : ""),
-        title: exportBusy
-          ? "Exporting content JSON locally"
-          : "Export content JSON locally and reload",
-        ariaLabel: exportBusy ? "Exporting locally" : "Export locally",
-        action: "reexport",
-        disabled: exportBusy,
-        onClick: () => reexportLocalContent(),
-        icon: exportBusy ? "progress_activity" : "sync",
-        label: exportBusy ? "Exporting…" : "Export",
-        spinning: exportBusy,
-      })
-    );
-  } else if (state.pipeline.state !== "idle") {
-    actions.push(renderPipelineChip());
-  }
+    })
+  );
 
   const kids = [
     brandCluster,
@@ -4257,6 +4267,7 @@ async function bootApp(clerk) {
   }
 
   renderShell();
+  void refreshPipelineStatus();
 
   scheduleTreePrefetch();
 

@@ -219,10 +219,10 @@ export async function listDir(env, dirPath) {
 /**
  * Map a GitHub Actions workflow run to Studio pipeline UI state.
  * @param {{ status?: string, conclusion?: string|null }|null} run
- * @returns {"awaiting_run"|"running"|"ok"|"error"}
+ * @returns {"awaiting_run"|"running"|"ok"|"error"|"idle"}
  */
 export function mapWorkflowRunState(run) {
-  if (!run) return "awaiting_run";
+  if (!run) return "idle";
   const status = String(run.status || "");
   if (status === "completed") {
     return run.conclusion === "success" ? "ok" : "error";
@@ -231,23 +231,111 @@ export function mapWorkflowRunState(run) {
 }
 
 /**
- * Look up the content-pipeline workflow run for a commit SHA.
+ * Read pandorga.content.workflow(+ workflow_ref) from site `_config.yml`.
+ * Tiny indent-aware peek — no YAML dependency in the Function.
+ */
+export function parseContentWorkflowFromConfig(yamlText) {
+  const lines = String(yamlText || "").split(/\r?\n/);
+  let inPandorga = false;
+  let pandorgaIndent = 0;
+  let inContent = false;
+  let contentIndent = 0;
+  let workflow = null;
+  let workflowRef = null;
+
+  for (const line of lines) {
+    if (!line.trim() || /^\s*#/.test(line)) continue;
+    const m = line.match(/^(\s*)([A-Za-z0-9_]+):\s*(.*?)\s*$/);
+    if (!m) continue;
+    const indent = m[1].length;
+    const key = m[2];
+    let val = m[3];
+    if (
+      (val.startsWith('"') && val.endsWith('"')) ||
+      (val.startsWith("'") && val.endsWith("'"))
+    ) {
+      val = val.slice(1, -1);
+    }
+
+    if (!inPandorga) {
+      if (key === "pandorga" && indent === 0) {
+        inPandorga = true;
+        pandorgaIndent = indent;
+      }
+      continue;
+    }
+
+    if (indent <= pandorgaIndent && key !== "pandorga") break;
+
+    if (key === "content" && indent > pandorgaIndent) {
+      inContent = true;
+      contentIndent = indent;
+      continue;
+    }
+
+    if (inContent) {
+      if (indent <= contentIndent) {
+        inContent = false;
+        if (key === "content" && indent > pandorgaIndent) {
+          inContent = true;
+          contentIndent = indent;
+        }
+        continue;
+      }
+      if (key === "workflow" && val) workflow = val;
+      if (key === "workflow_ref" && val) workflowRef = val;
+    }
+  }
+
+  return { workflow, workflowRef };
+}
+
+/**
+ * Workflow file + branch: optional env override, else `_config.yml`
+ * (`pandorga.content.workflow`).
+ */
+export async function resolveContentWorkflowConfig(env) {
+  const envWorkflow = String(env.STUDIO_CONTENT_WORKFLOW || "").trim();
+  const envRef = String(env.STUDIO_CONTENT_WORKFLOW_REF || "").trim();
+  if (envWorkflow) {
+    return {
+      workflow: envWorkflow,
+      ref: envRef || "main",
+      source: "env",
+    };
+  }
+
+  try {
+    const file = await getFile(env, "_config.yml");
+    if (file?.content) {
+      const parsed = parseContentWorkflowFromConfig(file.content);
+      if (parsed.workflow) {
+        return {
+          workflow: parsed.workflow,
+          ref: parsed.workflowRef || envRef || "main",
+          source: "config",
+        };
+      }
+    }
+  } catch {
+    /* fall through to unconfigured */
+  }
+
+  return { workflow: null, ref: envRef || "main", source: null };
+}
+
+/**
+ * Look up the content-pipeline workflow run for a commit SHA, or the latest
+ * run on the branch when `sha` is omitted.
  * Requires the PAT to have Actions read (fine-grained: Actions → Read).
  *
  * @param {object} env
- * @param {string} sha
- * @returns {Promise<{
- *   mode: "production",
- *   workflow: string|null,
- *   sha: string,
- *   state: "awaiting_run"|"running"|"ok"|"error"|"unconfigured",
- *   run: object|null,
- *   error: string|null
- * }>}
+ * @param {string} [sha]
  */
 export async function getContentPipelineStatus(env, sha) {
-  const workflowFile = String(env.STUDIO_CONTENT_WORKFLOW || "").trim();
-  const ref = String(env.STUDIO_CONTENT_WORKFLOW_REF || "main").trim() || "main";
+  const resolved = await resolveContentWorkflowConfig(env);
+  const workflowFile = resolved.workflow;
+  const ref = resolved.ref || "main";
   const commitSha = String(sha || "").trim().toLowerCase();
 
   if (!workflowFile) {
@@ -258,10 +346,11 @@ export async function getContentPipelineStatus(env, sha) {
       state: "unconfigured",
       run: null,
       error: null,
+      source: null,
     };
   }
-  if (!/^[0-9a-f]{7,40}$/.test(commitSha)) {
-    const err = new Error("sha required (7–40 hex chars)");
+  if (commitSha && !/^[0-9a-f]{7,40}$/.test(commitSha)) {
+    const err = new Error("sha must be 7–40 hex chars when provided");
     err.status = 400;
     err.code = "invalid_sha";
     throw err;
@@ -279,6 +368,7 @@ export async function getContentPipelineStatus(env, sha) {
       state: "unconfigured",
       run: null,
       error: "workflow_not_found",
+      source: resolved.source,
     };
   }
   if (wfRes.status === 401 || wfRes.status === 403) {
@@ -299,11 +389,13 @@ export async function getContentPipelineStatus(env, sha) {
   }
 
   const workflow = await wfRes.json();
-  const runsPath =
+  let runsPath =
     `/actions/workflows/${workflow.id}/runs` +
     `?branch=${encodeURIComponent(ref)}` +
-    `&head_sha=${encodeURIComponent(commitSha)}` +
     `&per_page=5`;
+  if (commitSha) {
+    runsPath += `&head_sha=${encodeURIComponent(commitSha)}`;
+  }
   const runsRes = await gh(env, runsPath);
   if (runsRes.status === 401 || runsRes.status === 403) {
     const text = await runsRes.text();
@@ -325,12 +417,14 @@ export async function getContentPipelineStatus(env, sha) {
   const payload = await runsRes.json();
   const runs = Array.isArray(payload.workflow_runs) ? payload.workflow_runs : [];
   const run = runs[0] || null;
-  const state = mapWorkflowRunState(run);
+  let state = mapWorkflowRunState(run);
+  // Watching a specific SHA with no run yet → waiting for the push trigger.
+  if (commitSha && !run) state = "awaiting_run";
 
   return {
     mode: "production",
     workflow: workflowFile,
-    sha: commitSha,
+    sha: commitSha || (run?.head_sha ? String(run.head_sha).toLowerCase() : ""),
     state,
     run: run
       ? {
@@ -342,6 +436,7 @@ export async function getContentPipelineStatus(env, sha) {
         }
       : null,
     error: null,
+    source: resolved.source,
   };
 }
 
