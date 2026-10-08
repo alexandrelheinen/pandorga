@@ -6,6 +6,7 @@
 
 - Studio keeps the editor focused while the content-pipeline chip is spinning.
   Status polls patch the toolbar chip instead of rebuilding the shell.
+- Home draft cards use 16:9 thumbnails and are 20% shorter on desktop and mobile.
 
 ## [1.4.6] — 2026-10-07
 
