@@ -32,7 +32,6 @@
     "article.home-project-specimen",
     "div.home-specimen-strip",
     "div.ledger-meta",
-    "span.ledger-status",
     "div.home-specimen-figure",
     "div.ledger-poster",
     "img",
@@ -45,13 +44,16 @@
     "span.home-specimen-open"
   ],
   "forbidden": [
-    "projects-plate"
+    "projects-plate",
+    "span.ledger-status"
+  ],
+  "excludes": [
+    ">Ongoing<"
   ],
   "contains": [
     ">#01<",
     ">Simulation<",
     ">2024<",
-    ">Ongoing<",
     ">ARCO<",
     ">Repository<",
     ">Article<",
