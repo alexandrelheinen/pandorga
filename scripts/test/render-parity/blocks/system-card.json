@@ -27,22 +27,27 @@
     "div.ledger-poster",
     "img",
     "div.ledger-meta",
-    "span.ledger-status",
     "h3.ledger-card-title",
     "a.ledger-card-stretch",
     "p.ledger-card-copy",
     "div.ledger-chip-row",
     "div.ledger-card-links"
   ],
+  "forbidden": [
+    "span.ledger-status"
+  ],
+  "excludes": [
+    ">Ongoing<"
+  ],
   "contains": [
     ">Repository<",
     ">Article<",
     ">Visit<",
     ">ARCO<",
-    ">Simulation"
+    ">Simulation<"
   ],
   "counts": {
-    "ledger-meta-sep": 1,
+    "ledger-meta-sep": 0,
     "ledger-cta": 3
   }
 }
