@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.4.8] — 2026-10-08
+
+### Changed
+
+- Home project bench: specimen and inventory share equal ~45.6% columns;
+  inventory thumbnails fill row height at 16:9; list titles, copy, and
+  resource marks retuned (neutral gray icons, tighter type)
+- Specimen tagline flexes into spare card height and ellipsizes with a
+  proper "…" (CSS line-clamp was hard-clipping mid-glyph)
+
 ## [1.4.7] — 2026-10-07
 
 ### Fixed

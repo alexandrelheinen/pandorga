@@ -250,6 +250,43 @@ layout: shell
         /* Lock height to the tallest project so swapping never moves the
            inventory. Remeasure on resize when the specimen column width
            changes (chip wrap / plate width). */
+        /* `-webkit-line-clamp` fails on the specimen card (mid-glyph crop,
+           no ellipsis). Copy flexes into spare card height; fit text here. */
+        function ellipsizeSpecimenCopy(root) {
+          var copy = root.querySelector('.ledger-card-copy');
+          if (!copy) return;
+          var full = copy.getAttribute('data-full-text') || copy.textContent;
+          copy.setAttribute('data-full-text', full);
+          copy.textContent = full;
+          if (copy.scrollHeight <= copy.clientHeight + 1) return;
+
+          function fitted(n) {
+            if (n >= full.length) {
+              copy.textContent = full;
+              return copy.scrollHeight <= copy.clientHeight + 1;
+            }
+            var slice = full.slice(0, n);
+            var sp = slice.lastIndexOf(' ');
+            if (sp > Math.floor(n * 0.5)) slice = slice.slice(0, sp);
+            copy.textContent = slice.replace(/[.,;:\s]+$/u, '') + '…';
+            return copy.scrollHeight <= copy.clientHeight + 1;
+          }
+
+          var lo = 0;
+          var hi = full.length;
+          var best = 0;
+          while (lo <= hi) {
+            var mid = (lo + hi) >> 1;
+            if (fitted(mid)) {
+              best = mid;
+              lo = mid + 1;
+            } else {
+              hi = mid - 1;
+            }
+          }
+          fitted(best);
+        }
+
         function paintSpecimen(entry) {
           specimenSlot.innerHTML = '';
           specimenSlot.appendChild(runtime.renderProjectSpecimen(asItem(entry), {
@@ -258,6 +295,7 @@ layout: shell
             folio: positionOf(entry.slug) + 1,
             openLabel: 'Open project'
           }));
+          ellipsizeSpecimenCopy(specimenSlot);
         }
 
         function measureTallestSpecimen() {
@@ -302,8 +340,21 @@ layout: shell
           var bench = specimenSlot.closest('.home-projects-bench');
           if (!bench) return;
           var tallest = measureTallestSpecimen();
-          if (tallest > 0) {
-            bench.style.setProperty('--home-specimen-height', tallest + 'px');
+          /* Floor at the CSS inventory minimum so six rows always clear
+             three stacked resource icons (see --home-inventory-min-height). */
+          var inventoryMin = 0;
+          var raw = window.getComputedStyle(bench)
+            .getPropertyValue('--home-inventory-min-height').trim();
+          if (raw) {
+            var probe = document.createElement('div');
+            probe.style.cssText = 'position:absolute;visibility:hidden;height:' + raw;
+            bench.appendChild(probe);
+            inventoryMin = Math.ceil(probe.getBoundingClientRect().height);
+            probe.remove();
+          }
+          var locked = Math.max(tallest, inventoryMin);
+          if (locked > 0) {
+            bench.style.setProperty('--home-specimen-height', locked + 'px');
           }
         }
 
