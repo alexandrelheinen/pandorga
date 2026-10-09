@@ -73,17 +73,17 @@
 }
 
 .article-content h2 {
-  /* 3pt under the detail-title step. ### and #### stay put: both remain a
-     step below, and #### is already UI body, under the reading size. */
-  font-size: calc(var(--type-title) - 3pt);
-}
-
-.article-content h3 {
+  /* Same step ### used to take. */
   font-size: var(--type-card-lg);
 }
 
+.article-content h3 {
+  /* Halfway between ## and the reading size. */
+  font-size: calc((var(--type-card-lg) + var(--type-prose)) / 2);
+}
+
 .article-content h4 {
-  font-size: var(--type-body);
+  font-size: var(--type-prose);
 }
 
 /* The paragraph gap belongs to ledger/detail.css, which sets it at 1.15em;

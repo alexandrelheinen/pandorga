@@ -692,15 +692,13 @@ aside:has(> .text-detail-sidebar) {
    to the paragraph under it to stop the eye on its own, and the hairline was
    doing most of the work. h3 and the sidebar h1 move with it below.
 
-   ## is 3pt under `--type-title` at every width. The narrow override used to
-   switch ## onto `--type-section-lg`, which is larger than the title step, so
-   a flat −3pt left the section head within 2px of the sidebar title. One size
-   keeps a 3pt gap under that title. ### (`--type-card-lg`) and ####
-   (`--type-body`) stay: the step under ## still holds, and #### is already
-   the UI body size, under the reading size. */
+   ## takes the card step (`--type-card-lg`), the size ### used to have.
+   ### is the midpoint of that step and the reading size. #### is the reading
+   size itself (`--type-prose`), so it matches the paragraph and still reads
+   as a heading by weight. */
 .article-content h2 {
   font-family: var(--font-content-title);
-  font-size: calc(var(--type-title) - 3pt);
+  font-size: var(--type-card-lg);
   font-weight: var(--weight-title);
   font-synthesis: none;
   line-height: 1.25;
@@ -726,8 +724,8 @@ aside:has(> .text-detail-sidebar) {
    over a sentence-shaped heading they shout. */
 .article-content h3 {
   font-family: var(--font-content-title);
-  /* Holds a step below h2. */
-  font-size: var(--type-card-lg);
+  /* Midpoint of ## (--type-card-lg) and #### (--type-prose). */
+  font-size: calc((var(--type-card-lg) + var(--type-prose)) / 2);
   font-weight: var(--weight-title);
   font-synthesis: none;
   letter-spacing: normal;
@@ -740,7 +738,7 @@ aside:has(> .text-detail-sidebar) {
 
 .article-content h4 {
   font-family: var(--font-body);
-  font-size: var(--type-body);
+  font-size: var(--type-prose);
   font-weight: var(--weight-title);
   font-synthesis: none;
   color: var(--color-on-surface);
