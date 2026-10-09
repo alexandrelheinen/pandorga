@@ -4,11 +4,9 @@
 
 ### Changed
 
-- Article section headings (`##`) sit 3pt under the detail-title step at
-  every width. The narrow override that used the larger section step is gone,
-  so `##` stays 3pt under the sidebar title on a phone. `###` and `####` stay
-  on their steps: both remain below `##`, and `####` is already under the
-  reading size.
+- Article `##` uses the card step (`--type-card-lg`). `###` sits halfway
+  between that step and the reading size. `####` matches the reading size
+  (`--type-prose`).
 
 ## [1.4.8] — 2026-10-08
 

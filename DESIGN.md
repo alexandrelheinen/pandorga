@@ -853,15 +853,13 @@ Its ink is `onSurface` — pure black in light, pure white in dark — so body
 copy and titles share the full foreground. Meta, captions, chips and other
 chrome stay on `onSurfaceVariant`.
 
-* **`h2`** (`##`) is the content-title face at `calc(var(--type-title) - 3pt)`
-  / 400, with a `gentleDivider` rule above and `--space-2xl` of air, so a long
-  article reads as a sequence of plates. The same size holds below 768px, which
-  keeps it 3pt under the sidebar title (the old narrow step, `--type-section-lg`,
-  sat level with that title once ## came down). The first `h2` in the column
-  loses its rule. `h3` and `h4` stay on `--type-card-lg` and `--type-body`.
-* **`h3`** is the label face at `0.95em`, uppercase, `0.1em` tracking, in
-  `primary`.
-* **`h4`** is the body sans at `1em / 600`.
+* **`h2`** (`##`) is the content-title face at `--type-card-lg` / 400, with a
+  `gentleDivider` rule above and `--space-2xl` of air, so a long article reads
+  as a sequence of plates. The first `h2` in the column loses its rule.
+* **`h3`** (`###`) is the same face, at the midpoint of `--type-card-lg` and
+  `--type-prose`.
+* **`h4`** (`####`) is the body face at `--type-prose` / 400, the same size as
+  the paragraph.
 * **`h1`** is untouched from the old build: body sans, 600, `1.4em`. It is
   rare in prose and has no rule above it.
 
