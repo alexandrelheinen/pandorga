@@ -690,10 +690,17 @@ aside:has(> .text-detail-sidebar) {
 
    Raised from 1.6em: at that size a section head opening a plate sat too close
    to the paragraph under it to stop the eye on its own, and the hairline was
-   doing most of the work. h3 and the sidebar h1 move with it below. */
+   doing most of the work. h3 and the sidebar h1 move with it below.
+
+   ## is 3pt under `--type-title` at every width. The narrow override used to
+   switch ## onto `--type-section-lg`, which is larger than the title step, so
+   a flat −3pt left the section head within 2px of the sidebar title. One size
+   keeps a 3pt gap under that title. ### (`--type-card-lg`) and ####
+   (`--type-body`) stay: the step under ## still holds, and #### is already
+   the UI body size, under the reading size. */
 .article-content h2 {
   font-family: var(--font-content-title);
-  font-size: var(--type-title);
+  font-size: calc(var(--type-title) - 3pt);
   font-weight: var(--weight-title);
   font-synthesis: none;
   line-height: 1.25;
@@ -1117,10 +1124,6 @@ nav.text-page-nav:not(:has(a)) {
   .text-detail-sidebar .article-meta {
     padding-left: var(--space-md);
     padding-right: var(--space-md);
-  }
-
-  .article-content h2 {
-    font-size: var(--type-section-lg);
   }
 
   /* A four-column benchmark table wanted 468px inside a 355px column at 390px

@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.4.9] — 2026-10-09
+
+### Changed
+
+- Article section headings (`##`) sit 3pt under the detail-title step at
+  every width. The narrow override that used the larger section step is gone,
+  so `##` stays 3pt under the sidebar title on a phone. `###` and `####` stay
+  on their steps: both remain below `##`, and `####` is already under the
+  reading size.
+
 ## [1.4.8] — 2026-10-08
 
 ### Changed
