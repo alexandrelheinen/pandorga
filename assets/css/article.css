@@ -73,7 +73,9 @@
 }
 
 .article-content h2 {
-  font-size: var(--type-title);
+  /* 3pt under the detail-title step. ### and #### stay put: both remain a
+     step below, and #### is already UI body, under the reading size. */
+  font-size: calc(var(--type-title) - 3pt);
 }
 
 .article-content h3 {
