@@ -79,6 +79,16 @@ if raw is None:
     sys.exit(1)
 score = int(round(float(raw) * 100))
 print(f"Lighthouse mobile performance: {score} ({mode})")
+audits = report.get("audits", {})
+for key in (
+    "first-contentful-paint",
+    "largest-contentful-paint",
+    "speed-index",
+    "total-blocking-time",
+    "cumulative-layout-shift",
+):
+    display = audits.get(key, {}).get("displayValue", "?")
+    print(f"  {key}: {display}")
 campaign = (
     "A score from 75 to 89 is acceptable only to ship a bug fix. "
     "An urgent performance campaign must bring it back to 90 or above."

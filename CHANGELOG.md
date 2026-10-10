@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.6.6] — 2026-10-10
+
+### Fixed
+
+- The text faces and the flag stylesheet are requested after the load
+  event. A head link let a fast connection finish them before the largest
+  paint, and the simulator then counted those files as part of that paint.
+  The same templates scored 87 on the release run and 97 on the pull
+  request. `font-display: swap` stays.
+- The markdown library loads with `defer`. The example home is already
+  HTML, so that script does not block the parser.
+
+No `pandorga:` config keys were added or renamed.
+
 ## [1.6.5] — 2026-10-10
 
 ### Fixed
