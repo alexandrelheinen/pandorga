@@ -13,6 +13,12 @@ is `Pandorga::VERSION` (`lib/pandorga/version.rb`).
 
 Read [CHANGELOG.md](../CHANGELOG.md) before you bump.
 
+## Home list tasks (1.6.9)
+
+No `pandorga:` keys were added. Filling the home bands yields between
+bands and between project specimen measurements. The lists still render.
+A release still needs a Lighthouse mobile score of 90 or above.
+
 ## Home lists (1.6.8)
 
 No `pandorga:` keys were added. Listing scripts start when the content

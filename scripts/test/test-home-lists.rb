@@ -43,7 +43,14 @@ end
 
 home = ROOT.join("_layouts/home.html").read
 fail!("home paint still runs before the runtime") unless home.scan("pandorga:runtime").length >= 2
-fail!("home bands still return when the runtime is missing") if home.include?("if (!runtime) return")
+fail!("home bands still fill in one turn") unless home.include?("scheduler.yield") && home.include?("await afterPaint()")
+fail!("specimen measurement does not yield") unless home.include?("await measureTallestSpecimen()")
+fail!("home still fills every band inside one callback") if home.include?("sections.forEach(function (section) { fillBand(section, index); })")
+fragments = ROOT.join("_includes/content-runtime/60-fragments.html").read
+fail!("home section markdown still runs in one turn") unless fragments.include?("function yieldToMain()") &&
+  fragments.include?("return yieldToMain().then(function () {")
+listing = ROOT.join("_includes/content-runtime/40-listing.html").read
+fail!("date formatting builds a new formatter per card") unless listing.include?("dateFormatters")
 
 marked = ROOT.join("_includes/content-runtime/00-config.html").read
 fail!("markdown library no longer defers") unless marked.include?("<script defer ")

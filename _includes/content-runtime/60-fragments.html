@@ -353,15 +353,31 @@
       });
     }
 
+    function yieldToMain() {
+      return new Promise(function (resolve) {
+        if (typeof scheduler !== 'undefined' && typeof scheduler.yield === 'function') {
+          scheduler.yield().then(resolve);
+          return;
+        }
+        window.setTimeout(resolve, 0);
+      });
+    }
+
     function hydrateHomeSections() {
       var roots = Array.prototype.slice.call(
         document.querySelectorAll('[data-content-home-section]')
       );
       if (!roots.length) return Promise.resolve();
       return loadPageHeaders().then(function (sections) {
+        var chain = Promise.resolve();
         roots.forEach(function (root) {
-          applyHomeSection(root, sections[root.getAttribute('data-content-home-section')]);
+          chain = chain.then(function () {
+            return yieldToMain().then(function () {
+              applyHomeSection(root, sections[root.getAttribute('data-content-home-section')]);
+            });
+          });
         });
+        return chain;
       }).catch(function (error) {
         console.error(error);
         roots.forEach(function (root) { applyHomeSection(root, null); });
@@ -605,21 +621,31 @@
     }
 
     function hydratePageFragments() {
-      document.querySelectorAll('[data-content-page-header]').forEach(function (el) {
-        hydratePageHeader(el);
+      var headers = Array.prototype.slice.call(document.querySelectorAll('[data-content-page-header]'));
+      var chain = Promise.resolve();
+      headers.forEach(function (el) {
+        chain = chain.then(function () {
+          return yieldToMain().then(function () { return hydratePageHeader(el); });
+        });
       });
       document.querySelectorAll('[data-content-fragment]').forEach(function (el) {
         var path = el.getAttribute('data-content-fragment');
         if (!path) return;
-        mountMarkdownFragment(path, el, {
-          loadingText: el.getAttribute('data-content-loading') || 'Loading...',
-          errorText: el.getAttribute('data-content-error') || 'Content could not be loaded right now.'
+        chain = chain.then(function () {
+          return yieldToMain().then(function () {
+            return mountMarkdownFragment(path, el, {
+              loadingText: el.getAttribute('data-content-loading') || 'Loading...',
+              errorText: el.getAttribute('data-content-error') || 'Content could not be loaded right now.'
+            });
+          });
         });
       });
-      hydrateHomeSections();
-      hydrateBandArt();
-      hydrateContacts();
-      hydrateHeroPortrait();
+      chain.then(function () {
+        hydrateHomeSections();
+        hydrateBandArt();
+        hydrateContacts();
+        hydrateHeroPortrait();
+      });
     }
 
     function schedulePageFragmentHydration() {
