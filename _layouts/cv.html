@@ -80,11 +80,14 @@ layout: shell
 </main>
 
 <script>
-    (function () {
+    (function bootCv() {
         'use strict';
 
         var runtime = window.ContentRuntime;
-        if (!runtime) return;
+        if (!runtime || typeof runtime.loadJson !== 'function') {
+            document.addEventListener('pandorga:runtime', bootCv, { once: true });
+            return;
+        }
 
         var experienceList = document.getElementById('cv-experience-list');
         var educationList = document.getElementById('cv-education-list');

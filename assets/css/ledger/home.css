@@ -740,6 +740,26 @@ html[data-theme="light"] .home-hero-plate {
   line-height: var(--home-featured-title-line);
 }
 
+/* Articles band only. Two points over the size the title already uses,
+   the same point step as the phone hero name. The section heading is
+   untouched. Listed cards in other bands are untouched. */
+[data-home-kind="articles"] .home-featured-title {
+  font-size: calc(var(--home-featured-title-size) + 2pt);
+}
+
+[data-home-kind="articles"] .home-card-grid .card-title,
+[data-home-kind="articles"] .home-card-grid .ledger-card-title {
+  font-size: calc(var(--type-card) + 2pt);
+}
+
+/* Phone only: the featured card's text sat against the top rule. One
+   step more than the shared top padding, and only on this card. */
+@media (max-width: 767px) {
+  [data-home-kind="articles"] .home-featured {
+    padding-top: calc(var(--space-md) + 0.75rem);
+  }
+}
+
 /* Home article / rascunho / project cards — content-title voice, not display. */
 .home-card-grid .ledger-card-title,
 .home-card-grid .card-title,

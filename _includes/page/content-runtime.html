@@ -17,4 +17,7 @@
 {% include content-runtime/43-blocks.html %}
 {% include content-runtime/90-bootstrap.html %}
   })();
+  /* Band and listing scripts sit in the page, so they run before this
+     assignment. They listen for the event and start once the runtime exists. */
+  document.dispatchEvent(new CustomEvent('pandorga:runtime'));
 </script>

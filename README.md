@@ -85,8 +85,9 @@ and an urgent performance campaign must then bring it back to 90 or above.
 Below 75 is never acceptable for a release. A pull request or a merge may
 score lower when that is unavoidable to keep the work modular. The release
 build publishes at 90 or above. Notes that include `LIGHTHOUSE_BUGFIX=1`
-may publish a bug fix from 75 to 89. Pull requests and merges only warn.
-The checklist is in [CONTRIBUTING.md](CONTRIBUTING.md).
+may publish a bug fix from 75 to 89. Pull requests and merges only warn
+on the score. The same run fails when the loaded example home has no
+project or article items. The checklist is in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 

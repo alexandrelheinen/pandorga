@@ -85,7 +85,12 @@
     {%- assign _ledger = "writing|detail" | split: "|" -%}
     {%- assign _article_css = true -%}
   {%- when "blog" -%}
-    {%- assign _ledger = "rascunhos|detail" | split: "|" -%}
+    {%- comment -%}
+      writing.css holds the rail, and it has to follow rascunhos.css. The
+      body rule in rascunhos.css is `display: block`, which would put the
+      licence back above the entries if it won the cascade.
+    {%- endcomment -%}
+    {%- assign _ledger = "rascunhos|writing|detail" | split: "|" -%}
     {%- assign _article_css = true -%}
   {%- when "cv" -%}
     {%- assign _ledger = "cv|detail" | split: "|" -%}

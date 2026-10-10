@@ -66,8 +66,46 @@
   display: block;
 }
 
-/* `.hidden` swaps the listing for the detail view; it has to beat the grid. */
-.rascunhos-body.hidden {
+/* Below 1024px the rail is a disclosure above the ledger, and the licence
+   is a child of that rail, so source order paints it above the texts.
+   `writing.css` already sets this column, but the per-page split dropped
+   that sheet from the blog layout, and this `display: block` beats the
+   flex rule whenever rascunhos.css is the later file. The selector here is
+   more specific than that block display, so the licence stays under the
+   entries even if the sheet list changes again. */
+@media (max-width: 1023px) {
+  .rascunhos-main .rascunhos-body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .rascunhos-main .rascunhos-body>.writing-rail:not([hidden]) {
+    display: contents;
+  }
+
+  .rascunhos-main .rascunhos-body>.rascunhos-ledger {
+    order: 1;
+  }
+
+  .rascunhos-main .writing-rail-licence {
+    order: 2;
+    margin-top: var(--space-xl);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--border-gentle-subtle);
+  }
+
+  .rascunhos-main .writing-rail-panel {
+    margin-bottom: var(--space-xl);
+  }
+
+  .rascunhos-main .writing-rail:has(> .writing-rail-panel[hidden]) .writing-rail-trigger {
+    margin-bottom: var(--space-xl);
+  }
+}
+
+/* `.hidden` swaps the listing for the detail view; it has to beat the
+   mobile flex column above, which is why the page class is on the selector. */
+.rascunhos-main .rascunhos-body.hidden {
   display: none;
 }
 

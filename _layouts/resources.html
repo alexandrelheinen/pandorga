@@ -34,11 +34,14 @@ layout: shell
 </main>
 
 <script>
-  (function () {
+  (function bootResources() {
     'use strict';
 
     var runtime = window.ContentRuntime;
-    if (!runtime || !runtime.ListingFilter) return;
+    if (!runtime || typeof runtime.loadJson !== 'function') {
+      document.addEventListener('pandorga:runtime', bootResources, { once: true });
+      return;
+    }
 
     var configRoot = document.querySelector('[data-listing-collection]');
     var collection = (configRoot && configRoot.getAttribute('data-listing-collection')) || 'resources';

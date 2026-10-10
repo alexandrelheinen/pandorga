@@ -60,6 +60,9 @@ TESTS=(
   scripts/test/test-hydrate-reserve.rb
   scripts/test/test-hero-summary.rb
   scripts/test/test-lighthouse-policy.rb
+  scripts/test/test-home-lists.rb
+  scripts/test/test-home-articles.rb
+  scripts/test/test-rascunhos-licence.rb
   scripts/test/test-css-delivery.rb
   scripts/test/test-discovery.rb
 )
