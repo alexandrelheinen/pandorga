@@ -55,12 +55,14 @@ TESTS=(
   scripts/test/test-r2-json-sync.rb
   scripts/test/test-writing-slug-limits.rb
   scripts/test/test-examples-build.rb
+  scripts/test/test-validate-allowlist.rb
 )
 
 failed=0
 for test in "${TESTS[@]}"; do
   if [[ ! -f "$test" ]]; then
-    echo "-- ${test} (missing, skip)"
+    echo "-- ${test} (missing)"
+    failed=1
     continue
   fi
   echo "-- ${test}"
