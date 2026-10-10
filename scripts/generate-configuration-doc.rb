@@ -66,7 +66,7 @@ def generate(schema)
   out << "via `scripts/generate-configuration-doc.rb` (`PLT-AC-11`)."
   out << ""
 
-  %w[identity content home].each do |section|
+  %w[identity content home fonts].each do |section|
     data = schema.fetch(section)
     out << "## #{data.fetch('title')}"
     out << ""

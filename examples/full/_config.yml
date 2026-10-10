@@ -18,6 +18,15 @@ pandorga:
     base_url: ""
   home:
     hero_art: page/hero-default.html
+  fonts:
+    title: "Cinzel Decorative"
+    body:
+      family: "Newsreader"
+      weights: [300, 400, 500, 600, 700]
+    mono:
+      family: "Courier Prime"
+      weights: [400, 700]
+      italic: true
   taxonomies:
     articles:
       tags: [Writing]

@@ -50,6 +50,27 @@ home:
       type: string
       notes: Include path for hero decoration (default `page/hero-default.html`)
 
+fonts:
+  title: "`pandorga.fonts`"
+  intro: |
+    Each value is a Google Fonts family name, or a map with `family` plus optional `weights` (integers) and `italic` (boolean). An omitted role keeps the Architectural Ledger face. `code` follows `mono`, and the tagline and CV body follow `body`, when the theme used one family for both. Text faces still load after the first paint, with `display=swap`. A `_data/themes/shared.yml` file remains the fallback under any role this map does not set.
+  keys:
+    title:
+      type: string or map
+      notes: Display face. Default family `Cinzel Decorative`, weights 400, 700, and 900
+    body:
+      type: string or map
+      notes: Reading face. Default family `Newsreader`, weights 300, 400, 500, 600, and 700
+    mono:
+      type: string or map
+      notes: Monospace face. Default family `Courier Prime`, roman and italic at 400 and 700
+    label:
+      type: string or map
+      notes: Optional chrome face. Default family `Marcellus SC`, weights 400 and 700
+    subtitle:
+      type: string or map
+      notes: Optional tagline face. Omitted, it follows `body` when the theme used the same family
+
 taxonomies:
   title: "`pandorga.taxonomies`"
   prose: |

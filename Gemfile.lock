@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    pandorga (1.6.9)
+    pandorga (1.7.0)
       jekyll (~> 4.3)
       jekyll-redirect-from (~> 0.16)
       jekyll-relative-links (~> 0.6)

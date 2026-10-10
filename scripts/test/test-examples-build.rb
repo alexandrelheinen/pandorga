@@ -90,6 +90,15 @@ end
     warn "FAIL test-examples-build: #{name} home is missing JSON-LD"
     exit 1
   end
+  ledger_faces = "family=Cinzel+Decorative:wght@400;700;900"
+  unless html.include?(ledger_faces) && html.include?("&display=swap") && html.include?("__pandorgaFontsHref")
+    warn "FAIL test-examples-build: #{name} home dropped the ledger font request"
+    exit 1
+  end
+  unless html.include?("--font-title: 'Cinzel Decorative', serif")
+    warn "FAIL test-examples-build: #{name} home dropped the title face"
+    exit 1
+  end
 end
 
 puts "PASS test-examples-build"

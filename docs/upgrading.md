@@ -13,6 +13,30 @@ is `Pandorga::VERSION` (`lib/pandorga/version.rb`).
 
 Read [CHANGELOG.md](../CHANGELOG.md) before you bump.
 
+## Site fonts (1.7.0)
+
+Optional. A site that sets nothing keeps Cinzel Decorative, Newsreader,
+and Courier Prime. Set a Google Fonts family, or a map with `family` and
+optional `weights` and `italic`:
+
+```yaml
+pandorga:
+  fonts:
+    title: "Fraunces"
+    body:
+      family: "Source Serif 4"
+      weights: [400, 600]
+    mono:
+      family: "IBM Plex Mono"
+      weights: [400, 500]
+      italic: true
+```
+
+`label` and `subtitle` use the same shape. The tagline follows `body`
+when you leave `subtitle` out and the theme used one family for both.
+Text faces still load after the first paint. A release still needs a
+Lighthouse mobile score of 90 or above.
+
 ## Home list tasks (1.6.9)
 
 No `pandorga:` keys were added. Filling the home bands yields between
