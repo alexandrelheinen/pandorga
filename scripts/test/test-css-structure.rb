@@ -64,6 +64,14 @@ sheets.each do |path|
     errors << "#{relative}: #{depth} unclosed brace(s) — every rule after the " \
               "offending block is swallowed and silently stops applying"
   end
+
+  if cleaned.match?(/\{[ \t\r\n]*\}/)
+    errors << "#{relative}: empty ruleset (a block that matches nothing)"
+  end
+
+  if source.include?("home-profile-summary")
+    errors << "#{relative}: .home-profile-summary is unused"
+  end
 end
 
 fail!("CSS structure problems:\n  - #{errors.join("\n  - ")}") unless errors.empty?

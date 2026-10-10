@@ -1498,26 +1498,6 @@ html[data-theme="light"] .home-hero-plate {
   }
 }
 
-@media (min-width: 768px) {}
-
-/* ── Profile band, hero plate scale, section action order ──
-   Appended after the parallel page work; see the redesign PR. */
-
-/* The portrait sits at the end of its grid column so its right edge meets
-   the edge every band below aligns to. Cap lives on the earlier
-   `.home-hero-portrait` rule (Borders Edition). */
-.home-profile-summary {
-  max-width: var(--reading-measure);
-}
-
-.home-profile-summary p {
-  margin-bottom: var(--space-md);
-}
-
-.home-profile-summary p:last-child {
-  margin-bottom: 0;
-}
-
 /* ── Reference band: Sources + Network of Ideas ──────────────────────────
    Two destinations in one band, each a card whose poster is a plate drawn
    from that section's own content by the export and fetched at runtime.
