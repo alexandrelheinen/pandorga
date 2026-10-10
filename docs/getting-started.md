@@ -10,7 +10,7 @@ Run a static-backend site without a Cloudflare account (`PLT-AC-6`).
 ## New site
 
 `pandorga new` copies `examples/minimal` (fictional Ada Example) and pins the
-gem at `~> 1.1`. Path and GitHub tag lines stay in the Gemfile as comments.
+gem at `~> 1.3`. Path and GitHub tag lines stay in the Gemfile as comments.
 
 ```bash
 pandorga new my-site
