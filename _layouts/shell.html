@@ -83,8 +83,10 @@
 </head>
 
 <body class="bg-background text-on-surface">
+  <a class="skip-link" href="#page-content">Skip to content</a>
 
   {% assign _nav_name = site.pandorga.identity | pandorga_hero_name: site.author, site.title %}
+  {% assign _home_label = site.author | default: site.pandorga.identity.name | default: _nav_name.wordmark %}
   {% assign nav_active = nil %}
   {% if page.collection == "articles" %}{% assign nav_active = "articles" %}{% endif %}
   {% if page.collection == "posts" %}{% assign nav_active = "blog" %}{% endif %}
@@ -98,7 +100,7 @@
   <nav class="sticky top-0 z-50 bg-surface">
     <div class="flex justify-between items-center w-full px-6 sm:px-8 md:px-10 pt-5 pb-3.5 leading-none max-w-7xl mx-auto">
       <div class="flex items-center gap-3 sm:gap-4 min-w-0">
-        <a href="/" aria-label="{{ site.author }} – Home" class="shrink-0 inline-flex items-center gap-3 site-wordmark-link">
+        <a href="/" aria-label="{% if _home_label != blank %}{{ _home_label }} – Home{% else %}Home{% endif %}" class="shrink-0 inline-flex items-center gap-3 site-wordmark-link">
           {% include theme/site-logo.html %}
           <span class="site-wordmark">{{ _nav_name.wordmark }}</span>
         </a>
@@ -190,7 +192,9 @@
 
   {% include page/content-runtime.html %}
 
+  <div id="page-content" tabindex="-1">
   {{ content }}
+  </div>
 
   {% include page/figure-lightbox.html %}
 

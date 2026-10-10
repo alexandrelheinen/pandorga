@@ -29,6 +29,7 @@
 {%- endcomment -%}
 
 {%- assign footer_active = include.nav_active -%}
+{%- assign footer_name = site.author | default: site.pandorga.identity.name -%}
 {%- assign footer_license = site.content_license -%}
 
 <footer class="site-footer">
@@ -39,9 +40,9 @@
     <div class="site-footer-grid">
 
       <div class="site-footer-block site-footer-masthead">
-        <a href="/" class="site-footer-wordmark-link" aria-label="{{ site.author }} – Home">
+        <a href="/" class="site-footer-wordmark-link" aria-label="{% if footer_name != blank %}{{ footer_name }} – Home{% else %}Home{% endif %}">
           {% include theme/site-logo.html %}
-          <span class="site-footer-wordmark">{{ site.author }}</span>
+          <span class="site-footer-wordmark">{{ footer_name }}</span>
         </a>
         {%- comment -%}
           The same fragment the home hero mounts, so the line the site opens
