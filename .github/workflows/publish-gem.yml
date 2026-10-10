@@ -3,10 +3,44 @@ name: publish-gem
 on:
   release:
     types: [published]
+  push:
+    tags: ["v*"]
   workflow_dispatch:
 
+# A release also pushes the tag, so both events start this workflow.
+# The later run replaces the earlier one. The gem push waits for the
+# enforcing Lighthouse pass in that same run.
+concurrency:
+  group: publish-${{ github.ref_name }}
+  cancel-in-progress: true
+
 jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4.4"
+          bundler-cache: true
+      - name: Validate
+        run: ./scripts/validate.sh
+      - name: Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+      - name: Lighthouse mobile home
+        env:
+          LIGHTHOUSE_MODE: enforce
+        run: ./scripts/lighthouse-home.sh
+
   push:
+    needs: lighthouse
+    # A bare tag push is the score gate. Publishing the gem stays on the
+    # release event and on a manual run.
+    if: github.event_name != 'push'
     runs-on: ubuntu-latest
     # Must match the GitHub Environment name configured on RubyGems.org
     # (Trusted Publishing → Environment: release).

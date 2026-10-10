@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Lighthouse mobile thresholds apply to releases. Pull requests and merges
+  to main only warn. The release build checks out the tag and fails below 75.
+
 ## [1.6.4] — 2026-10-10
 
 ### Fixed

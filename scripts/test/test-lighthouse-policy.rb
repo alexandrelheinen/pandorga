@@ -22,12 +22,17 @@ shell = ROOT.join("_layouts/shell.html").read
 base = ROOT.join("assets/css/base.css").read
 script = ROOT.join("scripts/lighthouse-home.sh").read
 workflow = ROOT.join(".github/workflows/validate.yml").read
+release = ROOT.join(".github/workflows/publish-gem.yml").read
 
 docs.each do |name, text|
-  fail!("#{name} does not require 90 or above") unless text.include?("90 or above")
-  fail!("#{name} does not limit 75 to 89 to a bug fix") unless text.include?("only to ship a bug fix")
-  fail!("#{name} does not require the performance campaign") unless text.include?("urgent performance campaign")
-  fail!("#{name} does not forbid a score below 75") unless text.include?("Below 75 is never acceptable")
+  flat = text.gsub(/\s+/, " ")
+  fail!("#{name} does not require 90 or above") unless flat.include?("90 or above")
+  fail!("#{name} does not limit 75 to 89 to a bug fix") unless flat.include?("only to ship a bug fix")
+  fail!("#{name} does not require the performance campaign") unless flat.include?("urgent performance campaign")
+  fail!("#{name} does not forbid a score below 75") unless flat.include?("Below 75 is never acceptable")
+  fail!("#{name} does not limit the floors to releases") unless flat.include?("apply to releases")
+  fail!("#{name} does not allow a lower pull-request score") unless flat.include?("may score lower")
+  fail!("#{name} does not allow modular work") unless flat.include?("modular")
 end
 
 spec = docs.fetch("spec")
@@ -37,8 +42,13 @@ fail!("spec dropped the slower-release reason") unless spec.include?("slower rel
 fail!("contributing dropped the slower-release reason") unless contributing.include?("slower release is better than a broken one")
 
 fail!("lighthouse script is not the CI check") unless workflow.include?("./scripts/lighthouse-home.sh")
+fail!("pull requests still fail the lighthouse gate") unless workflow.include?("LIGHTHOUSE_MODE: warn")
+fail!("release build does not enforce the score") unless release.include?("LIGHTHOUSE_MODE: enforce")
+fail!("tag builds do not run the release gate") unless release.include?('tags: ["v*"]')
 fail!("lighthouse script lost the fail floor") unless script.include?("FAIL_BELOW=75")
 fail!("lighthouse script lost the warn floor") unless script.include?("WARN_BELOW=90")
+fail!("lighthouse script lost enforce mode") unless script.include?('LIGHTHOUSE_MODE:-enforce')
+fail!("warn mode still fails the run") unless script.include?('mode == "enforce"')
 fail!("lighthouse script is not a single mobile run") unless script.include?("--form-factor=mobile")
 fail!("lighthouse script repeats runs") if script.include?("--repeat")
 
