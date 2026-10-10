@@ -518,7 +518,7 @@ Criteria are written in EARS format. Every criterion is referenced by at least o
 - `PLT-AC-20` A hero portrait entry may set `srcset` and `sizes`. An entry with only `src` must keep that shape (`test-discovery`).
 - `PLT-AC-21` The build must write `sitemap.xml` and `robots.txt` with a `Sitemap:` line, and the shell must emit JSON-LD for the site and the person named by `identity.name` (`test-discovery`, `test-examples-build`).
 - `PLT-AC-22` The articles featured slot may reserve height only until the listing decides. On a page after the first, or when no specimen is drawn, that slot must collapse (`test-hydrate-reserve`).
-- `PLT-AC-23` When `content/pages/cv/summary.md` is present, the home hero must include that summary as HTML (`data-content-static`) and must not replace it from script. When the file is absent, the quiet fragment remains. The body face keeps `font-display: swap`, a serif fallback, and the font stylesheet is requested before the ledger sheets (`test-hero-summary`, `test-examples-build`).
+- `PLT-AC-23` When `content/pages/cv/summary.md` is present, the home hero must include that summary as HTML (`data-content-static`) and must not replace it from script. When the file is absent, the quiet fragment remains. The body face keeps `font-display: swap` and a serif fallback. Its stylesheet must follow the preload script and the local sheets: that script is parser-blocking, so a sheet above it holds first paint on the font host (`test-hero-summary`, `test-examples-build`).
 
 ## 13. Owner decisions
 

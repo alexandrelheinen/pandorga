@@ -2,7 +2,9 @@
 # frozen_string_literal: true
 
 # Hero summary is HTML at build time. The empty box and the sans fallback
-# were the home CLS. PLT-AC-23.
+# were the home CLS. The font stylesheet must not precede the preload
+# script: that script is parser-blocking, so a sheet above it holds first
+# paint on fonts.googleapis.com. PLT-AC-23.
 
 require "pathname"
 require "tmpdir"
@@ -55,10 +57,12 @@ fail!("font stylesheet dropped display=swap") unless fonts.include?("&display=sw
 
 font_at = shell.index("theme/font-loader.html")
 base_at = shell.index('href="/assets/css/base.css"')
+script_at = shell.index("theme/critical-preload.html")
 preconnect_at = shell.index("fonts.googleapis.com")
-fail!("font loader missing") unless font_at
-fail!("body face is requested after the ledger sheets") unless font_at < base_at
-fail!("font host is not preconnected before the stylesheet") unless preconnect_at && preconnect_at < font_at
+fail!("font loader missing") unless font_at && script_at && base_at
+fail!("font stylesheet precedes the preload script") unless script_at < font_at
+fail!("font stylesheet precedes local CSS") unless base_at < font_at
+fail!("font host is not preconnected before the preload script") unless preconnect_at && preconnect_at < script_at
 fail!("body fallback is still a sans") unless shared.include?('body_fallback: "Georgia, serif"')
 
 puts "PASS test-hero-summary"

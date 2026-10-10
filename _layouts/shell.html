@@ -58,9 +58,14 @@
   <meta name="twitter:image" content="{{ og_image_url }}" />
   <!-- Canonical URL -->
   <link rel="canonical" href="{{ canonical_path | absolute_url }}" />
+  {%- comment -%}
+    Preconnect only. font-loader's stylesheet is render-blocking, and the
+    preload script below is parser-blocking. A stylesheet before that script
+    holds the parser until fonts.googleapis.com answers, so the ledger sheets
+    and the hero summary cannot paint. The face is linked with the other sheets.
+  {%- endcomment -%}
   <link href="https://fonts.googleapis.com" rel="preconnect" />
   <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-  {% include theme/font-loader.html %}
   {% include theme/critical-preload.html %}
   <link rel="stylesheet" href="/assets/css/base.css" />
   <link rel="stylesheet" href="/assets/css/global-link.css" />
@@ -110,6 +115,7 @@
   {%- for _sheet in _ledger -%}
   <link rel="stylesheet" href="/assets/css/ledger/{{ _sheet }}.css" />
   {%- endfor -%}
+  {% include theme/font-loader.html %}
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
     rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css" />

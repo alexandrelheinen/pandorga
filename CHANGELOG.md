@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.6.3] — 2026-10-10
+
+### Fixed
+
+- The Google Fonts stylesheet is linked with the ledger sheets again. In
+  1.6.2 it sat above the preload script, and that script cannot run until
+  earlier stylesheets finish, so first paint waited on fonts.googleapis.com.
+  The font hosts are still preconnected before that script. The static
+  summary and the serif fallback are unchanged.
+
+No `pandorga:` config keys were added or renamed.
+
 ## [1.6.2] — 2026-10-10
 
 ### Fixed
