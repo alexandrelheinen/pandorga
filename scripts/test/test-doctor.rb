@@ -3,6 +3,7 @@
 # Refs: PLT-0.3, PLT-AC-5
 require "pathname"
 require "open3"
+require "fileutils"
 
 ROOT = Pathname.new(__dir__).join("../..").expand_path
 EXAMPLE = ROOT.join("examples/minimal")
@@ -33,6 +34,43 @@ if st.success?
 end
 unless err.include?("pandorga:")
   warn "FAIL test-doctor: expected error about pandorga: key\n#{err}"
+  exit 1
+end
+
+missing = ROOT.join("tmp/doctor-missing-pages")
+FileUtils.rm_rf(missing)
+missing.mkpath
+missing.join("_config.yml").write(<<~YAML)
+  pandorga:
+    identity:
+      name: Ada Example
+YAML
+_out, err, st = run_doctor(missing)
+unless st.success?
+  warn "FAIL test-doctor: missing pages should warn, not fail\n#{err}"
+  exit 1
+end
+unless err.include?("pandorga.pages is missing")
+  warn "FAIL test-doctor: expected a missing-pages warning\n#{err}"
+  exit 1
+end
+
+empty = ROOT.join("tmp/doctor-empty-pages")
+FileUtils.rm_rf(empty)
+empty.mkpath
+empty.join("_config.yml").write(<<~YAML)
+  pandorga:
+    identity:
+      name: Ada Example
+    pages: []
+YAML
+_out, err, st = run_doctor(empty)
+unless st.success?
+  warn "FAIL test-doctor: empty pages should warn, not fail\n#{err}"
+  exit 1
+end
+unless err.include?("pandorga.pages is empty")
+  warn "FAIL test-doctor: expected an empty-pages warning\n#{err}"
   exit 1
 end
 
