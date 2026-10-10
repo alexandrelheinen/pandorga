@@ -25,10 +25,12 @@
 ### Changed
 
 - The site and Studio launcher icons are the same stamp, on the same
-  plate, in the same pastel triad. Studio adds a small badge. The build
-  writes `/site.webmanifest` and `/studio.webmanifest` with maskable
-  icons, so Android masks both to one shape. The shell links the site
-  manifest. Studio links the studio manifest.
+  plate, in the same pastel triad. The stamp is the same size on both,
+  with the same padding, at 512, 192, 180, and 32. Studio adds a small
+  badge inside that stamp. The build writes `/site.webmanifest` and
+  `/studio.webmanifest` with maskable icons, so Android masks both to
+  one shape and one visual size. The shell links the site manifest.
+  Studio links the studio manifest.
 
 No `pandorga:` config keys were added or renamed.
 

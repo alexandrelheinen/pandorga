@@ -27,9 +27,12 @@ licence stays under the entries.
 ## Launcher icons (1.6.8)
 
 The gem draws the site icon and the Studio icon from the site stamp.
-Studio adds a small badge. The build writes `/site.webmanifest` and
-`/studio.webmanifest`. Each lists 192 and 512 icons with purpose `any`
-and purpose `maskable`. Android then masks both shortcuts to one shape.
+Studio adds a small badge inside the stamp. At 512, 192, 180, and 32
+the canvases match, and the stamp uses the same pixel bounds on both,
+so the home-screen shortcuts are the same visual size. The build writes
+`/site.webmanifest` and `/studio.webmanifest`. Each lists 192 and 512
+icons with purpose `any` and purpose `maskable`. Android then masks
+both shortcuts to one shape.
 
 A file in the website at the same path replaces the gem file. Replace
 these four so the tab icon and the Apple icon match the installed icons:
@@ -40,6 +43,9 @@ these four so the tab icon and the Apple icon match the installed icons:
 | `assets/icons/favicon.svg` | `assets/icons/favicon.svg` |
 | `assets/icons/favicon-32.png` | `assets/icons/favicon-32.png` |
 | `assets/icons/apple-touch-icon.png` | `assets/icons/apple-touch-icon.png` |
+
+Copy those four files at the gem's pixel size. Resizing one of them
+changes the home-screen size of that shortcut.
 
 Leave these paths absent. A file there hides the icon the manifest names:
 
@@ -54,6 +60,7 @@ Leave these paths absent. A file there hides the icon the manifest names:
 - `assets/icons/studio-apple-touch-icon.png`
 - `assets/icons/studio-logo.svg`
 - `assets/icons/studio-logo-32.png`
+- `assets/icons/studio-logo.ico`
 
 Do not commit `site.webmanifest` or `studio.webmanifest`. The gem writes
 them. `pandorga install-functions` copies `studio/index.html`, which
