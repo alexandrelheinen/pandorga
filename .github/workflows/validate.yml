@@ -33,3 +33,9 @@ jobs:
           bundler-cache: true
       - name: Validate
         run: ./scripts/validate.sh
+      - name: Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+      - name: Lighthouse mobile home
+        run: ./scripts/lighthouse-home.sh
