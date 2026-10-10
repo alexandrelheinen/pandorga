@@ -17,7 +17,7 @@ An aesthetic Jekyll publishing platform for creative and technical writing. The 
 Scaffold a site (Ada Example defaults, `content.backend: static`):
 
 ```bash
-gem install pandorga   # once 1.1 is on RubyGems; or use a local checkout
+gem install pandorga   # or use a local checkout
 pandorga new my-site
 cd my-site
 bundle install

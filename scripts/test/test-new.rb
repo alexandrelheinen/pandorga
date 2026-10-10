@@ -21,6 +21,17 @@ def run_doctor(dir)
   Open3.capture3(env, "ruby", EXE.to_s, "doctor", dir.to_s)
 end
 
+guide = ROOT.join("docs/getting-started.md").read
+readme = ROOT.join("README.md").read
+unless guide.include?('gem at `~> 1.3`')
+  warn "FAIL test-new: getting-started must document the scaffold pin ~> 1.3"
+  exit 1
+end
+if readme.include?("once 1.1 is on RubyGems")
+  warn "FAIL test-new: README still says the gem is unpublished at 1.1"
+  exit 1
+end
+
 FileUtils.rm_rf(DEST)
 
 stdout, stderr, status = run_new(DEST.to_s)
