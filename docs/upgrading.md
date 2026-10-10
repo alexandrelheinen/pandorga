@@ -15,8 +15,8 @@ Read [CHANGELOG.md](../CHANGELOG.md) before you bump.
 
 ## Example home score (1.6.7)
 
-No `pandorga:` keys were added. The text-face stylesheet is in the head
-again, after the local sheets. The icon face requests named icons only.
+No `pandorga:` keys were added. Text faces are requested after the first
+paint and before the load event. The icon face requests named icons only.
 Lighthouse runs against `examples/full`, which has a static hero summary.
 
 ## Example home score (1.6.6)

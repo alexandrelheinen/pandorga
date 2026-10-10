@@ -4,10 +4,10 @@
 
 ### Fixed
 
-- The text faces are a head link again. Requesting them after the load
-  event held the hero summary until images and late sheets finished, so
-  the live home scored about 50 while the example, which has no summary,
-  scored 98.
+- Text faces are requested after the first paint and before the load
+  event. A blocking sheet held first paint on the font host. The load
+  event held the hero summary until images finished, so the live home
+  scored about 50 while the example, which has no summary, scored 98.
 - The icon face names the icons it needs. The full variable file is about
   a megabyte, and decoding it blocked the main thread on the live home.
 - The project inventory region has a role to match its accessible name.
