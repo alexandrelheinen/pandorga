@@ -1,19 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Studio">
-  <title>Studio</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Site">
+  <title>Site</title>
   <style>
-    /* Same stamp and plate as the site icon. The small badge is the only
-       difference. It stays inside the maskable safe zone. */
+    /* Light plate: pastel triad on the dark frame. Dark plate: production triad
+       on the light frame. The mark stays inside the maskable safe zone. */
     .primary { fill: #a4c8da; }
     .secondary { fill: #95c8a6; }
     .tertiary { fill: #ddd8a8; }
     .plate { fill: #5e5d59; }
-    .badge { fill: #b8b7ae; }
     @media (prefers-color-scheme: dark) {
       .primary { fill: #1c5a7a; }
       .secondary { fill: #287445; }
       .tertiary { fill: #746f30; }
       .plate { fill: #b8b7ae; }
-      .badge { fill: #5e5d59; }
     }
   </style>
   <rect class="plate" width="32" height="32"/>
@@ -22,5 +20,4 @@
     <polygon class="secondary" points="23,0 32,0 32,32 17,21 15,17"/>
     <polygon class="tertiary" points="0,20 15,17 17,21 32,32 0,32"/>
   </g>
-  <rect class="badge" x="20.32" y="20.32" width="2.88" height="2.88"/>
 </svg>
