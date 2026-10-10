@@ -17,7 +17,8 @@ Read [CHANGELOG.md](../CHANGELOG.md) before you bump.
 
 No `pandorga:` keys were added. The text-face stylesheet and the flag
 stylesheet are added after the page loads. The markdown library loads
-with `defer`.
+with `defer`. A release below 90 does not publish unless the notes
+include `LIGHTHOUSE_BUGFIX=1`.
 
 ## Example home score (1.6.5)
 

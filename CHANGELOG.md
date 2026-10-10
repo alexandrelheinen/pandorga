@@ -12,6 +12,11 @@
 - The markdown library loads with `defer`. The example home is already
   HTML, so that script does not block the parser.
 
+### Changed
+
+- A release below 90 does not publish. A bug-fix release whose notes
+  include `LIGHTHOUSE_BUGFIX=1` may still publish from 75 to 89.
+
 No `pandorga:` config keys were added or renamed.
 
 ## [1.6.5] — 2026-10-10

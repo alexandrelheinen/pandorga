@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # One Lighthouse mobile run against the built example home.
-# Thresholds apply to releases. LIGHTHOUSE_MODE=enforce fails below 75
-# and warns below 90. LIGHTHOUSE_MODE=warn never fails the run. PLT-AC-24.
+# Thresholds apply to releases. LIGHTHOUSE_MODE=enforce does not publish
+# below 90 unless LIGHTHOUSE_BUGFIX=1, and that bug-fix release still
+# fails below 75. LIGHTHOUSE_MODE=warn never fails the run. PLT-AC-24.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -11,6 +12,7 @@ OUT="${LIGHTHOUSE_REPORT:-/tmp/lighthouse-home.json}"
 FAIL_BELOW=75
 WARN_BELOW=90
 MODE="${LIGHTHOUSE_MODE:-enforce}"
+BUGFIX="${LIGHTHOUSE_BUGFIX:-}"
 
 fail() {
   echo "ERROR: $1" >&2
@@ -65,11 +67,11 @@ npx --yes lighthouse@13.5.0 "http://127.0.0.1:${PORT}/" \
   --chrome-path="${CHROME}" \
   --chrome-flags="--headless=new --no-sandbox --disable-gpu"
 
-python3 - "${OUT}" "${FAIL_BELOW}" "${WARN_BELOW}" "${MODE}" <<'PY'
+python3 - "${OUT}" "${FAIL_BELOW}" "${WARN_BELOW}" "${MODE}" "${BUGFIX}" <<'PY'
 import json
 import sys
 
-path, fail_below, warn_below, mode = sys.argv[1:]
+path, fail_below, warn_below, mode, bugfix = sys.argv[1:]
 fail_below = int(fail_below)
 warn_below = int(warn_below)
 report = json.load(open(path, encoding="utf-8"))
@@ -95,6 +97,13 @@ campaign = (
 )
 if score < fail_below and mode == "enforce":
     print(f"::error::Lighthouse mobile performance {score} is below {fail_below}")
+    sys.exit(1)
+if mode == "enforce" and score < warn_below and bugfix != "1":
+    print(
+        f"::error::Lighthouse mobile performance {score} is below {warn_below}. "
+        + campaign
+        + " This release is not marked LIGHTHOUSE_BUGFIX=1, so it will not publish."
+    )
     sys.exit(1)
 if score < fail_below:
     print(
