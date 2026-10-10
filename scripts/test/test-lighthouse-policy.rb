@@ -68,18 +68,19 @@ fail!("screen still has a flag stylesheet link") if screen.match?(/<link\b[^>]*f
 fail!("flag sheet is not deferred until load") unless screen.include?("flag-icons@7.2.3")
 fail!("icon face is the full variable font") if shell.include?("0..1&display=swap")
 fail!("icon face is not a named subset") unless shell.include?("icon_names=")
-fail!("icon subset is not a head link") unless screen.include?('id="pandorga-icons"')
+fail!("icon subset link has no id") unless screen.include?("pandorga-icons")
 
 fonts = ROOT.join("_includes/theme/font-loader.html").read
 fail!("text faces are preloaded") if fonts.include?('rel="preload"')
 fail!("text face still waits for the load event") if fonts.include?("addEventListener('load'")
-fail!("text face stylesheet is missing") unless fonts.include?('rel="stylesheet" href="{{ fonts_href }}"')
+fail!("text face href is not handed to the shell") unless fonts.include?("__pandorgaFontsHref")
+fail!("text face is not requested after first paint") unless screen.scan("requestAnimationFrame").length >= 2
 
 marked = ROOT.join("_includes/content-runtime/00-config.html").read
 fail!("markdown library still blocks parsing") unless marked.include?("<script defer ")
 fail!("markdown library source changed") unless marked.include?("marked@15.0.7/marked.min.js")
 
-fail!("spec still withholds the text face until load") unless spec.include?("text-face stylesheet is a head link")
+fail!("spec still withholds the text face until load") unless spec.include?("after the first paint and before the load event")
 fail!("lighthouse example is not the full site") unless script.include?("examples/full")
 fail!("lighthouse example can ship without a static summary") unless script.include?("data-content-static")
 summary = ROOT.join("examples/full/content/pages/cv/summary.md").read

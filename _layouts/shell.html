@@ -134,15 +134,23 @@
     {%- endfor -%}
   {%- endfor -%}
   {%- assign _symbols_href = "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&icon_names=" | append: _icon_names | append: "&display=swap" -%}
-  <link id="pandorga-icons" rel="stylesheet" href="{{ _symbols_href }}" media="print" onload="this.media='all'" />
-  <noscript><link rel="stylesheet" href="{{ _symbols_href }}" /></noscript>
+  <script>
+    window.__pandorgaIconsHref = {{ _symbols_href | jsonify }};
+  </script>
+  <noscript><link id="pandorga-icons" rel="stylesheet" href="{{ _symbols_href }}" /></noscript>
   <script>
     (function () {
-      var link = document.getElementById('pandorga-icons');
       var known = {{ _icon_names | split: "," | jsonify }};
       var seen = {};
       known.forEach(function (name) { seen[name] = true; });
+      var dirty = false;
       var timer = 0;
+      window.__pandorgaFlushIcons = function () {
+        var link = document.getElementById('pandorga-icons');
+        if (!link || !dirty) return;
+        dirty = false;
+        link.href = 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&icon_names=' + known.join(',') + '&display=swap';
+      };
       function consider(root) {
         if (!root || !root.querySelectorAll) return;
         var nodes = root.querySelectorAll('.material-symbols-outlined');
@@ -154,11 +162,10 @@
           known.push(name);
           extra = true;
         }
-        if (!extra || !link) return;
+        if (!extra) return;
+        dirty = true;
         clearTimeout(timer);
-        timer = setTimeout(function () {
-          link.href = 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&icon_names=' + known.join(',') + '&display=swap';
-        }, 50);
+        timer = setTimeout(window.__pandorgaFlushIcons, 50);
       }
       function start() {
         consider(document);
@@ -303,6 +310,28 @@
   {% include page/site-footer.html nav_active=nav_active %}
 
   {% include page/content-runtime.html %}
+  <script>
+    (function () {
+      var fonts = window.__pandorgaFontsHref;
+      var icons = window.__pandorgaIconsHref;
+      if (!fonts && !icons) return;
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          function sheet(href, id) {
+            if (!href) return;
+            var link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = href;
+            if (id) link.id = id;
+            document.head.appendChild(link);
+          }
+          sheet(fonts);
+          sheet(icons, 'pandorga-icons');
+          if (window.__pandorgaFlushIcons) window.__pandorgaFlushIcons();
+        });
+      });
+    })();
+  </script>
 
 </body>
 

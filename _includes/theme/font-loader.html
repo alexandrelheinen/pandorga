@@ -52,10 +52,12 @@
 {% endif %}
 {% assign fonts_href = fonts_href | append: "&display=swap" %}
 {% comment %}
-  A head link, after the preload script and the local sheets. Print media
-  keeps it off the first paint; onload applies it as soon as the sheet
-  arrives, which is during parsing, not after the load event. Waiting for
-  load held the hero summary on the live site. display=swap stays.
+  Not a render-blocking head link, and not the load event. A blocking
+  sheet holds first paint on the font host. The load event holds the hero
+  summary until images finish. The shell inserts this sheet after the
+  first paint. display=swap stays.
 {% endcomment %}
-<link rel="stylesheet" href="{{ fonts_href }}" media="print" onload="this.media='all'" />
+<script>
+  window.__pandorgaFontsHref = {{ fonts_href | jsonify }};
+</script>
 <noscript><link rel="stylesheet" href="{{ fonts_href }}" /></noscript>
