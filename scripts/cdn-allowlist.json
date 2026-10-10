@@ -5,15 +5,12 @@
     "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js",
     "https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js",
     "https://cdn.jsdelivr.net/npm/plotly.js-dist-min@3.1.0/plotly.min.js",
-    "https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css",
-    "https://cdn.tailwindcss.com?plugins=forms,container-queries"
+    "https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css"
   ],
   "scan_globs": [
     "_layouts",
     "_includes",
     "content/media/plots"
   ],
-  "exceptions": {
-    "tailwind_play_cdn": "Tailwind play CDN cannot be SRI-pinned; URL must match exactly."
-  }
+  "exceptions": {}
 }

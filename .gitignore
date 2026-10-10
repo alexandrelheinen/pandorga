@@ -13,6 +13,7 @@ vendor/bundle/
 *.egg-info/
 __pycache__/
 scripts/node_modules/
+scripts/tailwind/node_modules/
 studio-app/node_modules/
 studio-mobile/node_modules/
 studio-mobile/.expo/

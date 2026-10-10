@@ -58,6 +58,7 @@ TESTS=(
   scripts/test/test-validate-allowlist.rb
   scripts/test/test-shell-a11y.rb
   scripts/test/test-hydrate-reserve.rb
+  scripts/test/test-css-delivery.rb
 )
 
 failed=0
