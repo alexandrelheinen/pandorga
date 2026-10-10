@@ -13,6 +13,12 @@ is `Pandorga::VERSION` (`lib/pandorga/version.rb`).
 
 Read [CHANGELOG.md](../CHANGELOG.md) before you bump.
 
+## Font stylesheet (1.6.3)
+
+No `pandorga:` keys were added. The hero summary is still the built HTML
+from 1.6.2. The Google Fonts stylesheet is linked with the other sheets
+again. Only the font preconnect stays above the preload script.
+
 ## Hero summary (1.6.2)
 
 No `pandorga:` keys were added. When `content/pages/cv/summary.md` exists,
