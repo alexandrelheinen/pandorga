@@ -1,14 +1,14 @@
 {% comment %}
 chord-tab.html
-Exibe uma cifra estruturada em N colunas monoespaçadas, usando toda a largura disponível.
-Cada coluna respeita o limite de 79 caracteres por linha.
-Uso: {% include chord-tab.html tab=tab_data %}
-Onde tab_data tem:
-intro: "linha de acordes do intro (opcional)"
+Renders a chord chart in N monospaced columns, using the full available width.
+Each column stays within 79 characters per line.
+Use: {% include chord-tab.html tab=tab_data %}
+tab_data has:
+intro: "intro chord line (optional)"
 sections:
-- label: "rótulo da seção (opcional)"
+- label: "section label (optional)"
 content: |
-linhas de cifra/letra
+chord and lyric lines
 {% endcomment %}
 
 <div class="chord-tab-container mt-16 mb-8"

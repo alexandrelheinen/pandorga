@@ -1,11 +1,11 @@
 {% comment %}
   transcription.html
-  Exibe uma transcrição estruturada, com até 4 personagens (cores definidas por ordem de aparição).
-  Uso: {% include transcription.html transcription=page.transcription youtube_id='fpmZiY24U0k' %}
-  Ou para usar um arquivo em _data:
+  Renders a structured transcript, with up to 4 speakers (colors follow order of appearance).
+  Use: {% include transcription.html transcription=page.transcription youtube_id='fpmZiY24U0k' %}
+  Or to load a file from _data:
   {% assign transcription_data = site.data.transcriptions[page.transcription].transcription %}
   {% include transcription.html transcription=transcription_data youtube_id='fpmZiY24U0k' %}
-  Também suporta url e image para thumbnail:
+  Also accepts url and image for a thumbnail:
   {% include transcription.html transcription=transcription_data url='https://...' image='https://...' %}
 
   Speaker labels are title-cased at render time (Patrícia, not PATRÍCIA) so
@@ -26,7 +26,7 @@
   <hr class="border-t border-gentle-divider mb-6">
   {% if include.youtube_id %}
     <div class="mb-2">
-      {% include youtube.html id=include.youtube_id %} <!-- Exibe o vídeo do YouTube -->  
+      {% include youtube.html id=include.youtube_id %} <!-- YouTube video -->  
       <span class="font-label text-xs text-on-surface-variant">Transcrição do vídeo</span>
     </div>
   {% elsif include.url and include.image %}

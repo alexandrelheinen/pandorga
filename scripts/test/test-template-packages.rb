@@ -46,6 +46,14 @@ TEMPLATES.each do |name|
   end
 end
 
+%w[_includes/chord-tab.html _includes/transcription.html].each do |rel|
+  text = ROOT.join(rel).read
+  if text.include?("Exibe")
+    warn "FAIL test-template-packages: #{rel} still has a Portuguese comment"
+    failed = true
+  end
+end
+
 exit 1 if failed
 
 puts "PASS test-template-packages"
