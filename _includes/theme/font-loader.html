@@ -51,6 +51,17 @@
   {% endunless %}
 {% endif %}
 {% assign fonts_href = fonts_href | append: "&display=swap" %}
-<link rel="preload" as="style" href="{{ fonts_href }}" />
-<link rel="stylesheet" href="{{ fonts_href }}" media="print" onload="this.media='all'" />
+{% comment %}
+  Not a head link. A preload or a print sheet is discovered immediately.
+  On a fast connection the faces finish before the largest paint, and the
+  simulator then waits on them. Add the sheet after load. display=swap stays.
+{% endcomment %}
+<script>
+  window.addEventListener('load', function () {
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = {{ fonts_href | jsonify }};
+    document.head.appendChild(link);
+  });
+</script>
 <noscript><link rel="stylesheet" href="{{ fonts_href }}" /></noscript>

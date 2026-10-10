@@ -61,6 +61,22 @@ screen = shell.sub(%r{<noscript>.*?</noscript>}m, "")
 fail!("Material Symbols sheet is missing") unless shell.include?("Material+Symbols+Outlined")
 fail!("icon sheet is not deferred until load") unless screen.include?("addEventListener('load'")
 fail!("screen still has a Material Symbols stylesheet link") if screen.match?(/<link\b[^>]*Material\+Symbols/)
+fail!("screen still has a flag stylesheet link") if screen.match?(/<link\b[^>]*flag-icons/)
+fail!("flag sheet is not deferred until load") unless screen.include?("flag-icons@7.2.3")
+
+fonts = ROOT.join("_includes/theme/font-loader.html").read
+font_screen = fonts.sub(%r{<noscript>.*?</noscript>}m, "")
+fail!("text faces are preloaded") if fonts.include?('rel="preload"')
+fail!("text face sheet is not deferred until load") unless font_screen.include?("addEventListener('load'")
+fail!("screen still has a text-face stylesheet link") if font_screen.match?(/<link\b/)
+
+marked = ROOT.join("_includes/content-runtime/00-config.html").read
+fail!("markdown library still blocks parsing") unless marked.include?("<script defer ")
+fail!("markdown library source changed") unless marked.include?("marked@15.0.7/marked.min.js")
+
+fail!("spec still discovers text faces from the head") unless spec.include?("text-face stylesheet is not a head link")
+fail!("spec still lets the markdown library block parsing") unless spec.include?("markdown library loads with `defer`")
+fail!("lighthouse script hides the metric breakdown") unless script.include?("largest-contentful-paint")
 
 icon = base[/\.material-symbols-outlined\.material-symbols-outlined \{.*?\n\}/m]
 fail!("icon rule missing") unless icon

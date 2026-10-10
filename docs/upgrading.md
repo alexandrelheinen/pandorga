@@ -13,6 +13,12 @@ is `Pandorga::VERSION` (`lib/pandorga/version.rb`).
 
 Read [CHANGELOG.md](../CHANGELOG.md) before you bump.
 
+## Example home score (1.6.6)
+
+No `pandorga:` keys were added. The text-face stylesheet and the flag
+stylesheet are added after the page loads. The markdown library loads
+with `defer`.
+
 ## Example home score (1.6.5)
 
 No `pandorga:` keys were added. The icon face is requested after the page
