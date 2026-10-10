@@ -52,4 +52,5 @@
 {% endif %}
 {% assign fonts_href = fonts_href | append: "&display=swap" %}
 <link rel="preload" as="style" href="{{ fonts_href }}" />
-<link href="{{ fonts_href }}" rel="stylesheet" />
+<link rel="stylesheet" href="{{ fonts_href }}" media="print" onload="this.media='all'" />
+<noscript><link rel="stylesheet" href="{{ fonts_href }}" /></noscript>

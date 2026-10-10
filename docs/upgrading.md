@@ -13,6 +13,13 @@ is `Pandorga::VERSION` (`lib/pandorga/version.rb`).
 
 Read [CHANGELOG.md](../CHANGELOG.md) before you bump.
 
+## Example home score (1.6.5)
+
+No `pandorga:` keys were added. The icon face is requested after the page
+loads, not from a head link. The text font sheet and the flag stylesheet
+no longer block first paint. The Lighthouse example server compresses
+text and answers concurrently.
+
 ## Material Symbols (1.6.4)
 
 No `pandorga:` keys were added. The icon stylesheet no longer blocks first

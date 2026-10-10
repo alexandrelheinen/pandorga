@@ -117,15 +117,22 @@
   {%- endfor -%}
   {% include theme/font-loader.html %}
   {%- comment -%}
-    Icons are not first paint. A stylesheet link here blocks rendering for
-    a round trip to fonts.googleapis.com. Print media keeps that sheet off
-    the critical path, and onload applies it for screen.
+    Icons are not first paint. The face is about a megabyte. A link in the
+    head, even with print media, is discovered immediately and the simulator
+    then waits on that face for the largest paint. Add the sheet after load.
   {%- endcomment -%}
   {%- assign _symbols_href = "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" -%}
-  <link rel="preload" as="style" href="{{ _symbols_href }}" />
-  <link rel="stylesheet" href="{{ _symbols_href }}" media="print" onload="this.media='all'" />
+  <script>
+    window.addEventListener('load', function () {
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = {{ _symbols_href | jsonify }};
+      document.head.appendChild(link);
+    });
+  </script>
   <noscript><link rel="stylesheet" href="{{ _symbols_href }}" /></noscript>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css" /></noscript>
   <style>
     :root { --drop-cap-lines: {{ site.drop_cap_lines | default: 2 }}; }
   </style>
