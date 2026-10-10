@@ -116,8 +116,15 @@
   <link rel="stylesheet" href="/assets/css/ledger/{{ _sheet }}.css" />
   {%- endfor -%}
   {% include theme/font-loader.html %}
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-    rel="stylesheet" />
+  {%- comment -%}
+    Icons are not first paint. A stylesheet link here blocks rendering for
+    a round trip to fonts.googleapis.com. Print media keeps that sheet off
+    the critical path, and onload applies it for screen.
+  {%- endcomment -%}
+  {%- assign _symbols_href = "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" -%}
+  <link rel="preload" as="style" href="{{ _symbols_href }}" />
+  <link rel="stylesheet" href="{{ _symbols_href }}" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="{{ _symbols_href }}" /></noscript>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css" />
   <style>
     :root { --drop-cap-lines: {{ site.drop_cap_lines | default: 2 }}; }

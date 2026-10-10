@@ -75,6 +75,15 @@ bundle exec pandorga serve
 | [docs/deploy/cloudflare.md](docs/deploy/cloudflare.md) | Pages + object store |
 | [docs/spec.md](docs/spec.md) | Migration plan and acceptance criteria |
 | [docs/decisions.md](docs/decisions.md) | Frozen decisions |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Gates, and the Lighthouse mobile release rule |
+
+## Releases
+
+Lighthouse mobile on the home page is mandatory. A stable release scores
+90 or above. A score from 75 to 89 is acceptable only to ship a bug fix,
+and an urgent performance campaign must then bring it back to 90 or above.
+Below 75 is never acceptable. The checklist is in
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 

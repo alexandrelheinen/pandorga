@@ -13,6 +13,13 @@ is `Pandorga::VERSION` (`lib/pandorga/version.rb`).
 
 Read [CHANGELOG.md](../CHANGELOG.md) before you bump.
 
+## Material Symbols (1.6.4)
+
+No `pandorga:` keys were added. The icon stylesheet no longer blocks first
+paint. Lighthouse mobile is a release rule: 90 or above for a stable
+release, 75 to 89 only to ship a bug fix, then an urgent campaign back to
+90. Below 75 is never acceptable.
+
 ## Font stylesheet (1.6.3)
 
 No `pandorga:` keys were added. The hero summary is still the built HTML

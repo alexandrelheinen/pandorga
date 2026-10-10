@@ -59,6 +59,7 @@ TESTS=(
   scripts/test/test-shell-a11y.rb
   scripts/test/test-hydrate-reserve.rb
   scripts/test/test-hero-summary.rb
+  scripts/test/test-lighthouse-policy.rb
   scripts/test/test-css-delivery.rb
   scripts/test/test-discovery.rb
 )

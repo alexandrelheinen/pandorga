@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.6.4] — 2026-10-10
+
+### Fixed
+
+- The Material Symbols stylesheet no longer blocks first paint. It loads
+  as print media and is applied on load. The icon box stays 1em so the
+  fallback word does not widen the control.
+
+### Added
+
+- Lighthouse mobile is a release rule. A stable release scores 90 or above.
+  A score from 75 to 89 is acceptable only to ship a bug fix, and an urgent
+  performance campaign must then bring the score back to 90 or above.
+  Below 75 is never acceptable. CI runs one mobile pass on the example home.
+
+No `pandorga:` config keys were added or renamed.
+
 ## [1.6.3] — 2026-10-10
 
 ### Fixed
