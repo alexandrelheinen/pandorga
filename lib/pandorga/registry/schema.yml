@@ -8,7 +8,15 @@ identity:
     name:
       type: string
       required: true
-      notes: Title suffix, default author, BibTeX
+      notes: Title suffix, default author, BibTeX. Also the legacy hero name when `first_name` or `last_name` is omitted
+    first_name:
+      type: string
+      required: false
+      notes: Hero given name and top-bar wordmark. Omitted or blank, the first word of `name` is used
+    last_name:
+      type: string
+      required: false
+      notes: Hero family name, kept whole (spaces allowed). Omitted or blank, the remainder of `name` is used
     short_name:
       type: string
       required: false

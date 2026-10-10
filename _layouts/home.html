@@ -5,7 +5,8 @@ layout: shell
 {%- comment -%}
   Home — composition from the page registry (PLT §5.4).
 
-  The hero reads identity plus content fragments. Decorative art is a slot
+  The hero reads identity (first_name and last_name, or a split of name)
+  plus content fragments. Decorative art is a slot
   (`pandorga.home.hero_art`, default page/hero-default.html). Listing and
   index bands come from site.data.pandorga_home_bands in registry order.
   Band copy (kicker, title, note) arrives from content/pages/headers.yml
@@ -13,10 +14,7 @@ layout: shell
   in this layout.
 {%- endcomment -%}
 
-{%- assign _identity_name = site.pandorga.identity.name | default: site.author -%}
-{%- assign _name_parts = _identity_name | split: " " -%}
-{%- assign _name_given = _name_parts | first -%}
-{%- assign _name_family = _name_parts | slice: 1, 8 | join: " " -%}
+{%- assign _hero_name = site.pandorga.identity | pandorga_hero_name: site.author, site.title -%}
 {%- assign _cv_page = site.pages | where: "key", "cv" | first -%}
 {%- assign _hero_art = site.pandorga.home.hero_art | default: "page/hero-default.html" -%}
 {%- assign _home_bands = site.data.pandorga_home_bands -%}
@@ -33,7 +31,7 @@ layout: shell
           <div id="home-subtitle-content" class="home-hero-tagline font-label"
             data-content-fragment="home/subtitle"></div>
           <h1 class="home-hero-title">
-            <span class="home-hero-given">{{ _name_given }}</span>{%- if _name_family != "" %} <span class="home-hero-family">{{ _name_family }}</span>{%- endif %}
+            <span class="home-hero-given">{{ _hero_name.given }}</span>{%- if _hero_name.family != "" %} <span class="home-hero-family">{{ _hero_name.family }}</span>{%- endif %}
           </h1>
           <div id="home-cv-summary" class="home-hero-summary font-body"
             data-content-fragment="cv/summary"></div>

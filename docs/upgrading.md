@@ -13,6 +13,33 @@ is `Pandorga::VERSION` (`lib/pandorga/version.rb`).
 
 Read [CHANGELOG.md](../CHANGELOG.md) before you bump.
 
+## Hero name (1.5.0)
+
+`pandorga.identity.name` stays required. Two optional keys split the home
+hero. `last_name` may contain spaces. The top bar shows `first_name`.
+
+```yaml
+pandorga:
+  identity:
+    name: "Ada Example"
+    first_name: "Ada"
+    last_name: "Example"
+```
+
+A site that only sets `name` keeps the 1.4.9 split. The first word is the
+given name and the top-bar wordmark. The rest of `name`, up to eight words,
+is the family name. Set the new keys when that split is wrong, for example
+when the family name itself has more than one word. On a phone the hero
+breaks only between those two fields.
+
+When `first_name` is omitted, the top bar uses the first word of
+`identity.name`, then `site.author`, then `site.title`.
+
+The hero subtitle uses the body size (`--type-body`), the same size as the
+summary under the name. Below 768px the name is 3pt larger than in 1.4.9.
+
+See [features/hero-name.md](features/hero-name.md).
+
 ## Pin the gem by tag
 
 Consumer sites should pin a release tag, not `main`:
