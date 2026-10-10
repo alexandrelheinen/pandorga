@@ -35,8 +35,8 @@ else
   fail "Chrome is not installed"
 fi
 
-step "Serving ${SITE}"
-python3 -m http.server "${PORT}" --bind 127.0.0.1 --directory "${SITE}" >/tmp/lighthouse-home-server.log 2>&1 &
+step "Serving ${SITE} (gzip, concurrent)"
+python3 "${ROOT}/scripts/lighthouse_server.py" "${PORT}" "${SITE}" >/tmp/lighthouse-home-server.log 2>&1 &
 SERVER_PID=$!
 cleanup() {
   kill "${SERVER_PID}" >/dev/null 2>&1 || true

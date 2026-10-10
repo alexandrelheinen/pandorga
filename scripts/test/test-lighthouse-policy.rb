@@ -51,11 +51,16 @@ fail!("lighthouse script lost enforce mode") unless script.include?('LIGHTHOUSE_
 fail!("warn mode still fails the run") unless script.include?('mode == "enforce"')
 fail!("lighthouse script is not a single mobile run") unless script.include?("--form-factor=mobile")
 fail!("lighthouse script repeats runs") if script.include?("--repeat")
+fail!("example server is still one-thread HTTP/1.0") if script.include?("python3 -m http.server")
+server = ROOT.join("scripts/lighthouse_server.py").read
+fail!("example server does not gzip") unless server.include?('Content-Encoding", "gzip"')
+fail!("example server is not concurrent") unless server.include?("ThreadingHTTPServer")
+fail!("icon face is preloaded") if shell.include?("rel=\"preload\" as=\"style\" href=\"{{ _symbols_href }}\"")
 
 screen = shell.sub(%r{<noscript>.*?</noscript>}m, "")
 fail!("Material Symbols sheet is missing") unless shell.include?("Material+Symbols+Outlined")
-fail!("Material Symbols sheet still blocks first paint") unless screen.include?('media="print" onload="this.media=\'all\'"')
-fail!("screen still has a blocking Material Symbols stylesheet") if screen.match?(/rel="stylesheet"[^>]*Material\+Symbols|Material\+Symbols[^>]*rel="stylesheet"/m)
+fail!("icon sheet is not deferred until load") unless screen.include?("addEventListener('load'")
+fail!("screen still has a Material Symbols stylesheet link") if screen.match?(/<link\b[^>]*Material\+Symbols/)
 
 icon = base[/\.material-symbols-outlined\.material-symbols-outlined \{.*?\n\}/m]
 fail!("icon rule missing") unless icon

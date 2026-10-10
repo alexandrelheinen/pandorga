@@ -1,11 +1,24 @@
 # Changelog
 
-## [Unreleased]
+## [1.6.5] — 2026-10-10
+
+### Fixed
+
+- The example home measured like the public site: compressed responses,
+  served concurrently. The stock one-thread HTTP/1.0 server was scoring
+  the same templates in the 70s while the live site on 1.6.3 scored 97.
+- The Material Symbols face is about a megabyte. It is no longer linked
+  from the head. The shell adds that sheet after the load event, so the
+  simulator does not wait on it for the largest paint. The text font
+  sheet and the flag stylesheet use print media and apply on load.
+- The icon box stays 1em.
 
 ### Changed
 
 - Lighthouse mobile thresholds apply to releases. Pull requests and merges
   to main only warn. The release build checks out the tag and fails below 75.
+
+No `pandorga:` config keys were added or renamed.
 
 ## [1.6.4] — 2026-10-10
 
