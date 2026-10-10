@@ -30,6 +30,18 @@ When `backend` is omitted, a non-empty `base_url` or `content_api_base_url` sele
 |---|---|---|
 | `hero_art` | string | Include path for hero decoration (default `page/hero-default.html`) |
 
+## `pandorga.fonts`
+
+| Key | Type | Notes |
+|---|---|---|
+| `title` | string or map | Display face. Default family `Cinzel Decorative`, weights 400, 700, and 900 |
+| `body` | string or map | Reading face. Default family `Newsreader`, weights 300, 400, 500, 600, and 700 |
+| `mono` | string or map | Monospace face. Default family `Courier Prime`, roman and italic at 400 and 700 |
+| `label` | string or map | Optional chrome face. Default family `Marcellus SC`, weights 400 and 700 |
+| `subtitle` | string or map | Optional tagline face. Omitted, it follows `body` when the theme used the same family |
+
+Each value is a Google Fonts family name, or a map with `family` plus optional `weights` (integers) and `italic` (boolean). An omitted role keeps the Architectural Ledger face. `code` follows `mono`, and the tagline and CV body follow `body`, when the theme used one family for both. Text faces still load after the first paint, with `display=swap`. A `_data/themes/shared.yml` file remains the fallback under any role this map does not set.
+
 ## `pandorga.taxonomies`
 
 Closed tag vocabularies per collection (`tags`, `max`, `min`). Page-local

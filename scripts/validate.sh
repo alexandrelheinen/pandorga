@@ -64,6 +64,7 @@ TESTS=(
   scripts/test/test-home-articles.rb
   scripts/test/test-rascunhos-licence.rb
   scripts/test/test-pwa-icons.rb
+  scripts/test/test-fonts.rb
   scripts/test/test-css-delivery.rb
   scripts/test/test-discovery.rb
 )

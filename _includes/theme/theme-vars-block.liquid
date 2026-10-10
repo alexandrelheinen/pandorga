@@ -1,6 +1,7 @@
 {% comment %}
   Emits CSS custom properties for one palette. Expects `theme_name` (e.g. light, dark).
-  Colour roles come from _data/themes/<name>.yml; fonts / motion / geometry from shared.yml.
+  Colour roles come from _data/themes/<name>.yml. Type stacks come from
+  pandorga.fonts, then shared.yml. Motion and geometry come from shared.yml.
 {% endcomment %}
 {% assign theme_profile = site.data.themes[theme_name] %}
 {% if theme_profile == nil %}
@@ -17,34 +18,25 @@
 {% assign color_primary = tc.primary | default: "#1c5a7a" %}
 {% assign color_secondary = tc.secondary | default: "#287445" %}
 {% assign color_tertiary = tc.tertiary | default: "#746f30" %}
-{% assign font_title = sf.title | default: "Lora" %}
-{% assign font_subtitle = sf.subtitle | default: "Lato" %}
-{% assign font_label = sf.label | default: "Ysabeau SC" %}
-{% assign font_body = sf.body | default: "Newsreader" %}
-{% assign font_cv_body = sf.cv_body | default: "Newsreader" %}
 {% assign font_cv_body_weight = sf.cv_body_weight | default: 400 %}
-{% assign font_title_fallback = sf.title_fallback | default: "serif" %}
-{% assign font_subtitle_fallback = sf.subtitle_fallback | default: "serif" %}
-{% assign font_label_fallback = sf.label_fallback | default: "serif" %}
-{% assign font_body_fallback = sf.body_fallback | default: "Georgia, serif" %}
 {% assign bg_secondary = tn.background_secondary | default: tn.surface_container_low | default: "#f5f5f5" %}
 {% assign surface_value = tn.surface | default: "#ffffff" %}
 {% assign surface_variant_value = tn.surface_variant | default: "#e2e2e2" %}
 {% if theme_name == "light" %}:root,{% endif %}
   [data-theme="{{ theme_name }}"] {
-    --font-title: '{{ font_title }}', {{ font_title_fallback }};
-    --font-subtitle: '{{ font_subtitle }}', {{ font_subtitle_fallback }};
-    --font-label: '{{ font_label }}', {{ font_label_fallback }};
-    --font-body: '{{ font_body }}', {{ font_body_fallback }};
-    --font-cv-body: '{{ font_cv_body }}', {{ font_body_fallback }};
+    --font-title: {{ site | pandorga_font_stack: "title" }};
+    --font-subtitle: {{ site | pandorga_font_stack: "subtitle" }};
+    --font-label: {{ site | pandorga_font_stack: "label" }};
+    --font-body: {{ site | pandorga_font_stack: "body" }};
+    --font-cv-body: {{ site | pandorga_font_stack: "cv_body" }};
     --font-cv-body-weight: {{ font_cv_body_weight }};
-    --font-serif: '{{ font_title }}', {{ font_title_fallback }};
+    --font-serif: {{ site | pandorga_font_stack: "title" }};
     /* Content titles share the body face at 600 — Cinzel Decorative is
        reserved for page/display titles. */
     --font-content-title: var(--font-body);
     --font-sans: var(--font-body);
-    --font-mono: {% if sf.mono and sf.mono != '' %}'{{ sf.mono }}', {% endif %}ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace;
-    --font-code: {% if sf.code and sf.code != '' %}'{{ sf.code }}', {% elsif sf.mono and sf.mono != '' %}'{{ sf.mono }}', {% endif %}ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace;
+    --font-mono: {{ site | pandorga_font_stack: "mono" }};
+    --font-code: {{ site | pandorga_font_stack: "code" }};
 
     /* Motion. Named for what they are for: state change, poster filter
        warm-up, poster/plate scale. Shared across palettes. */

@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.7.0] — 2026-10-10
+
+### Added
+
+- A site can name its typefaces under `pandorga.fonts`. `title`, `body`,
+  and `mono` take a Google Fonts family, or a map with `family` and
+  optional `weights` and `italic`. `label` and `subtitle` are optional.
+  Omitted roles keep Cinzel Decorative, Newsreader, and Courier Prime.
+  The text faces still load after the first paint.
+
 ## [1.6.9] — 2026-10-10
 
 ### Fixed
