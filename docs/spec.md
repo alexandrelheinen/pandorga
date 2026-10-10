@@ -511,13 +511,14 @@ Criteria are written in EARS format. Every criterion is referenced by at least o
 - `PLT-AC-13` When the home hero renders the subtitle, its font size must be `--type-body`, the size of the summary under the name (`test-hero-name`).
 - `PLT-AC-14` When `pandorga.identity.first_name` or `last_name` is set, the hero must use that string whole and the top bar must show the first name. When a key is omitted, that part must keep the 1.4.9 split of `identity.name`. `identity.name` stays required (`test-hero-name`).
 - `PLT-AC-15` Below 768px the hero name must be 3pt larger than the 1.4.9 size at that width, and a wrap must break only between the given name and the family name (`test-hero-name`).
-- `PLT-AC-16` The home hero subtitle and summary must be fetched before the stylesheets, painted without a "Loading..." swap, and given a reserved box so the call to action does not jump. Article and CV listings must reserve row space until their cards replace it (`test-hydrate-reserve`).
+- `PLT-AC-16` The home hero subtitle must be fetched before the stylesheets, painted without a "Loading..." swap, and given a one-line reserved box. The summary must not keep an empty min-height: a guessed box shifts the call to action when the paragraph arrives. Article and CV listings must reserve row space until their cards replace it (`test-hydrate-reserve`).
 - `PLT-AC-17` `.writing-revised` must use the solid on-surface variant ink. A transparent mix of that ink fails 4.5:1 on the light paper (`test-hydrate-reserve`).
 - `PLT-AC-18` A selectable home project inventory row must be a `button`, not an `article` with `role=button` (`test-hydrate-reserve`).
 - `PLT-AC-19` The shell must not load the Tailwind Play CDN. Utilities come from `assets/css/tailwind.css`. A page loads `chrome.css`, `footer.css`, and the ledger sheet for its layout, not every ledger sheet (`test-css-delivery`).
 - `PLT-AC-20` A hero portrait entry may set `srcset` and `sizes`. An entry with only `src` must keep that shape (`test-discovery`).
 - `PLT-AC-21` The build must write `sitemap.xml` and `robots.txt` with a `Sitemap:` line, and the shell must emit JSON-LD for the site and the person named by `identity.name` (`test-discovery`, `test-examples-build`).
 - `PLT-AC-22` The articles featured slot may reserve height only until the listing decides. On a page after the first, or when no specimen is drawn, that slot must collapse (`test-hydrate-reserve`).
+- `PLT-AC-23` When `content/pages/cv/summary.md` is present, the home hero must include that summary as HTML (`data-content-static`) and must not replace it from script. When the file is absent, the quiet fragment remains. The body face keeps `font-display: swap`, a serif fallback, and the font stylesheet is requested before the ledger sheets (`test-hero-summary`, `test-examples-build`).
 
 ## 13. Owner decisions
 

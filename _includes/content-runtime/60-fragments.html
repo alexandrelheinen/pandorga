@@ -219,7 +219,7 @@
     function mountMarkdownFragment(relativePath, elementOrId, options) {
       options = options || {};
       var el = typeof elementOrId === 'string' ? document.getElementById(elementOrId) : elementOrId;
-      if (!el) return Promise.resolve();
+      if (!el || el.hasAttribute('data-content-static')) return Promise.resolve();
       // A quiet slot keeps its reserved box. Writing "Loading..." into the
       // hero summary makes that placeholder the LCP, then swaps it away.
       var quiet = el.hasAttribute('data-content-quiet');

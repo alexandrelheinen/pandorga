@@ -13,6 +13,12 @@ is `Pandorga::VERSION` (`lib/pandorga/version.rb`).
 
 Read [CHANGELOG.md](../CHANGELOG.md) before you bump.
 
+## Hero summary (1.6.2)
+
+No `pandorga:` keys were added. When `content/pages/cv/summary.md` exists,
+the home hero includes that markdown as HTML. Sites without the file keep
+the quiet fragment. The body fallback is `Georgia, serif`.
+
 ## Discovery and portraits (1.6.0)
 
 No `pandorga:` keys were added. The shell writes `/sitemap.xml` and

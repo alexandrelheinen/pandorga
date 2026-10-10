@@ -26,7 +26,7 @@
 {% assign font_title_fallback = sf.title_fallback | default: "serif" %}
 {% assign font_subtitle_fallback = sf.subtitle_fallback | default: "serif" %}
 {% assign font_label_fallback = sf.label_fallback | default: "serif" %}
-{% assign font_body_fallback = sf.body_fallback | default: "sans-serif" %}
+{% assign font_body_fallback = sf.body_fallback | default: "Georgia, serif" %}
 {% assign bg_secondary = tn.background_secondary | default: tn.surface_container_low | default: "#f5f5f5" %}
 {% assign surface_value = tn.surface | default: "#ffffff" %}
 {% assign surface_variant_value = tn.surface_variant | default: "#e2e2e2" %}
@@ -36,7 +36,7 @@
     --font-subtitle: '{{ font_subtitle }}', {{ font_subtitle_fallback }};
     --font-label: '{{ font_label }}', {{ font_label_fallback }};
     --font-body: '{{ font_body }}', {{ font_body_fallback }};
-    --font-cv-body: '{{ font_cv_body }}', sans-serif;
+    --font-cv-body: '{{ font_cv_body }}', {{ font_body_fallback }};
     --font-cv-body-weight: {{ font_cv_body_weight }};
     --font-serif: '{{ font_title }}', {{ font_title_fallback }};
     /* Content titles share the body face at 600 — Cinzel Decorative is

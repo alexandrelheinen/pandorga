@@ -13,8 +13,9 @@ fonts:
   code: "Courier Prime"
   cv_body: "Newsreader"
   cv_body_weight: 400
-  # Generic CSS fallback after the named face (serif | sans-serif | monospace).
-  body_fallback: "sans-serif"
+  # Fallback after the named face. Body is Newsreader, a serif. A sans
+  # fallback reflows the hero summary when the webfont swaps in.
+  body_fallback: "Georgia, serif"
   subtitle_fallback: "serif"
   title_fallback: "serif"
   label_fallback: "serif"
