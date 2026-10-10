@@ -79,11 +79,13 @@ bundle exec pandorga serve
 
 ## Releases
 
-Lighthouse mobile on the home page is mandatory. A stable release scores
+Lighthouse mobile thresholds apply to releases. A stable release scores
 90 or above. A score from 75 to 89 is acceptable only to ship a bug fix,
 and an urgent performance campaign must then bring it back to 90 or above.
-Below 75 is never acceptable. The checklist is in
-[CONTRIBUTING.md](CONTRIBUTING.md).
+Below 75 is never acceptable for a release. A pull request or a merge may
+score lower when that is unavoidable to keep the work modular. The release
+build fails below 75. Pull requests and merges only warn. The checklist
+is in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 

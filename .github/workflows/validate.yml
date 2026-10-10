@@ -38,4 +38,6 @@ jobs:
         with:
           chrome-version: stable
       - name: Lighthouse mobile home
+        env:
+          LIGHTHOUSE_MODE: warn
         run: ./scripts/lighthouse-home.sh

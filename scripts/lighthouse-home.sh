@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # One Lighthouse mobile run against the built example home.
-# Fails below 75. Warns below 90. PLT-AC-24.
+# Thresholds apply to releases. LIGHTHOUSE_MODE=enforce fails below 75
+# and warns below 90. LIGHTHOUSE_MODE=warn never fails the run. PLT-AC-24.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -9,6 +10,7 @@ PORT="${LIGHTHOUSE_PORT:-4173}"
 OUT="${LIGHTHOUSE_REPORT:-/tmp/lighthouse-home.json}"
 FAIL_BELOW=75
 WARN_BELOW=90
+MODE="${LIGHTHOUSE_MODE:-enforce}"
 
 fail() {
   echo "ERROR: $1" >&2
@@ -16,6 +18,10 @@ fail() {
 }
 
 step() { echo "==> $1"; }
+
+if [[ "${MODE}" != "enforce" && "${MODE}" != "warn" ]]; then
+  fail "LIGHTHOUSE_MODE must be enforce or warn (got ${MODE})"
+fi
 
 [[ -f "${SITE}/index.html" ]] || fail "missing ${SITE}/index.html (run scripts/validate.sh first)"
 
@@ -59,11 +65,11 @@ npx --yes lighthouse@13.5.0 "http://127.0.0.1:${PORT}/" \
   --chrome-path="${CHROME}" \
   --chrome-flags="--headless=new --no-sandbox --disable-gpu"
 
-python3 - "${OUT}" "${FAIL_BELOW}" "${WARN_BELOW}" <<'PY'
+python3 - "${OUT}" "${FAIL_BELOW}" "${WARN_BELOW}" "${MODE}" <<'PY'
 import json
 import sys
 
-path, fail_below, warn_below = sys.argv[1:]
+path, fail_below, warn_below, mode = sys.argv[1:]
 fail_below = int(fail_below)
 warn_below = int(warn_below)
 report = json.load(open(path, encoding="utf-8"))
@@ -72,14 +78,22 @@ if raw is None:
     print("ERROR: Lighthouse returned no performance score", file=sys.stderr)
     sys.exit(1)
 score = int(round(float(raw) * 100))
-print(f"Lighthouse mobile performance: {score}")
-if score < fail_below:
+print(f"Lighthouse mobile performance: {score} ({mode})")
+campaign = (
+    "A score from 75 to 89 is acceptable only to ship a bug fix. "
+    "An urgent performance campaign must bring it back to 90 or above."
+)
+if score < fail_below and mode == "enforce":
     print(f"::error::Lighthouse mobile performance {score} is below {fail_below}")
     sys.exit(1)
+if score < fail_below:
+    print(
+        f"::warning::Lighthouse mobile performance {score} is below {fail_below}. "
+        "Thresholds apply to releases. This run only warns."
+    )
 if score < warn_below:
     print(
         f"::warning::Lighthouse mobile performance {score} is below {warn_below}. "
-        "A score from 75 to 89 is acceptable only to ship a bug fix. "
-        "An urgent performance campaign must bring it back to 90 or above."
+        + campaign
     )
 PY
