@@ -1,0 +1,35 @@
+{%- comment -%}
+  WebSite and Person from identity. No new required keys: name is already
+  required, and url is the existing optional canonical origin.
+{%- endcomment -%}
+{%- assign ld_name = site.pandorga.identity.name | default: site.author | default: site.title -%}
+{%- assign ld_url = site.pandorga.identity.url | default: site.url -%}
+{%- if ld_url != blank -%}
+  {%- assign ld_website = ld_url -%}
+{%- else -%}
+  {%- assign ld_website = "/" | absolute_url -%}
+{%- endif -%}
+{%- if ld_name != blank -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "name": {{ ld_name | jsonify }},
+      "url": {{ ld_website | jsonify }}
+      {%- if site.description != blank -%},
+      "description": {{ site.description | jsonify }}
+      {%- endif -%}
+    },
+    {
+      "@type": "Person",
+      "name": {{ ld_name | jsonify }}
+      {%- if ld_url != blank -%},
+      "url": {{ ld_url | jsonify }}
+      {%- endif -%}
+    }
+  ]
+}
+</script>
+{%- endif -%}

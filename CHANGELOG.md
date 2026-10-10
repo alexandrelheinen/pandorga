@@ -1,5 +1,33 @@
 # Changelog
 
+## [1.6.0] — 2026-10-10
+
+### Added
+
+- `/sitemap.xml` lists the generated pages. `/robots.txt` allows the public
+  site, skips `/studio/`, and names the sitemap. Both use
+  `pandorga.identity.url` when it is set, otherwise `site.url`.
+- JSON-LD `WebSite` and `Person` in the shell, from `identity.name` and the
+  optional `identity.url`. `site.description` is included when it is set.
+- Hero portrait entries may include optional `srcset` and `sizes`. A portrait
+  that only has `src` is unchanged.
+
+### Changed
+
+- The home subtitle and summary are requested before the stylesheets and
+  painted without a "Loading..." swap. Article rows, CV sections, and empty
+  home bands keep a reserved box until the real content replaces it.
+- The hero subtitle stays at `--type-body`, the same size as the summary.
+- `.writing-revised` uses the solid variant ink. The transparent mix was
+  3.69 and 3.90 on the light paper.
+- A selectable project inventory row is a `button`.
+- Utilities ship as `assets/css/tailwind.css`. The shell no longer loads the
+  Tailwind Play CDN. Each layout links the shared chrome and its own ledger
+  sheet, not every sheet.
+
+No `pandorga:` config keys were added or renamed. `srcset` and `sizes` are
+optional fields on objects in `pages/home/portraits.json`.
+
 ## [1.5.1] — 2026-10-10
 
 ### Fixed

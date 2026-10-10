@@ -13,7 +13,7 @@ const source = fs.readFileSync(
 );
 
 const start = source.indexOf('function heroPortraitEntries');
-const end = source.indexOf('function applyHeroPortrait');
+const end = source.indexOf('function applyHeroPortrait(');
 if (start < 0 || end < start) {
   console.error('hero portrait functions missing from 60-fragments.html');
   process.exit(1);

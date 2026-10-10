@@ -13,6 +13,7 @@
   {% assign canonical_path = page.canonical_url | default: page.url %}
   <title>{{ meta_title | strip | escape_once }}</title>
   <meta name="description" content="{{ meta_description | escape_once }}" />
+  {% include theme/json-ld.html %}
   <!-- Open Graph / Social Sharing -->
   {% assign og_type = page.og_type | default: "website" %}
   <meta property="og:type" content="{{ og_type }}" />

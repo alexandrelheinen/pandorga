@@ -512,9 +512,34 @@
         var src = typeof entry.src === 'string' ? entry.src.trim() : '';
         if (!src) continue;
         var alt = typeof entry.alt === 'string' ? entry.alt.trim() : '';
-        entries.push({ src: src, alt: alt });
+        var record = { src: src, alt: alt };
+        // Optional responsive fields. Absent keys stay off the record so a
+        // pool that only has src keeps the previous shape.
+        var srcset = typeof entry.srcset === 'string' ? entry.srcset.trim() : '';
+        var sizes = typeof entry.sizes === 'string' ? entry.sizes.trim() : '';
+        if (srcset) record.srcset = srcset;
+        if (sizes) record.sizes = sizes;
+        entries.push(record);
       }
       return entries;
+    }
+
+    function resolveSrcset(srcset) {
+      return String(srcset || '').split(',').map(function (part) {
+        var bits = part.trim().split(/\s+/);
+        if (!bits[0]) return '';
+        bits[0] = resolveAssetUrl(bits[0]);
+        return bits.filter(Boolean).join(' ');
+      }).filter(Boolean).join(', ');
+    }
+
+    function applyHeroPortraitSources(img, chosen) {
+      var srcset = resolveSrcset(chosen && chosen.srcset);
+      var sizes = chosen && typeof chosen.sizes === 'string' ? chosen.sizes.trim() : '';
+      if (srcset) img.setAttribute('srcset', srcset);
+      else img.removeAttribute('srcset');
+      if (sizes) img.setAttribute('sizes', sizes);
+      else img.removeAttribute('sizes');
     }
 
     function pickHeroPortrait(entries, random) {
@@ -530,6 +555,7 @@
       if (!nextSrc) return Promise.resolve(false);
       if (img.getAttribute('src') === nextSrc) {
         img.alt = nextAlt;
+        applyHeroPortraitSources(img, chosen);
         img.classList.add('is-shown');
         return Promise.resolve(true);
       }
@@ -538,6 +564,7 @@
         probe.onload = function () {
           img.src = nextSrc;
           img.alt = nextAlt;
+          applyHeroPortraitSources(img, chosen);
           img.classList.add('is-shown');
           resolve(true);
         };

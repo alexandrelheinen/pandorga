@@ -13,6 +13,21 @@ is `Pandorga::VERSION` (`lib/pandorga/version.rb`).
 
 Read [CHANGELOG.md](../CHANGELOG.md) before you bump.
 
+## Discovery and portraits (1.6.0)
+
+No `pandorga:` keys were added. The shell writes `/sitemap.xml` and
+`/robots.txt`, and a `WebSite` / `Person` JSON-LD block. The sitemap origin
+is `pandorga.identity.url`, then `site.url`.
+
+A hero portrait object may set `srcset` and `sizes` next to `src`. Omit them
+and the plate still uses `src` alone.
+
+```json
+{ "src": "/media/images/hero/plate.jpg", "srcset": "/media/images/hero/plate-800.jpg 800w, /media/images/hero/plate.jpg 1200w", "sizes": "(max-width: 767px) 100vw, 16rem" }
+```
+
+The hero subtitle stays at the body size (`--type-body`).
+
 ## Hero name (1.5.0)
 
 `pandorga.identity.name` stays required. Two optional keys split the home
