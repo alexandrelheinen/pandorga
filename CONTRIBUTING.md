@@ -26,8 +26,9 @@ page. Do not stack runs to hunt a prettier number.
 
 CI runs `./scripts/lighthouse-home.sh` once on the built example home.
 Pull requests and merges to main set `LIGHTHOUSE_MODE=warn` and do not
-fail the check. The release build checks out the tag, sets
-`LIGHTHOUSE_MODE=enforce`, and publishes at 90 or above. A bug-fix
+fail the score check. The same script still fails when the loaded home
+has no project or article items. The release build checks out the tag,
+sets `LIGHTHOUSE_MODE=enforce`, and publishes at 90 or above. A bug-fix
 release whose notes include `LIGHTHOUSE_BUGFIX=1` may publish from 75
 to 89, and that release still fails below 75. The normative text is
-`PLT-AC-24` in [docs/spec.md](docs/spec.md).
+`PLT-AC-24` and `PLT-AC-26` in [docs/spec.md](docs/spec.md).

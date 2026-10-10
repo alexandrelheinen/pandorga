@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.6.8] — 2026-10-10
+
+### Fixed
+
+- Home bands and the other listing pages fill again. Their scripts sit in
+  the page and used to run before the runtime existed, then return. The
+  titles stayed in the HTML and the lists stayed empty, on the phone and
+  on the desktop. Lighthouse scored that empty document. Those scripts
+  now start when the runtime is assigned. The runtime stays after the
+  page. The static hero summary, the deferred text faces, the deferred
+  markdown library, and the named icon subset stay as they are.
+- CI loads the built example home and fails when the projects, articles,
+  or posts band has no items after load, on a phone viewport and on a
+  desktop viewport.
+- On a phone, the featured card in the home Articles band has more space
+  above its text. The other article cards keep their padding. Article
+  titles in that band are 2pt larger.
+- On the Rascunhos page, the licence sits under the entries again below
+  1024px. The per-page stylesheet split had stopped loading the sheet
+  that ordered it, and the page's own `display: block` put it back on
+  top. The order now lives on the sheet the blog layout always loads.
+
+No `pandorga:` config keys were added or renamed.
+
 ## [1.6.7] — 2026-10-10
 
 ### Fixed

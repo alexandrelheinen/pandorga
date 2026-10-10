@@ -13,6 +13,17 @@ is `Pandorga::VERSION` (`lib/pandorga/version.rb`).
 
 Read [CHANGELOG.md](../CHANGELOG.md) before you bump.
 
+## Home lists (1.6.8)
+
+No `pandorga:` keys were added. Listing scripts start when the content
+runtime is assigned. The runtime stays after the page. A release still
+needs the static hero summary, the text faces after first paint, the
+named icon subset, and a Lighthouse mobile score of 90 or above. The
+example home must also show project and article items after load. Article
+titles in the home Articles band are 2pt larger, and on a phone the
+featured card has more space above its text. Below 1024px the Rascunhos
+licence stays under the entries.
+
 ## Example home score (1.6.7)
 
 No `pandorga:` keys were added. Text faces are requested after the first

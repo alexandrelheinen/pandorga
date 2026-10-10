@@ -454,11 +454,14 @@
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
 <script>
-    (function () {
+    (function bootNetwork() {
         'use strict';
 
         var runtime = window.ContentRuntime;
-        if (!runtime || !runtime.ListingFilter) return;
+        if (!runtime || typeof runtime.loadJson !== 'function') {
+            document.addEventListener('pandorga:runtime', bootNetwork, { once: true });
+            return;
+        }
 
         var params = new URLSearchParams(window.location.search);
         var filterRoot = document.querySelector('[data-listing-filter-root]');

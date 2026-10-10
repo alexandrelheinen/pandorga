@@ -59,11 +59,14 @@ layout: shell
 </main>
 
 <script>
-  (function () {
+  (function bootProjects() {
     'use strict';
 
     var runtime = window.ContentRuntime;
-    if (!runtime) return;
+    if (!runtime || typeof runtime.loadJson !== 'function') {
+      document.addEventListener('pandorga:runtime', bootProjects, { once: true });
+      return;
+    }
 
     var esc = runtime.escapeHtml;
     var escAttr = runtime.escapeAttr;

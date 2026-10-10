@@ -63,8 +63,12 @@ layout: shell
     </div>
   </section>
   <script>
-    (function () {
+    (function bootHomePaint() {
       var runtime = window.ContentRuntime;
+      if (!runtime || typeof runtime.renderMarkdown !== 'function') {
+        document.addEventListener('pandorga:runtime', bootHomePaint, { once: true });
+        return;
+      }
       var pre = window.__pandorgaPreload || {};
       function paint(id, path) {
         var el = document.getElementById(id);
@@ -95,11 +99,14 @@ layout: shell
 
 <script>
   {% raw %}
-  (function () {
+  (function bootHomeBands() {
     'use strict';
 
     var runtime = window.ContentRuntime;
-    if (!runtime) return;
+    if (!runtime || typeof runtime.loadJson !== 'function') {
+      document.addEventListener('pandorga:runtime', bootHomeBands, { once: true });
+      return;
+    }
 
     function asItem(entry) {
       return {

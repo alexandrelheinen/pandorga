@@ -24,11 +24,14 @@ layout: shell
 </main>
 
 <script>
-  (function () {
+  (function bootBibliography() {
     'use strict';
 
     var runtime = window.ContentRuntime;
-    if (!runtime || !runtime.ListingFilter) return;
+    if (!runtime || typeof runtime.loadJson !== 'function') {
+      document.addEventListener('pandorga:runtime', bootBibliography, { once: true });
+      return;
+    }
 
     var listing = runtime.Listing;
     var params = new URLSearchParams(window.location.search);

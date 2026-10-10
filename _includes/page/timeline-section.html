@@ -852,12 +852,24 @@
       var runtime = window.ContentRuntime;
       /* The content base is empty when the JSON is served from the site root
          (local preview), which is a valid source, not a missing one — gate on
-         the loader instead, and let the catch fall back to the inline stub. */
+         the loader instead, and let the catch fall back to the inline stub.
+         The runtime script follows the page, so the first call waits for it. */
       if (runtime && typeof runtime.loadJson === 'function') {
+        loadTimeline.started = true;
         runtime.loadJson('data/timeline.json').then(bootTimeline).catch(function (error) {
           console.error(error);
           if (el) bootTimeline(JSON.parse(el.textContent));
         });
+        return;
+      }
+      if (!loadTimeline.armed) {
+        loadTimeline.armed = true;
+        document.addEventListener('pandorga:runtime', loadTimeline, { once: true });
+        window.setTimeout(function () {
+          if (loadTimeline.started || !el) return;
+          loadTimeline.started = true;
+          bootTimeline(JSON.parse(el.textContent));
+        }, 0);
         return;
       }
       if (el) bootTimeline(JSON.parse(el.textContent));
