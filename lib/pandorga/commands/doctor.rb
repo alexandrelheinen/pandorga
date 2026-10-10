@@ -30,7 +30,9 @@ module Pandorga
           end
           pages = pandorga["pages"]
           if pages.nil?
-            warnings << "pandorga.pages is empty — no pages will be generated"
+            warnings << "pandorga.pages is missing; no pages will be generated"
+          elsif pages.is_a?(Array) && pages.empty?
+            warnings << "pandorga.pages is empty; no pages will be generated"
           elsif !pages.is_a?(Array)
             errors << "pandorga.pages must be an array"
           else
