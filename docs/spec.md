@@ -515,6 +515,8 @@ Criteria are written in EARS format. Every criterion is referenced by at least o
 - `PLT-AC-17` `.writing-revised` must use the solid on-surface variant ink. A transparent mix of that ink fails 4.5:1 on the light paper (`test-hydrate-reserve`).
 - `PLT-AC-18` A selectable home project inventory row must be a `button`, not an `article` with `role=button` (`test-hydrate-reserve`).
 - `PLT-AC-19` The shell must not load the Tailwind Play CDN. Utilities come from `assets/css/tailwind.css`. A page loads `chrome.css`, `footer.css`, and the ledger sheet for its layout, not every ledger sheet (`test-css-delivery`).
+- `PLT-AC-20` A hero portrait entry may set `srcset` and `sizes`. An entry with only `src` must keep that shape (`test-discovery`).
+- `PLT-AC-21` The build must write `sitemap.xml` and `robots.txt` with a `Sitemap:` line, and the shell must emit JSON-LD for the site and the person named by `identity.name` (`test-discovery`, `test-examples-build`).
 
 ## 13. Owner decisions
 

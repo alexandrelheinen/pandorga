@@ -55,6 +55,21 @@ end
     warn "FAIL test-examples-build: #{name} home layout missing"
     exit 1
   end
+  origin = name == "full" ? "https://example.org" : "https://example.com"
+  sitemap = example.join("_site/sitemap.xml").read
+  robots = example.join("_site/robots.txt").read
+  unless sitemap.include?("<loc>#{origin}/</loc>") || sitemap.include?("<loc>#{origin}/index.html</loc>")
+    warn "FAIL test-examples-build: #{name} sitemap missing the home URL\n#{sitemap}"
+    exit 1
+  end
+  unless robots.include?("Sitemap: #{origin}/sitemap.xml")
+    warn "FAIL test-examples-build: #{name} robots missing the sitemap line\n#{robots}"
+    exit 1
+  end
+  unless html.include?('application/ld+json') && html.include?('"@type": "Person"')
+    warn "FAIL test-examples-build: #{name} home is missing JSON-LD"
+    exit 1
+  end
 end
 
 puts "PASS test-examples-build"
