@@ -55,6 +55,25 @@ end
     warn "FAIL test-examples-build: #{name} home layout missing"
     exit 1
   end
+  if name == "full"
+    unless html.include?("data-content-static") && html.include?("Ada Example designs publishing frames")
+      warn "FAIL test-examples-build: full home summary is not static HTML"
+      exit 1
+    end
+    if html.include?('data-content-fragment="cv/summary"')
+      warn "FAIL test-examples-build: full home still hydrates the summary"
+      exit 1
+    end
+  else
+    unless html.include?('data-content-fragment="cv/summary" data-content-quiet')
+      warn "FAIL test-examples-build: minimal home dropped the summary fallback"
+      exit 1
+    end
+    if html.include?("data-content-static")
+      warn "FAIL test-examples-build: minimal home inlined a missing summary"
+      exit 1
+    end
+  end
   origin = name == "full" ? "https://example.org" : "https://example.com"
   sitemap = example.join("_site/sitemap.xml").read
   robots = example.join("_site/robots.txt").read

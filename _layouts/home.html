@@ -33,8 +33,7 @@ layout: shell
           <h1 class="home-hero-title">
             <span class="home-hero-given">{{ _hero_name.given }}</span>{%- if _hero_name.family != "" %} <span class="home-hero-family">{{ _hero_name.family }}</span>{%- endif %}
           </h1>
-          <div id="home-cv-summary" class="home-hero-summary font-body"
-            data-content-fragment="cv/summary" data-content-quiet></div>
+          {% pandorga_hero_summary %}
           <div class="home-hero-actions">
             {%- if _cv_page -%}
             <a class="ledger-cta ledger-cta--emphasis home-hero-cta" href="{{ _cv_page.url }}">
@@ -65,7 +64,7 @@ layout: shell
       function paint(id, path) {
         var el = document.getElementById(id);
         var pending = pre[path];
-        if (!el || !pending || !runtime || !runtime.renderMarkdown) return;
+        if (!el || el.hasAttribute('data-content-static') || !pending || !runtime || !runtime.renderMarkdown) return;
         pending.then(function (fragment) {
           if (!fragment || el.getAttribute('data-content-painted') === '1') return;
           var html = runtime.renderMarkdown(fragment.body_markdown || '');

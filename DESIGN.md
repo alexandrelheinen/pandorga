@@ -159,7 +159,7 @@ typography:
     title: "'Cinzel Decorative', serif"
     subtitle: "'Newsreader', serif"
     label: "'Marcellus SC', serif"
-    body: "'Newsreader', sans-serif"
+    body: "'Newsreader', Georgia, serif"
     mono: "'Courier Prime', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace"
     code: "'Courier Prime', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace"
   rootFontSize: "110%"

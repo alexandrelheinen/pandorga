@@ -35,14 +35,16 @@ fail!("loadJson ignores the preload cache") unless fragments.include?("window.__
 fail!("quiet fragments still write Loading...") unless fragments.include?("data-content-quiet")
 fail!("a painted fragment is written twice") unless fragments.include?("data-content-painted")
 
-fail!("hero summary is not quiet") unless home.include?('data-content-fragment="cv/summary" data-content-quiet')
+summary_tag = ROOT.join("lib/pandorga/hero_summary.rb").read
+fail!("hero summary fallback is not quiet") unless summary_tag.include?('data-content-fragment="cv/summary" data-content-quiet')
 fail!("hero subtitle is not quiet") unless home.include?('data-content-fragment="home/subtitle" data-content-quiet')
 fail!("hero does not paint the summary early") unless home.include?("paint('home-cv-summary'")
+fail!("early paint replaces a static summary") unless home.include?("el.hasAttribute('data-content-static')")
 fail!("hero subtitle size left --type-body") unless home_css.include?("font-size: var(--type-body);")
 tagline = home_css[/\.home-hero-tagline \{[^}]*\}/m]
 fail!("tagline rule missing") unless tagline
 fail!("tagline is not body size") unless tagline.include?("font-size: var(--type-body);")
-fail!("hero summary has no reserved box") unless home_css.include?(".home-hero-summary:empty")
+fail!("hero summary keeps a guessed empty box") if home_css.include?(".home-hero-summary:empty")
 
 fail!("articles listing has no row reserve") unless articles.include?("writing-reserve-row")
 fail!("articles lead has no reserved box") unless writing_css.include?("#articles-lead.is-pending:empty")

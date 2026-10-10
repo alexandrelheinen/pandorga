@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.6.2] — 2026-10-10
+
+### Fixed
+
+- The home hero summary is rendered from `content/pages/cv/summary.md` at
+  build time. It was painted from JSON, so the paragraph's LCP was almost
+  all render delay.
+- The summary no longer reserves six empty lines. That box shifted the
+  call to action when the real paragraph arrived.
+- The body face is requested before the ledger sheets. `font-display: swap`
+  stays. The fallback is Georgia, then serif, so the swap does not reflow
+  the summary from a sans.
+
+No `pandorga:` config keys were added or renamed.
+
 ## [1.6.1] — 2026-10-10
 
 ### Fixed

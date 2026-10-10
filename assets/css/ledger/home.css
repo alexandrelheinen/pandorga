@@ -312,11 +312,9 @@
   line-height: var(--leading-body);
 }
 
-/* Hold the summary's box until the fragment paints, so the CTA under it
-   does not jump when the paragraph arrives. */
-.home-hero-summary:empty {
-  min-height: calc(var(--type-body) * var(--leading-body) * 6);
-}
+/* No empty min-height. A guessed line count shifts the call to action
+   when the summary is shorter or taller than the reserve. The paragraph
+   is in the HTML when content/pages/cv/summary.md exists. */
 
 .home-hero-summary p {
   margin: 0 0 var(--space-md);
