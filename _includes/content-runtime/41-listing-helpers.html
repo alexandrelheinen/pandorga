@@ -60,6 +60,13 @@
       },
       showLoadingState: function (element, message) {
         if (!element) return;
+        // Reserved skeletons already occupy the box. Replacing them with a
+        // one-line message is the shift the listing then repeats when the
+        // cards arrive.
+        if (element.hasAttribute('data-content-reserve')) {
+          element.setAttribute('aria-busy', 'true');
+          return;
+        }
         element.innerHTML = '<p class="font-body text-on-surface-variant italic col-span-full">' + escapeHtml(message) + '</p>';
       },
       showErrorState: function (element, message) {

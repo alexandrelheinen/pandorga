@@ -1,0 +1,35 @@
+{%- comment -%}
+  Start the JSON fetches the first paint depends on, before the stylesheets
+  and the content runtime. loadJson and listPaths reuse window.__pandorgaPreload.
+{%- endcomment -%}
+{%- case page.layout -%}
+{%- when "home" -%}
+  {%- assign _preload_paths = "pages/cv/summary.json|pages/home/subtitle.json|pages/home/portraits.json|pages/headers.json|data/writing_index.json" -%}
+{%- when "articles" -%}
+  {%- assign _preload_paths = "data/writing_index.json|pages/headers.json|manifest.json" -%}
+{%- when "blog" -%}
+  {%- assign _preload_paths = "data/writing_index.json|pages/headers.json|manifest.json" -%}
+{%- when "cv" -%}
+  {%- assign _preload_paths = "pages/cv/summary.json|pages/cv/disclaimer.json|data/education.json|data/languages.json|pages/headers.json|manifest.json" -%}
+{%- when "projects" -%}
+  {%- assign _preload_paths = "data/writing_index.json|pages/headers.json|manifest.json" -%}
+{%- else -%}
+  {%- assign _preload_paths = "" -%}
+{%- endcase -%}
+{%- if _preload_paths != blank -%}
+<script>
+(function () {
+  var base = {{ site.content_api_base_url | default: "" | jsonify }};
+  base = String(base || "").replace(/\/$/, "");
+  var paths = {{ _preload_paths | split: "|" | jsonify }};
+  window.__pandorgaPreload = window.__pandorgaPreload || {};
+  paths.forEach(function (path) {
+    var url = base ? base + "/" + path : "/" + path;
+    window.__pandorgaPreload[path] = fetch(url, { credentials: "same-origin" }).then(function (response) {
+      if (!response.ok) throw new Error(path);
+      return response.json();
+    });
+  });
+})();
+</script>
+{%- endif -%}

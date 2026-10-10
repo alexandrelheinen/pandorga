@@ -344,14 +344,15 @@
       var slug = item.slug || f.slug || '';
       var index = options.index;
 
-      var row = document.createElement('article');
+      // A selectable row is a real button. role=button on an article is
+      // what the audit flags, and the button already handles Enter and Space.
+      var row = document.createElement(selectable ? 'button' : 'article');
       row.className = 'home-project-inventory-row group' +
         (selected ? ' is-selected' : '');
+      if (selectable) row.type = 'button';
       if (slug) row.setAttribute('data-slug', slug);
 
       if (selectable) {
-        row.setAttribute('role', 'button');
-        row.setAttribute('tabindex', '0');
         row.setAttribute('aria-pressed', selected ? 'true' : 'false');
         row.setAttribute('aria-label', name);
       }

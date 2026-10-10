@@ -25,43 +25,45 @@ layout: shell
 
     <div id="cv-disclaimer" class="cv-disclaimer-box">
         <span class="material-symbols-outlined cv-dossier-note-icon" aria-hidden="true">info</span>
-        <div class="cv-dossier-note font-body" data-content-fragment="cv/disclaimer">
-            <p class="font-body text-on-surface-variant italic">Loading...</p>
-        </div>
+        <div class="cv-dossier-note font-body" data-content-fragment="cv/disclaimer" data-content-quiet></div>
     </div>
 
     <div id="cv-listing">
         {% capture cv_summary %}
-        <div class="cv-summary font-body" data-content-fragment="cv/summary">
-            <p class="font-body text-on-surface-variant italic">Loading...</p>
-        </div>
+        <div class="cv-summary font-body" data-content-fragment="cv/summary" data-content-quiet></div>
         {% endcapture %}
         {% include cv/cv-box.html id="summary" title="Summary" content=cv_summary %}
 
         {% capture cv_experience %}
-        <div id="cv-experience-list" class="cv-entry-stack">
-            <p class="font-body text-on-surface-variant italic">Loading experience...</p>
+        <div id="cv-experience-list" class="cv-entry-stack" data-content-reserve aria-busy="true">
+            <span class="cv-reserve-card" aria-hidden="true"></span>
+            <span class="cv-reserve-card" aria-hidden="true"></span>
+            <span class="cv-reserve-card" aria-hidden="true"></span>
         </div>
         {% endcapture %}
         {% include cv/cv-box.html id="experience" title="Experience" content=cv_experience %}
 
         {% capture cv_products %}
-        <div id="cv-products-grid" class="cv-product-grid">
-            <p class="font-body text-on-surface-variant italic">Loading products...</p>
+        <div id="cv-products-grid" class="cv-product-grid" data-content-reserve aria-busy="true">
+            <span class="cv-reserve-card" aria-hidden="true"></span>
+            <span class="cv-reserve-card" aria-hidden="true"></span>
+            <span class="cv-reserve-card" aria-hidden="true"></span>
         </div>
         {% endcapture %}
         {% include cv/cv-box.html id="products" title="Products" content=cv_products %}
 
         {% capture cv_education %}
-        <div id="cv-education-list" class="cv-entry-stack">
-            <p class="font-body text-on-surface-variant italic">Loading education...</p>
+        <div id="cv-education-list" class="cv-entry-stack" data-content-reserve aria-busy="true">
+            <span class="cv-reserve-card" aria-hidden="true"></span>
+            <span class="cv-reserve-card" aria-hidden="true"></span>
         </div>
         {% endcapture %}
         {% include cv/cv-box.html id="education" title="Education" content=cv_education %}
 
         {% capture cv_languages %}
-        <div id="cv-languages-list" class="cv-language-list">
-            <p class="font-body text-on-surface-variant italic">Loading languages...</p>
+        <div id="cv-languages-list" class="cv-language-list" data-content-reserve aria-busy="true">
+            <span class="cv-reserve-card" aria-hidden="true"></span>
+            <span class="cv-reserve-card" aria-hidden="true"></span>
         </div>
         {% endcapture %}
         {% include cv/cv-box.html id="languages" title="Languages" content=cv_languages %}
@@ -327,6 +329,7 @@ layout: shell
                         productMap[product.slug] = product;
                     });
                     experienceList.innerHTML = '';
+                    experienceList.removeAttribute('aria-busy');
                     jobs.sort(function (a, b) {
                         var as = (a.front_matter && a.front_matter.start) || '';
                         var bs = (b.front_matter && b.front_matter.start) || '';
@@ -344,6 +347,7 @@ layout: shell
                 runtime.Listing.showLoadingState(educationList, 'Loading education...');
                 runtime.loadJson('data/education.json').then(function (entries) {
                     educationList.innerHTML = '';
+                    educationList.removeAttribute('aria-busy');
                     entries.forEach(function (entry) { educationList.appendChild(renderEducation(entry)); });
                 }).catch(function (error) {
                     console.error(error);
@@ -355,6 +359,7 @@ layout: shell
                 runtime.Listing.showLoadingState(languagesList, 'Loading languages...');
                 runtime.loadJson('data/languages.json').then(function (entries) {
                     languagesList.innerHTML = '';
+                    languagesList.removeAttribute('aria-busy');
                     entries.forEach(function (entry) { languagesList.appendChild(renderLanguage(entry)); });
                 }).catch(function (error) {
                     console.error(error);
@@ -366,6 +371,7 @@ layout: shell
                 runtime.Listing.showLoadingState(productsGrid, 'Loading products...');
                 runtime.loadWritingIndex('products').then(function (products) {
                     productsGrid.innerHTML = '';
+                    productsGrid.removeAttribute('aria-busy');
                     var ordered = products.slice().sort(compareProductsByEndDate);
                     ordered.forEach(function (product) {
                         productsGrid.appendChild(renderProduct(product));

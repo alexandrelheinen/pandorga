@@ -57,6 +57,7 @@
   <meta name="twitter:image" content="{{ og_image_url }}" />
   <!-- Canonical URL -->
   <link rel="canonical" href="{{ canonical_path | absolute_url }}" />
+  {% include theme/critical-preload.html %}
   <link rel="stylesheet" href="/assets/css/base.css" />
   <link rel="stylesheet" href="/assets/css/article.css" />
   {% include theme/theme-vars.html %}

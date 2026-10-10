@@ -23,7 +23,7 @@
     }
   ],
   "selectors": [
-    "article.home-project-inventory-row",
+    "button.home-project-inventory-row",
     "div.home-project-inventory-media",
     "div.ledger-poster",
     "div.home-project-inventory-code",
@@ -35,7 +35,8 @@
     "span.home-project-inventory-resource"
   ],
   "forbidden": [
-    "ledger-card-stretch"
+    "ledger-card-stretch",
+    "role=\"button\""
   ],
   "contains": [
     ">02<",
