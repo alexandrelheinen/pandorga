@@ -120,7 +120,43 @@ shell = ROOT.join("_includes/theme/favicons.html").read
 fail!("shell does not link the site manifest") unless shell.include?('href="/site.webmanifest"')
 studio = ROOT.join("studio/index.html").read
 studio_app = ROOT.join("studio-app/index.html").read
+def ink_bounds(image)
+  width, height, pixels = image
+  min_x, min_y = width, height
+  max_x, max_y = -1, -1
+  height.times do |y|
+    width.times do |x|
+      next if pixels[(y * width) + x] == PLATE
+
+      min_x = x if x < min_x
+      min_y = y if y < min_y
+      max_x = x if x > max_x
+      max_y = y if y > max_y
+    end
+  end
+  [min_x, min_y, max_x, max_y]
+end
+
+def ico_sizes(path)
+  data = File.binread(path)
+  fail!("#{path} is not an ICO") unless data.bytesize >= 6 && data.getbyte(2) == 1
+
+  count = data[4, 2].unpack1("v")
+  count.times.map do |index|
+    entry = data[6 + (index * 16), 2]
+    width = entry.getbyte(0)
+    height = entry.getbyte(1)
+    width = 256 if width.zero?
+    height = 256 if height.zero?
+    [width, height]
+  end
+end
+
+fail!("site and Studio SVGs use different stamp scales") unless site_svg.include?("translate(7.68 7.68) scale(0.52)") &&
+                                                                studio_svg.include?("translate(7.68 7.68) scale(0.52)")
+
 [studio, studio_app].each do |html|
+  fail!("Studio favicon link is missing") unless html.include?('href="/assets/icons/studio-logo.ico"')
   fail!("Studio does not link its manifest") unless html.include?('href="/studio.webmanifest"')
   fail!("Studio apple touch icon is the 32px file") if html.include?('apple-touch-icon" href="/assets/icons/studio-logo-32.png"')
   fail!("Studio apple touch icon is missing") unless html.include?("/assets/icons/studio-apple-touch-icon.png")
@@ -186,24 +222,38 @@ end
 fallback = build_manifests("title: \"\"\n")
 fail!("empty identity must still name the app") unless fallback["site.webmanifest"]["name"] == "Site"
 
-{
-  "assets/icons/favicon.ico" => nil,
-  "assets/icons/favicon-32.png" => 32,
-  "assets/icons/apple-touch-icon.png" => 180,
-  "assets/icons/icon-512.png" => 512,
-  "assets/icons/icon-192.png" => 192,
-  "assets/icons/studio-apple-touch-icon.png" => 180,
-  "assets/icons/studio-icon-512.png" => 512,
-  "assets/icons/studio-icon-192.png" => 192,
-  "assets/icons/studio-logo-32.png" => 32
-}.each do |rel, size|
-  path = ROOT.join(rel)
-  fail!("missing #{rel}") unless path.file?
-  next unless size
+[
+  ["assets/icons/icon-512.png", "assets/icons/studio-icon-512.png", 512],
+  ["assets/icons/icon-maskable-512.png", "assets/icons/studio-maskable-512.png", 512],
+  ["assets/icons/icon-192.png", "assets/icons/studio-icon-192.png", 192],
+  ["assets/icons/icon-maskable-192.png", "assets/icons/studio-maskable-192.png", 192],
+  ["assets/icons/apple-touch-icon.png", "assets/icons/studio-apple-touch-icon.png", 180],
+  ["assets/icons/favicon-32.png", "assets/icons/studio-logo-32.png", 32],
+  ["assets/icons/icon-32.png", "assets/icons/studio-logo-32.png", 32]
+].each do |site_rel, studio_rel, size|
+  site_image = read_png(ROOT.join(site_rel))
+  studio_image = read_png(ROOT.join(studio_rel))
+  fail!("#{site_rel} is #{site_image[0]}x#{site_image[1]}") unless site_image[0] == size && site_image[1] == size
+  fail!("#{studio_rel} canvas is #{studio_image[0]}x#{studio_image[1]}") unless studio_image[0] == size && studio_image[1] == size
 
-  image = read_png(path)
-  fail!("#{rel} is #{image[0]}x#{image[1]}") unless image[0] == size && image[1] == size
+  site_ink = ink_bounds(site_image)
+  studio_ink = ink_bounds(studio_image)
+  fail!("#{studio_rel} art bounds #{studio_ink.inspect} differ from #{site_ink.inspect}") unless site_ink == studio_ink
+
+  min_x, min_y, max_x, max_y = site_ink
+  pad_right = size - 1 - max_x
+  pad_bottom = size - 1 - max_y
+  fail!("#{site_rel} padding is uneven #{site_ink.inspect}") unless min_x == min_y && pad_right == min_x && pad_bottom == min_y
+
+  radius = size * 0.40
+  center = size / 2.0
+  corner = Math.hypot((max_x + 1) - center, (max_y + 1) - center)
+  fail!("#{site_rel} art leaves the safe zone (#{corner} > #{radius})") if corner > radius
 end
+
+site_ico = ico_sizes(ROOT.join("assets/icons/favicon.ico"))
+studio_ico = ico_sizes(ROOT.join("assets/icons/studio-logo.ico"))
+fail!("favicon canvases differ: #{site_ico.inspect} vs #{studio_ico.inspect}") unless site_ico == studio_ico && site_ico == [[16, 16], [32, 32]]
 
 [512, 192].each do |size|
   site_path = ROOT.join("assets/icons/icon-maskable-#{size}.png")
