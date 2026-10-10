@@ -24,6 +24,47 @@ titles in the home Articles band are 2pt larger, and on a phone the
 featured card has more space above its text. Below 1024px the Rascunhos
 licence stays under the entries.
 
+## Launcher icons (1.6.8)
+
+The gem draws the site icon and the Studio icon from the site stamp.
+Studio adds a small badge. The build writes `/site.webmanifest` and
+`/studio.webmanifest`. Each lists 192 and 512 icons with purpose `any`
+and purpose `maskable`. Android then masks both shortcuts to one shape.
+
+A file in the website at the same path replaces the gem file. Replace
+these four so the tab icon and the Apple icon match the installed icons:
+
+| Website path | Copy from the gem |
+|---|---|
+| `favicon.ico` | `assets/icons/favicon.ico` |
+| `assets/icons/favicon.svg` | `assets/icons/favicon.svg` |
+| `assets/icons/favicon-32.png` | `assets/icons/favicon-32.png` |
+| `assets/icons/apple-touch-icon.png` | `assets/icons/apple-touch-icon.png` |
+
+Leave these paths absent. A file there hides the icon the manifest names:
+
+- `assets/icons/icon-192.png`
+- `assets/icons/icon-512.png`
+- `assets/icons/icon-maskable-192.png`
+- `assets/icons/icon-maskable-512.png`
+- `assets/icons/studio-icon-192.png`
+- `assets/icons/studio-icon-512.png`
+- `assets/icons/studio-maskable-192.png`
+- `assets/icons/studio-maskable-512.png`
+- `assets/icons/studio-apple-touch-icon.png`
+- `assets/icons/studio-logo.svg`
+- `assets/icons/studio-logo-32.png`
+
+Do not commit `site.webmanifest` or `studio.webmanifest`. The gem writes
+them. `pandorga install-functions` copies `studio/index.html`, which
+links `/studio.webmanifest`. If the website repository has its own
+`studio/index.html` or `_includes/theme/favicons.html`, add that link or
+delete the copy.
+
+The manifest name is `pandorga.identity.name`, then `site.title`. After
+the site is published, remove the old home-screen shortcuts and install
+them again. Android keeps the icon from the first install.
+
 ## Example home score (1.6.7)
 
 No `pandorga:` keys were added. Text faces are requested after the first

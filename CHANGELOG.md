@@ -22,6 +22,14 @@
   that ordered it, and the page's own `display: block` put it back on
   top. The order now lives on the sheet the blog layout always loads.
 
+### Changed
+
+- The site and Studio launcher icons are the same stamp, on the same
+  plate, in the same pastel triad. Studio adds a small badge. The build
+  writes `/site.webmanifest` and `/studio.webmanifest` with maskable
+  icons, so Android masks both to one shape. The shell links the site
+  manifest. Studio links the studio manifest.
+
 No `pandorga:` config keys were added or renamed.
 
 ## [1.6.7] — 2026-10-10

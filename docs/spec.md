@@ -85,7 +85,7 @@ This inventory is based on the current tree. "Platform" means moving the file to
 | `assets/css/base.css`, `article.css`, `global-link.css`, `assets/css/ledger/*` | Platform | Per-page CSS moves to the corresponding template. |
 | `assets/css/cv-print.css` | Website | |
 | `assets/tailwind-play.js` | Platform | |
-| `assets/icons/favicon.svg`, `assets/images/*`, `favicon.ico` | Website | The platform provides a neutral favicon and OG assets. |
+| `assets/icons/favicon.svg`, `assets/images/*`, `favicon.ico` | Website | The platform provides a neutral favicon, the maskable launcher icons, and OG assets. A site file at the same path replaces the gem file. |
 | `scripts/content/*`, `scripts/lib/*` | Platform (`pandorga` CLI) | `export-content-json.rb` will read the registry instead of the fixed list on lines 643 to 652. |
 | `scripts/content/hero_portraits.rb`, `band_art.rb` | Platform | Generic mechanisms. The photos and palette belong to the website. |
 | `scripts/pdf/*` | Platform (optional) | PDF generation from Markdown is useful for any website. |
@@ -523,6 +523,7 @@ Criteria are written in EARS format. Every criterion is referenced by at least o
 - `PLT-AC-25` The Material Symbols request names the icons it needs (`icon_names`). It must not download the full variable face. The shell links that subset from the head. The icon box is 1em so the fallback word does not widen the control (`test-lighthouse-policy`).
 - `PLT-AC-26` The content runtime stays after the page so it does not block first paint. Page scripts that fill listings start when that runtime is assigned (`pandorga:runtime`). A script that runs earlier waits for the event. CI loads the built example home and fails when the projects band has no inventory row or the articles band has no card, on a phone viewport and on a desktop viewport. An empty home is not a passing score (`scripts/lighthouse-home.sh`, `scripts/check_home_lists.mjs`, `test-home-lists`).
 - `PLT-AC-27` Below 1024px the Rascunhos licence is a colophon under the entries. The blog layout loads `rascunhos.css` and then `writing.css`. The order rule lives in `rascunhos.css` at a higher specificity than `.rascunhos-body { display: block }`, so dropping or reordering the writing sheet cannot put the licence back above the texts (`test-rascunhos-licence`). On the home Articles band, article titles are 2pt larger than the size they already use, and below 768px the featured card has more top padding than the listed cards (`test-home-articles`).
+- `PLT-AC-28` The site and Studio launchers use the site stamp (the polygons in `site-logo.html`) on the plate `#5e5d59` with the pastel triad. Studio adds one badge and no other difference. The build writes `/site.webmanifest` and `/studio.webmanifest`, each with 192 and 512 icons of purpose `any` and purpose `maskable`. Maskable art stays inside the center 80% circle. The shell links `/site.webmanifest`. Studio links `/studio.webmanifest`. The two apps have distinct `id` and `scope` values (`test-pwa-icons`).
 
 ## 13. Owner decisions
 
