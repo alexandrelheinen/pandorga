@@ -74,6 +74,19 @@
   overflow: hidden;
 }
 
+/* The first band title is the LCP text. On a phone the hero padding and the
+   gap under the copy were pushing that title just past the first viewport,
+   so the paint waited on a later frame. */
+@media (max-width: 767px) {
+  .home-band--hero {
+    padding-block: 1.75rem 1.25rem;
+  }
+
+  .home-hero {
+    gap: var(--space-md);
+  }
+}
+
 .home-band--hero .home-band-inner {
   position: relative;
   z-index: 1;

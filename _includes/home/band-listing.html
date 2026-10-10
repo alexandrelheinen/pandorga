@@ -23,11 +23,18 @@
   data-home-language="{{ _lang }}"
 >
   <div class="home-band-inner">
+    {%- assign _section = site.data.page_headers[band.section_key] -%}
+    {%- assign _title = band.title -%}
+    {%- if _section.title != blank -%}{%- assign _title = _section.title -%}{%- endif -%}
     <div class="ledger-section-banner" data-content-home-section="{{ band.section_key }}">
       <div class="ledger-section-lead">
-        <span class="ledger-kicker" data-content-section-kicker></span>
-        <h2 class="section-title" data-content-section-title></h2>
-        <p class="home-section-note font-body" data-content-section-note></p>
+        {%- if _section.kicker != blank -%}
+        <span class="ledger-kicker" data-content-section-kicker>{{ _section.kicker }}</span>
+        {%- endif -%}
+        <h2 class="section-title" data-content-section-title>{{ _title }}</h2>
+        {%- if _section.note != blank -%}
+        <p class="home-section-note font-body" data-content-section-note>{{ _section.note }}</p>
+        {%- endif -%}
       </div>
       <div class="home-section-aside">
         <a class="ledger-cta" href="{{ _path }}">

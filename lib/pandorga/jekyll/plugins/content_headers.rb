@@ -25,6 +25,7 @@ module Jekyll
       site.data["content_fragments"] ||= {}
 
       load_page_content(site, content_path)
+      load_page_headers(site, content_path)
       load_structured_data(site, content_path)
     end
 
@@ -38,6 +39,17 @@ module Jekyll
         key = relative_key(file, pages_path)
         site.data["content_fragments"][key] = File.read(file)
       end
+    end
+
+    # content/pages/headers.yml is also exported as pages/headers.json.
+    # The home bands read it here so a section title and note are in the
+    # HTML. A heading painted later by the runtime becomes the LCP element.
+    def load_page_headers(site, content_path)
+      path = File.join(content_path, "pages", "headers.yml")
+      return unless File.file?(path)
+
+      loaded = load_yaml(path)
+      site.data["page_headers"] = loaded.is_a?(Hash) ? loaded : {}
     end
 
     def load_structured_data(site, content_path)

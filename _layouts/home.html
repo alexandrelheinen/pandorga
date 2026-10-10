@@ -9,9 +9,9 @@ layout: shell
   plus content fragments. Decorative art is a slot
   (`pandorga.home.hero_art`, default page/hero-default.html). Listing and
   index bands come from site.data.pandorga_home_bands in registry order.
-  Band copy (kicker, title, note) arrives from content/pages/headers.yml
-  via hydrateHomeSections(). No Portuguese or owner-specific strings live
-  in this layout.
+  Band copy (kicker, title, note) and the hero subtitle come from
+  content/pages/headers.yml at build time. No Portuguese or owner-specific
+  strings live in this layout.
 {%- endcomment -%}
 
 {%- assign _hero_name = site.pandorga.identity | pandorga_hero_name: site.author, site.title -%}
@@ -28,8 +28,13 @@ layout: shell
     <div class="home-band-inner">
       <div class="home-hero">
         <div class="home-hero-copy">
+          {%- assign _home_header = site.data.page_headers.home -%}
+          {%- if _home_header.subtitle != blank -%}
+          <div id="home-subtitle-content" class="home-hero-tagline font-label" data-content-static>{{ _home_header.subtitle }}</div>
+          {%- else -%}
           <div id="home-subtitle-content" class="home-hero-tagline font-label"
             data-content-fragment="home/subtitle" data-content-quiet></div>
+          {%- endif -%}
           <h1 class="home-hero-title">
             <span class="home-hero-given">{{ _hero_name.given }}</span>{%- if _hero_name.family != "" %} <span class="home-hero-family">{{ _hero_name.family }}</span>{%- endif %}
           </h1>

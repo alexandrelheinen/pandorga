@@ -5,8 +5,15 @@
 ### Fixed
 
 - The Material Symbols stylesheet no longer blocks first paint. It loads
-  as print media and is applied on load. The icon box stays 1em so the
-  fallback word does not widen the control.
+  as print media and is applied on load. The icon box stays 1em, and its
+  size stays inherited, so the Google sheet cannot restyle it after paint.
+- The content runtime, including marked, comes after the page so the
+  hero is in the document before that script. A home band's kicker, title,
+  and note from `content/pages/headers.yml` are in the HTML.
+- The hero subtitle from `content/pages/headers.yml` is in the HTML.
+  Leaving that line empty until script runs moved the portrait.
+- On a phone the hero band is shorter, so the first section title stays in
+  the first viewport. That title was the late LCP element.
 
 ### Added
 

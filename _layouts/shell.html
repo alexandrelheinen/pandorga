@@ -240,8 +240,6 @@
     })();
   </script>
 
-  {% include page/content-runtime.html %}
-
   <div id="page-content" tabindex="-1">
   {{ content }}
   </div>
@@ -250,6 +248,8 @@
 
   <!-- Footer -->
   {% include page/site-footer.html nav_active=nav_active %}
+
+  {% include page/content-runtime.html %}
 
 </body>
 

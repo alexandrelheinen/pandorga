@@ -1,12 +1,19 @@
 /* ── Material Symbols ── */
-.material-symbols-outlined {
+/* Doubled class so this beats the Google stylesheet, which arrives later
+   and sets font-size: 24px. That late size change moves the hero. */
+.material-symbols-outlined.material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-weight: normal;
+  font-style: normal;
+  font-size: inherit;
+  letter-spacing: normal;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   vertical-align: middle;
   line-height: 1;
   text-transform: none;
+  white-space: nowrap;
   /* One em square. Until the icon face arrives the ligature is a word,
      and an unsized word widens the control. */
   width: 1em;
@@ -14,6 +21,20 @@
   min-width: 1em;
   overflow: hidden;
   flex-shrink: 0;
+}
+
+.material-symbols-outlined.text-sm { font-size: 0.875rem; }
+.material-symbols-outlined.text-lg { font-size: 1.125rem; }
+.material-symbols-outlined.text-xl { font-size: 1.25rem; }
+.material-symbols-outlined.text-5xl { font-size: 3rem; }
+
+@media (min-width: 768px) {
+  .material-symbols-outlined.text-6xl { font-size: 3.75rem; }
+}
+
+.ledger-cta-arrow.material-symbols-outlined,
+.ledger-cta-icon.material-symbols-outlined {
+  font-size: 1.35em;
 }
 
 /* Cubist triad — ~+25% over the 1.25rem theme-toggle box (rounded to 1.5rem). */
