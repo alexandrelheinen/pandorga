@@ -6,6 +6,29 @@
    one source of navigation; only the presentation changes. The Explore menu
    stays for narrow viewports, where six links do not fit. */
 
+.skip-link {
+  position: absolute;
+  left: 0.75rem;
+  top: 0.75rem;
+  z-index: 80;
+  padding: 0.45rem 0.75rem;
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  border: 1px solid var(--color-outline);
+  text-decoration: none;
+  font-family: var(--font-label);
+  font-size: var(--type-label);
+  transform: translateY(-150%);
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+#page-content:focus {
+  outline: none;
+}
+
 .site-wordmark-link {
   display: inline-flex;
   align-items: center;

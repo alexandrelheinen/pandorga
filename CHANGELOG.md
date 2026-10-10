@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.5.1] — 2026-10-10
+
+### Fixed
+
+- The shell has a "Skip to content" link. When `site.author` is blank, the
+  home link's accessible name uses `pandorga.identity.name`, then the top-bar
+  wordmark, instead of a bare dash. The footer wordmark uses the same
+  fallback. A site that sets `site.author` is unchanged.
+- `pandorga doctor` says when `pandorga.pages` is missing, and says when the
+  list is empty.
+- `./scripts/validate.sh` fails if a listed gate file is missing.
+
+### Changed
+
+- Getting started and the README name the scaffold pin `~> 1.3`.
+- `pandorga new` comments the `v1.5.0` tag.
+- Home CSS drops an empty `@media (min-width: 768px)` block and the unused
+  `.home-profile-summary` rules.
+- Chord chart and transcript include comments are English. The visible
+  transcript labels are unchanged.
+
+No `pandorga:` config keys were added or renamed.
+
 ## [1.5.0] — 2026-10-10
 
 ### Added
