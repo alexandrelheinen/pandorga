@@ -329,8 +329,9 @@
         return;
       }
       if (inline) {
-        el.innerHTML = stripSingleParagraph(parseInlineMarkdown(text));
-      } else {
+        var next = stripSingleParagraph(parseInlineMarkdown(text));
+        if (el.innerHTML.trim() !== next.trim()) el.innerHTML = next;
+      } else if (el.textContent.trim() !== text) {
         el.textContent = text;
       }
       el.hidden = false;

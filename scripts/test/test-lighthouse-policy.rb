@@ -47,9 +47,18 @@ fail!("Material Symbols sheet is missing") unless shell.include?("Material+Symbo
 fail!("Material Symbols sheet still blocks first paint") unless screen.include?('media="print" onload="this.media=\'all\'"')
 fail!("screen still has a blocking Material Symbols stylesheet") if screen.match?(/rel="stylesheet"[^>]*Material\+Symbols|Material\+Symbols[^>]*rel="stylesheet"/m)
 
-icon = base[/\.material-symbols-outlined \{.*?\n\}/m]
+icon = base[/\.material-symbols-outlined\.material-symbols-outlined \{.*?\n\}/m]
 fail!("icon rule missing") unless icon
 fail!("icon box is not 1em") unless icon.include?("width: 1em;") && icon.include?("height: 1em;")
+fail!("icon size can still jump when the Google sheet arrives") unless icon.include?("font-size: inherit;")
 fail!("icon box does not clip the fallback word") unless icon.include?("overflow: hidden;")
+fail!("content runtime still precedes the page") unless shell.index("{{ content }}") && shell.index("page/content-runtime.html") > shell.index("{{ content }}")
+band = File.read(File.expand_path("../../_includes/home/band-listing.html", __dir__))
+fail!("band title is still painted by script") unless band.include?('data-content-section-title>{{ _title }}')
+fail!("band note is still painted by script") unless band.include?("page_headers")
+headers = File.read(File.expand_path("../../_plugins/content_headers.rb", __dir__))
+fail!("page headers are not loaded at build time") unless headers.include?('site.data["page_headers"]')
+home = File.read(File.expand_path("../../_layouts/home.html", __dir__))
+fail!("hero subtitle is still painted by script") unless home.include?("page_headers.home") && home.include?("data-content-static")
 
 puts "PASS test-lighthouse-policy"
