@@ -59,16 +59,52 @@
   <link rel="canonical" href="{{ canonical_path | absolute_url }}" />
   {% include theme/critical-preload.html %}
   <link rel="stylesheet" href="/assets/css/base.css" />
-  <link rel="stylesheet" href="/assets/css/article.css" />
-  {% include theme/theme-vars.html %}
-  <link rel="stylesheet" href="/assets/css/cv.css" />
   <link rel="stylesheet" href="/assets/css/global-link.css" />
-  {%- comment -%} Per-page ledger styles. One file per page so page work stays
-      independent; shared component rules live in base.css. {%- endcomment -%}
-  {%- for sheet in site.static_files -%}
-    {%- if sheet.path contains "/assets/css/ledger/" -%}
-  <link rel="stylesheet" href="{{ sheet.path }}" />
-    {%- endif -%}
+  {% include theme/theme-vars.html %}
+  <link rel="stylesheet" href="/assets/css/ledger/chrome.css" />
+  <link rel="stylesheet" href="/assets/css/ledger/footer.css" />
+  {%- comment -%}
+    Ledger sheets stay with the layout that uses them. article.css is the
+    reading column, so only detail-capable layouts load it. An unknown
+    layout still receives every sheet.
+  {%- endcomment -%}
+  {%- case page.layout -%}
+  {%- when "home" -%}
+    {%- assign _ledger = "home" | split: "|" -%}
+    {%- assign _article_css = false -%}
+  {%- when "articles" -%}
+    {%- assign _ledger = "writing|detail" | split: "|" -%}
+    {%- assign _article_css = true -%}
+  {%- when "blog" -%}
+    {%- assign _ledger = "rascunhos|detail" | split: "|" -%}
+    {%- assign _article_css = true -%}
+  {%- when "cv" -%}
+    {%- assign _ledger = "cv|detail" | split: "|" -%}
+    {%- assign _article_css = true -%}
+  {%- when "projects" -%}
+    {%- assign _ledger = "projects|detail" | split: "|" -%}
+    {%- assign _article_css = true -%}
+  {%- when "resources" -%}
+    {%- assign _ledger = "sources" | split: "|" -%}
+    {%- assign _article_css = false -%}
+  {%- when "network" -%}
+    {%- assign _ledger = "network" | split: "|" -%}
+    {%- assign _article_css = false -%}
+  {%- when "bibliography" -%}
+    {%- assign _ledger = "bibliography" | split: "|" -%}
+    {%- assign _article_css = false -%}
+  {%- when "text" -%}
+    {%- assign _ledger = "detail" | split: "|" -%}
+    {%- assign _article_css = true -%}
+  {%- else -%}
+    {%- assign _ledger = "home|writing|detail|projects|rascunhos|bibliography|network|sources|cv" | split: "|" -%}
+    {%- assign _article_css = true -%}
+  {%- endcase -%}
+  {%- if _article_css -%}
+  <link rel="stylesheet" href="/assets/css/article.css" />
+  {%- endif -%}
+  {%- for _sheet in _ledger -%}
+  <link rel="stylesheet" href="/assets/css/ledger/{{ _sheet }}.css" />
   {%- endfor -%}
   <link href="https://fonts.googleapis.com" rel="preconnect" />
   <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
@@ -79,8 +115,7 @@
   <style>
     :root { --drop-cap-lines: {{ site.drop_cap_lines | default: 2 }}; }
   </style>
-  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <script src="/assets/tailwind-play.js"></script>
+  <link rel="stylesheet" href="/assets/css/tailwind.css" />
 </head>
 
 <body class="bg-background text-on-surface">

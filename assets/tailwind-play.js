@@ -1,5 +1,6 @@
 ---
-# Play CDN browser config (not a Node Tailwind project file).
+# Kept as the readable theme binding. The shell does not load this file.
+# Utilities are compiled to assets/css/tailwind.css (scripts/tailwind/build.sh).
 # Named *-play.js so the Tailwind IntelliSense extension does not treat it as
 # tailwind.config.js and fail with "tailwind is not defined" / _site duplicates.
 ---

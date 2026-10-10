@@ -514,6 +514,7 @@ Criteria are written in EARS format. Every criterion is referenced by at least o
 - `PLT-AC-16` The home hero subtitle and summary must be fetched before the stylesheets, painted without a "Loading..." swap, and given a reserved box so the call to action does not jump. Article and CV listings must reserve row space until their cards replace it (`test-hydrate-reserve`).
 - `PLT-AC-17` `.writing-revised` must use the solid on-surface variant ink. A transparent mix of that ink fails 4.5:1 on the light paper (`test-hydrate-reserve`).
 - `PLT-AC-18` A selectable home project inventory row must be a `button`, not an `article` with `role=button` (`test-hydrate-reserve`).
+- `PLT-AC-19` The shell must not load the Tailwind Play CDN. Utilities come from `assets/css/tailwind.css`. A page loads `chrome.css`, `footer.css`, and the ledger sheet for its layout, not every ledger sheet (`test-css-delivery`).
 
 ## 13. Owner decisions
 
