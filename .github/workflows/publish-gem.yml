@@ -6,6 +6,11 @@ on:
   push:
     tags: ["v*"]
   workflow_dispatch:
+    inputs:
+      bugfix:
+        description: "Bug-fix release that may publish from 75 to 89"
+        type: boolean
+        default: false
 
 # A release also pushes the tag, so both events start this workflow.
 # The later run replaces the earlier one. The gem push waits for the
@@ -34,6 +39,9 @@ jobs:
       - name: Lighthouse mobile home
         env:
           LIGHTHOUSE_MODE: enforce
+          # A feature release publishes at 90 or above. Release notes that
+          # contain LIGHTHOUSE_BUGFIX=1 may publish from 75 to 89.
+          LIGHTHOUSE_BUGFIX: ${{ (github.event_name == 'release' && contains(github.event.release.body, 'LIGHTHOUSE_BUGFIX=1')) && '1' || (github.event_name == 'workflow_dispatch' && inputs.bugfix && '1' || '') }}
         run: ./scripts/lighthouse-home.sh
 
   push:
