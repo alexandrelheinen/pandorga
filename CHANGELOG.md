@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.6.7] — 2026-10-10
+
+### Fixed
+
+- The text faces are a head link again. Requesting them after the load
+  event held the hero summary until images and late sheets finished, so
+  the live home scored about 50 while the example, which has no summary,
+  scored 98.
+- The icon face names the icons it needs. The full variable file is about
+  a megabyte, and decoding it blocked the main thread on the live home.
+- The project inventory region has a role to match its accessible name.
+- Lighthouse measures `examples/full`, whose home includes a static hero
+  summary, the element a real site paints largest.
+
+No `pandorga:` config keys were added or renamed.
+
 ## [1.6.6] — 2026-10-10
 
 ### Fixed
