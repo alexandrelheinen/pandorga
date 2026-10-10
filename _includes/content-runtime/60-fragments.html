@@ -13,6 +13,19 @@
     }
 
     async function listPaths(collection, manifestKey) {
+      var pre = window.__pandorgaPreload && window.__pandorgaPreload['manifest.json'];
+      if (pre && typeof pre.then === 'function') {
+        try {
+          var preloaded = await pre;
+          assertManifestSchema(preloaded);
+          var preloadedFiles = preloaded.files && preloaded.files[manifestKey];
+          if (Array.isArray(preloadedFiles)) return preloadedFiles;
+        } catch (error) {
+          if (error && String(error.message || '').indexOf('Unsupported content schema') === 0) throw error;
+          delete window.__pandorgaPreload['manifest.json'];
+        }
+      }
+
       var manifestResponse = await fetch(buildUrl('manifest.json'));
       if (manifestResponse.ok) {
         var manifest = await manifestResponse.json();
@@ -63,16 +76,31 @@
       return collectionCache[cacheKey];
     }
 
+    function fetchJson(path) {
+      return fetch(buildUrl(path)).then(function (response) {
+        if (!response.ok) throw new Error('Content JSON fetch failed: ' + path);
+        return response.json();
+      });
+    }
+
     async function loadJson(path) {
       var key = String(path || '');
       if (jsonCache[key]) return jsonCache[key];
-      jsonCache[key] = fetch(buildUrl(path)).then(function (response) {
-        if (!response.ok) throw new Error('Content JSON fetch failed: ' + path);
-        return response.json();
-      }).catch(function (error) {
-        delete jsonCache[key];
-        throw error;
-      });
+      var pre = window.__pandorgaPreload && window.__pandorgaPreload[key];
+      jsonCache[key] = Promise.resolve()
+        .then(function () {
+          if (pre && typeof pre.then === 'function') return pre;
+          return fetchJson(path);
+        })
+        .catch(function () {
+          if (!(pre && typeof pre.then === 'function')) throw new Error('Content JSON fetch failed: ' + path);
+          delete window.__pandorgaPreload[key];
+          return fetchJson(path);
+        })
+        .catch(function (error) {
+          delete jsonCache[key];
+          throw error;
+        });
       return jsonCache[key];
     }
 
@@ -192,10 +220,21 @@
       options = options || {};
       var el = typeof elementOrId === 'string' ? document.getElementById(elementOrId) : elementOrId;
       if (!el) return Promise.resolve();
-      var loadingText = options.loadingText || 'Loading...';
-      el.innerHTML = '<p class="font-body text-on-surface-variant italic">' + escapeHtml(loadingText) + '</p>';
+      // A quiet slot keeps its reserved box. Writing "Loading..." into the
+      // hero summary makes that placeholder the LCP, then swaps it away.
+      var quiet = el.hasAttribute('data-content-quiet');
+      var loadingText = quiet ? '' : (options.loadingText || 'Loading...');
+      if (loadingText) {
+        el.innerHTML = '<p class="font-body text-on-surface-variant italic">' + escapeHtml(loadingText) + '</p>';
+      }
       return loadJson(pageFragmentPath(relativePath)).then(function (fragment) {
-        el.innerHTML = renderMarkdown(fragment.body_markdown || '');
+        var html = renderMarkdown(fragment.body_markdown || '');
+        if (el.getAttribute('data-content-painted') === '1' && el.innerHTML === html) {
+          el.removeAttribute('data-content-painted');
+          return;
+        }
+        el.innerHTML = html;
+        el.removeAttribute('data-content-painted');
       }).catch(function (error) {
         console.error(error);
         el.innerHTML = '<p class="font-body text-on-surface-variant italic">' + escapeHtml(options.errorText || 'Content could not be loaded right now.') + '</p>';

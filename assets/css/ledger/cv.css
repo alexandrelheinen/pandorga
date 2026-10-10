@@ -419,6 +419,19 @@ html[data-theme="light"] .cv-product {
   padding: var(--space-xl);
 }
 
+.cv-summary:empty,
+.cv-dossier-note:empty {
+  min-height: calc(var(--type-body) * var(--leading-body) * 4);
+}
+
+.cv-reserve-card {
+  display: block;
+  min-height: 6.5rem;
+  border: 1.5px solid var(--border-ink);
+  border-radius: var(--radius-card);
+  background: var(--color-surface-card);
+}
+
 .cv-summary p {
   margin: 0 0 1em;
 }

@@ -90,8 +90,14 @@ layout: shell
         </div>
 
         <div class="writing-archive" id="articles-list">
-          <section id="empty-state" class="writing-archive-state">
-            <p class="font-body text-on-surface-variant italic">Loading articles...</p>
+          <section id="empty-state" class="writing-archive-reserve" aria-busy="true">
+            <p class="sr-only">Loading articles...</p>
+            <span class="writing-reserve-row" aria-hidden="true"></span>
+            <span class="writing-reserve-row" aria-hidden="true"></span>
+            <span class="writing-reserve-row" aria-hidden="true"></span>
+            <span class="writing-reserve-row" aria-hidden="true"></span>
+            <span class="writing-reserve-row" aria-hidden="true"></span>
+            <span class="writing-reserve-row" aria-hidden="true"></span>
           </section>
           <section id="no-results" class="writing-archive-state hidden">
             <p class="font-body text-on-surface-variant italic">Nothing matches these filters yet.</p>

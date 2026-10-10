@@ -239,6 +239,10 @@
   margin: 0;
 }
 
+.home-hero-tagline:empty {
+  min-height: calc(var(--type-body) * 1.35);
+}
+
 /* Name spans the copy column (container query on .home-hero-copy). The floor
    is the band-title step — Articles, Rascunhos, Projects — so a phone does
    not drop the name to the card size to keep it on one line. From 640px the
@@ -306,6 +310,12 @@
   max-width: var(--reading-measure, 45rem);
   color: var(--color-on-surface);
   line-height: var(--leading-body);
+}
+
+/* Hold the summary's box until the fragment paints, so the CTA under it
+   does not jump when the paragraph arrives. */
+.home-hero-summary:empty {
+  min-height: calc(var(--type-body) * var(--leading-body) * 6);
 }
 
 .home-hero-summary p {
@@ -781,6 +791,16 @@ html[data-theme="light"] .home-hero-plate {
 }
 
 /* ── Writing cards ── */
+.home-card-grid:empty,
+.home-draft-list:empty,
+[data-home-featured-slot]:empty {
+  min-height: 16rem;
+}
+
+.home-project-inventory:empty {
+  min-height: 8rem;
+}
+
 .home-card-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -1230,6 +1250,13 @@ html[data-theme="light"] .home-hero-plate {
   background: transparent;
   border: 0;
   padding: 0;
+}
+
+button.home-project-inventory-row {
+  font: inherit;
+  color: inherit;
+  text-align: start;
+  width: 100%;
 }
 
 .home-project-inventory-row {
