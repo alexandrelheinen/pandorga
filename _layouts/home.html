@@ -121,7 +121,21 @@ layout: shell
     }
 
     function byDateDesc(a, b) {
-      return String(b.date || '').localeCompare(String(a.date || ''));
+      var left = String(b.date || '');
+      var right = String(a.date || '');
+      if (left > right) return 1;
+      if (left < right) return -1;
+      return 0;
+    }
+
+    function afterPaint() {
+      return new Promise(function (resolve) {
+        if (typeof scheduler !== 'undefined' && typeof scheduler.yield === 'function') {
+          scheduler.yield().then(resolve);
+          return;
+        }
+        window.setTimeout(resolve, 0);
+      });
     }
 
     function tagHrefFrom(element) {
@@ -175,8 +189,13 @@ layout: shell
     function draftFolios(posts) {
       var folios = Object.create(null);
       posts.slice().sort(function (a, b) {
-        var byDate = String(a.date || '').localeCompare(String(b.date || ''));
-        return byDate !== 0 ? byDate : String(a.slug || '').localeCompare(String(b.slug || ''));
+        var byDate = String(a.date || '') < String(b.date || '') ? -1 : (String(a.date || '') > String(b.date || '') ? 1 : 0);
+        if (byDate !== 0) return byDate;
+        var left = String(a.slug || '');
+        var right = String(b.slug || '');
+        if (left < right) return -1;
+        if (left > right) return 1;
+        return 0;
       }).forEach(function (entry, index) {
         folios[entry.slug] = index + 1;
       });
@@ -221,7 +240,8 @@ layout: shell
       element.appendChild(fragment);
     }
 
-    function fillBand(section, index) {
+    async function fillBand(section, index) {
+      await afterPaint();
       var kind = section.getAttribute('data-home-kind');
       var collection = section.getAttribute('data-home-collection');
       var limit = parseInt(section.getAttribute('data-home-limit') || '3', 10) || 3;
@@ -316,7 +336,7 @@ layout: shell
           fitted(best);
         }
 
-        function paintSpecimen(entry) {
+        async function paintSpecimen(entry) {
           specimenSlot.innerHTML = '';
           specimenSlot.appendChild(runtime.renderProjectSpecimen(asItem(entry), {
             href: entry.url || runtime.projectUrl(entry.slug),
@@ -324,10 +344,11 @@ layout: shell
             folio: positionOf(entry.slug) + 1,
             openLabel: 'Open project'
           }));
+          await afterPaint();
           ellipsizeSpecimenCopy(specimenSlot);
         }
 
-        function measureTallestSpecimen() {
+        async function measureTallestSpecimen() {
           var bench = specimenSlot.closest('.home-projects-bench');
           if (!bench) return 0;
           var width = specimenSlot.getBoundingClientRect().width;
@@ -348,7 +369,8 @@ layout: shell
           bench.appendChild(probe);
 
           var max = 0;
-          portfolio.forEach(function (entry, i) {
+          for (var i = 0; i < portfolio.length; i += 1) {
+            var entry = portfolio[i];
             probe.innerHTML = '';
             var card = runtime.renderProjectSpecimen(asItem(entry), {
               href: entry.url || runtime.projectUrl(entry.slug),
@@ -360,15 +382,16 @@ layout: shell
             card.style.minHeight = '0';
             probe.appendChild(card);
             max = Math.max(max, Math.ceil(card.getBoundingClientRect().height));
-          });
+            await afterPaint();
+          }
           probe.remove();
           return max;
         }
 
-        function lockSpecimenHeight() {
+        async function lockSpecimenHeight() {
           var bench = specimenSlot.closest('.home-projects-bench');
           if (!bench) return;
-          var tallest = measureTallestSpecimen();
+          var tallest = await measureTallestSpecimen();
           /* Floor at the CSS inventory minimum so six rows always clear
              three stacked resource icons (see --home-inventory-min-height). */
           var inventoryMin = 0;
@@ -425,8 +448,9 @@ layout: shell
           });
         }
 
-        lockSpecimenHeight();
-        paintSpecimen(entryBySlug(selectedSlug));
+        await lockSpecimenHeight();
+        await paintSpecimen(entryBySlug(selectedSlug));
+        await afterPaint();
         paintInventory();
 
         var resizeTimer = null;
@@ -437,8 +461,9 @@ layout: shell
             var nextWidth = Math.round(specimenSlot.getBoundingClientRect().width);
             if (nextWidth === lastMeasureWidth) return;
             lastMeasureWidth = nextWidth;
-            lockSpecimenHeight();
-            paintSpecimen(entryBySlug(selectedSlug));
+            lockSpecimenHeight().then(function () {
+              return paintSpecimen(entryBySlug(selectedSlug));
+            });
           }, 120);
         });
         return;
@@ -484,7 +509,11 @@ layout: shell
 
     runtime.loadJson('data/writing_index.json').then(function (entries) {
       var index = Array.isArray(entries) ? entries : [];
-      sections.forEach(function (section) { fillBand(section, index); });
+      var chain = Promise.resolve();
+      sections.forEach(function (section) {
+        chain = chain.then(function () { return fillBand(section, index); });
+      });
+      return chain;
     }).catch(function (error) {
       console.error(error);
       sections.forEach(function (section) {

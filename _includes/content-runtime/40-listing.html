@@ -113,15 +113,23 @@
       return textExcerpt((item && item.body_markdown) || '');
     }
 
+    var dateFormatters = Object.create(null);
+
     function formatDate(value, locale) {
       if (!value) return '';
       var parts = String(value).slice(0, 10).split('-').map(Number);
       if (parts.length !== 3 || parts.some(isNaN)) return value;
-      return new Intl.DateTimeFormat(locale || 'en', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric'
-      }).format(new Date(parts[0], parts[1] - 1, parts[2]));
+      var key = locale || 'en';
+      var formatter = dateFormatters[key];
+      if (!formatter) {
+        formatter = new Intl.DateTimeFormat(key, {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric'
+        });
+        dateFormatters[key] = formatter;
+      }
+      return formatter.format(new Date(parts[0], parts[1] - 1, parts[2]));
     }
 
     function chronologySortKey(item) {

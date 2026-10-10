@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.6.9] — 2026-10-10
+
+### Fixed
+
+- Home list hydration no longer fills every band in one turn. The project
+  specimen measurement yields between projects, each band starts on its
+  own turn, and each home section introduction yields before it is
+  parsed. Dates reuse one formatter. The lists still render.
+
+No `pandorga:` config keys were added or renamed.
+
 ## [1.6.8] — 2026-10-10
 
 ### Fixed
