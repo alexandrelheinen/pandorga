@@ -84,6 +84,7 @@
 
 <body class="bg-background text-on-surface">
 
+  {% assign _nav_name = site.pandorga.identity | pandorga_hero_name: site.author, site.title %}
   {% assign nav_active = nil %}
   {% if page.collection == "articles" %}{% assign nav_active = "articles" %}{% endif %}
   {% if page.collection == "posts" %}{% assign nav_active = "blog" %}{% endif %}
@@ -99,7 +100,7 @@
       <div class="flex items-center gap-3 sm:gap-4 min-w-0">
         <a href="/" aria-label="{{ site.author }} – Home" class="shrink-0 inline-flex items-center gap-3 site-wordmark-link">
           {% include theme/site-logo.html %}
-          <span class="site-wordmark">{{ site.author | default: site.title | split: " " | first }}</span>
+          <span class="site-wordmark">{{ _nav_name.wordmark }}</span>
         </a>
       </div>
 

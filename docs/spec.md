@@ -145,6 +145,8 @@ A single configuration key describes the website pages. An example with the seve
 pandorga:
   identity:
     name: "…"                # title, <title> suffix, default author, BibTeX
+    first_name: "…"          # optional hero given name and top-bar wordmark
+    last_name: "…"           # optional hero family name, kept whole
     url: "https://…"
     locale: en
   content:
@@ -277,7 +279,7 @@ The `cv` template only exports `body_public`. The rule currently in `PRIVATE_JOB
 
 The homepage becomes a composition.
 
-The Hero is a standalone module. It reads identity data, the `home/subtitle` and `cv/summary` fragments (when a `cv` page exists), contact info, and the `hero-portraits` set if available. Decorative art is a slot (`pandorga.home.hero_art: page/hero-pandorga.html`) that the website fills.
+The Hero is a standalone module. It reads identity data, the `home/subtitle` and `cv/summary` fragments (when a `cv` page exists), contact info, and the `hero-portraits` set if available. Optional `identity.first_name` and `identity.last_name` supply the hero name and the top-bar wordmark ([features/hero-name.md](features/hero-name.md)). Decorative art is a slot (`pandorga.home.hero_art: page/hero-pandorga.html`) that the website fills.
 
 Bands are rendered one per page for any page with an active `home` attribute. They appear in registry order, each rendered by the `home-band.html` of its specific template.
 
@@ -506,6 +508,9 @@ Criteria are written in EARS format. Every criterion is referenced by at least o
 - `PLT-AC-10` When the private CV workflow runs in the `website` repository, it must generate PDFs exactly as it does today. None of its files must exist in `pandorga`.
 - `PLT-AC-11` When the registry schema changes without `docs/configuration.md` being regenerated, the `pandorga` CI must fail.
 - `PLT-AC-12` When the runtime receives a `manifest.json` with an unknown `schema_version`, it must display an explicit error instead of attempting to render.
+- `PLT-AC-13` When the home hero renders the subtitle, its font size must be `--type-body`, the size of the summary under the name (`test-hero-name`).
+- `PLT-AC-14` When `pandorga.identity.first_name` or `last_name` is set, the hero must use that string whole and the top bar must show the first name. When a key is omitted, that part must keep the 1.4.9 split of `identity.name`. `identity.name` stays required (`test-hero-name`).
+- `PLT-AC-15` Below 768px the hero name must be 3pt larger than the 1.4.9 size at that width, and a wrap must break only between the given name and the family name (`test-hero-name`).
 
 ## 13. Owner decisions
 

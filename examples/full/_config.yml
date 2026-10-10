@@ -8,6 +8,8 @@ plugins:
 pandorga:
   identity:
     name: "Ada Example"
+    first_name: "Ada"
+    last_name: "Example"
     short_name: "A. Example"
     url: "https://example.org"
     locale: en

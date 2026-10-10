@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.5.0] — 2026-10-10
+
+### Added
+
+- Optional `pandorga.identity.first_name` and `pandorga.identity.last_name`.
+  The home hero uses them as the given name and the family name. The top
+  bar shows `first_name`. `last_name` is kept whole, spaces included.
+  Omit either key and that part still comes from splitting `identity.name`
+  on the first space, as in 1.4.9. `identity.name` stays required.
+
+### Changed
+
+- The home hero subtitle uses `--type-body`, the same size as the summary
+  under the name.
+- Below 768px the hero name is 3pt larger, and a wrap breaks only between
+  the given name and the family name.
+
 ## [1.4.9] — 2026-10-09
 
 ### Changed

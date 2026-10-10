@@ -7,7 +7,9 @@ via `scripts/generate-configuration-doc.rb` (`PLT-AC-11`).
 
 | Key | Type | Required | Notes |
 |---|---|---|---|
-| `name` | string | yes | Title suffix, default author, BibTeX |
+| `name` | string | yes | Title suffix, default author, BibTeX. Also the legacy hero name when `first_name` or `last_name` is omitted |
+| `first_name` | string | no | Hero given name and top-bar wordmark. Omitted or blank, the first word of `name` is used |
+| `last_name` | string | no | Hero family name, kept whole (spaces allowed). Omitted or blank, the remainder of `name` is used |
 | `short_name` | string | no | Shorter `<title>` suffix |
 | `url` | string | no | Site canonical URL |
 | `locale` | string | no | Default `en` |

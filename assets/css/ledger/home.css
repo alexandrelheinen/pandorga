@@ -219,17 +219,12 @@
   margin: 0 0 var(--space-sm);
   color: var(--color-on-surface);
   font-family: var(--font-label);
-  font-size: var(--type-label-lg);
+  /* Same size as the summary under the name, which inherits --type-body. */
+  font-size: var(--type-body);
   font-weight: var(--weight-label);
   letter-spacing: 0.03em;
   line-height: 1.35;
   max-width: 100%;
-}
-
-@media (min-width: 1024px) {
-  .home-hero-tagline {
-    font-size: calc(var(--type-label-lg) + 2pt);
-  }
 }
 
 .home-hero-tagline::after {
@@ -262,10 +257,13 @@
   max-width: 100%;
 }
 
-@media (max-width: 767px) {
-  .home-hero-title {
-    white-space: normal;
-  }
+.home-hero-given,
+.home-hero-family {
+  display: inline;
+}
+
+.home-hero-family {
+  color: var(--color-primary);
 }
 
 @media (min-width: 640px) {
@@ -274,19 +272,34 @@
   }
 }
 
-@media (min-width: 768px) {
+/* Below 768px the name is 3pt larger than the clamp above, and the only
+   wrap point is the gap between the given name and the family name. */
+@media (max-width: 639px) {
   .home-hero-title {
+    white-space: normal;
+    font-size: calc(clamp(var(--type-section), calc(100cqi * 0.92 / 14.5), var(--type-page-lg)) + 3pt);
+  }
+}
+
+@media (min-width: 640px) and (max-width: 767px) {
+  .home-hero-title {
+    white-space: normal;
+    font-size: calc(clamp(var(--type-section-lg), calc(100cqi * 0.92 / 14.5), var(--type-page-lg)) + 3pt);
+  }
+}
+
+@media (max-width: 767px) {
+  .home-hero-given,
+  .home-hero-family {
+    display: inline-block;
     white-space: nowrap;
   }
 }
 
-.home-hero-given,
-.home-hero-family {
-  display: inline;
-}
-
-.home-hero-family {
-  color: var(--color-primary);
+@media (min-width: 768px) {
+  .home-hero-title {
+    white-space: nowrap;
+  }
 }
 
 .home-hero-summary {
