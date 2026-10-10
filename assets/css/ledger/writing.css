@@ -297,7 +297,10 @@ html[data-theme="light"] .writing-index .writing-lead-media .ledger-poster {
   background: var(--color-surface-card);
 }
 
-#articles-lead:empty {
+/* Hold the featured panel only until the listing decides. A standing
+   :empty rule kept this 16rem gap on page 2 and later, where no specimen
+   is drawn, between the header rule and the filter. */
+#articles-lead.is-pending:empty {
   min-height: 16rem;
   margin-bottom: var(--space-xl);
 }

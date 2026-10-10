@@ -30,7 +30,16 @@ layout: shell
       image column, and one that reserves space for a picture that does not
       exist is worse than no panel at all.
     {%- endcomment -%}
-    <div id="articles-lead"></div>
+    <div id="articles-lead" class="is-pending"></div>
+    <script>
+      (function () {
+        var page = parseInt(new URLSearchParams(window.location.search).get('page') || '1', 10);
+        var lead = document.getElementById('articles-lead');
+        if (!lead || !(page > 1)) return;
+        lead.classList.remove('is-pending');
+        lead.hidden = true;
+      })();
+    </script>
 
     <div class="writing-body">
 
@@ -259,7 +268,11 @@ layout: shell
     function renderListing(state) {
       Array.from(grid.querySelectorAll('[data-dynamic-article]')).forEach(function (el) { el.remove(); });
       if (emptyState) emptyState.remove();
-      if (leadRoot) leadRoot.innerHTML = '';
+      if (leadRoot) {
+        leadRoot.classList.remove('is-pending');
+        leadRoot.innerHTML = '';
+        leadRoot.hidden = true;
+      }
 
       var visible = visibleArticles(state);
       if (orderNote) orderNote.textContent = SORT_LABELS[state.sort] || SORT_LABELS.updated;
@@ -287,7 +300,10 @@ layout: shell
 
       var totalPages = Math.max(1, Math.ceil(rest.length / perPage));
       if (currentPage > totalPages) currentPage = totalPages;
-      if (currentPage === 1) renderLead(featured);
+      if (currentPage === 1) {
+        renderLead(featured);
+        if (leadRoot && leadRoot.childElementCount) leadRoot.hidden = false;
+      }
 
       rest.slice((currentPage - 1) * perPage, currentPage * perPage).forEach(renderRow);
       listing.renderPagination(controls, currentPage, totalPages);

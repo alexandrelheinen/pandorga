@@ -45,7 +45,11 @@ fail!("tagline is not body size") unless tagline.include?("font-size: var(--type
 fail!("hero summary has no reserved box") unless home_css.include?(".home-hero-summary:empty")
 
 fail!("articles listing has no row reserve") unless articles.include?("writing-reserve-row")
-fail!("articles lead has no reserved box") unless writing_css.include?("#articles-lead:empty")
+fail!("articles lead has no reserved box") unless writing_css.include?("#articles-lead.is-pending:empty")
+fail!("articles lead reserve stays after the listing decides") if writing_css.match?(/^#articles-lead:empty/m)
+fail!("articles lead is not pending until the listing decides") unless articles.include?('id="articles-lead" class="is-pending"')
+fail!("page 2 does not drop the lead reserve before paint") unless articles.include?("!(page > 1)")
+fail!("listing never clears the lead reserve") unless articles.include?("leadRoot.classList.remove('is-pending')")
 fail!("CV experience has no reserve") unless cv.include?('id="cv-experience-list"') && cv.include?("data-content-reserve")
 fail!("CV summary still ships Loading...") if cv.include?("Loading...")
 fail!("showLoadingState collapses a reserve") unless listing.include?("data-content-reserve")

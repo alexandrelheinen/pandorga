@@ -517,6 +517,7 @@ Criteria are written in EARS format. Every criterion is referenced by at least o
 - `PLT-AC-19` The shell must not load the Tailwind Play CDN. Utilities come from `assets/css/tailwind.css`. A page loads `chrome.css`, `footer.css`, and the ledger sheet for its layout, not every ledger sheet (`test-css-delivery`).
 - `PLT-AC-20` A hero portrait entry may set `srcset` and `sizes`. An entry with only `src` must keep that shape (`test-discovery`).
 - `PLT-AC-21` The build must write `sitemap.xml` and `robots.txt` with a `Sitemap:` line, and the shell must emit JSON-LD for the site and the person named by `identity.name` (`test-discovery`, `test-examples-build`).
+- `PLT-AC-22` The articles featured slot may reserve height only until the listing decides. On a page after the first, or when no specimen is drawn, that slot must collapse (`test-hydrate-reserve`).
 
 ## 13. Owner decisions
 

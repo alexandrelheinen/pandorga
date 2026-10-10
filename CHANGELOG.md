@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.6.1] — 2026-10-10
+
+### Fixed
+
+- The articles featured slot reserved 16rem whenever it was empty, so page 2
+  and later kept a blank band between the header rule and the filter. The
+  reserve now lasts only until the listing decides. A page with no specimen
+  collapses that slot.
+
+No `pandorga:` config keys were added or renamed.
+
 ## [1.6.0] — 2026-10-10
 
 ### Added
