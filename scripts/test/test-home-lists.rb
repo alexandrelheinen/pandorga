@@ -74,6 +74,8 @@ fail!("probe ignores the project inventory") unless probe.include?("#home-projec
 fail!("probe ignores article cards") unless probe.include?("#home-articles .home-featured, #home-articles .ledger-card")
 fail!("probe ignores the phone viewport") unless probe.include?("name: 'mobile'")
 fail!("probe ignores the desktop viewport") unless probe.include?("name: 'desktop'")
+fail!("probe does not pin DevTools to IPv4") unless probe.include?("--remote-debugging-address=127.0.0.1")
+fail!("probe gives Chrome only a few seconds to open DevTools") unless probe.include?("attempt < 200")
 
 _out, err, status = Open3.capture3("node", "--check", ROOT.join("scripts/check_home_lists.mjs").to_s)
 fail!("home list probe is not valid JavaScript\n#{err}") unless status.success?

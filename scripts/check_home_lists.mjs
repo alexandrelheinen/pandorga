@@ -4,7 +4,7 @@
 // Lighthouse run treats an empty home as a fast page.
 
 import { spawn } from 'node:child_process';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -90,17 +90,44 @@ class Cdp {
   }
 }
 
-async function waitForDevtools(port) {
-  for (let attempt = 0; attempt < 50; attempt += 1) {
-    try {
-      const response = await fetch(`http://127.0.0.1:${port}/json/version`);
-      if (response.ok) return response.json();
-    } catch (_error) {
-      // Chrome is still starting.
+async function activePort(profile) {
+  try {
+    const text = await readFile(join(profile, 'DevToolsActivePort'), 'utf8');
+    const value = Number(text.split('\n')[0]);
+    return Number.isInteger(value) && value > 0 ? value : null;
+  } catch (_error) {
+    return null;
+  }
+}
+
+async function waitForDevtools(port, chrome, profile) {
+  let stderr = '';
+  if (chrome.stderr) {
+    chrome.stderr.on('data', (chunk) => {
+      stderr += chunk;
+    });
+  }
+  for (let attempt = 0; attempt < 200; attempt += 1) {
+    if (chrome.exitCode !== null) {
+      throw new Error(`Chrome exited ${chrome.exitCode}: ${stderr.slice(-500)}`);
+    }
+    const opened = await activePort(profile);
+    const candidates = opened && opened !== port ? [port, opened] : [port];
+    for (const candidate of candidates) {
+      try {
+        const response = await fetch(`http://127.0.0.1:${candidate}/json/version`);
+        if (response.ok) return response.json();
+      } catch (_error) {
+        // Chrome is still starting.
+      }
     }
     await delay(100);
   }
-  throw new Error('Chrome DevTools did not answer');
+  const opened = await activePort(profile);
+  throw new Error(
+    `Chrome DevTools did not answer on ${port}` +
+    `${opened ? ` (DevToolsActivePort ${opened})` : ''}. ${stderr.slice(-500)}`
+  );
 }
 
 async function openSocket(url) {
@@ -155,14 +182,15 @@ async function main() {
     '--disable-dev-shm-usage',
     '--no-first-run',
     '--remote-allow-origins=*',
+    '--remote-debugging-address=127.0.0.1',
     `--remote-debugging-port=${port}`,
     `--user-data-dir=${profile}`,
     'about:blank'
-  ], { stdio: 'ignore' });
+  ], { stdio: ['ignore', 'ignore', 'pipe'] });
 
   let failed = false;
   try {
-    const version = await waitForDevtools(port);
+    const version = await waitForDevtools(port, chrome, profile);
     const ws = await openSocket(version.webSocketDebuggerUrl);
     const browser = new Cdp(ws);
     const created = await browser.send('Target.createTarget', { url: 'about:blank' });
