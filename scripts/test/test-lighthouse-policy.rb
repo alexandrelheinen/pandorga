@@ -64,22 +64,27 @@ fail!("icon face is preloaded") if shell.include?("rel=\"preload\" as=\"style\" 
 
 screen = shell.sub(%r{<noscript>.*?</noscript>}m, "")
 fail!("Material Symbols sheet is missing") unless shell.include?("Material+Symbols+Outlined")
-fail!("icon sheet is not deferred until load") unless screen.include?("addEventListener('load'")
-fail!("screen still has a Material Symbols stylesheet link") if screen.match?(/<link\b[^>]*Material\+Symbols/)
 fail!("screen still has a flag stylesheet link") if screen.match?(/<link\b[^>]*flag-icons/)
 fail!("flag sheet is not deferred until load") unless screen.include?("flag-icons@7.2.3")
+fail!("icon face is the full variable font") if shell.include?("0..1&display=swap")
+fail!("icon face is not a named subset") unless shell.include?("icon_names=")
+fail!("icon subset is not a head link") unless screen.include?('id="pandorga-icons"')
 
 fonts = ROOT.join("_includes/theme/font-loader.html").read
-font_screen = fonts.sub(%r{<noscript>.*?</noscript>}m, "")
 fail!("text faces are preloaded") if fonts.include?('rel="preload"')
-fail!("text face sheet is not deferred until load") unless font_screen.include?("addEventListener('load'")
-fail!("screen still has a text-face stylesheet link") if font_screen.match?(/<link\b/)
+fail!("text face still waits for the load event") if fonts.include?("addEventListener('load'")
+fail!("text face stylesheet is missing") unless fonts.include?('rel="stylesheet" href="{{ fonts_href }}"')
 
 marked = ROOT.join("_includes/content-runtime/00-config.html").read
 fail!("markdown library still blocks parsing") unless marked.include?("<script defer ")
 fail!("markdown library source changed") unless marked.include?("marked@15.0.7/marked.min.js")
 
-fail!("spec still discovers text faces from the head") unless spec.include?("text-face stylesheet is not a head link")
+fail!("spec still withholds the text face until load") unless spec.include?("text-face stylesheet is a head link")
+fail!("lighthouse example is not the full site") unless script.include?("examples/full")
+fail!("lighthouse example can ship without a static summary") unless script.include?("data-content-static")
+summary = ROOT.join("examples/full/content/pages/cv/summary.md").read
+fail!("full summary dropped the fixture sentence") unless summary.include?("Ada Example designs publishing frames")
+fail!("full summary is too short to be the hero paint") unless summary.scan(".").length >= 3
 fail!("spec still lets the markdown library block parsing") unless spec.include?("markdown library loads with `defer`")
 fail!("lighthouse script hides the metric breakdown") unless script.include?("largest-contentful-paint")
 
@@ -92,6 +97,7 @@ fail!("content runtime still precedes the page") unless shell.index("{{ content 
 band = File.read(File.expand_path("../../_includes/home/band-listing.html", __dir__))
 fail!("band title is still painted by script") unless band.include?('data-content-section-title>{{ _title }}')
 fail!("band note is still painted by script") unless band.include?("page_headers")
+fail!("project inventory has a name and no role") unless band.include?('role="region"') && band.include?('aria-label="Project inventory"')
 headers = File.read(File.expand_path("../../_plugins/content_headers.rb", __dir__))
 fail!("page headers are not loaded at build time") unless headers.include?('site.data["page_headers"]')
 home = File.read(File.expand_path("../../_layouts/home.html", __dir__))

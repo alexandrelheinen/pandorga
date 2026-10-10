@@ -6,7 +6,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-SITE="${ROOT}/examples/minimal/_site"
+SITE="${ROOT}/examples/full/_site"
 PORT="${LIGHTHOUSE_PORT:-4173}"
 OUT="${LIGHTHOUSE_REPORT:-/tmp/lighthouse-home.json}"
 FAIL_BELOW=75
@@ -26,6 +26,8 @@ if [[ "${MODE}" != "enforce" && "${MODE}" != "warn" ]]; then
 fi
 
 [[ -f "${SITE}/index.html" ]] || fail "missing ${SITE}/index.html (run scripts/validate.sh first)"
+grep -q 'id="home-cv-summary"[^>]*data-content-static' "${SITE}/index.html" \
+  || fail "example home has no static hero summary (data-content-static)"
 
 if [[ -n "${CHROME_PATH:-}" && -x "${CHROME_PATH}" ]]; then
   CHROME="${CHROME_PATH}"

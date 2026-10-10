@@ -62,7 +62,7 @@
     Preconnect only. The preload script below is parser-blocking. A
     stylesheet before that script holds the parser until the font host
     answers, so the ledger sheets and the hero cannot paint. The text-face
-    loader sits with the local sheets and adds its stylesheet after load.
+    loader sits with the local sheets.
   {%- endcomment -%}
   <link href="https://fonts.googleapis.com" rel="preconnect" />
   <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
@@ -117,20 +117,58 @@
   {%- endfor -%}
   {% include theme/font-loader.html %}
   {%- comment -%}
-    Icons are not first paint. The face is about a megabyte. A link in the
-    head, even with print media, is discovered immediately and the simulator
-    then waits on that face for the largest paint. Add the sheet after load.
+    Named icons only. The full variable face is about a megabyte, and a
+    late request for it becomes the largest paint on a real hero. Nav icons
+    from the registry join the shell set.
   {%- endcomment -%}
-  {%- assign _symbols_href = "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" -%}
-  <script>
-    window.addEventListener('load', function () {
-      var link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = {{ _symbols_href | jsonify }};
-      document.head.appendChild(link);
-    });
-  </script>
+  {%- assign _icon_names = "arrow_left_alt,arrow_right_alt,architecture,article,chat,chevron_left,chevron_right,close,code,dark_mode,expand_more,filter_list,format_quote,format_size,info,light_mode,menu,picture_as_pdf,public,routine,search,share,shuffle,sync" -%}
+  {%- for _group in site.data.nav -%}
+    {%- for _item in _group.pages -%}
+      {%- if _item.icon -%}
+        {%- assign _icon_hay = "," | append: _icon_names | append: "," -%}
+        {%- assign _icon_needle = "," | append: _item.icon | append: "," -%}
+        {%- unless _icon_hay contains _icon_needle -%}
+          {%- assign _icon_names = _icon_names | append: "," | append: _item.icon -%}
+        {%- endunless -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endfor -%}
+  {%- assign _symbols_href = "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&icon_names=" | append: _icon_names | append: "&display=swap" -%}
+  <link id="pandorga-icons" rel="stylesheet" href="{{ _symbols_href }}" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="{{ _symbols_href }}" /></noscript>
+  <script>
+    (function () {
+      var link = document.getElementById('pandorga-icons');
+      var known = {{ _icon_names | split: "," | jsonify }};
+      var seen = {};
+      known.forEach(function (name) { seen[name] = true; });
+      var timer = 0;
+      function consider(root) {
+        if (!root || !root.querySelectorAll) return;
+        var nodes = root.querySelectorAll('.material-symbols-outlined');
+        var extra = false;
+        for (var i = 0; i < nodes.length; i++) {
+          var name = (nodes[i].textContent || '').trim();
+          if (!name || seen[name] || !/^[a-z0-9_]+$/.test(name)) continue;
+          seen[name] = true;
+          known.push(name);
+          extra = true;
+        }
+        if (!extra || !link) return;
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+          link.href = 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&icon_names=' + known.join(',') + '&display=swap';
+        }, 50);
+      }
+      function start() {
+        consider(document);
+        var obs = new MutationObserver(function () { consider(document); });
+        obs.observe(document.body, { childList: true, subtree: true, characterData: true });
+      }
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+      else start();
+    })();
+  </script>
   {%- assign _flags_href = "https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css" -%}
   <script>
     window.addEventListener('load', function () {

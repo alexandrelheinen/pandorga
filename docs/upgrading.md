@@ -13,6 +13,12 @@ is `Pandorga::VERSION` (`lib/pandorga/version.rb`).
 
 Read [CHANGELOG.md](../CHANGELOG.md) before you bump.
 
+## Example home score (1.6.7)
+
+No `pandorga:` keys were added. The text-face stylesheet is in the head
+again, after the local sheets. The icon face requests named icons only.
+Lighthouse runs against `examples/full`, which has a static hero summary.
+
 ## Example home score (1.6.6)
 
 No `pandorga:` keys were added. The text-face stylesheet and the flag

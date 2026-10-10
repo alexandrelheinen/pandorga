@@ -52,16 +52,10 @@
 {% endif %}
 {% assign fonts_href = fonts_href | append: "&display=swap" %}
 {% comment %}
-  Not a head link. A preload or a print sheet is discovered immediately.
-  On a fast connection the faces finish before the largest paint, and the
-  simulator then waits on them. Add the sheet after load. display=swap stays.
+  A head link, after the preload script and the local sheets. Print media
+  keeps it off the first paint; onload applies it as soon as the sheet
+  arrives, which is during parsing, not after the load event. Waiting for
+  load held the hero summary on the live site. display=swap stays.
 {% endcomment %}
-<script>
-  window.addEventListener('load', function () {
-    var link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = {{ fonts_href | jsonify }};
-    document.head.appendChild(link);
-  });
-</script>
+<link rel="stylesheet" href="{{ fonts_href }}" media="print" onload="this.media='all'" />
 <noscript><link rel="stylesheet" href="{{ fonts_href }}" /></noscript>
