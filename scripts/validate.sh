@@ -83,6 +83,11 @@ for test in "${TESTS[@]}"; do
   fi
 done
 
+echo "-- scripts/test/test-hero-portraits.mjs"
+if ! node scripts/test/test-hero-portraits.mjs; then
+  failed=1
+fi
+
 echo "-- scripts/test/test-studio-pipeline-config.mjs"
 if ! node scripts/test/test-studio-pipeline-config.mjs; then
   failed=1
