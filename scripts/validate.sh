@@ -57,6 +57,7 @@ TESTS=(
   scripts/test/test-examples-build.rb
   scripts/test/test-validate-allowlist.rb
   scripts/test/test-shell-a11y.rb
+  scripts/test/test-theme-contrast.rb
   scripts/test/test-hydrate-reserve.rb
   scripts/test/test-hero-summary.rb
   scripts/test/test-lighthouse-policy.rb

@@ -13,7 +13,8 @@ colors:
   tertiary_container: "#6a684f"
   on_primary_container: "#c0d8e6"
   on_secondary_container: "#b5d9c2"
-  on_tertiary_container: "#e8e4c0"
+  # #e8e4c0 on #6a684f was 4.40:1. Three steps lighter clears 4.5:1.
+  on_tertiary_container: "#ebe7c3"
   chart_project: "#98c8ac"
 
 neutrals:
