@@ -27,6 +27,12 @@ fail!("footer home link still uses site.author alone") if FOOTER.include?(bare)
 fail!("shell home link needs an identity.name fallback") unless SHELL.include?("site.pandorga.identity.name")
 fail!("footer home link needs an identity.name fallback") unless FOOTER.include?("site.pandorga.identity.name")
 
+fail!("top bar is still a nav") if SHELL.include?('<nav class="sticky')
+fail!("top bar is not a header") unless SHELL.include?('<header class="sticky top-0 z-50 bg-surface">')
+fail!("section links lost their name") unless SHELL.include?('aria-label="Sections"')
+navs = SHELL.scan(/<nav\b/).size
+fail!("shell should have one nav landmark, found #{navs}") unless navs == 1
+
 # Decorative Material Symbols sit beside a text label. Without aria-hidden
 # the ligature ("arrow_left_alt", "shuffle", an icon name) is read aloud.
 ICON_FILES = [
