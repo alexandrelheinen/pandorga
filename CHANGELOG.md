@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.7.2] — 2026-10-11
+
+### Fixed
+
+- A published article, post, project, or product is a static page at its
+  public URL. The sitemap lists that URL. The static canonical and
+  `og:url` are the detail path, and `data-listing-path` stays the
+  listing. Articles emit `Article` JSON-LD. Posts emit `BlogPosting`.
+- The build writes `_redirects` into the output and drops the splat 200
+  lines that sent those URLs back to the listing shell. The source file
+  is unchanged. Publish the built file.
+- A listing page's static `<h1>` is the title from
+  `content/pages/headers.yml`, or the page title. It is not the word
+  Loading.
+- The top bar is a `<header>`. The section links are one
+  `<nav aria-label="Sections">` inside it.
+- Dark theme text on the tertiary container is `#ebe7c3` on `#6a684f`
+  (4.52:1). The container colour is unchanged.
+- The hero portrait gate crops the runtime through `pickHeroPortrait`.
+
+No `pandorga:` config keys were added or renamed. Font roles and the
+ledger fallbacks are unchanged.
+
 ## [1.7.1] — 2026-10-11
 
 ### Fixed

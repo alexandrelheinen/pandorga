@@ -13,7 +13,7 @@ is `Pandorga::VERSION` (`lib/pandorga/version.rb`).
 
 Read [CHANGELOG.md](../CHANGELOG.md) before you bump.
 
-## Detail URLs
+## Detail URLs (1.7.2)
 
 A published article, post, project, or product is written at its public
 path (`/articles/…/`, `/posts/…/`, `/projects/…/`, `/products/…/`). The
