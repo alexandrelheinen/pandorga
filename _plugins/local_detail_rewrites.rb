@@ -6,6 +6,14 @@ require "net/http"
 require "uri"
 require_relative "content_detail_paths"
 
+# The gem copy and the _plugins copy stay the same file. Either path can
+# resolve the shared helper.
+detail_routes = [
+  File.expand_path("../../../detail_routes", __dir__),
+  File.expand_path("../lib/pandorga/detail_routes", __dir__)
+].find { |path| File.file?("#{path}.rb") }
+require detail_routes if detail_routes
+
 # Mirrors Cloudflare _redirects detail rewrites during `jekyll serve` so
 # /posts/:slug/ and /articles/:slug/ work locally without per-slug HTML files.
 # Also handles the local dev re-export endpoint and proxies /api/studio/* to
@@ -115,7 +123,8 @@ module Jekyll
           end
 
           target = ContentDetailPaths.rewrite_path(req.path)
-          if target
+          root = instance_variable_get(:@root)
+          if target && !Pandorga::DetailRoutes.static_index?(root, req.path)
             req.instance_variable_set(:@path, target)
             req.instance_variable_set(:@path_info, target)
           end

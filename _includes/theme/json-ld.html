@@ -1,6 +1,8 @@
 {%- comment -%}
-  WebSite and Person from identity. No new required keys: name is already
-  required, and url is the existing optional canonical origin.
+  WebSite and Person from identity. A detail page with schema_type
+  Article or BlogPosting also emits that type. No new required keys:
+  name is already required, and url is the existing optional canonical
+  origin.
 {%- endcomment -%}
 {%- assign ld_name = site.pandorga.identity.name | default: site.author | default: site.title -%}
 {%- assign ld_url = site.pandorga.identity.url | default: site.url -%}
@@ -8,6 +10,37 @@
   {%- assign ld_website = ld_url -%}
 {%- else -%}
   {%- assign ld_website = "/" | absolute_url -%}
+{%- endif -%}
+{%- assign ld_canonical = canonical_path | default: page.canonical_url | default: page.url -%}
+{%- if page.schema_type == "Article" or page.schema_type == "BlogPosting" -%}
+{%- if page.title != blank -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": {{ page.schema_type | jsonify }},
+  "headline": {{ page.title | jsonify }},
+  "url": {{ ld_canonical | absolute_url | jsonify }}
+  {%- if page.description != blank -%},
+  "description": {{ page.description | jsonify }}
+  {%- endif -%}
+  {%- if page.date -%},
+  "datePublished": {{ page.date | date_to_xmlschema | jsonify }}
+  {%- endif -%}
+  {%- if page.last_updated -%},
+  "dateModified": {{ page.last_updated | date_to_xmlschema | jsonify }}
+  {%- endif -%}
+  {%- if page.lang -%},
+  "inLanguage": {{ page.lang | jsonify }}
+  {%- endif -%}
+  {%- if ld_name != blank -%},
+  "author": {
+    "@type": "Person",
+    "name": {{ ld_name | jsonify }}
+  }
+  {%- endif -%}
+}
+</script>
+{%- endif -%}
 {%- endif -%}
 {%- if ld_name != blank -%}
 <script type="application/ld+json">

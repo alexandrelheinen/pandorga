@@ -13,6 +13,42 @@ is `Pandorga::VERSION` (`lib/pandorga/version.rb`).
 
 Read [CHANGELOG.md](../CHANGELOG.md) before you bump.
 
+## Detail URLs
+
+A published article, post, project, or product is written at its public
+path (`/articles/…/`, `/posts/…/`, `/projects/…/`, `/products/…/`). The
+sitemap lists that path. The static canonical and `og:url` are that
+path. The page still uses the listing layout, and `data-listing-path`
+stays the listing URL so the client opens the entry from the address.
+
+Articles carry `Article` JSON-LD. Posts carry `BlogPosting`. The
+headline, the URL, `datePublished` when the entry has a date, and the
+person named by `identity.name` are in the static HTML.
+
+Cloudflare follows `_redirects` even when a file exists at the same
+path. The build removes these splat 200 lines from the published
+`_redirects`:
+
+```
+/articles/:slug
+/posts/:slug
+/blog/:slug
+/projects/:slug
+/products/:slug
+```
+
+The source file is left as it is. Jekyll does not copy an underscore
+file, so the build writes `_redirects` into the output and then drops
+those splat lines. Publish that built file. A later copy of the source
+file puts the splat lines back, and the static pages are skipped again.
+Specific 301 lines stay.
+
+`jekyll serve` serves the static page when it is already in the
+destination. A detail URL with no generated file still falls through to
+the listing shell.
+
+No `pandorga:` keys were added.
+
 ## Site fonts (1.7.0)
 
 Optional. A site that sets nothing keeps Cinzel Decorative, Newsreader,
