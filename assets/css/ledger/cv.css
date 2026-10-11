@@ -347,7 +347,7 @@ html[data-theme="light"] .cv-product {
 
 /* A place is prose, not notation, so it reads in the body face rather than
    mono — and on the same left edge as every other line of the card. The pin
-   icon and the indent it sat beNewsreader said nothing the word "France" does not
+   icon and the indent it sat behind said nothing the word "France" does not
    already say, and cost the entry its one straight margin. */
 .cv-entry-place {
   color: var(--color-on-surface-variant);

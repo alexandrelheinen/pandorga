@@ -1,5 +1,32 @@
 # Changelog
 
+## [1.7.1] — 2026-10-11
+
+### Fixed
+
+- Decorative Material Symbols beside a label no longer expose the ligature
+  (`arrow_left_alt`, `shuffle`, a contact icon, a missing-media mark).
+  The public detail path and the private layout agree. Nine spans.
+- The shell published two `og:image` properties. The second meta element
+  carried both `name="image"` and `property="og:image"`. `name="image"`
+  stays on its own element, so a page has one Open Graph image.
+
+### Changed
+
+- Unused ledger selectors are gone. `assets/css/base.css` drops 2,041
+  bytes: `.page-title` (404), `.ledger-marker--primary` (616),
+  `.ledger-card--edge-*` (462), and `.ledger-section-rule` (559).
+  `assets/css/ledger/home.css` drops 577 bytes of rules that no band
+  uses: `.home-band--ruled` (310), `.home-index-shard--gamma` (163),
+  and `.home-index-note` (104). `assets/css/global-link.css` drops the
+  `.post-content` hover selector (23 bytes). None of them matched a
+  template, the runtime, or current content. 2,641 bytes in all.
+- Comments that a font rename had rewritten, eating the letters inside
+  the word "behind", read "behind" again. 45 occurrences in 21 files.
+
+No `pandorga:` config keys were added or renamed. Font roles and the
+ledger fallbacks are unchanged.
+
 ## [1.7.0] — 2026-10-10
 
 ### Added

@@ -7,7 +7,7 @@
 # on click; `filterItems` reads a fixed set of names. Nothing connects the
 # two, so renaming a facet in a layout — `category` to `tag`, say — leaves the
 # chips rendering, highlighting and pushing a query string while the list
-# beNewsreader them never changes. That shipped on the Sources page: every click set
+# behind them never changes. That shipped on the Sources page: every click set
 # a key nothing read.
 #
 # There is no build error and no console error to notice, so the contract is

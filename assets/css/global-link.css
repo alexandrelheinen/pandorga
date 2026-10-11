@@ -22,7 +22,6 @@ a {
  * titles, plus the chip exceptions that were being added one class at a time
  * as each new piece of card chrome turned up underlined. */
 p a:hover,
-.post-content a:hover,
 .article-content a:hover,
 .description a:hover {
   color: var(--color-link-hover);

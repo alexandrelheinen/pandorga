@@ -9,7 +9,7 @@
 
 /* ── Shards ──
    The page had no depth treatment of any kind, and it is the wrong shape for
-   the ambient pool the home bands carry: a pool beNewsreader a grid of many small
+   the ambient pool the home bands carry: a pool behind a grid of many small
    cards only darkens one corner of it. Shards instead, the two canonical
    polygons from base.css, one at each end of the run — top right above the
    grid, bottom left below it, the diagonal pair the CV dossier uses inside
@@ -56,7 +56,7 @@
 }
 
 /* A card is not positioned, so without this the shard — which is — would be
-   painted over the bottom row rather than beNewsreader it. The rule the whole
+   painted over the bottom row rather than behind it. The rule the whole
    family answers to is that a backdrop never touches the object in front of
    it. */
 .sources-body>.listing-card-grid,
@@ -65,7 +65,7 @@
   z-index: 1;
 }
 
-/* The foot of the page, beside the pagination. It reaches up beNewsreader the last
+/* The foot of the page, beside the pagination. It reaches up behind the last
    row of cards. In dark those cards are opaque again, so what shows is the
    wedge in the gutter and the band across the pagination strip. */
 .sources-foot-shard {

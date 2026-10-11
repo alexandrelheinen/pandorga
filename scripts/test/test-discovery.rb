@@ -41,6 +41,11 @@ fail!("portrait srcset is not read") unless runtime.include?("record.srcset = sr
 fail!("portrait sources are not applied") unless runtime.include?("applyHeroPortraitSources")
 shell = ROOT.join("_layouts/shell.html").read
 fail!("shell missing JSON-LD") unless shell.include?("theme/json-ld.html")
+og_images = shell.scan(/property="og:image"/)
+fail!("shell emits #{og_images.size} og:image properties; one page, one image") unless og_images.size == 1
+image_meta = shell[/<meta name="image"[^>]*>/]
+fail!("shell missing name=image") unless image_meta
+fail!("name=image also sets property=og:image") if image_meta.include?("property=")
 fail!("discovery generator is not loaded from the plugin dir") unless ROOT.join("lib/pandorga/jekyll/plugins/discovery.rb").file?
 
 puts "PASS test-discovery"

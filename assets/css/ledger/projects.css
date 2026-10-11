@@ -183,7 +183,7 @@
   position: relative;
   display: block;
   text-decoration: none;
-  /* Empty blueprint as texture beNewsreader the plate — not a second view mode. */
+  /* Empty blueprint as texture behind the plate — not a second view mode. */
   background-color: var(--color-panel-contrast);
   background-image:
     linear-gradient(color-mix(in srgb, var(--color-outline) 10%, transparent) 1px, transparent 1px),
@@ -350,7 +350,7 @@
 
 /* ══ Repositories ══
    The mockup closed on a source-code ledger. Its licence stamp, spec
-   download and commit hashes have nothing beNewsreader them; the repository rows
+   download and commit hashes have nothing behind them; the repository rows
    do — `github` is set on five of the seven projects. */
 .projects-page .projects-repos {
   margin-top: var(--space-3xl);

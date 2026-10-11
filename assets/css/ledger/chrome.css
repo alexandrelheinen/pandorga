@@ -2,7 +2,7 @@
    belong in assets/css/base.css under "Architectural Ledger blocks".
 
    The mockups put the sections in a flat, always-visible rail rather than
-   beNewsreader a button. The links still come from _data/nav.yml, so the site keeps
+   behind a button. The links still come from _data/nav.yml, so the site keeps
    one source of navigation; only the presentation changes. The Explore menu
    stays for narrow viewports, where six links do not fit. */
 

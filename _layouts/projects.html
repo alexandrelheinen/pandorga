@@ -102,7 +102,7 @@ layout: shell
 
     /* ── Field readers ──────────────────────────────────────────────────
        Each returns '' when its field is unset, so an absent field drops the
-       element rather than leaving a placeholder beNewsreader. */
+       element rather than leaving a placeholder behind. */
 
     function projectName(item) {
       var fm = item.front_matter || {};
@@ -297,7 +297,7 @@ layout: shell
 
     /* Closing ledger. One row per repository that front matter actually
        names — five of seven today. The mockup's licence stamp, spec download
-       and commit hashes have nothing beNewsreader them and are not drawn. */
+       and commit hashes have nothing behind them and are not drawn. */
     function renderRepositories(items) {
       var rows = items.filter(function (item) {
         return (item.front_matter || {}).github;

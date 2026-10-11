@@ -186,7 +186,7 @@
   justify-content: center;
   box-sizing: border-box;
   padding: 0.35rem 0.55rem;
-  /* A fixed dark plate beNewsreader light-on-transparent marks. It must stay dark in
+  /* A fixed dark plate behind light-on-transparent marks. It must stay dark in
      both themes, so no surface token fits: every one of them flips. */
   background: #111;
 }
@@ -349,7 +349,7 @@
 
    The projects page had this to itself until now; these rules are the ones it
    proved, moved up so the treatment is the site's rather than one page's. What
-   stayed beNewsreader in ledger/projects.css is the *other* thing that page does —
+   stayed behind in ledger/projects.css is the *other* thing that page does —
    letting media out of the reading measure — which is a separate decision.
 
    `.plotly-figure` and the videos both carry the `figure` element, so one
@@ -436,7 +436,7 @@ body.figure-lightbox-open {
 .figure-lightbox-backdrop {
   position: absolute;
   inset: 0;
-  /* Near-opaque black so the article beNewsreader never reads as “another page”. */
+  /* Near-opaque black so the article behind never reads as “another page”. */
   background: rgba(0, 0, 0, 0.85);
   cursor: zoom-out;
   animation: figure-lightbox-fade-in var(--motion-duration-fast) var(--motion-ease-out);

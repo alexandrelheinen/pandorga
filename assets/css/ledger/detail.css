@@ -14,7 +14,7 @@
    to beat one are written with two compound parts on purpose. */
 
 /* ══ Reading progress ══
-   Pure UI state, no field beNewsreader it, and no DOM hook to hang it on — the
+   Pure UI state, no field behind it, and no DOM hook to hang it on — the
    runtime owns the detail markup. A scroll-driven animation on a pseudo of
    the detail section gives the mockup's indicator with zero markup, and the
    @supports guard means older engines simply get no bar.

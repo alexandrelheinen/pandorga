@@ -27,4 +27,25 @@ fail!("footer home link still uses site.author alone") if FOOTER.include?(bare)
 fail!("shell home link needs an identity.name fallback") unless SHELL.include?("site.pandorga.identity.name")
 fail!("footer home link needs an identity.name fallback") unless FOOTER.include?("site.pandorga.identity.name")
 
+# Decorative Material Symbols sit beside a text label. Without aria-hidden
+# the ligature ("arrow_left_alt", "shuffle", an icon name) is read aloud.
+ICON_FILES = [
+  ROOT.join("_layouts/text.html"),
+  ROOT.join("_includes/content-runtime/50-detail.html"),
+  ROOT.join("_includes/content-runtime/60-fragments.html"),
+  ROOT.join("_includes/content-runtime/30-includes.html")
+].freeze
+
+ICON_FILES.each do |path|
+  path.read.each_line.with_index(1) do |line, number|
+    next unless line.include?("material-symbols-outlined")
+    next if line.include?("querySelector")
+    next if line.include?("aria-hidden")
+    # Class token handed to a later span that already sets aria-hidden.
+    next if line.include?("cls:")
+
+    fail!("#{path.relative_path_from(ROOT)}:#{number}: decorative icon is exposed")
+  end
+end
+
 puts "PASS test-shell-a11y"

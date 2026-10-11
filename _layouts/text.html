@@ -69,7 +69,7 @@ layout: shell
         {% if page.collection == "posts" or page.collection == "articles" or page.layout == "product" or page.layout == "project" %}
         <div class="article-sidebar-heading mb-8">
           {% if page.icon %}
-          <span class="material-symbols-outlined text-5xl md:text-6xl text-secondary mb-4 block leading-none">{{ page.icon }}</span>
+          <span class="material-symbols-outlined text-5xl md:text-6xl text-secondary mb-4 block leading-none" aria-hidden="true">{{ page.icon }}</span>
           {% endif %}
           <h1 class="text-title">{{ page.title }}</h1>
           {% if page.collection == "posts" and page.thumbnail %}
@@ -202,7 +202,7 @@ layout: shell
       <nav class="text-page-nav text-reading-column w-full" aria-label="Article navigation">
         {% if page.previous %}
         <a href="{{ page.previous.url }}">
-          <span class="material-symbols-outlined text-sm">arrow_left_alt</span>
+          <span class="material-symbols-outlined text-sm" aria-hidden="true">arrow_left_alt</span>
           {{ t.previous_text[lang] }}
         </a>
         {% else %}
@@ -211,12 +211,12 @@ layout: shell
         {% if page.next %}
         <a href="{{ page.next.url }}">
           {{ t.next_text[lang] }}
-          <span class="material-symbols-outlined text-sm">arrow_right_alt</span>
+          <span class="material-symbols-outlined text-sm" aria-hidden="true">arrow_right_alt</span>
         </a>
         {% elsif page.collection == "posts" %}
         <a href="#" id="random-post-link">
           {{ t.random_text[lang] }}
-          <span class="material-symbols-outlined text-sm">shuffle</span>
+          <span class="material-symbols-outlined text-sm" aria-hidden="true">shuffle</span>
         </a>
         {% else %}
         <span></span>

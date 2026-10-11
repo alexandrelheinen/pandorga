@@ -12,7 +12,7 @@
           /* The page accent, not a fixed triad role: this glyph marks a
              project, and the projects page reads blue. text-secondary pinned
              it green there regardless. */
-          parts.push('<span class="material-symbols-outlined text-5xl md:text-6xl text-primary mb-4 block leading-none">' + escapeHtml(fm.icon) + '</span>');
+          parts.push('<span class="material-symbols-outlined text-5xl md:text-6xl text-primary mb-4 block leading-none" aria-hidden="true">' + escapeHtml(fm.icon) + '</span>');
         }
         parts.push('<h1 class="text-title">' + escapeHtml(title) + '</h1>');
         if (fm.layout === 'post' && fm.thumbnail) {
@@ -416,7 +416,7 @@
         '<a href="', escapeAttr(options.backUrl || '#'), '" ',
         'class="back-link text-sm font-label inline-flex items-center gap-2 no-underline hover:underline text-primary mb-8 block" ',
         'id="', escapeAttr(options.id || 'runtime-back-link'), '">',
-        '<span class="material-symbols-outlined text-sm">arrow_left_alt</span>',
+        '<span class="material-symbols-outlined text-sm" aria-hidden="true">arrow_left_alt</span>',
         escapeHtml(label),
         '</a>'
       ].join('');
@@ -429,7 +429,7 @@
       if (options.previousUrl) {
         parts.push(
           '<a href="', escapeAttr(options.previousUrl), '">',
-          '<span class="material-symbols-outlined text-sm">arrow_left_alt</span>',
+          '<span class="material-symbols-outlined text-sm" aria-hidden="true">arrow_left_alt</span>',
           escapeHtml(translate('previous_text', lang)),
           '</a>'
         );
@@ -441,14 +441,14 @@
         parts.push(
           '<a href="', escapeAttr(options.nextUrl), '">',
           escapeHtml(translate('next_text', lang)),
-          '<span class="material-symbols-outlined text-sm">arrow_right_alt</span>',
+          '<span class="material-symbols-outlined text-sm" aria-hidden="true">arrow_right_alt</span>',
           '</a>'
         );
       } else if (options.showRandom) {
         parts.push(
           '<a href="#" id="random-post-link">',
           escapeHtml(translate('random_text', lang)),
-          '<span class="material-symbols-outlined text-sm">shuffle</span>',
+          '<span class="material-symbols-outlined text-sm" aria-hidden="true">shuffle</span>',
           '</a>'
         );
       } else {
