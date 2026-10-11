@@ -13,14 +13,24 @@ const source = fs.readFileSync(
 );
 
 const start = source.indexOf('function heroPortraitEntries');
-const end = source.indexOf('function applyHeroPortrait(');
+// applyHeroPortraitSources is defined before pickHeroPortrait. Ending at
+// applyHeroPortrait( still works today, and it is one character away from
+// stopping on the Sources function. showHeroPortrait is the next function
+// after the picker, so the slice always includes pickHeroPortrait.
+const end = source.indexOf('function showHeroPortrait');
 if (start < 0 || end < start) {
   console.error('hero portrait functions missing from 60-fragments.html');
   process.exit(1);
 }
 
+const slice = source.slice(start, end);
+if (!slice.includes('function pickHeroPortrait')) {
+  console.error('hero portrait crop stopped before pickHeroPortrait');
+  process.exit(1);
+}
+
 const api = new Function(
-  `${source.slice(start, end)}\nreturn { heroPortraitEntries, pickHeroPortrait };`
+  `${slice}\nreturn { heroPortraitEntries, pickHeroPortrait };`
 )();
 
 const { heroPortraitEntries, pickHeroPortrait } = api;
