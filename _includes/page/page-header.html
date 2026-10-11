@@ -1,4 +1,6 @@
 {% assign _header_key = include.key | default: page.key %}
+{% assign _header_record = site.data.page_headers[_header_key] %}
+{% assign _header_title = _header_record.title | default: page.title | default: _header_key %}
 
 <header class="{{ include.header_class | default: 'mb-10 md:mb-12' }}" data-content-page-header="{{ _header_key }}">
   <div class="page-header-row{% if include.listing_filter %} page-header-row--with-filter{% endif %}">
@@ -6,7 +8,7 @@
       <span data-content-header-eyebrow class="{{ include.eyebrow_class | default: 'font-label text-sm text-secondary block mb-4 hidden' }}" hidden></span>
 
       <h1 class="page-header-title font-title{% if include.title_class %} {{ include.title_class }}{% endif %}">
-        <span data-content-header-title class="italic">Loading...</span>
+        <span data-content-header-title class="italic"{% if _header_title != blank %} data-content-static{% endif %}>{% if _header_title contains "*" %}{% assign _header_bits = _header_title | split: "*" %}{% for _header_bit in _header_bits %}{% assign _header_em = forloop.index0 | modulo: 2 %}{% if _header_em == 1 %}<em>{{ _header_bit | escape }}</em>{% else %}{{ _header_bit | escape }}{% endif %}{% endfor %}{% else %}{{ _header_title | escape }}{% endif %}</span>
       </h1>
 
       <span data-content-header-tags class="{{ include.tags_class | default: 'page-header-tags font-label text-tertiary mt-4 block hidden' }}" hidden></span>

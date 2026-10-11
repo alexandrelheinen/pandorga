@@ -264,7 +264,7 @@
       var standfirstEl = root.querySelector('[data-content-header-standfirst]');
       return loadPageHeaders().then(function (headers) {
         var data = headers[pageKey];
-        if (titleEl) {
+        if (titleEl && !titleEl.hasAttribute('data-content-static')) {
           var title = data && data.title;
           if (title) {
             titleEl.innerHTML = stripSingleParagraph(parseInlineMarkdown(String(title)));
@@ -299,7 +299,7 @@
         }
       }).catch(function (error) {
         console.error(error);
-        if (titleEl) {
+        if (titleEl && !titleEl.hasAttribute('data-content-static')) {
           titleEl.textContent = 'Page header could not be loaded right now.';
         }
       });
