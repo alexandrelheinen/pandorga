@@ -101,6 +101,10 @@ fail!("band note is still painted by script") unless band.include?("page_headers
 fail!("project inventory has a name and no role") unless band.include?('role="region"') && band.include?('aria-label="Project inventory"')
 headers = File.read(File.expand_path("../../_plugins/content_headers.rb", __dir__))
 fail!("page headers are not loaded at build time") unless headers.include?('site.data["page_headers"]')
+page_header = File.read(File.expand_path("../../_includes/page/page-header.html", __dir__))
+fail!("listing h1 is still Loading...") if page_header.include?("Loading...")
+fail!("listing h1 does not read page headers") unless page_header.include?("page_headers")
+fail!("listing h1 is not marked static") unless page_header.include?("data-content-static")
 home = File.read(File.expand_path("../../_layouts/home.html", __dir__))
 fail!("hero subtitle is still painted by script") unless home.include?("page_headers.home") && home.include?("data-content-static")
 

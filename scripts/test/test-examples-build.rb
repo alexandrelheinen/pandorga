@@ -80,6 +80,18 @@ end
       warn "FAIL test-examples-build: full home still hydrates the summary"
       exit 1
     end
+    {
+      "pages/articles/index.html" => "Articles",
+      "pages/blog/index.html" => "Rascunhos",
+      "pages/projects/index.html" => "Projects"
+    }.each do |rel, title|
+      listing = example.join("_site", rel).read
+      heading = listing[/<h1 class="page-header-title.*?<\/h1>/m].to_s
+      unless heading.include?(title) && heading.include?("data-content-static") && !heading.include?("Loading...")
+        warn "FAIL test-examples-build: #{rel} static h1 is #{heading.inspect}"
+        exit 1
+      end
+    end
   else
     unless html.include?('id="home-cv-summary" class="home-hero-summary font-body" data-content-fragment="cv/summary" data-content-quiet')
       warn "FAIL test-examples-build: minimal home dropped the summary fallback"
