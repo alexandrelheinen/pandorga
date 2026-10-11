@@ -317,7 +317,7 @@
         '<img src="', escapeAttr(url), '" alt="', escapeAttr(alt || ''),
         '" loading="lazy" decoding="async"',
         // Thumbnails are frequently hotlinked to third-party hosts. When one
-        // dies, remove the frame rather than leaving an empty plate beNewsreader.
+        // dies, remove the frame rather than leaving an empty plate behind.
         ' onerror="var p=this.closest(\'.ledger-poster\'); if (p) p.remove();"',
         '>',
         '</div>'

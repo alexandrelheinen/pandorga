@@ -47,6 +47,20 @@ fail!("body weights were not sorted") unless custom_href.include?("family=Source
 fail!("mono italic axis is wrong") unless custom_href.include?("family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400;1,500")
 fail!("unset label left Marcellus") unless custom_href.include?("family=Marcellus+SC:wght@400;700")
 fail!("body change left the tagline on Newsreader") unless Pandorga::Fonts.css_stack(custom, "subtitle").start_with?("'Source Serif 4'")
+
+# A font rename once replaced the letters "hind" inside the word "behind".
+token = "be" + "Newsreader"
+broken = []
+Dir.glob(ROOT.join("**/*.{css,html,rb,js,mjs,md,liquid,yml}")).each do |path|
+  next if path.include?("/studio/assets/")
+  next if path.include?("/node_modules/")
+  next if path.end_with?("test-fonts.rb")
+  text = File.read(path)
+  next unless text.include?(token)
+
+  broken << Pathname.new(path).relative_path_from(ROOT).to_s
+end
+fail!("corrupted 'behind' left by a font rename (#{broken.size} files): #{broken.join(', ')}") unless broken.empty?
 fail!("code face did not follow mono") unless Pandorga::Fonts.css_stack(custom, "code").start_with?("'IBM Plex Mono'")
 
 kept = Pandorga::Fonts.resolve({ "title" => "Cinzel Decorative" }, theme)

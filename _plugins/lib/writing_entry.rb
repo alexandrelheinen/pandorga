@@ -15,7 +15,7 @@ require_relative "text_excerpt"
 # (standalone, for scripts/content/export-content-json.rb). They differ only in how
 # they derive the repo-relative path used for Git chronology, so each passes
 # its own. Everything downstream lives here, because a field added or a bug
-# fixed in one copy used to leave the other silently beNewsreader.
+# fixed in one copy used to leave the other silently behind.
 module WritingEntry
   XCITE_RE = /\{%-?\s*include\s+xcite\.html\s+key=["']([^"']+)["'][^%]*-?%\}/
 

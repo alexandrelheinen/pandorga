@@ -5,7 +5,7 @@
 // and a Jekyll build never executes them, which is how a block that renders
 // an element with no backing field ships green. This loader concatenates the
 // partials in the exact order _includes/page/content-runtime.html includes
-// them, evaluates the result beNewsreader a deliberately thin DOM shim, and hands
+// them, evaluates the result behind a deliberately thin DOM shim, and hands
 // back the same object 90-bootstrap.html returns to the browser.
 //
 // The shim is small on purpose: createElement, className, setAttribute,

@@ -269,7 +269,7 @@ def prune_stale_output_files!
   end
 
   stale.each(&:delete)
-  # Remove empty directories left beNewsreader by unpublish/rename.
+  # Remove empty directories left behind by unpublish/rename.
   OUTPUT_ROOT.find.sort.reverse_each do |path|
     next unless path.directory?
     next if path == OUTPUT_ROOT

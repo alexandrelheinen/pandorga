@@ -208,24 +208,6 @@ html body {
   letter-spacing: 0.05em;
 }
 
-/* ── Display title scale (home hero, 404) ── */
-.page-title {
-  font-family: var(--font-title);
-  font-size: var(--type-display);
-  font-weight: var(--weight-display);
-  line-height: 1.05;
-  color: var(--color-on-surface);
-  letter-spacing: normal;
-  font-synthesis: none;
-  font-optical-sizing: auto;
-}
-
-@media (min-width: 768px) {
-  .page-title {
-    font-size: var(--type-display-lg);
-  }
-}
-
 /* Listing page headers (CV, Articles, Portfolio, Rascunhos, …) */
 .page-header-title {
   font-family: var(--font-title);
@@ -343,22 +325,6 @@ html body {
       color-mix(in srgb, var(--color-tertiary) 10%, transparent) 2.4%,
       color-mix(in srgb, var(--color-tertiary) 7%, transparent) 58%,
       color-mix(in srgb, var(--color-tertiary) 2%, transparent) 98%);
-}
-
-.ledger-marker--primary {
-  background: linear-gradient(104deg,
-      transparent 0.9%,
-      color-mix(in srgb, var(--color-primary) 16%, transparent) 2.4%,
-      color-mix(in srgb, var(--color-primary) 12%, transparent) 58%,
-      color-mix(in srgb, var(--color-primary) 4%, transparent) 98%);
-}
-
-[data-theme="dark"] .ledger-marker--primary {
-  background: linear-gradient(104deg,
-      transparent 0.9%,
-      color-mix(in srgb, var(--color-primary) 9%, transparent) 2.4%,
-      color-mix(in srgb, var(--color-primary) 6%, transparent) 58%,
-      color-mix(in srgb, var(--color-primary) 2%, transparent) 98%);
 }
 
 /* ── Page-level accent ────────────────────────────────────────────────
@@ -1175,25 +1141,6 @@ html[data-theme="light"] .ledger-system-card {
   border-color: var(--border-ink);
 }
 
-/* Triad top hairline — reusable edge accent (home grids + any listing). */
-.ledger-card--edge-primary {
-  border-top-width: 2px;
-  border-top-style: solid;
-  border-top-color: var(--color-primary);
-}
-
-.ledger-card--edge-secondary {
-  border-top-width: 2px;
-  border-top-style: solid;
-  border-top-color: var(--color-secondary);
-}
-
-.ledger-card--edge-tertiary {
-  border-top-width: 2px;
-  border-top-style: solid;
-  border-top-color: var(--color-tertiary);
-}
-
 /* Drafting corner brackets — four L-corners, no labels. Pure decoration.
    Outline ink (not primary): the corners are drafting marks on the plate,
    same register as `.ledger-frame-crosshairs`, not a brand accent. */
@@ -1232,32 +1179,6 @@ html[data-theme="light"] .ledger-system-card {
     linear-gradient(var(--color-outline), var(--color-outline)) bottom left / var(--cross-thick) var(--cross-arm) no-repeat,
     linear-gradient(var(--color-outline), var(--color-outline)) bottom right / var(--cross-arm) var(--cross-thick) no-repeat,
     linear-gradient(var(--color-outline), var(--color-outline)) bottom right / var(--cross-thick) var(--cross-arm) no-repeat;
-}
-
-/* Lithography section divider — double hairline with a short primary tick. */
-.ledger-section-rule {
-  display: block;
-  height: 0;
-  margin: 0 0 var(--space-xl);
-  border: 0;
-  border-top: 1px solid var(--border-gentle-divider);
-  box-shadow: 0 3px 0 -2px var(--border-gentle-faint);
-  position: relative;
-}
-
-.ledger-section-rule::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: -1.5px;
-  width: 2.5rem;
-  height: 2px;
-  background: var(--color-primary);
-}
-
-.ledger-section-rule--dashed {
-  border-top-style: dashed;
-  box-shadow: none;
 }
 
 /* Hover lifts the card one rung and warms its hairline toward the page's

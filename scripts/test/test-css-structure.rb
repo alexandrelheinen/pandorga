@@ -72,6 +72,26 @@ sheets.each do |path|
   if source.include?("home-profile-summary")
     errors << "#{relative}: .home-profile-summary is unused"
   end
+
+  # Selectors that matched no template, runtime string, or current content.
+  # A comment may still name one; a ruleset may not.
+  retired = %w[
+    page-title
+    ledger-marker--primary
+    ledger-card--edge-primary
+    ledger-card--edge-secondary
+    ledger-card--edge-tertiary
+    ledger-section-rule
+    home-band--ruled
+    home-index-shard--gamma
+    home-index-note
+    post-content
+  ]
+  retired.each do |name|
+    next unless cleaned.match?(/[.#]#{Regexp.escape(name)}\b/)
+
+    errors << "#{relative}: .#{name} is unused"
+  end
 end
 
 fail!("CSS structure problems:\n  - #{errors.join("\n  - ")}") unless errors.empty?

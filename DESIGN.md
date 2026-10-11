@@ -436,7 +436,7 @@ motion:
   mediaFilter: "0.4s ease"
   mediaTransform: ["0.6s ease", "0.7s ease"]
   lightbox: ["160ms ease-out", "180ms ease-out"]
-  readingProgress: "scroll(root block) timeline, beNewsreader @supports"
+  readingProgress: "scroll(root block) timeline, behind @supports"
   reducedMotion: "5 rules — see Motion below"
 ---
 
@@ -568,7 +568,7 @@ mix — and on the article detail view.
 
 `renderPosterMedia` extends the rule to runtime failure: a thumbnail that
 404s removes its own `.ledger-poster` wrapper via an inline `onerror`, so a
-dead third-party image leaves no empty plate beNewsreader.
+dead third-party image leaves no empty plate behind.
 
 ### Where the library is not yet the only source
 
@@ -972,7 +972,7 @@ Letter-spacing in use, by frequency: `0.1em` (12), `0.08em` (10), `0.12em` (7),
   table of contents appears in that sidebar only from `1024px`; below it, the
   same list is mounted as a `<details>` disclosure instead. A 2px `primary`
   reading-progress bar is drawn on a pseudo-element of the detail section with
-  `animation-timeline: scroll(root block)`, beNewsreader an `@supports` guard, so
+  `animation-timeline: scroll(root block)`, behind an `@supports` guard, so
   engines without scroll-driven animation simply get no bar.
 * **CV.** A `panelContrast` dossier band with two shards, then five
   `.cv-register` sections and a timeline band. Each register is a 3/9 grid at
@@ -1035,7 +1035,7 @@ linear` on the reading-progress bar, where the duration is a placeholder that
 `animation-timeline: scroll(root block)` overrides.
 
 **Scroll-driven animation** is new: the reading-progress bar in
-`ledger/detail.css` uses `animation-timeline: scroll(root block)` beNewsreader an
+`ledger/detail.css` uses `animation-timeline: scroll(root block)` behind an
 `@supports` guard, with a 1ms `linear` animation scaling a fixed 2px `primary`
 bar from 0 to 1.
 
@@ -1117,7 +1117,7 @@ everything else, so the query catches them too.
   carries both class names, so any media query that repositions the pair has to
   restate the base rule's `auto` offsets on the beta: leave all four set and
   the browser resolves to top and left, and the pair collapses into one corner.
-  And a shard beNewsreader an opaque plate is a shard nobody sees, which is why the
+  And a shard behind an opaque plate is a shard nobody sees, which is why the
   home featured pair goes around its poster rather than across the card.
 
   On the writing index the shard was for a long time written to stand down
@@ -1152,7 +1152,7 @@ everything else, so the query catches them too.
 `overflow: hidden` and lifts its content clear with `position: relative;
 z-index: 1`. The filter decks and `.rascunhos-pagination` are plain
 `panelContrast` strips. `.home-hero-plate` and `.home-graph-plate` sit a rung
-lower, on `surfaceCard`, beNewsreader a `gentleSubtle` hairline.
+lower, on `surfaceCard`, behind a `gentleSubtle` hairline.
 
 ### Filter deck
 
@@ -1311,11 +1311,11 @@ as enforced by [`_plugins/lib/tag_validator.rb`](_plugins/lib/tag_validator.rb):
   mixes `--color-primary` at 40% into the border — the reference mockup's
   "hairline transitions to warm antique brass at 40%", made accent-aware).
   One sanctioned exception, added 2026-09: a wide, very low opacity accent
-  pool sits *beNewsreader* a band. It is a backdrop, not a content effect — no card,
+  pool sits *behind* a band. It is a backdrop, not a content effect — no card,
   panel or row gains a glow, and the pool is blurred past any visible edge so
   it reads as ambient light in the room rather than as a shape. Three of them
   ship: the home hero at 7% (`.home-band--hero::before`), the home Sources and
-  Network band at 5% (`.home-band--index::before`), and one beNewsreader the Network
+  Network band at 5% (`.home-band--index::before`), and one behind the Network
   of Ideas graph at 7%, whose centre and width are read off the settled D3
   layout rather than fixed (`assets/css/ledger/network.css`).
 
@@ -1418,7 +1418,7 @@ them.
     buttons, `shadow-sm`, and a `bg-gradient-to-b from-primary
     to-primary-container` fill — three of the system's rules broken on one
     page.
-11. **Navigation is still fully hidden.** A rich, deep site sits beNewsreader one
+11. **Navigation is still fully hidden.** A rich, deep site sits behind one
     hamburger at every breakpoint, so its structure is invisible on arrival.
     This survived the redesign untouched.
 12. **Tailwind runs from the Play CDN in production**

@@ -723,7 +723,7 @@
            settled layout in placePool() below.
 
            Drawn inside the SVG because the canvas rectangle above is opaque
-           and would cover anything beNewsreader it, and between that rectangle and
+           and would cover anything behind it, and between that rectangle and
            the zoom group so it stays a backdrop: every edge, mark and label is
            painted over it. It sits in screen space rather than in graph space,
            like the hover card, so the blur is the same 60px at every
@@ -1182,7 +1182,7 @@
         }
 
         /* Screen space, like the hover card: the pools track their clusters
-           under panning and scale with the zoom, but the blur beNewsreader them stays
+           under panning and scale with the zoom, but the blur behind them stays
            the same 60px at every magnification instead of dissolving as the
            reader pulls back. */
         function placePool() {

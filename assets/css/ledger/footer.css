@@ -230,7 +230,7 @@
 }
 
 /* A middot between items rather than a separator element, so an absent
-   license leaves no orphaned punctuation beNewsreader. */
+   license leaves no orphaned punctuation behind. */
 .site-footer-imprint-item+.site-footer-imprint-item::before {
   content: "·";
   margin-right: var(--space-md);
