@@ -1,0 +1,5 @@
+{
+  "name": "theorem",
+  "markdown": "<div class=\"theorem\" name=\"Corollary 1\" description=\"nadir camera\" markdown=\"1\">\n\nLet the camera look straight down.\n\n</div>",
+  "selectors": ["theorem", "theorem-head", "theorem-name", "theorem-description", "theorem-body"]
+}

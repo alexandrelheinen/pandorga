@@ -818,9 +818,10 @@ aside:has(> .text-detail-sidebar) {
   font-weight: inherit;
 }
 
-/* ── Theorem / proof / key-takeaways callout ──
-   Authored per article as `<div class="article-note" markdown="1">`; styled
-   here, never injected. Ochre wash + tertiary spine = scannable field note. */
+/* ── Field-note callout ──
+   Authored as `<div class="article-note" markdown="1">`; styled here, never
+   injected. Ochre wash + tertiary spine = scannable field note. Formal
+   theorem / proof blocks use `.theorem` / `.proof` in article.css instead. */
 .article-content .article-note {
   position: relative;
   background: color-mix(in srgb, var(--color-tertiary) 10%, var(--color-panel-contrast));

@@ -128,6 +128,24 @@ function preprocessMarkdownDivs(markdown) {
     if (!hasMarkdownAttr(openTag)) return match;
     return `<div class="poem"><p>${inner.trim()}</p></div>`;
   });
+  text = text.replace(/<div\s+([^>]*class="[^"]*\btheorem\b[^"]*"[^>]*)>([\s\S]*?)<\/div>/gi, (match, openTag, inner) => {
+    if (!hasMarkdownAttr(openTag)) return match;
+    const nameMatch = openTag.match(/\bname\s*=\s*(?:"([^"]*)"|'([^']*)')/i);
+    const descMatch = openTag.match(/\bdescription\s*=\s*(?:"([^"]*)"|'([^']*)')/i);
+    const n = nameMatch ? (nameMatch[1] ?? nameMatch[2] ?? '') : '';
+    const d = descMatch ? (descMatch[1] ?? descMatch[2] ?? '') : '';
+    let head = '';
+    if (n) {
+      head = `<p class="theorem-head"><span class="theorem-name">${escapeAttr(n)}</span>`;
+      if (d) head += ` <span class="theorem-description">(${escapeAttr(d)})</span>`;
+      head += '.</p>';
+    }
+    return `<div class="theorem">${head}<div class="theorem-body">${marked.parse(inner.trim())}</div></div>`;
+  });
+  text = text.replace(/<div\s+([^>]*class="[^"]*\bproof\b[^"]*"[^>]*)>([\s\S]*?)<\/div>/gi, (match, openTag, inner) => {
+    if (!hasMarkdownAttr(openTag)) return match;
+    return `<div class="proof">${marked.parse(inner.trim())}</div>`;
+  });
   return text;
 }
 

@@ -1007,6 +1007,69 @@ a.xcite-ref:hover {
   margin-bottom: 0;
 }
 
+/* ── Theorem and proof blocks ──
+   Authored as `<div class="theorem" name="…" description="…" markdown="1">`
+   and `<div class="proof" markdown="1">`. Full column width; body text keeps
+   the reading measure edge (no horizontal inset). The theorem head is built
+   by the content runtime from name / description; the body is italic so the
+   author does not wrap every paragraph. Proofs end with a QED square on the
+   last line. */
+.article-content .theorem,
+.article-content .proof {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+  background: var(--color-surface-container-low);
+  padding: 1rem 0;
+  margin: 1.5em 0;
+  font-size: inherit;
+  line-height: inherit;
+  color: var(--color-on-surface);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.article-content .theorem-head {
+  margin: 0 0 0.5em;
+  font-style: normal;
+  font-weight: var(--weight-body);
+}
+
+.article-content .theorem-name {
+  font-weight: var(--weight-emphasis);
+  font-style: normal;
+}
+
+.article-content .theorem-description {
+  font-weight: var(--weight-body);
+  font-style: normal;
+}
+
+.article-content .theorem-body {
+  font-style: italic;
+}
+
+.article-content .theorem-body > :first-child {
+  margin-top: 0;
+}
+
+.article-content .theorem-body > :last-child,
+.article-content .proof > :last-child {
+  margin-bottom: 0;
+}
+
+.article-content .proof > :last-child::after {
+  content: "□";
+  float: right;
+  margin-left: 0.35em;
+  font-size: inherit;
+  line-height: inherit;
+  color: var(--color-on-surface);
+  pointer-events: none;
+  user-select: none;
+}
+
 /* ══ Code blocks ══
    A fence used to render as a bare grey box: no indication of what language
    was in it, and nothing to do with it but select the text by hand. It now

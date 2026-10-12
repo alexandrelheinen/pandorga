@@ -109,6 +109,26 @@
       return parts.join('');
     }
 
+    function attrValue(openTag, name) {
+      var re = new RegExp('\\b' + name + '\\s*=\\s*(?:"([^"]*)"|\'([^\']*)\')', 'i');
+      var m = String(openTag || '').match(re);
+      return m ? String(m[1] != null ? m[1] : m[2] || '') : '';
+    }
+
+    function renderTheoremHtml(openTag, inner) {
+      var name = attrValue(openTag, 'name').trim();
+      var description = attrValue(openTag, 'description').trim();
+      var head = '';
+      if (name) {
+        head = '<p class="theorem-head"><span class="theorem-name">' + escapeHtml(name) + '</span>';
+        if (description) {
+          head += ' <span class="theorem-description">(' + escapeHtml(description) + ')</span>';
+        }
+        head += '.</p>';
+      }
+      return '<div class="theorem">' + head + '<div class="theorem-body">' + parseInlineMarkdown(inner) + '</div></div>';
+    }
+
     function preprocessMarkdownDivs(markdown) {
       var text = String(markdown || '');
       text = text.replace(/<div\s+([^>]*class="[^"]*\barticle-note\b[^"]*"[^>]*)>([\s\S]*?)<\/div>/gi, function (match, openTag, inner) {
@@ -118,6 +138,16 @@
       text = text.replace(/<div\s+([^>]*class="[^"]*\bpoem\b[^"]*"[^>]*)>([\s\S]*?)<\/div>/gi, function (match, openTag, inner) {
         if (!hasMarkdownAttr(openTag)) return match;
         return renderPoemHtml(inner);
+      });
+      // Theorem / proof: same markdown="1" contract as article-note. Without
+      // this pass, CommonMark ends the HTML block at the first blank line.
+      text = text.replace(/<div\s+([^>]*class="[^"]*\btheorem\b[^"]*"[^>]*)>([\s\S]*?)<\/div>/gi, function (match, openTag, inner) {
+        if (!hasMarkdownAttr(openTag)) return match;
+        return renderTheoremHtml(openTag, inner);
+      });
+      text = text.replace(/<div\s+([^>]*class="[^"]*\bproof\b[^"]*"[^>]*)>([\s\S]*?)<\/div>/gi, function (match, openTag, inner) {
+        if (!hasMarkdownAttr(openTag)) return match;
+        return '<div class="proof">' + parseInlineMarkdown(inner) + '</div>';
       });
       return text;
     }
