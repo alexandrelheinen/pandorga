@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# Home band art (docs/features/home-band-art.md).
+# Home band art. Watch paths: docs/deploy/cloudflare.md.
 #
 # AC-BAND-01 the export writes both plates under data/
 # AC-BAND-03 a second export with no content change reports them unchanged

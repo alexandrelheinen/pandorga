@@ -27,7 +27,7 @@
 # because the plates went stale otherwise. Cloudflare Pages excludes `content/*`
 # from its build watch paths, so a Studio save never rebuilds the shell, and art
 # committed into a layout is art that stops counting the day it is written. See
-# docs/features/home-band-art.md.
+# docs/deploy/cloudflare.md.
 #
 # The output is SVG whose every stroke and fill is a custom property, because the
 # site has two complete palettes and switches between them on a `data-theme`

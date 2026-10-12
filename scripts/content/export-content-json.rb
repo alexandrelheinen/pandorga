@@ -653,7 +653,7 @@ def export_derived_data(content_root, output_root)
 end
 
 # The home page's reference band, drawn from the corpus this run just exported
-# rather than from committed markup. See docs/features/home-band-art.md for why
+# rather than from committed markup. See docs/deploy/cloudflare.md for why
 # it lives here: a Studio save never rebuilds the shell, so art baked into a
 # layout stops counting the day it is written.
 def export_band_art(output_root, writing_index)
