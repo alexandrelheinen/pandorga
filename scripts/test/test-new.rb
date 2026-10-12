@@ -32,6 +32,46 @@ if readme.include?("once 1.1 is on RubyGems")
   exit 1
 end
 
+version = ROOT.join("lib/pandorga/version.rb").read[/VERSION = "([^"]+)"/, 1]
+unless version
+  warn "FAIL test-new: Pandorga::VERSION missing"
+  exit 1
+end
+
+deploy = ROOT.join("docs/deploy/cloudflare.md").read
+upgrading = ROOT.join("docs/upgrading.md").read
+scaffold = ROOT.join("lib/pandorga/commands/new.rb").read
+[
+  [deploy, "docs/deploy/cloudflare.md"],
+  [upgrading, "docs/upgrading.md"],
+  [scaffold, "lib/pandorga/commands/new.rb"]
+].each do |text, label|
+  if text.include?("v1.0.0") || text.include?("v1.3.11") || text.include?("v1.5.0")
+    warn "FAIL test-new: #{label} still names a stale release pin"
+    exit 1
+  end
+end
+unless deploy.include?('~> 1.3') && deploy.include?(%(tag: "v#{version}"))
+  warn "FAIL test-new: deploy doc must pin ~> 1.3 and tag v#{version}"
+  exit 1
+end
+unless deploy.include?("content/*") && deploy.include?("docs/*") && deploy.include?("Gemfile.lock")
+  warn "FAIL test-new: deploy doc lost the watch-path include and excludes"
+  exit 1
+end
+unless deploy.include?("3.4.4") && deploy.include?("SKIP_DEPENDENCY_INSTALL")
+  warn "FAIL test-new: deploy doc lost the Pages Ruby pin or SKIP_DEPENDENCY_INSTALL"
+  exit 1
+end
+unless upgrading.include?(%(tag: "v#{version}")) && upgrading.include?("pandorga-#{version}.gem")
+  warn "FAIL test-new: upgrading examples are not v#{version}"
+  exit 1
+end
+unless scaffold.include?(%(tag: "v#{version}"))
+  warn "FAIL test-new: scaffold comment is not tag v#{version}"
+  exit 1
+end
+
 FileUtils.rm_rf(DEST)
 
 stdout, stderr, status = run_new(DEST.to_s)

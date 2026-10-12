@@ -99,7 +99,7 @@ This inventory is based on the current tree. "Platform" means moving the file to
 | `content/**` | **Website** | All editorial content. |
 | `studies/**` | **Website** | Study data and scripts. |
 | `docs/editorial/*`, `docs/content/taxonomy.md`, `docs/projects-illustration.md`, `docs/features/reimagined-borders.md` | Website | Editorial and design decisions for this website. |
-| `docs/content/architecture.md`, `elements.md`, `studio.md`, `docs/ops/cloudflare.md`, feature specs | Platform, rewritten in English | `docs/ops/cloudflare.md` keeps a summary in the website repository using real IDs. |
+| `docs/content/architecture.md`, `elements.md`, `studio.md`, `docs/deploy/cloudflare.md`, feature specs | Platform, rewritten in English | The website keeps a summary of the Pages project, with real IDs, in its own repository. |
 | `DESIGN.md` | Platform (default theme) and a note in the website | |
 | `.guidelines/` (private SSH submodule) | Website | The platform does not depend on it and documents its own conventions in `CONTRIBUTING.md`. |
 | `.github/workflows/content-pipeline.yml`, `content-detail-url-gate.yml`, `visual-inspection.yml`, `python-quality.yml` | Platform as reusable workflows. Website calls with `uses:` | |
@@ -368,7 +368,7 @@ docs/
 ├── content-model.md      # collections, keys, Git chronology, license
 ├── includes.md           # figure, xcite, plotly, etc. (currently docs/content/elements.md)
 ├── studio.md             # Clerk, PAT, allowlist, composed schema
-├── deploy/cloudflare.md  # Pages + R2 + watch paths (currently docs/ops/cloudflare.md)
+├── deploy/cloudflare.md  # Pages + R2 + watch paths
 ├── deploy/static.md      # `static` backend, without R2
 ├── theming.md            # tokens, themes, DESIGN.md
 ├── extending.md          # extension points, local templates
@@ -490,7 +490,7 @@ Output requirements state that production is served by the pinned version, and a
 | Personal data leaks during extraction | Fresh history. Privacy gate with an external blocklist. Gitleaks. Manual review of the first commit |
 | Monolithic runtime becomes hard to extend | Template registration in the runtime. The core remains unified, only templates are modules |
 | Two maintenance sources delay fixes | Use `bundle config local.pandorga` to work on both simultaneously |
-| Cloudflare watch paths change meaning | Review `docs/ops/cloudflare.md` in phase 5. Gem updates change `Gemfile.lock`, which must trigger a build |
+| Cloudflare watch paths change meaning | Review `docs/deploy/cloudflare.md`. Gem updates change `Gemfile.lock`, which must trigger a build |
 
 ## 12. Acceptance criteria
 

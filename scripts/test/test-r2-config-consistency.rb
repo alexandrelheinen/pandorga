@@ -36,7 +36,7 @@ end
 
 if ContentStorageConfig.placeholder?(base)
   puts "SKIP: R2 URL alignment checks (content_api_base_url is still placeholder: #{base})"
-  puts "      Fill the URL per docs/ops/cloudflare.md before production cutover."
+  puts "      Fill the URL per docs/deploy/cloudflare.md before production cutover."
   exit 0
 end
 
