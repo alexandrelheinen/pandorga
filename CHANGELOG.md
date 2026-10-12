@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.7.4] — 2026-10-12
+
+### Fixed
+
+- The footer imprint separator uses `outline` on the panel step.
+  `outline-variant` on that panel is 1.80:1 in light (`#b8b8b8` on
+  `#f4f4f4`) and 1.93:1 in dark (`#45454c` on `#141418`). `outline`
+  on the same panels is 6.08:1 and 5.95:1.
+
+### Changed
+
+- Unused selectors are gone. `assets/css/ledger/home.css` drops
+  `.home-hero-pandorga-svg` (25 bytes). The hero SVG uses
+  `home-hero-art-svg`. `assets/css/ledger/detail.css` drops 916 bytes:
+  the author byline suppressor and the `.table-csv` companions. No
+  template or runtime emits either class. 941 bytes in all.
+- The one-shot key backfill is gone (`scripts/content/backfill-content-keys.rb`,
+  3,432 bytes). Nothing called it.
+- The watch-path test that read `docs/ops/cloudflare.md` is gone
+  (1,230 bytes). That path is not in the tree.
+- Deploy notes pin `~> 1.3` and tag `v1.7.4`. The Pages watch paths
+  include `*` and exclude `content/*` and `docs/*`.
+
+No `pandorga:` config keys were added or renamed. Font roles and the
+ledger fallbacks are unchanged.
+
 ## [1.7.3] — 2026-10-12
 
 ### Fixed
