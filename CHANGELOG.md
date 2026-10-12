@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.8.1] — 2026-10-12
+
+### Fixed
+
+- Theorems are bare (no gray plate); only proofs carry the surface band
+- Proof gray bleeds to the edges of `.text-page-main` while body text stays
+  on the reading measure
+- Proofs prefix **Proof.** from the runtime, like theorem heads — authors
+  no longer write `*Proof.*` in the body
+
+No `pandorga:` config keys were added or renamed. Font roles and the
+ledger fallbacks are unchanged.
+
 ## [1.8.0] — 2026-10-12
 
 ### Added
