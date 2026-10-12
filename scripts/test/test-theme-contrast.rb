@@ -40,4 +40,24 @@ fail!("dark tertiary container moved") unless background.casecmp("#6a684f").zero
 ratio = contrast(foreground, background)
 fail!("#{foreground} on #{background} is #{ratio.round(2)}:1") unless ratio >= 4.5
 
-puts "PASS test-theme-contrast (#{foreground} on #{background} = #{ratio.round(2)}:1)"
+# Footer imprint middot. outline-variant is a hairline and fails as ink
+# on the panel step. The separator uses outline, which clears 4.5:1.
+footer = ROOT.join("assets/css/ledger/footer.css").read
+fail!("footer imprint separator still uses outline-variant") if footer.include?("color: var(--color-outline-variant)")
+fail!("footer imprint separator lost outline") unless footer.include?("color: var(--color-outline)")
+
+light = YAML.safe_load(ROOT.join("_data/themes/light.yml").read) || {}
+pairs = {
+  "light" => [light.dig("neutrals", "outline"), light.dig("neutrals", "panel_contrast")],
+  "dark" => [dark.dig("neutrals", "outline"), dark.dig("neutrals", "panel_contrast")]
+}
+reports = []
+pairs.each do |name, (ink, panel)|
+  fail!("#{name} outline or panel missing") if ink.to_s.empty? || panel.to_s.empty?
+
+  pair_ratio = contrast(ink, panel)
+  fail!("#{name} outline #{ink} on panel #{panel} is #{pair_ratio.round(2)}:1") unless pair_ratio >= 4.5
+  reports << "#{name} #{ink} on #{panel} = #{pair_ratio.round(2)}:1"
+end
+
+puts "PASS test-theme-contrast (#{foreground} on #{background} = #{ratio.round(2)}:1; #{reports.join('; ')})"
