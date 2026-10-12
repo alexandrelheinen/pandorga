@@ -1009,34 +1009,30 @@ a.xcite-ref:hover {
 
 /* ── Theorem and proof blocks ──
    Authored as `<div class="theorem" name="…" description="…" markdown="1">`
-   and `<div class="proof" markdown="1">`. Full column width; body text keeps
-   the reading measure edge (no horizontal inset). The theorem head is built
-   by the content runtime from name / description; the body is italic so the
-   author does not wrap every paragraph. Proofs end with a QED square on the
-   last line. */
-.article-content .theorem,
-.article-content .proof {
+   and `<div class="proof" markdown="1">`. Theorems are bare (no plate): the
+   runtime builds the head from name / description and italicizes the body.
+   Proofs sit on a gray band that bleeds to the edges of `.text-page-main`
+   while the text keeps the body measure; the runtime prefixes "Proof." and
+   a QED square lands on the last line of the body. */
+.article-content .theorem {
   display: block;
   width: 100%;
   box-sizing: border-box;
-  position: relative;
-  background: var(--color-surface-container-low);
-  padding: 1rem 0;
   margin: 1.5em 0;
   font-size: inherit;
   line-height: inherit;
   color: var(--color-on-surface);
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
 }
 
-.article-content .theorem-head {
+.article-content .theorem-head,
+.article-content .proof-head {
   margin: 0 0 0.5em;
   font-style: normal;
   font-weight: var(--weight-body);
 }
 
-.article-content .theorem-name {
+.article-content .theorem-name,
+.article-content .proof-name {
   font-weight: var(--weight-emphasis);
   font-style: normal;
 }
@@ -1050,16 +1046,42 @@ a.xcite-ref:hover {
   font-style: italic;
 }
 
-.article-content .theorem-body > :first-child {
+.article-content .theorem-body > :first-child,
+.article-content .proof-body > :first-child {
   margin-top: 0;
 }
 
 .article-content .theorem-body > :last-child,
-.article-content .proof > :last-child {
+.article-content .proof-body > :last-child {
   margin-bottom: 0;
 }
 
-.article-content .proof > :last-child::after {
+.article-content .proof {
+  display: flow-root;
+  box-sizing: border-box;
+  position: relative;
+  width: auto;
+  max-width: none;
+  margin: 1.5em calc(-1 * var(--space-md));
+  padding: 1rem var(--space-md);
+  background: var(--color-surface-container-low);
+  font-size: inherit;
+  line-height: inherit;
+  color: var(--color-on-surface);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+@media (min-width: 768px) {
+  .article-content .proof {
+    margin-left: calc(-1 * var(--space-2xl));
+    margin-right: calc(-1 * var(--space-2xl));
+    padding-left: var(--space-2xl);
+    padding-right: var(--space-2xl);
+  }
+}
+
+.article-content .proof-body > :last-child::after {
   content: "□";
   float: right;
   margin-left: 0.35em;

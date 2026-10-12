@@ -129,6 +129,11 @@
       return '<div class="theorem">' + head + '<div class="theorem-body">' + parseInlineMarkdown(inner) + '</div></div>';
     }
 
+    function renderProofHtml(inner) {
+      var head = '<p class="proof-head"><span class="proof-name">Proof</span>.</p>';
+      return '<div class="proof">' + head + '<div class="proof-body">' + parseInlineMarkdown(inner) + '</div></div>';
+    }
+
     function preprocessMarkdownDivs(markdown) {
       var text = String(markdown || '');
       text = text.replace(/<div\s+([^>]*class="[^"]*\barticle-note\b[^"]*"[^>]*)>([\s\S]*?)<\/div>/gi, function (match, openTag, inner) {
@@ -147,7 +152,7 @@
       });
       text = text.replace(/<div\s+([^>]*class="[^"]*\bproof\b[^"]*"[^>]*)>([\s\S]*?)<\/div>/gi, function (match, openTag, inner) {
         if (!hasMarkdownAttr(openTag)) return match;
-        return '<div class="proof">' + parseInlineMarkdown(inner) + '</div>';
+        return renderProofHtml(inner);
       });
       return text;
     }

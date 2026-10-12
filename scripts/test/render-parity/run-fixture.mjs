@@ -144,7 +144,8 @@ function preprocessMarkdownDivs(markdown) {
   });
   text = text.replace(/<div\s+([^>]*class="[^"]*\bproof\b[^"]*"[^>]*)>([\s\S]*?)<\/div>/gi, (match, openTag, inner) => {
     if (!hasMarkdownAttr(openTag)) return match;
-    return `<div class="proof">${marked.parse(inner.trim())}</div>`;
+    const head = '<p class="proof-head"><span class="proof-name">Proof</span>.</p>';
+    return `<div class="proof">${head}<div class="proof-body">${marked.parse(inner.trim())}</div></div>`;
   });
   return text;
 }

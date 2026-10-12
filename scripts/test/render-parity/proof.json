@@ -1,5 +1,5 @@
 {
   "name": "proof",
-  "markdown": "<div class=\"proof\" markdown=\"1\">\n\n*Proof.* A short claim with **bold**.\n\n</div>",
-  "selectors": ["proof"]
+  "markdown": "<div class=\"proof\" markdown=\"1\">\n\nA short claim with **bold**.\n\n</div>",
+  "selectors": ["proof", "proof-head", "proof-name", "proof-body"]
 }
