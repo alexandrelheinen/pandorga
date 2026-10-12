@@ -230,11 +230,14 @@
 }
 
 /* A middot between items rather than a separator element, so an absent
-   license leaves no orphaned punctuation behind. */
+   license leaves no orphaned punctuation behind. outline-variant is the
+   hairline token: #b8b8b8 on #f4f4f4 is 1.80:1, and #45454c on #141418
+   is 1.93:1. outline clears 4.5:1 on the same panel (6.08:1 light,
+   5.95:1 dark). */
 .site-footer-imprint-item+.site-footer-imprint-item::before {
   content: "·";
   margin-right: var(--space-md);
-  color: var(--color-outline-variant);
+  color: var(--color-outline);
 }
 
 .site-footer-imprint-link {
