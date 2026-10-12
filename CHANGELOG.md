@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.5] — 2026-10-13
+
+### Fixed
+
+- Home hero `sizes` nudged above the plate width so 1.75–2× DPR picks a
+  sharp 3:4 variant; document that hero variants must be portrait fills
+
 ## [1.8.4] — 2026-10-12
 
 ### Fixed

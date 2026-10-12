@@ -4,13 +4,19 @@
 # paths to pages/home/portraits.json. The author uploads a photograph under
 # content/media/images/hero/ and does not keep a second list.
 # Optional width variants live under variants/ so they are not extra draws.
+# Variants should be 3:4 portrait fills (not landscape width-only resizes):
+# the plate is object-fit cover at 3:4, so a 480×270 landscape candidate is
+# too short and looks soft when the browser picks it for a ~16rem slot.
 
 require "pathname"
 
 module HeroPortraits
   IMAGE_EXTENSIONS = %w[.jpg .jpeg .png .webp .gif].freeze
   WIDTHS = [480, 960, 1440].freeze
-  SIZES = "(max-width: 767px) 100vw, (max-width: 1023px) 14rem, 16rem"
+  # Slightly above the plate CSS width (14/16rem at html 110%) so 1.75–2×
+  # DPR picks the next 3:4 variant instead of a soft 480w. Variants must be
+  # portrait fills; landscape width-only resizes are too short under cover.
+  SIZES = "(max-width: 767px) 100vw, (max-width: 1023px) 18rem, 20rem"
 
   module_function
 
