@@ -485,24 +485,14 @@ aside:has(> .text-detail-sidebar) {
   font-variant-numeric: tabular-nums;
 }
 
-/* Projects and products can carry no meta at all, and on articles and posts
-   the byline below is the block's only child. Either way an all-empty meta
+/* Projects and products can carry no meta at all. An all-empty meta
    block must not hang a stub of padding off the bottom of the panel. */
-.text-detail-sidebar .article-meta:has(> div:empty),
-.text-detail-sidebar .article-meta:has(> div > span.text-secondary:not(.font-bold):only-child) {
+.text-detail-sidebar .article-meta:has(> div:empty) {
   display: none;
 }
 
 .text-detail-sidebar .article-meta>div {
   gap: var(--space-sm);
-}
-
-/* Author byline. Dropped: single-author site. The runtime still emits it, so
-   it is suppressed here until `buildTextSidebar` stops rendering it — see the
-   runtime-change note in this branch's commit message. The product/company
-   line is the same colour but carries `font-bold`, hence the :not(). */
-.text-detail-sidebar .article-meta>div>span.text-secondary:not(.font-bold) {
-  display: none;
 }
 
 .text-detail-sidebar .article-meta .text-tertiary,
@@ -861,8 +851,7 @@ aside:has(> .text-detail-sidebar) {
    header, and figures that line up. */
 /* No table surface: the header band and the hover row are the only fills, so
    both read against the page canvas in either palette. */
-.article-content table,
-.article-content .table-csv {
+.article-content table {
   margin: var(--space-xl) 0;
   font-size: var(--type-dek);
   font-variant-numeric: tabular-nums;
@@ -870,9 +859,7 @@ aside:has(> .text-detail-sidebar) {
 }
 
 .article-content th,
-.article-content td,
-.article-content .table-csv th,
-.article-content .table-csv td {
+.article-content td {
   border: 0;
   border-bottom: 1px solid var(--border-gentle-subtle);
   padding: var(--space-sm) var(--space-md);
@@ -899,8 +886,7 @@ aside:has(> .text-detail-sidebar) {
   font-variant-numeric: tabular-nums;
 }
 
-.article-content thead th,
-.article-content .table-csv thead th {
+.article-content thead th {
   background: var(--color-surface-container);
   font-family: var(--font-body);
   font-size: var(--type-body);
@@ -910,13 +896,11 @@ aside:has(> .text-detail-sidebar) {
 }
 
 /* Zebra striping fights the row rules; the hover row is the reading aid. */
-.article-content tbody tr:nth-child(even),
-.article-content .table-csv tbody tr:nth-child(even) td {
+.article-content tbody tr:nth-child(even) {
   background: transparent;
 }
 
-.article-content tbody tr:hover,
-.article-content .table-csv tbody tr:hover {
+.article-content tbody tr:hover {
   background: var(--color-surface-container-low);
 }
 
@@ -1131,8 +1115,7 @@ nav.text-page-nav:not(:has(a)) {
      too wide then scrolls inside the table rather than moving the page. The
      runtime emits the table with no wrapper, so the table itself has to be the
      scroll container. */
-  .article-content table,
-  .article-content .table-csv {
+  .article-content table {
     display: block;
     width: 100%;
     max-width: 100%;
@@ -1140,9 +1123,7 @@ nav.text-page-nav:not(:has(a)) {
   }
 
   .article-content th,
-  .article-content td,
-  .article-content .table-csv th,
-  .article-content .table-csv td {
+  .article-content td {
     padding: var(--space-xs) var(--space-sm);
   }
 }

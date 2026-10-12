@@ -86,7 +86,12 @@ sheets.each do |path|
     home-index-shard--gamma
     home-index-note
     post-content
+    home-hero-pandorga-svg
+    table-csv
   ]
+  if cleaned.include?("span.text-secondary:not(.font-bold)")
+    errors << "#{relative}: author byline suppressor matches no markup"
+  end
   retired.each do |name|
     next unless cleaned.match?(/[.#]#{Regexp.escape(name)}\b/)
 
