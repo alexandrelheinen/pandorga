@@ -112,44 +112,58 @@
    which outranks `.article-content mjx-container[display="true"]` on
    specificity. The 0.5rem this file asked for was never what the page drew.
 
-   So the wrapper owns the gap, the scroll and the padding; the container
-   inside it owns none of them. */
+   The wrapper owns the paragraph gap. The container owns the scroll. */
 .article-content .math-display {
   display: block;
+  max-width: 100%;
   /* The bottom gap is the paragraph gap `.article-content p` sets in
      ledger/detail.css; the top gap is left to the previous block, exactly as
      it is between two paragraphs. The negative top margin hands back the
-     padding below, which a margin collapse cannot absorb — the two are one
-     number, so change them together or the rhythm moves. */
+     container padding below, which a margin collapse cannot absorb. The two
+     are one number, so change them together or the rhythm moves. */
   margin: -1.25rem 0 calc(1.15em - 1.25rem);
-  /* overflow-x lets an over-wide equation scroll sideways. CSS forces
-     overflow-y to auto alongside it, so a bracket, radical or matrix rule that
-     MathJax draws past its own line box gets clipped, or grows a vertical
-     scrollbar it has no use for. The padding is the allowance for that
-     overshoot: 1.25rem clears the worst case on the object-centric article
-     (a 3-row bmatrix, measured at 12px past a 0.5rem allowance). It costs
-     nothing visually, because the margin above gives it straight back. */
-  padding: 1.25rem 0;
+  padding: 0;
   overflow-x: auto;
+  overflow-y: hidden;
   text-align: center;
 }
 
-/* `[jax]` is redundant as a selector — every MathJax container carries it —
-   but it lifts this rule past MathJax's own injected margin, which is the
-   whole point of the rule. */
+/* `[jax]` lifts this rule past MathJax's injected margin
+   (`mjx-container[jax="CHTML"][display="true"]`). The container is the clip
+   edge: on a 390px phone a display `mjx-math` about 455px wide was stretching
+   the document to a scrollWidth of 667, because this rule was
+   `overflow: visible`. The page then scrolled sideways and the sticky header
+   moved with it. `max-width: 100%` plus `overflow-x: auto` and
+   `overflow-y: hidden` scroll the equation inside the column, the way `pre`
+   already scrolls code. `overflow-y: hidden` is stated so a radical does not
+   grow a vertical scrollbar, and so a specified `visible` cannot let the
+   equation's min-content widen the column. The 1.25rem padding is the
+   allowance for a bracket, radical, or matrix rule MathJax draws past its
+   line box (a 3-row bmatrix, measured at 12px past a 0.5rem allowance).
+   Do not move this overflow onto `html` or `body`. That scrollport breaks
+   `position: sticky` on the header. */
 .article-content .math-display mjx-container[jax][display="true"] {
+  display: block;
   margin: 0;
-  padding: 0;
-  overflow: visible;
+  padding: 1.25rem 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  text-align: center;
 }
 
 /* Display math the wrapper regex cannot reach, because the `$$` sits inside a
    list item or a table cell rather than alone in a paragraph. It still has to
    break the line; its vertical margin stays MathJax's own 1em, which lands
-   within a pixel of the paragraph gap. */
-.article-content mjx-container[display="true"] {
+   within a pixel of the paragraph gap. `[jax]` names the same box. Every
+   MathJax container carries it, and the attribute keeps this rule ahead of
+   the injected stylesheet. */
+.article-content mjx-container[display="true"],
+.article-content mjx-container[jax][display="true"] {
   display: block;
+  max-width: 100%;
   overflow-x: auto;
+  overflow-y: hidden;
   text-align: center;
 }
 
@@ -248,7 +262,9 @@
 :is(.article-content, .article-cite-block) pre {
   background: var(--color-surface-container);
   padding: 1rem;
+  max-width: 100%;
   overflow-x: auto;
+  overflow-y: hidden;
   margin-bottom: 1rem;
   font-family: var(--font-code);
 }
@@ -359,9 +375,28 @@
   margin: 1.5rem auto;
   text-align: center;
   width: 100%;
+  max-width: 100%;
   display: block;
   background: var(--color-surface-container-low);
   padding: var(--space-md);
+}
+
+/* A wide SVG, video, or iframe must stay inside the plate. Cut-in plates
+   and YouTube shorts set a narrower max-width on a more specific rule.
+   Mermaid and display-math SVG opt back out below so those boxes scroll
+   instead of shrinking the drawing. Iframes keep their own height: `height:
+   auto` collapses a YouTube or Plotly frame that has no intrinsic ratio. */
+.article-content figure svg,
+.article-content svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.article-content figure video,
+.article-content figure iframe,
+.article-content figure canvas,
+.article-content iframe {
+  max-width: 100%;
 }
 
 .article-content figure img {
@@ -554,7 +589,9 @@ body.figure-lightbox-open {
   padding: var(--space-xl) var(--space-lg);
   background: var(--color-surface-container);
   text-align: center;
+  max-width: 100%;
   overflow-x: auto;
+  overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -562,6 +599,15 @@ body.figure-lightbox-open {
   display: block;
   margin-left: auto;
   margin-right: auto;
+  max-width: none;
+  width: auto;
+  height: auto;
+}
+
+/* SVG output of a display equation keeps its own width and scrolls inside
+   `mjx-container`. Inline math is not included: `display: block` here would
+   pull an inline equation out of the line. */
+.article-content mjx-container[display="true"] svg {
   max-width: none;
   width: auto;
   height: auto;
@@ -628,6 +674,7 @@ body.figure-lightbox-open {
 /* ── Tables ── */
 .article-content table {
   width: 100%;
+  max-width: 100%;
   border-collapse: collapse;
   margin-bottom: 1.5rem;
   font-size: var(--type-dek);
