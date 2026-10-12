@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.7.3] — 2026-10-12
+
+### Fixed
+
+- A detail URL is the listing shell again. The build does not write a
+  static page per article, post, project, or product, and those URLs
+  are not in the sitemap. The published `_redirects` keeps the splat
+  200 rewrites onto the listing shells, and adds any line the source
+  file is missing. The source file is unchanged. The client sets the
+  canonical link and `og:url` when it renders the entry.
+
+No `pandorga:` config keys were added or renamed. Font roles and the
+ledger fallbacks are unchanged.
+
 ## [1.7.2] — 2026-10-11
 
 ### Fixed

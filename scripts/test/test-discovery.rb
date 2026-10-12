@@ -3,10 +3,7 @@
 
 # Portrait sources and discovery documents (PLT-AC-20, PLT-AC-21).
 
-require "fileutils"
 require "pathname"
-
-require "tmpdir"
 
 require_relative "../../lib/pandorga/discovery"
 require_relative "../../lib/pandorga/detail_routes"
@@ -51,32 +48,38 @@ image_meta = shell[/<meta name="image"[^>]*>/]
 fail!("shell missing name=image") unless image_meta
 fail!("name=image also sets property=og:image") if image_meta.include?("property=")
 fail!("discovery generator is not loaded from the plugin dir") unless ROOT.join("lib/pandorga/jekyll/plugins/discovery.rb").file?
-fail!("detail pages are not generated from the plugin dir") unless ROOT.join("lib/pandorga/jekyll/plugins/detail_documents.rb").file?
+fail!("detail pages are still generated") if ROOT.join("lib/pandorga/jekyll/plugins/detail_documents.rb").file?
+fail!("shell redirect hook is missing") unless ROOT.join("lib/pandorga/jekyll/plugins/shell_redirects.rb").file?
 
 redirects = <<~TXT
   /legacy /articles/2026-01-01-welcome/ 301
-  /articles/:slug /pages/articles/ 200
   /posts/:slug/ /pages/blog/ 200
-  /blog/:slug /pages/blog/ 200
-  /projects/:slug /pages/projects/ 200
-  /products/* /pages/cv/ 200
   /keep /pages/articles/ 301
 TXT
-stripped = Pandorga::DetailRoutes.strip_splat_rewrites(redirects)
-fail!("splat 200 rewrite survived") if stripped.match?(%r{/(?:articles|posts|blog|projects|products)/(?::slug|\*)})
-fail!("a 301 was stripped with the splats") unless stripped.include?("/legacy /articles/2026-01-01-welcome/ 301")
-fail!("a listing 301 was stripped") unless stripped.include?("/keep /pages/articles/ 301")
-
-Dir.mktmpdir("detail-static") do |dir|
-  FileUtils.mkdir_p(File.join(dir, "articles", "welcome"))
-  File.write(File.join(dir, "articles", "welcome", "index.html"), "<p>welcome</p>")
-  fail!("a built detail page must not be rewritten") unless Pandorga::DetailRoutes.static_index?(dir, "/articles/welcome/")
-  fail!("a missing detail page must still be rewritten") if Pandorga::DetailRoutes.static_index?(dir, "/articles/missing/")
+ensured = Pandorga::DetailRoutes.ensure_shell_rewrites(redirects)
+%w[/articles/:slug /posts/:slug /blog/:slug /projects/:slug /products/:slug].each do |prefix|
+  present = ensured.lines.any? { |line| line.strip.start_with?("#{prefix} ") || line.strip.start_with?("#{prefix}/ ") }
+  fail!("published _redirects missing #{prefix}") unless present
 end
+fail!("a 301 was dropped") unless ensured.include?("/legacy /articles/2026-01-01-welcome/ 301")
+fail!("a listing 301 was dropped") unless ensured.include?("/keep /pages/articles/ 301")
+posts = ensured.lines.select { |line| line.include?("/posts/:slug") }
+fail!("an existing splat was duplicated") unless posts.size == 1
+fail!("an existing splat target was rewritten") unless posts.first.include?("/pages/blog/")
+fail!("ensure is not idempotent") unless Pandorga::DetailRoutes.ensure_shell_rewrites(ensured) == ensured
+
+serve = ROOT.join("lib/pandorga/jekyll/plugins/local_detail_rewrites.rb").read
+plugins_serve = ROOT.join("_plugins/local_detail_rewrites.rb").read
+fail!("the two local serve copies diverged") unless serve == plugins_serve
+fail!("local serve skips a detail URL") if serve.include?("static_index?")
+fail!("local serve does not rewrite detail URLs") unless serve.include?("ContentDetailPaths.rewrite_path(req.path)")
+
+detail = ROOT.join("_includes/content-runtime/50-detail.html").read
+fail!("the client does not set the canonical link") unless detail.include?("setCanonicalLink")
+fail!("the client does not set og:url") unless detail.include?("setMetaTag('og:url'")
 
 json_ld = ROOT.join("_includes/theme/json-ld.html").read
-fail!("detail pages have no Article schema") unless json_ld.include?('page.schema_type == "Article"')
-fail!("detail pages have no BlogPosting schema") unless json_ld.include?('page.schema_type == "BlogPosting"')
-fail!("detail schema omits datePublished") unless json_ld.include?("datePublished")
+fail!("the build still emits detail JSON-LD") if json_ld.include?("schema_type")
+fail!("shell JSON-LD dropped the person") unless json_ld.include?('"@type": "Person"')
 
 puts "PASS test-discovery"
