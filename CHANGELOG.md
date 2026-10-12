@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.8.0] — 2026-10-12
+
+### Added
+
+- Theorem and proof Markdown wrappers in the content runtime, same
+  `markdown="1"` contract as `article-note` and `poem`:
+  - `<div class="theorem" name="Corollary 1" description="nadir camera" markdown="1">…</div>`
+    builds the head from `name` / `description` and italicizes the body
+  - `<div class="proof" markdown="1">…</div>` wraps a proof and places a
+    QED square on the last line
+- Full-column styles for `.theorem` and `.proof` in `article.css`
+- Render-parity fixtures `theorem.json` and `proof.json`
+
+No `pandorga:` config keys were added or renamed. Font roles and the
+ledger fallbacks are unchanged.
+
 ## [1.7.6] — 2026-10-12
 
 ### Fixed
