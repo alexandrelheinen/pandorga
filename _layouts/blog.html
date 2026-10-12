@@ -425,6 +425,7 @@ layout: shell
       if (detailSidebar) detailSidebar.innerHTML = '';
       runtime.removeRuntimeBackLink();
       runtime.removeArticleToc();
+      runtime.restoreListingDocument();
     }
 
     async function renderPostDetail(post, posts) {
