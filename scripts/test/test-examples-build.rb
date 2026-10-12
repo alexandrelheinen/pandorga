@@ -39,17 +39,6 @@ end
   begin
   run!("bundle", "install", "--quiet", chdir: example) if example.join("Gemfile").file?
   run!("ruby", EXE.to_s, "export", "content", "_content_json", chdir: example)
-  if name == "full" && redirects_path.file?
-    splat = <<~TXT
-
-      /articles/:slug /pages/articles/ 200
-      /posts/:slug /pages/blog/ 200
-      /blog/:slug /pages/blog/ 200
-      /projects/:slug /pages/projects/ 200
-      /products/:slug /pages/cv/ 200
-    TXT
-    redirects_path.write("#{redirects_path.read.rstrip}\n#{splat}")
-  end
   run!("bundle", "exec", "jekyll", "build", "--quiet", chdir: example)
 
   index = example.join("_site/index.html")
@@ -113,64 +102,45 @@ end
     warn "FAIL test-examples-build: #{name} robots missing the sitemap line\n#{robots}"
     exit 1
   end
+  built_redirects_path = example.join("_site/_redirects")
+  unless built_redirects_path.file?
+    warn "FAIL test-examples-build: #{name} missing built _redirects"
+    exit 1
+  end
+  built_redirects = built_redirects_path.read
+  [
+    "/articles/:slug /pages/articles/ 200",
+    "/posts/:slug /pages/blog/ 200",
+    "/blog/:slug /pages/blog/ 200",
+    "/projects/:slug /pages/projects/ 200",
+    "/products/:slug /pages/cv/ 200"
+  ].each do |line|
+    unless built_redirects.include?(line)
+      warn "FAIL test-examples-build: #{name} built _redirects missing #{line}\n#{built_redirects}"
+      exit 1
+    end
+  end
+  if original_redirects && redirects_path.read != original_redirects
+    warn "FAIL test-examples-build: #{name} build edited the source _redirects"
+    exit 1
+  end
   if name == "full"
-    {
-      "/articles/2026-01-01-welcome/" => "Article",
-      "/posts/2026-01-02-note/" => "BlogPosting"
-    }.each do |path, schema|
+    %w[
+      /articles/2026-01-01-welcome/
+      /posts/2026-01-02-note/
+      /projects/demo-kit/
+      /products/ledger-tool/
+    ].each do |path|
       loc = "#{origin}#{path}"
-      unless sitemap.include?("<loc>#{loc}</loc>")
-        warn "FAIL test-examples-build: sitemap missing #{loc}\n#{sitemap}"
+      if sitemap.include?("<loc>#{loc}</loc>")
+        warn "FAIL test-examples-build: sitemap lists detail #{loc}"
         exit 1
       end
       page = example.join("_site#{path}index.html")
-      unless page.file?
-        warn "FAIL test-examples-build: missing static detail #{page}"
+      if page.file?
+        warn "FAIL test-examples-build: static detail page #{page}"
         exit 1
       end
-      body = page.read
-      canonical = body[/rel="canonical" href="([^"]+)"/, 1].to_s
-      og_url = body[/property="og:url" content="([^"]+)"/, 1].to_s
-      unless canonical.include?(path) && !canonical.include?("/pages/")
-        warn "FAIL test-examples-build: canonical for #{path} is #{canonical}"
-        exit 1
-      end
-      unless og_url.include?(path) && !og_url.include?("/pages/")
-        warn "FAIL test-examples-build: og:url for #{path} is #{og_url}"
-        exit 1
-      end
-      unless body.include?(%("@type": "#{schema}"))
-        warn "FAIL test-examples-build: #{path} missing #{schema} JSON-LD"
-        exit 1
-      end
-      listing_attr = path.include?("/posts/") ? "/pages/blog/" : "/pages/articles/"
-      unless body.include?(%(data-listing-path="#{listing_attr}"))
-        warn "FAIL test-examples-build: #{path} lost the listing path"
-        exit 1
-      end
-    end
-    ["/projects/demo-kit/", "/products/ledger-tool/"].each do |path|
-      loc = "#{origin}#{path}"
-      unless sitemap.include?("<loc>#{loc}</loc>")
-        warn "FAIL test-examples-build: sitemap missing #{loc}\n#{sitemap}"
-        exit 1
-      end
-      page = example.join("_site#{path}index.html")
-      body = page.file? ? page.read : ""
-      canonical = body[/rel="canonical" href="([^"]+)"/, 1].to_s
-      unless canonical.include?(path)
-        warn "FAIL test-examples-build: canonical for #{path} is #{canonical}"
-        exit 1
-      end
-    end
-    built_redirects = example.join("_site/_redirects").read
-    if built_redirects.match?(%r{/(?:articles|posts|blog|projects|products)/:slug})
-      warn "FAIL test-examples-build: built _redirects still rewrites detail URLs\n#{built_redirects}"
-      exit 1
-    end
-    unless redirects_path.read.match?(%r{/articles/:slug\s+/pages/articles/\s+200})
-      warn "FAIL test-examples-build: the build edited the source _redirects"
-      exit 1
     end
   end
   unless html.include?('application/ld+json') && html.include?('"@type": "Person"')

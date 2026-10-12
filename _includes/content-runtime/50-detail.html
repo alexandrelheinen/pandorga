@@ -515,6 +515,17 @@
       el.setAttribute('content', content);
     }
 
+    function setCanonicalLink(url) {
+      if (!url) return;
+      var el = document.head.querySelector('link[rel="canonical"]');
+      if (!el) {
+        el = document.createElement('link');
+        el.setAttribute('rel', 'canonical');
+        document.head.appendChild(el);
+      }
+      el.setAttribute('href', url);
+    }
+
     function applyDocumentMeta(meta) {
       meta = meta || {};
       var siteSuffix = (window.ContentRuntimeConfig && window.ContentRuntimeConfig.siteSuffix) || '';
@@ -523,7 +534,11 @@
       if (meta.description) setMetaTag('description', meta.description);
       setMetaTag('og:title', title, 'property');
       if (meta.description) setMetaTag('og:description', meta.description, 'property');
-      if (meta.url) setMetaTag('og:url', absoluteUrl(meta.url), 'property');
+      if (meta.url) {
+        var pageUrl = absoluteUrl(meta.url);
+        setMetaTag('og:url', pageUrl, 'property');
+        setCanonicalLink(pageUrl);
+      }
 
       var defaultOgImage = '/assets/images/og-default-dark.png';
       var imagePath = meta.image || defaultOgImage;

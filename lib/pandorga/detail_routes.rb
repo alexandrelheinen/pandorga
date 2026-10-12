@@ -1,29 +1,36 @@
 # frozen_string_literal: true
 
 module Pandorga
-  # Detail URLs that used to be 200-rewritten onto a listing shell.
-  # Cloudflare follows `_redirects` even when a static file exists, so the
-  # built file must drop those splat lines or the generated page is never
-  # served. The source file is left alone.
+  # Splat 200 lines that serve every detail URL from one listing shell.
+  # Cloudflare follows `_redirects` for the request, and the shell loads
+  # the entry from the content runtime. The source file is left alone;
+  # a missing line is added only to the published copy.
   module DetailRoutes
-    SPLAT_LINE = %r{\A/(?:articles|posts|blog|projects|products)/(?::slug|\*)/?\s+\S+\s+200\s*\z}
+    SHELL_REWRITES = [
+      ["/articles/:slug", "/pages/articles/"],
+      ["/posts/:slug", "/pages/blog/"],
+      ["/blog/:slug", "/pages/blog/"],
+      ["/projects/:slug", "/pages/projects/"],
+      ["/products/:slug", "/pages/cv/"]
+    ].freeze
 
     module_function
 
-    def strip_splat_rewrites(text)
-      text.to_s.lines.reject { |line| SPLAT_LINE.match?(line.strip) }.join
+    def ensure_shell_rewrites(text)
+      body = text.to_s
+      missing = SHELL_REWRITES.reject { |prefix, _target| rewrite_present?(body, prefix) }
+      return body if missing.empty?
+
+      addition = missing.map { |prefix, target| "#{prefix} #{target} 200" }.join("\n")
+      stripped = body.rstrip
+      stripped.empty? ? "#{addition}\n" : "#{stripped}\n#{addition}\n"
     end
 
-    def static_index?(root, path)
-      root = root.to_s
-      return false if root.empty?
-
-      clean = path.to_s.split("?").first.to_s
-      relative = clean.sub(%r{\A/}, "").sub(%r{/\z}, "")
-      return false if relative.empty? || relative.include?("..")
-
-      File.file?(File.join(root, relative, "index.html")) ||
-        File.file?(File.join(root, "#{relative}.html"))
+    def rewrite_present?(text, prefix)
+      text.to_s.lines.any? do |line|
+        stripped = line.strip
+        stripped.match?(%r{\A#{Regexp.escape(prefix)}/?\s+\S+\s+200\z})
+      end
     end
   end
 end
