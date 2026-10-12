@@ -323,6 +323,17 @@ a.back-link .material-symbols-outlined {
 
    Every detail page uses this one rule, including the projects page, which
    only differs in holding the split back to 1024px (ledger/projects.css). */
+/* A grid item's automatic minimum is its widest child. A display equation
+   used to be that child, so the column grew past the viewport, the document
+   scrolled sideways, and the sticky header scrolled with it. The track is
+   already allowed to shrink (`minmax(0, 1fr)` from 768px, and `grid-cols-1`
+   below that). The item has to be allowed to shrink with it. Wide children
+   scroll inside their own boxes; this does not put overflow on `html` or
+   `body`. */
+.grid.text-detail-grid > * {
+  min-width: 0;
+}
+
 @media (min-width: 768px) {
   .grid.text-detail-grid {
     --detail-column-gap: 2rem;
@@ -1120,6 +1131,7 @@ nav.text-page-nav:not(:has(a)) {
     width: 100%;
     max-width: 100%;
     overflow-x: auto;
+    overflow-y: hidden;
   }
 
   .article-content th,

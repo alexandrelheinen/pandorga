@@ -99,6 +99,111 @@ sheets.each do |path|
   end
 end
 
+# PLT-AC-36. A display equation scrolls inside the article column. Overflow
+# on html or body would scroll the sticky header off the viewport.
+def declaration_bodies(css, selector)
+  wanted = selector.gsub(/\s+/, " ").strip
+  bodies = []
+  css.scan(/([^{}]+)\{([^{}]*)\}/m) do |sel, body|
+    parts = sel.split(",").map { |part| part.gsub(/\s+/, " ").strip }
+    bodies << body if parts.include?(wanted)
+  end
+  bodies
+end
+
+def declarations(body)
+  body.downcase.gsub(/\s+/, "")
+end
+
+def require_declarations(errors, label, css, selector, required)
+  bodies = declaration_bodies(css, selector)
+  if bodies.empty?
+    errors << "#{label}: missing #{selector}"
+    return
+  end
+
+  blob = bodies.map { |body| declarations(body) }.join(";")
+  required.each do |decl|
+    needle = decl.downcase.gsub(/\s+/, "")
+    next if blob.include?(needle)
+
+    errors << "#{label}: #{selector} missing #{decl}"
+  end
+end
+
+def strip_comments(source)
+  source.gsub(%r{/\*.*?\*/}m, "")
+end
+
+article_sheet = strip_comments(File.read(CSS_ROOT.join("article.css")))
+detail_sheet = strip_comments(File.read(CSS_ROOT.join("ledger/detail.css")))
+math_box = ["max-width: 100%", "overflow-x: auto", "overflow-y: hidden"]
+
+require_declarations(
+  errors, "assets/css/article.css", article_sheet,
+  ".article-content .math-display", math_box
+)
+require_declarations(
+  errors, "assets/css/article.css", article_sheet,
+  '.article-content .math-display mjx-container[jax][display="true"]', math_box
+)
+require_declarations(
+  errors, "assets/css/article.css", article_sheet,
+  '.article-content mjx-container[display="true"]', math_box
+)
+require_declarations(
+  errors, "assets/css/article.css", article_sheet,
+  '.article-content mjx-container[jax][display="true"]', math_box
+)
+
+if article_sheet.match?(/mjx-container[^{]*\{[^}]*overflow\s*:\s*visible/m)
+  errors << "assets/css/article.css: display math sets overflow: visible"
+end
+
+require_declarations(
+  errors, "assets/css/article.css", article_sheet,
+  ".article-content figure", ["max-width: 100%"]
+)
+require_declarations(
+  errors, "assets/css/article.css", article_sheet,
+  ".article-content svg", ["max-width: 100%"]
+)
+require_declarations(
+  errors, "assets/css/article.css", article_sheet,
+  ".article-content .mermaid", math_box
+)
+require_declarations(
+  errors, "assets/css/article.css", article_sheet,
+  ".article-content .mermaid svg", ["max-width: none"]
+)
+require_declarations(
+  errors, "assets/css/article.css", article_sheet,
+  ".article-content table", ["max-width: 100%"]
+)
+require_declarations(
+  errors, "assets/css/ledger/detail.css", detail_sheet,
+  ".article-content table", ["max-width: 100%", "overflow-x: auto", "overflow-y: hidden"]
+)
+require_declarations(
+  errors, "assets/css/ledger/detail.css", detail_sheet,
+  ".grid.text-detail-grid > *", ["min-width: 0"]
+)
+
+sheets.each do |path|
+  relative = Pathname.new(path).relative_path_from(REPO_ROOT)
+  cleaned = strip_noise(File.read(path))
+  cleaned.scan(/([^{}]+)\{([^{}]*)\}/m) do |sel, body|
+    next unless body.match?(/overflow/i)
+
+    sel.split(",").each do |part|
+      name = part.gsub(/\s+/, " ").strip
+      next unless name == "html" || name == "body" || name == "html body"
+
+      errors << "#{relative}: #{name} sets overflow and would break the sticky header"
+    end
+  end
+end
+
 fail!("CSS structure problems:\n  - #{errors.join("\n  - ")}") unless errors.empty?
 
 puts "  #{sheets.size} stylesheet(s) balanced, no conflict markers."
