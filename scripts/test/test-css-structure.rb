@@ -160,6 +160,28 @@ if article_sheet.match?(/mjx-container[^{]*\{[^}]*overflow\s*:\s*visible/m)
   errors << "assets/css/article.css: display math sets overflow: visible"
 end
 
+# PLT-AC-38. Inline formulas scroll inside the column below 768px. The
+# unscoped rule stays display:inline so a short formula on a wide column
+# remains in the line.
+inline_selector = '.article-content mjx-container:not([display="true"])'
+inline_jax = '.article-content mjx-container[jax]:not([display="true"])'
+inline_bodies = declaration_bodies(article_sheet, inline_selector)
+inline_base = inline_bodies.find { |body| body.match?(/display:\s*inline\s*;/) && !body.match?(/inline-block/) }
+unless inline_base
+  errors << "assets/css/article.css: #{inline_selector} must stay display:inline outside the phone query"
+end
+
+mobile_inline = nil
+article_sheet.scan(/@media\s*\(\s*max-width:\s*767px\s*\)\s*\{((?:[^{}]|\{[^{}]*\})*)\}/m) do |inner,|
+  mobile_inline = inner if inner.include?(inline_selector)
+end
+if mobile_inline.nil?
+  errors << "assets/css/article.css: inline math scroll is not limited to max-width 767px"
+else
+  require_declarations(errors, "assets/css/article.css", mobile_inline, inline_selector, math_box + ["display: inline-block"])
+  require_declarations(errors, "assets/css/article.css", mobile_inline, inline_jax, math_box + ["display: inline-block"])
+end
+
 require_declarations(
   errors, "assets/css/article.css", article_sheet,
   ".article-content figure", ["max-width: 100%"]

@@ -99,6 +99,23 @@
   vertical-align: baseline;
 }
 
+/* Below 768px a long inline formula is still `display: inline`, so it has
+   no scrollport and widens the document. Display math was already contained,
+   and a 390px phone still measured scrollWidth 667 from the inline boxes.
+   `inline-block` keeps the formula in the line and lets max-width and
+   overflow apply. `[jax]` stays ahead of MathJax's own container rule.
+   Desktop stays inline. Do not put this overflow on html or body. */
+@media (max-width: 767px) {
+  .article-content mjx-container:not([display="true"]),
+  .article-content mjx-container[jax]:not([display="true"]) {
+    display: inline-block;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    vertical-align: baseline;
+  }
+}
+
 /* A display equation is a block in the prose flow, so it takes the paragraph
    gap and nothing more. Two things used to inflate it, to a measured 52px
    above the equation and 39px below against a 22px paragraph gap.
