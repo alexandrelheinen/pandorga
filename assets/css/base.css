@@ -122,8 +122,8 @@ html {
   --type-section-lg: 2.1515rem;
 
   /* Content titles — Newsreader Regular 400 */
-  --type-title: 2.0015rem;
-  --type-title-lg: 2.4015rem;
+  --type-title: 2.20165rem;
+  --type-title-lg: 2.64165rem;
   --type-card: 1.4015rem;
   --type-card-lg: 1.5515rem;
 
@@ -140,7 +140,8 @@ html {
   /* Card/row blurbs, standfirsts, project/source copy — same as body. */
   --type-subtitle: var(--type-body);
   --type-dek: 0.9375rem;
-  --type-meta: 0.8125rem;
+  /* Dates, kickers, quiet meta — +2pt over the prior 0.8125rem step. */
+  --type-meta: calc(0.8125rem + 2pt);
 
   /* Chrome — quiet relative to body (tuned for Marcellus SC cap-height to match icons) */
   --type-label: 0.8485rem;
@@ -405,10 +406,13 @@ html body {
   font-variant-numeric: tabular-nums;
 }
 
-/* Masthead tag line under the page H1. */
+/* Masthead tag line under the page H1. Body size so "Channels. Sites." /
+   "Blog pessoal. …" reads with the standfirst, not as micro-label chrome.
+   Beats `.code-technical` when a listing also puts that class on the span. */
 [data-content-header-tags],
-.page-header-tags {
-  font-size: var(--type-dek);
+.page-header-tags,
+[data-content-header-tags].code-technical {
+  font-size: var(--type-body);
   line-height: 1.45;
   letter-spacing: 0.04em;
 }
@@ -950,7 +954,7 @@ a.ledger-chip:hover {
   text-decoration: underline;
   text-decoration-color: color-mix(in srgb, var(--color-primary) 50%, transparent);
   text-decoration-thickness: 1.5px;
-  text-underline-offset: 0.28em;
+  text-underline-offset: 0.48em;
   text-underline-position: under;
 }
 

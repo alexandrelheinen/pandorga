@@ -43,7 +43,7 @@
 .site-wordmark {
   display: none;
   font-family: var(--font-title);
-  font-size: var(--type-dek);
+  font-size: calc(var(--type-dek) * 1.25);
   line-height: 1;
   white-space: nowrap;
 }

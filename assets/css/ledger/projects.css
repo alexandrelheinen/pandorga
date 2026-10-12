@@ -58,6 +58,7 @@
      is set in. */
   color: var(--color-primary);
   letter-spacing: 0.06em;
+  font-size: var(--type-body);
 }
 
 .projects-page .projects-state {

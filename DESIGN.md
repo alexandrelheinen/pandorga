@@ -779,12 +779,12 @@ those tokens — no one-off rem sizes for roles that already have a step.
 | `--type-display-lg` | 3.6515 | ~64 | display-hero |
 | `--type-page-lg` | 2.9015 | ~51 | headline-lg |
 | `--type-section-lg` | 2.1515 | ~38 | headline-md |
-| `--type-title-lg` | 2.4015 | ~42 | detail H1 |
+| `--type-title-lg` | 2.64165 | ~46 | detail H1 |
 | `--type-card` | 1.4015 | ~25 | headline-sm |
 | `--type-prose` | 1.2 | ~21.1 | reading body, under 1024px |
 | `--type-prose` (≥1024px) | 1.25 | ~22 | reading body, desktop |
 | `--type-body` | 1.0758 | ~19 | body-md |
-| `--type-meta` | 0.8125 | ~14 | body-sm |
+| `--type-meta` | calc(0.8125rem + 2pt) | ~16 | body-sm |
 | `--type-label` | 0.8485 | ~15 | label-md |
 | `--type-mono` | 0.8504 | ~15 | notation |
 

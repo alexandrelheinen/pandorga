@@ -487,6 +487,7 @@ html[data-theme="light"] .home-hero-plate {
    vertical tick so each band reads as a ruled plate rather than a soft fade. */
 .home-band:not(.home-band--hero) .ledger-section-banner {
   padding-top: var(--space-lg);
+  padding-bottom: var(--space-sm);
   border-top: 1px solid var(--border-gentle);
   box-shadow: 0 4px 0 -3px var(--border-gentle-faint);
   position: relative;
@@ -1674,20 +1675,28 @@ button.home-project-inventory-row {
   margin-inline: var(--space-lg);
 }
 
+/* Card-scale title, not `.section-title`: that face is for band banners and
+   was oversized once the three index panels sat in one row. Locked here so
+   Sources / Network / Bibliography share one title register. */
 .home-index-title {
   margin: 0;
+  font-family: var(--font-title);
   font-size: var(--type-card);
+  font-weight: var(--weight-display);
+  line-height: 1.2;
+  color: var(--color-on-surface);
+  font-synthesis: none;
+  font-optical-sizing: auto;
 }
 
-@media (min-width: 1024px) {
-  .home-index-title {
-    font-size: var(--type-card-lg);
-  }
-}
-
-/* ── The plate ── */
+/* ── The plate ──
+   Every panel grows its plate so the title + Open row lands on one baseline
+   across Sources, Network, and Bibliography — the bib plate already flexed;
+   the other two used to sit shorter and leave their titles higher. */
 .home-index-plate {
   align-self: stretch;
+  flex: 1 1 auto;
+  min-height: 0;
   margin: 0;
   background: var(--color-background);
   border-bottom: 1px solid var(--border-gentle-subtle);
@@ -1952,8 +1961,6 @@ html[data-theme="light"] .home-featured .ledger-poster {
 #home-bib-panel .home-index-plate {
   display: flex;
   flex-direction: column;
-  flex: 1 1 auto;
-  min-height: 0;
 }
 
 #home-bib-panel .home-index-plate-head {

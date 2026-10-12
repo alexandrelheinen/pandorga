@@ -1012,8 +1012,9 @@ a.xcite-ref:hover {
    and `<div class="proof" markdown="1">`. Theorems are bare (no plate): the
    runtime builds the head from name / description and italicizes the body.
    Proofs sit on a gray band that bleeds to the edges of `.text-page-main`
-   while the text keeps the body measure; the runtime prefixes "Proof." and
-   a QED square lands on the last line of the body. */
+   while the text keeps the body measure; the runtime prefixes "Proof." into
+   the first paragraph (same line as the opening sentence) and a QED square
+   lands on the last line of the body. */
 .article-content .theorem {
   display: block;
   width: 100%;
@@ -1026,7 +1027,6 @@ a.xcite-ref:hover {
 
 .article-content .theorem-head,
 .article-content .proof-head {
-  margin: 0 0 0.5em;
   font-style: normal;
   font-weight: var(--weight-body);
 }
@@ -1044,6 +1044,12 @@ a.xcite-ref:hover {
 
 .article-content .theorem-body {
   font-style: italic;
+}
+
+/* Head is injected into the first paragraph; keep it upright against the
+   italic theorem body. */
+.article-content .theorem-body .theorem-head {
+  font-style: normal;
 }
 
 .article-content .theorem-body > :first-child,
@@ -1085,7 +1091,7 @@ a.xcite-ref:hover {
   content: "□";
   float: right;
   margin-left: 0.35em;
-  font-size: inherit;
+  font-size: calc(1em + 2pt);
   line-height: inherit;
   color: var(--color-on-surface);
   pointer-events: none;

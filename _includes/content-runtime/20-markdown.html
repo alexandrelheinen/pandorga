@@ -115,23 +115,35 @@
       return m ? String(m[1] != null ? m[1] : m[2] || '') : '';
     }
 
+    /* Put the head inside the first block so "Corollary 1." / "Proof." sit on
+       the same line as the opening sentence (paper style), not above it. */
+    function prependInlineHead(html, head) {
+      var body = String(html || '');
+      var m = body.match(/^(\s*<p\b[^>]*>)/i);
+      if (m) return body.replace(m[1], m[1] + head);
+      return head + body;
+    }
+
     function renderTheoremHtml(openTag, inner) {
       var name = attrValue(openTag, 'name').trim();
       var description = attrValue(openTag, 'description').trim();
       var head = '';
       if (name) {
-        head = '<p class="theorem-head"><span class="theorem-name">' + escapeHtml(name) + '</span>';
+        head = '<span class="theorem-head"><span class="theorem-name">' + escapeHtml(name) + '</span>';
         if (description) {
           head += ' <span class="theorem-description">(' + escapeHtml(description) + ')</span>';
         }
-        head += '.</p>';
+        head += '. </span>';
       }
-      return '<div class="theorem">' + head + '<div class="theorem-body">' + parseInlineMarkdown(inner) + '</div></div>';
+      var body = parseInlineMarkdown(inner);
+      if (head) body = prependInlineHead(body, head);
+      return '<div class="theorem"><div class="theorem-body">' + body + '</div></div>';
     }
 
     function renderProofHtml(inner) {
-      var head = '<p class="proof-head"><span class="proof-name">Proof</span>.</p>';
-      return '<div class="proof">' + head + '<div class="proof-body">' + parseInlineMarkdown(inner) + '</div></div>';
+      var head = '<span class="proof-head"><span class="proof-name">Proof</span>. </span>';
+      var body = prependInlineHead(parseInlineMarkdown(inner), head);
+      return '<div class="proof"><div class="proof-body">' + body + '</div></div>';
     }
 
     function preprocessMarkdownDivs(markdown) {

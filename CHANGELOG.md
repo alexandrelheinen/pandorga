@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.8.2] — 2026-10-12
+
+### Fixed
+
+- Home listing CTAs: more space between the label and its underline
+- Home index panels (Sources / Network / Bibliography): shared plate flex and
+  card-scale titles so the three cards align
+- Articles archive: `random` sort shows **Order: random** (was falling back to
+  last revised)
+- Listing masthead tag lines (Rascunhos, Sources, peers) use body size instead
+  of micro / mono
+- CV contact tiles: quieter badge and name type
+- Dates / meta (`--type-meta`) +2pt; content titles (`--type-title`) +10%;
+  top-bar wordmark +25%
+- Theorem / proof heads sit inline with the opening sentence (no line break
+  after the name / **Proof.**)
+- Proof QED square (`□`) is +2pt over the body size
+
+No `pandorga:` config keys were added or renamed. Font roles and the
+ledger fallbacks are unchanged.
+
 ## [1.8.1] — 2026-10-12
 
 ### Fixed

@@ -137,6 +137,7 @@ html[data-theme="light"] .cv-product {
   margin-top: var(--space-md);
   color: var(--color-on-surface-variant);
   letter-spacing: 0.06em;
+  font-size: var(--type-body);
 }
 
 .cv-dossier-standfirst {
@@ -219,7 +220,19 @@ html[data-theme="light"] .cv-product {
 }
 
 .cv-contacts .group .material-symbols-outlined {
-  font-size: var(--type-card);
+  font-size: var(--type-label-lg);
+}
+
+/* Badge (Network / Code) and name (LinkedIn / GitHub) were inheriting body /
+   nav sizes and reading louder than the dossier. Quiet label register. */
+.cv-contacts .group .marginalia {
+  font-size: var(--type-meta);
+  letter-spacing: 0.06em;
+}
+
+.cv-contacts .group .font-label {
+  font-size: var(--type-label);
+  letter-spacing: 0.03em;
 }
 
 /* ── Section register ──────────────────────────────────────────────────
