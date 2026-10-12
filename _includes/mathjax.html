@@ -1,10 +1,32 @@
-<!-- MathJax configuration for Jekyll with inline math support -->
+<!-- MathJax: config only. The content runtime loads the library on demand when
+     a detail page actually contains TeX, then typesets visible blocks first. -->
 <script>
 window.MathJax = {
-	tex: {
-		inlineMath: [['$', '$'], ['\\(', '\\)']],
-		displayMath: [['$$', '$$'], ['\\[', '\\]']]
-	}
+  startup: { typeset: false },
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']],
+    displayMath: [['$$', '$$'], ['\\[', '\\]']]
+  }
 };
+
+/* Studio / private text layout: typeset once the runtime exists. Public detail
+   pages call typesetMath from enhanceArticleContent instead. */
+(function () {
+  function runStaticMath() {
+    var root = document.querySelector('.article-content');
+    if (!root || !window.ContentRuntime || typeof window.ContentRuntime.typesetMath !== 'function') {
+      return;
+    }
+    var text = root.textContent || '';
+    if (text.indexOf('$') === -1 && text.indexOf('\\(') === -1 && text.indexOf('\\[') === -1) {
+      return;
+    }
+    window.ContentRuntime.typesetMath(root);
+  }
+  if (window.ContentRuntime) {
+    runStaticMath();
+  } else {
+    document.addEventListener('pandorga:runtime', runStaticMath, { once: true });
+  }
+})();
 </script>
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>

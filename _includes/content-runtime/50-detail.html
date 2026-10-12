@@ -813,11 +813,41 @@
 
       var body = document.createElement('div');
       body.className = 'article-content';
-      body.innerHTML = await renderRichContent(options.bodyMarkdown, fm);
-      applyDropCapClass(body, fm);
+      /* Mount the opening blocks first so title-adjacent prose can paint before
+         the rest of a long article lands in the DOM (mobile LCP / TBT). */
+      var staging = document.createElement('div');
+      staging.innerHTML = await renderRichContent(options.bodyMarkdown, fm);
+      var nodes = Array.prototype.slice.call(staging.childNodes);
       section.appendChild(body);
-
       if (options.mainColumn) options.mainColumn.appendChild(section);
+
+      var firstBatch = 6;
+      var batchSize = 12;
+      var ni = 0;
+      for (; ni < nodes.length && ni < firstBatch; ni++) {
+        body.appendChild(nodes[ni]);
+      }
+      applyDropCapClass(body, fm);
+      await new Promise(function (resolve) {
+        if (typeof window.requestAnimationFrame === 'function') {
+          window.requestAnimationFrame(function () { window.setTimeout(resolve, 0); });
+        } else {
+          window.setTimeout(resolve, 0);
+        }
+      });
+      while (ni < nodes.length) {
+        var end = Math.min(ni + batchSize, nodes.length);
+        for (; ni < end; ni++) body.appendChild(nodes[ni]);
+        if (ni < nodes.length) {
+          await new Promise(function (resolve) {
+            if (typeof window.requestIdleCallback === 'function') {
+              window.requestIdleCallback(function () { resolve(); }, { timeout: 48 });
+            } else {
+              window.setTimeout(resolve, 0);
+            }
+          });
+        }
+      }
 
       await enhanceArticleContent(body, fm);
 
@@ -885,11 +915,14 @@
 
     async function renderRichContent(markdown, frontMatter) {
       var fm = frontMatter || {};
-      var index = await ensureXciteIndex();
-      var bibIndex = await ensureBibliographyIndex();
+      /* Kick index fetches immediately so they overlap with front-matter strip. */
+      var indexPromise = ensureXciteIndex();
+      var bibPromise = ensureBibliographyIndex();
       var assignPrep = preprocessTranscriptionAssigns(stripFrontMatter(markdown));
       var prepared = assignPrep.text;
       var transcriptionAssigns = assignPrep.assignMap;
+      var index = await indexPromise;
+      var bibIndex = await bibPromise;
       var replacements = [];
       prepared = prepared.replace(/\{%-?\s*include\s+transcription\.html\s+([\s\S]*?)-?%\}/g, function (match, raw) {
         var replacementIndex = replacements.length;

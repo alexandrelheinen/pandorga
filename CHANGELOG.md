@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.8.3] — 2026-10-12
+
+### Fixed
+
+- Detail pages load MathJax only when a TeX block nears the viewport (not on
+  every article open), then typeset visible blocks first; below-fold formulas
+  follow via IntersectionObserver with yields between blocks
+- Listing layouts (articles / blog) no longer pull the MathJax script
+- Long detail bodies mount in batches so the opening can paint before the
+  full DOM lands
+- Figure and cut-in images use `decoding="async"` plus width/height hints
+  with existing `loading="lazy"`
+
+No `pandorga:` config keys were added or renamed. Font roles and the
+ledger fallbacks are unchanged.
+
+
 ## [1.8.2] — 2026-10-12
 
 ### Fixed

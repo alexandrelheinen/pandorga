@@ -196,7 +196,104 @@
       return html;
     }
 
+    var MATHJAX_SRC = 'https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js';
+    var mathJaxLoadPromise = null;
+
+    function rootHasTeX(root) {
+      var text = (root && root.textContent) || '';
+      return text.indexOf('$') !== -1 || text.indexOf('\\(') !== -1 || text.indexOf('\\[') !== -1;
+    }
+
+    function elementNeedsMath(el) {
+      if (!el || el.nodeType !== 1) return false;
+      if (el.getAttribute('data-math-done') === '1') return false;
+      if (el.querySelector && el.querySelector('mjx-container')) return false;
+      return rootHasTeX(el);
+    }
+
+    function collectMathBlocks(root) {
+      var out = [];
+      if (!root) return out;
+      Array.prototype.forEach.call(root.children || [], function (el) {
+        if (elementNeedsMath(el)) out.push(el);
+      });
+      return out;
+    }
+
+    function blockNearViewport(el, marginPx) {
+      var rect = el.getBoundingClientRect();
+      var vh = window.innerHeight || 800;
+      var margin = typeof marginPx === 'number' ? marginPx : vh;
+      return rect.top < vh + margin && rect.bottom > -margin;
+    }
+
+    function yieldToMain() {
+      return new Promise(function (resolve) {
+        if (typeof window.requestIdleCallback === 'function') {
+          window.requestIdleCallback(function () { resolve(); }, { timeout: 48 });
+        } else {
+          window.setTimeout(resolve, 0);
+        }
+      });
+    }
+
+    function ensureMathJaxConfig() {
+      if (window.MathJax && window.MathJax.tex) return;
+      window.MathJax = {
+        startup: { typeset: false },
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']]
+        }
+      };
+    }
+
+    function loadMathJaxScript() {
+      if (mathJaxLoadPromise) return mathJaxLoadPromise;
+      ensureMathJaxConfig();
+      if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+        mathJaxLoadPromise = Promise.resolve(window.MathJax);
+        return mathJaxLoadPromise;
+      }
+      mathJaxLoadPromise = new Promise(function (resolve, reject) {
+        var existing = document.getElementById('MathJax-script') ||
+          document.querySelector('script[src*="mathjax"][src*="tex-mml-chtml"]');
+        if (existing) {
+          if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+            resolve(window.MathJax);
+            return;
+          }
+          existing.addEventListener('load', function () { resolve(window.MathJax); });
+          existing.addEventListener('error', reject);
+          return;
+        }
+        var script = document.createElement('script');
+        script.id = 'MathJax-script';
+        script.src = MATHJAX_SRC;
+        script.async = true;
+        script.onload = function () {
+          var mj = window.MathJax;
+          if (mj && mj.startup && mj.startup.promise) {
+            mj.startup.promise.then(function () { resolve(mj); }).catch(reject);
+          } else {
+            resolve(mj);
+          }
+        };
+        script.onerror = function () {
+          reject(new Error('MathJax failed to load'));
+        };
+        document.head.appendChild(script);
+      });
+      return mathJaxLoadPromise;
+    }
+
     async function waitForMathJax() {
+      try {
+        await loadMathJaxScript();
+      } catch (error) {
+        console.error(error);
+        return false;
+      }
       var mj = window.MathJax;
       if (!mj) return false;
       if (mj.startup && mj.startup.promise) {
@@ -210,10 +307,89 @@
       return typeof mj.typesetPromise === 'function';
     }
 
+    async function typesetMathBlock(el) {
+      if (!el || el.getAttribute('data-math-done') === '1') return;
+      if (el.querySelector && el.querySelector('mjx-container')) {
+        el.setAttribute('data-math-done', '1');
+        return;
+      }
+      if (!rootHasTeX(el)) return;
+      if (!(await waitForMathJax())) return;
+      try {
+        await window.MathJax.typesetPromise([el]);
+      } catch (error) {
+        console.error(error);
+        return;
+      }
+      el.setAttribute('data-math-done', '1');
+    }
+
+    function observeMathBlocks(blocks) {
+      if (!blocks.length) return;
+      if (typeof IntersectionObserver === 'undefined') {
+        (async function () {
+          for (var i = 0; i < blocks.length; i++) {
+            await yieldToMain();
+            await typesetMathBlock(blocks[i]);
+          }
+        })();
+        return;
+      }
+      var queue = [];
+      var draining = false;
+
+      async function drain() {
+        if (draining) return;
+        draining = true;
+        while (queue.length) {
+          var el = queue.shift();
+          await typesetMathBlock(el);
+          if (queue.length) await yieldToMain();
+        }
+        draining = false;
+      }
+
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          observer.unobserve(entry.target);
+          queue.push(entry.target);
+          drain();
+        });
+      }, { root: null, rootMargin: '120% 0px', threshold: 0 });
+
+      blocks.forEach(function (el) { observer.observe(el); });
+    }
+
+    /* Load MathJax only when a TeX block is near the viewport. Typeset those
+       blocks first, then the rest as the reader scrolls. Returns after the
+       visible pass so the detail shell can paint without waiting on below-fold
+       formulas. */
     async function typesetMath(root) {
       try {
-        if (!(await waitForMathJax())) return;
-        await window.MathJax.typesetPromise(root ? [root] : undefined);
+        if (!root || !rootHasTeX(root)) return;
+
+        var blocks = collectMathBlocks(root);
+        if (!blocks.length) {
+          if (!(await waitForMathJax())) return;
+          await window.MathJax.typesetPromise([root]);
+          return;
+        }
+
+        var immediate = [];
+        var deferred = [];
+        var margin = (window.innerHeight || 800) * 1.25;
+        blocks.forEach(function (el) {
+          if (blockNearViewport(el, margin)) immediate.push(el);
+          else deferred.push(el);
+        });
+
+        for (var i = 0; i < immediate.length; i++) {
+          await typesetMathBlock(immediate[i]);
+          if (i < immediate.length - 1) await yieldToMain();
+        }
+
+        observeMathBlocks(deferred);
       } catch (error) {
         console.error(error);
       }
