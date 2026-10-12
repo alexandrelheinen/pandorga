@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.7.5] — 2026-10-12
+
+### Fixed
+
+- A display equation scrolls inside the article column. On a 390px
+  viewport a MathJax display box about 455px wide was stretching the
+  document to a scrollWidth of 667, so the page moved sideways and the
+  sticky header scrolled with it. `mjx-container[display="true"]` and
+  `mjx-container[jax][display="true"]` are `max-width: 100%` with
+  `overflow-x: auto` and `overflow-y: hidden`. Tables, figures, and
+  article SVG are bounded to the column. Mermaid still scrolls inside
+  `.mermaid`. `html` and `body` do not set overflow, so the sticky
+  header still sticks.
+
+No `pandorga:` config keys were added or renamed. Font roles and the
+ledger fallbacks are unchanged.
+
 ## [1.7.4] — 2026-10-12
 
 ### Fixed
