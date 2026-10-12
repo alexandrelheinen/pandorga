@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.7.6] — 2026-10-12
+
+### Fixed
+
+- A long inline formula scrolls inside the article column below 768px.
+  Display math was already contained, and a 390px phone still measured
+  scrollWidth 667 because `mjx-container` without `display="true"` is
+  `display: inline` and cannot scroll. Below 768px that box is
+  `inline-block`, `max-width: 100%`, `overflow-x: auto`, and
+  `overflow-y: hidden`. Wider viewports keep it inline. `html` and
+  `body` do not set overflow.
+
+No `pandorga:` config keys were added or renamed. Font roles and the
+ledger fallbacks are unchanged.
+
 ## [1.7.5] — 2026-10-12
 
 ### Fixed
