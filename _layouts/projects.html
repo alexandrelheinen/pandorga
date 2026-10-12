@@ -354,6 +354,7 @@ layout: shell
       if (detailHero) detailHero.innerHTML = '';
       runtime.removeArticleToc();
       runtime.removeRuntimeBackLink();
+      runtime.restoreListingDocument();
     }
 
     function renderListing(projects) {

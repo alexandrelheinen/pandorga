@@ -526,11 +526,71 @@
       el.setAttribute('href', url);
     }
 
+    /* The listing shell is one document for the index and every detail URL.
+       The static h1 is the index title ("Articles"). The runtime then paints
+       the entry title as a second h1. Demote the index heading while a detail
+       is showing so the document has one h1, and put it back for the index. */
+    var listingDocumentSnapshot = null;
+
+    function rememberListingDocument() {
+      if (listingDocumentSnapshot) return;
+      listingDocumentSnapshot = {
+        title: document.title,
+        lang: document.documentElement.getAttribute('lang') || ''
+      };
+    }
+
+    function concealListingHeader() {
+      var header = document.querySelector('[data-content-page-header]');
+      if (!header) return;
+      header.setAttribute('hidden', '');
+      var heading = header.querySelector('h1');
+      if (!heading) return;
+      var replacement = document.createElement('p');
+      replacement.className = heading.className;
+      replacement.setAttribute('data-listing-heading', 'demoted');
+      while (heading.firstChild) replacement.appendChild(heading.firstChild);
+      heading.replaceWith(replacement);
+    }
+
+    function restoreListingDocument() {
+      var header = document.querySelector('[data-content-page-header]');
+      if (header) {
+        header.removeAttribute('hidden');
+        var demoted = header.querySelector('[data-listing-heading="demoted"]');
+        if (demoted) {
+          var heading = document.createElement('h1');
+          heading.className = demoted.className;
+          while (demoted.firstChild) heading.appendChild(demoted.firstChild);
+          demoted.replaceWith(heading);
+        }
+      }
+      if (!listingDocumentSnapshot) return;
+      document.title = listingDocumentSnapshot.title;
+      document.documentElement.lang = listingDocumentSnapshot.lang;
+      listingDocumentSnapshot = null;
+    }
+
+    /* Site codes (enus, ptbr, en_us, pt_br) are not BCP-47. The html lang
+       attribute has to be. */
+    function htmlLangFromContent(language) {
+      var compact = String(language || '').trim().toLowerCase().replace(/[_-]/g, '');
+      if (!compact) return '';
+      var primary = compact.slice(0, 2);
+      if (primary === 'en') return 'en';
+      if (primary === 'pt') return 'pt-BR';
+      if (primary === 'fr') return 'fr';
+      if (primary === 'es') return 'es';
+      return '';
+    }
+
     function applyDocumentMeta(meta) {
       meta = meta || {};
       var siteSuffix = (window.ContentRuntimeConfig && window.ContentRuntimeConfig.siteSuffix) || '';
       var title = meta.title ? String(meta.title) + siteSuffix : document.title;
       document.title = title;
+      var htmlLang = htmlLangFromContent(meta.lang);
+      if (htmlLang) document.documentElement.lang = htmlLang;
       if (meta.description) setMetaTag('description', meta.description);
       setMetaTag('og:title', title, 'property');
       if (meta.description) setMetaTag('og:description', meta.description, 'property');
@@ -736,12 +796,15 @@
 
     async function renderRuntimeDetailSection(options) {
       var fm = options.frontMatter || {};
+      rememberListingDocument();
+      concealListingHeader();
       if (options.documentMeta !== false) {
         applyDocumentMeta({
           title: fm.title,
           description: fm.description,
           url: window.location.pathname,
-          image: fm.og_image || fm.thumbnail
+          image: fm.og_image || fm.thumbnail,
+          lang: fm.language || ((fm.layout === 'post' || options.detailAttribute === 'data-dynamic-post-detail') ? 'ptbr' : '')
         });
       }
       var section = document.createElement('section');

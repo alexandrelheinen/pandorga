@@ -280,6 +280,7 @@ layout: shell
             if (detailMain) detailMain.innerHTML = '';
             if (detailSidebar) detailSidebar.innerHTML = '';
             runtime.removeRuntimeBackLink();
+            runtime.restoreListingDocument();
         }
 
         async function renderProductDetail(item) {

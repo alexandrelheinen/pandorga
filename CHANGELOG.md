@@ -13,6 +13,12 @@
   article SVG are bounded to the column. Mermaid still scrolls inside
   `.mermaid`. `html` and `body` do not set overflow, so the sticky
   header still sticks.
+- A detail URL served by the listing shell had two `h1` elements: the
+  listing title (Articles, Rascunhos, Projects, Curriculum) and the
+  entry title. While the entry is showing, the listing heading is not
+  an `h1`. The document title is the entry title, and `html` `lang`
+  follows the entry (`en`, `pt-BR`, `fr`, `es`). Articles, posts,
+  projects, and products.
 
 No `pandorga:` config keys were added or renamed. Font roles and the
 ledger fallbacks are unchanged.

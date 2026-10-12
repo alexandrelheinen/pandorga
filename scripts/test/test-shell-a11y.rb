@@ -54,4 +54,20 @@ ICON_FILES.each do |path|
   end
 end
 
+# PLT-AC-37. The listing shell keeps its index h1 in the document. A detail
+# URL then adds the entry title, so the page has two h1 elements. The runtime
+# demotes the index heading and sets the document title and lang from the entry.
+DETAIL = ROOT.join("_includes/content-runtime/50-detail.html").read
+BOOT = ROOT.join("_includes/content-runtime/90-bootstrap.html").read
+fail!("detail runtime does not demote the listing h1") unless DETAIL.include?("data-listing-heading") && DETAIL.include?("concealListingHeader")
+fail!("detail runtime does not restore the listing document") unless DETAIL.include?("function restoreListingDocument")
+fail!("detail runtime does not set html lang") unless DETAIL.include?("document.documentElement.lang")
+fail!("detail runtime dropped the entry title h1") unless DETAIL.include?('<h1 class="text-title">')
+fail!("restoreListingDocument is not on the runtime") unless BOOT.include?("restoreListingDocument: restoreListingDocument")
+
+%w[articles blog projects cv].each do |layout|
+  source = ROOT.join("_layouts/#{layout}.html").read
+  fail!("#{layout} listing does not restore the document") unless source.include?("restoreListingDocument()")
+end
+
 puts "PASS test-shell-a11y"
