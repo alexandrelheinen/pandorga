@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.8.4] — 2026-10-12
+
+### Fixed
+
+- Metric-matched local fallbacks for Cinzel Decorative, Cinzel, Newsreader,
+  Ancizar Serif, and Marcellus SC so `display=swap` does not reflow the home
+  hero (CLS)
+- Home hero `portraits.json` includes `srcset` / `sizes` when
+  `variants/<stem>-{480,960,1440}.jpg` exist under the hero folder
+
+No `pandorga:` config keys were added or renamed. Font roles and the
+ledger fallbacks are unchanged.
+
 ## [1.8.3] — 2026-10-12
 
 ### Fixed

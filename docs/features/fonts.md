@@ -43,3 +43,9 @@ The default stylesheet URL must stay the one the ledger already requests,
 so an unset site does not download a different set of files. A family name
 that would break the URL or the CSS variable is ignored and the role keeps
 its fallback.
+
+Known ledger and common site faces (Cinzel Decorative, Cinzel, Newsreader,
+Ancizar Serif, Marcellus SC) insert a metric-matched local fallback from
+`assets/css/base.css` ahead of the generic stack, so `display=swap` does
+not reflow the home hero. Do not move text faces back to a blocking head
+link.

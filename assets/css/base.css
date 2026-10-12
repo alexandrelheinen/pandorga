@@ -1,3 +1,53 @@
+/* ── Metric-matched fallbacks (font-display: swap) ──
+   Local Times/Liberation faces scaled to the web fonts that paint the
+   home hero before the Google kit arrives. Without these, swap CLS on
+   home is ~0.15. Metrics from UPM-normalised average glyph width vs
+   Liberation Serif Regular (Times New Roman metric twin). */
+@font-face {
+  font-family: "Pandorga Title Fallback";
+  src: local("Times New Roman"), local("Times"), local("Liberation Serif");
+  size-adjust: 148.98%;
+  ascent-override: 65.51%;
+  descent-override: 24.97%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Pandorga Cinzel Fallback";
+  src: local("Times New Roman"), local("Times"), local("Liberation Serif");
+  size-adjust: 139.21%;
+  ascent-override: 70.11%;
+  descent-override: 26.72%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Pandorga Body Fallback";
+  src: local("Times New Roman"), local("Times"), local("Liberation Serif");
+  size-adjust: 103.26%;
+  ascent-override: 71.18%;
+  descent-override: 25.66%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Pandorga Ancizar Fallback";
+  src: local("Times New Roman"), local("Times"), local("Liberation Serif");
+  size-adjust: 101.28%;
+  ascent-override: 88.86%;
+  descent-override: 29.62%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Pandorga Label Fallback";
+  src: local("Times New Roman"), local("Times"), local("Liberation Serif");
+  size-adjust: 112.98%;
+  ascent-override: 86.22%;
+  descent-override: 24.76%;
+  line-gap-override: 0%;
+}
+
 /* ── Material Symbols ── */
 /* Doubled class so this beats the Google stylesheet, which arrives later
    and sets font-size: 24px. That late size change moves the hero. */

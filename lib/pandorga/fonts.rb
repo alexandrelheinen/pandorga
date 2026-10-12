@@ -15,6 +15,15 @@ module Pandorga
     FOLLOW = { subtitle: :body, code: :mono, cv_body: :body }.freeze
     MONO_FALLBACK = "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace"
     FAMILY_NAME = /\A[\p{L}\p{N}][\p{L}\p{N} .+\-]*\z/
+    # Named faces defined in assets/css/base.css with size-adjust / ascent
+    # overrides so display=swap does not reflow the hero (home CLS).
+    METRIC_FALLBACK = {
+      "Cinzel Decorative" => "Pandorga Title Fallback",
+      "Cinzel" => "Pandorga Cinzel Fallback",
+      "Newsreader" => "Pandorga Body Fallback",
+      "Ancizar Serif" => "Pandorga Ancizar Fallback",
+      "Marcellus SC" => "Pandorga Label Fallback"
+    }.freeze
 
     DEFAULTS = {
       title: { family: "Cinzel Decorative", spec: "wght@400;700;900", fallback: "serif" },
@@ -78,8 +87,14 @@ module Pandorga
       face = resolved[role.to_sym]
       return "" unless face
 
-      quoted = face[:family].to_s.empty? ? nil : "'#{escape_css(face[:family])}'"
-      [quoted, face[:fallback].to_s.strip].compact.reject(&:empty?).join(", ")
+      family = face[:family].to_s
+      parts = []
+      parts << "'#{escape_css(family)}'" unless family.empty?
+      metric = METRIC_FALLBACK[family]
+      parts << "'#{escape_css(metric)}'" if metric
+      fallback = face[:fallback].to_s.strip
+      parts << fallback unless fallback.empty?
+      parts.join(", ")
     end
 
     def resolve_role(role, override, theme)

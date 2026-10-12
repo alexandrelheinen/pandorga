@@ -152,7 +152,7 @@ end
     warn "FAIL test-examples-build: #{name} home dropped the ledger font request"
     exit 1
   end
-  unless html.include?("--font-title: 'Cinzel Decorative', serif")
+  unless html.include?("--font-title: 'Cinzel Decorative', 'Pandorga Title Fallback', serif")
     warn "FAIL test-examples-build: #{name} home dropped the title face"
     exit 1
   end

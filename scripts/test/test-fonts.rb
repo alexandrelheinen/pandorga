@@ -28,9 +28,22 @@ from_theme = Pandorga::Fonts.resolve(nil, theme)
 fail!("unset config dropped the ledger faces") unless Pandorga::Fonts.stylesheet_href(bare) == DEFAULT_HREF
 fail!("theme tokens drifted from the ledger faces") unless Pandorga::Fonts.stylesheet_href(from_theme) == DEFAULT_HREF
 
-fail!("title stack dropped Cinzel") unless Pandorga::Fonts.css_stack(from_theme, "title") == "'Cinzel Decorative', serif"
-fail!("body stack dropped the serif fallback") unless Pandorga::Fonts.css_stack(from_theme, "body") == "'Newsreader', Georgia, serif"
+fail!("title stack dropped Cinzel") unless Pandorga::Fonts.css_stack(from_theme, "title") ==
+  "'Cinzel Decorative', 'Pandorga Title Fallback', serif"
+fail!("body stack dropped the serif fallback") unless Pandorga::Fonts.css_stack(from_theme, "body") ==
+  "'Newsreader', 'Pandorga Body Fallback', Georgia, serif"
+fail!("label stack dropped the metric fallback") unless Pandorga::Fonts.css_stack(from_theme, "label") ==
+  "'Marcellus SC', 'Pandorga Label Fallback', serif"
 fail!("mono stack dropped Courier Prime") unless Pandorga::Fonts.css_stack(from_theme, "mono").start_with?("'Courier Prime', ui-monospace")
+
+site_faces = Pandorga::Fonts.resolve(
+  { "title" => "Cinzel", "body" => { "family" => "Ancizar Serif", "weights" => [300, 400, 600] } },
+  theme
+)
+fail!("Cinzel stack missed its metric fallback") unless Pandorga::Fonts.css_stack(site_faces, "title") ==
+  "'Cinzel', 'Pandorga Cinzel Fallback', serif"
+fail!("Ancizar stack missed its metric fallback") unless Pandorga::Fonts.css_stack(site_faces, "body") ==
+  "'Ancizar Serif', 'Pandorga Ancizar Fallback', Georgia, serif"
 
 custom = Pandorga::Fonts.resolve(
   {
@@ -54,6 +67,7 @@ broken = []
 Dir.glob(ROOT.join("**/*.{css,html,rb,js,mjs,md,liquid,yml}")).each do |path|
   next if path.include?("/studio/assets/")
   next if path.include?("/node_modules/")
+  next if path.include?("/_site/")
   next if path.end_with?("test-fonts.rb")
   text = File.read(path)
   next unless text.include?(token)
