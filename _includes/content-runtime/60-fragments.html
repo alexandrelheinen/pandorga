@@ -578,10 +578,13 @@
       }
       return new Promise(function (resolve) {
         var probe = new Image();
+        probe.fetchPriority = 'high';
+        applyHeroPortraitSources(probe, chosen);
         probe.onload = function () {
-          img.src = nextSrc;
           img.alt = nextAlt;
           applyHeroPortraitSources(img, chosen);
+          img.fetchPriority = 'high';
+          img.src = nextSrc;
           img.classList.add('is-shown');
           resolve(true);
         };
@@ -610,9 +613,44 @@
       return next();
     }
 
+    function heroLandscapeActive(img) {
+      var url = img && img.getAttribute('data-hero-landscape');
+      if (!url || !String(url).trim() || !window.matchMedia) return false;
+      return window.matchMedia('(max-width: 767px)').matches;
+    }
+
+    function clearHeroSources(img) {
+      img.removeAttribute('src');
+      img.removeAttribute('srcset');
+      img.removeAttribute('sizes');
+      img.alt = '';
+    }
+
+    function watchHeroFrame(img) {
+      var url = img.getAttribute('data-hero-landscape');
+      if (!url || !String(url).trim() || !window.matchMedia) return;
+      var mq = window.matchMedia('(max-width: 767px)');
+      if (!mq.addEventListener) return;
+      mq.addEventListener('change', function () {
+        if (mq.matches) {
+          clearHeroSources(img);
+          img.classList.add('is-shown');
+          return;
+        }
+        img.classList.remove('is-shown');
+        loadJson('pages/home/portraits.json').then(function (data) {
+          return showHeroPortrait(img, heroPortraitEntries(data));
+        }).catch(function (error) {
+          console.error(error);
+        });
+      });
+    }
+
     function hydrateHeroPortrait() {
       var img = document.querySelector('[data-content-hero-portrait]');
       if (!img) return Promise.resolve();
+      watchHeroFrame(img);
+      if (heroLandscapeActive(img)) return Promise.resolve();
       return loadJson('pages/home/portraits.json').then(function (data) {
         return showHeroPortrait(img, heroPortraitEntries(data));
       }).catch(function (error) {
@@ -621,6 +659,7 @@
     }
 
     function hydratePageFragments() {
+      hydrateHeroPortrait();
       var headers = Array.prototype.slice.call(document.querySelectorAll('[data-content-page-header]'));
       var chain = Promise.resolve();
       headers.forEach(function (el) {
@@ -644,7 +683,6 @@
         hydrateHomeSections();
         hydrateBandArt();
         hydrateContacts();
-        hydrateHeroPortrait();
       });
     }
 

@@ -66,6 +66,10 @@
   {%- endcomment -%}
   <link href="https://fonts.googleapis.com" rel="preconnect" />
   <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+  {%- assign _hero_landscape = page.hero_landscape | default: site.pandorga.home.hero_landscape | default: "" | strip -%}
+  {%- if page.layout == "home" and _hero_landscape != blank -%}
+  <link rel="preload" as="image" href="{{ _hero_landscape | escape }}" fetchpriority="high" media="(max-width: 767px)" />
+  {%- endif -%}
   {% include theme/critical-preload.html %}
   <link rel="stylesheet" href="/assets/css/base.css" />
   <link rel="stylesheet" href="/assets/css/global-link.css" />
@@ -120,6 +124,11 @@
   {%- for _sheet in _ledger -%}
   <link rel="stylesheet" href="/assets/css/ledger/{{ _sheet }}.css" />
   {%- endfor -%}
+  {%- comment -%}
+    Utilities before the icon scripts. Those scripts are parser-blocking,
+    so a sheet after them waits until they finish before the scanner sees it.
+  {%- endcomment -%}
+  <link rel="stylesheet" href="/assets/css/tailwind.css" />
   {% include theme/font-loader.html %}
   {%- comment -%}
     Named icons only. The full variable face is about a megabyte, and a
@@ -194,7 +203,6 @@
   <style>
     :root { --drop-cap-lines: {{ site.drop_cap_lines | default: 2 }}; }
   </style>
-  <link rel="stylesheet" href="/assets/css/tailwind.css" />
 </head>
 
 <body class="bg-background text-on-surface">
