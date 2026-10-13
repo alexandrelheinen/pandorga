@@ -17,6 +17,7 @@ layout: shell
 {%- assign _hero_name = site.pandorga.identity | pandorga_hero_name: site.author, site.title -%}
 {%- assign _cv_page = site.pages | where: "key", "cv" | first -%}
 {%- assign _hero_art = site.pandorga.home.hero_art | default: "page/hero-default.html" -%}
+{%- assign _hero_landscape = page.hero_landscape | default: site.pandorga.home.hero_landscape | default: "" | strip -%}
 {%- assign _home_bands = site.data.pandorga_home_bands -%}
 
 <main class="home-ledger">
@@ -53,8 +54,15 @@ layout: shell
           <span class="shard-accent home-hero-shard" aria-hidden="true"></span>
           <div class="home-hero-plate-wrap">
             <span class="ledger-frame-crosshairs" aria-hidden="true"></span>
-            <figure class="home-hero-plate">
-              <img alt="" width="1200" height="800" fetchpriority="high" data-content-hero-portrait />
+            <figure class="home-hero-plate{% if _hero_landscape != blank %} home-hero-plate--landscape{% endif %}">
+              {%- if _hero_landscape != blank -%}
+              <picture>
+                <source media="(max-width: 767px)" srcset="{{ _hero_landscape | escape }}" />
+                <img alt="" width="1600" height="900" fetchpriority="high" decoding="sync" data-content-hero-portrait data-hero-landscape="{{ _hero_landscape | escape }}" />
+              </picture>
+              {%- else -%}
+              <img alt="" width="960" height="1280" fetchpriority="high" decoding="sync" data-content-hero-portrait />
+              {%- endif -%}
               <span class="ledger-frame-corners" aria-hidden="true"></span>
             </figure>
           </div>

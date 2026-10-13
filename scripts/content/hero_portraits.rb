@@ -5,8 +5,9 @@
 # content/media/images/hero/ and does not keep a second list.
 # Optional width variants live under variants/ so they are not extra draws.
 # Variants should be 3:4 portrait fills (not landscape width-only resizes):
-# the plate is object-fit cover at 3:4, so a 480×270 landscape candidate is
-# too short and looks soft when the browser picks it for a ~16rem slot.
+# the plate is object-fit cover at 3:4, including on a phone, so a 480×270
+# landscape candidate is too short and looks soft. A separate 16:9 file for
+# narrow viewports is pandorga.home.hero_landscape, not a pool variant.
 
 require "pathname"
 

@@ -49,6 +49,9 @@ home:
     hero_art:
       type: string
       notes: Include path for hero decoration (default `page/hero-default.html`)
+    hero_landscape:
+      type: string
+      notes: Optional URL of a 16:9 image used at or below 767px. Home front matter `hero_landscape` overrides this key. Omitted, the phone plate stays 3:4
 
 fonts:
   title: "`pandorga.fonts`"

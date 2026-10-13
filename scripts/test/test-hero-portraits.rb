@@ -23,6 +23,7 @@ require_relative "../content/hero_portraits"
 ROOT = Pathname.new(__dir__).join("..", "..").expand_path
 EXPORT = ROOT.join("scripts/content/export-content-json.rb")
 LAYOUT = ROOT.join("_layouts/home.html")
+SHELL = ROOT.join("_layouts/shell.html")
 HOME_CSS = ROOT.join("assets/css/ledger/home.css")
 RUNTIME = ROOT.join("_includes/content-runtime/60-fragments.html")
 SCHEMA = ROOT.join("studio/schema.yml")
@@ -96,9 +97,28 @@ check!(!layout.include?("profile-monologue"),
        "the deleted shell photograph must not be referenced")
 check!(!ROOT.join("assets/images/profile-monologue.JPG").exist?,
        "profile-monologue.JPG must not exist")
-hero_img = layout[/<img[^>]*data-content-hero-portrait[^>]*>/m]
-check!(hero_img && !hero_img.include?("src=") && hero_img.include?('alt=""'),
-       "the plate starts without a photographic src and keeps an empty alt, got #{hero_img.inspect}")
+hero_imgs = layout.scan(/<img[^>]*data-content-hero-portrait[^>]*>/m)
+check!(hero_imgs.any?, "the plate image is missing")
+hero_imgs.each do |hero_img|
+  check!(!hero_img.include?("src=") && hero_img.include?('alt=""'),
+         "the plate starts without a photographic src and keeps an empty alt, got #{hero_img.inspect}")
+  check!(hero_img.include?('fetchpriority="high"'),
+         "the hero image must request fetchpriority high, got #{hero_img.inspect}")
+end
+check!(layout.include?("page.hero_landscape") && layout.include?("site.pandorga.home.hero_landscape"),
+       "narrow hero reads front matter and pandorga.home.hero_landscape")
+check!(layout.include?('media="(max-width: 767px)"') && layout.include?("<picture>"),
+       "a configured landscape file is a picture source for narrow viewports")
+check!(layout.include?("data-hero-landscape"),
+       "the image carries the landscape URL for the runtime")
+shell = SHELL.read
+check!(shell.include?('rel="preload" as="image"') && shell.include?('fetchpriority="high"') &&
+         shell.include?('media="(max-width: 767px)"') && shell.include?("hero_landscape"),
+       "the shell preloads a configured landscape image on narrow viewports")
+tailwind_at = shell.index('href="/assets/css/tailwind.css"')
+icons_at = shell.index("window.__pandorgaIconsHref")
+check!(tailwind_at && icons_at && tailwind_at < icons_at,
+       "tailwind must be linked before the icon scripts")
 
 home_css = HOME_CSS.read
 check!(home_css.include?("background: black"),
@@ -109,6 +129,14 @@ check!(plate_img&.match?(/opacity:\s*0/) && plate_img.match?(/transition:[^;]*op
 shown = home_css[/^\.home-hero-plate img\.is-shown \{.*?\n\}/m]
 check!(shown&.match?(/opacity:\s*1/),
        "a ready photograph fades to full opacity, got #{shown.inspect}")
+check!(!home_css.include?("aspect-ratio: 4 / 3"),
+       "the phone plate must not cover-crop the portrait into 4:3")
+landscape_plate = home_css[/@media \(max-width: 767px\) \{\s*\.home-hero-plate--landscape \{[^}]*\}/m]
+check!(landscape_plate&.include?("aspect-ratio: 16 / 9"),
+       "a landscape plate is 16:9 on a phone, got #{landscape_plate.inspect}")
+landscape_img = home_css[/\.home-hero-plate--landscape img \{[^}]*\}/m]
+check!(landscape_img&.include?("object-fit: contain") && landscape_img.include?("opacity: 1"),
+       "the 16:9 file is shown whole and can paint without the portrait fade, got #{landscape_img.inspect}")
 
 runtime = RUNTIME.read
 start = runtime.index("function heroPortraitEntries")
@@ -125,6 +153,20 @@ onload = body[/probe\.onload = function \(\) \{.*?\n        \};/m]
 check!(onload&.include?("img.src = nextSrc") && onload.include?("img.alt = nextAlt") &&
          onload.include?("img.classList.add('is-shown')"),
        "src, alt, and the fade-in must be applied together after load, got #{onload.inspect}")
+check!(onload && onload.index("applyHeroPortraitSources") && onload.index("img.src = nextSrc") &&
+         onload.index("applyHeroPortraitSources") < onload.index("img.src = nextSrc"),
+       "srcset must be applied before src so the full file is not the first request")
+check!(body.include?("probe.fetchPriority = 'high'"),
+       "the portrait probe must use fetchPriority high")
+check!(body.include?("heroLandscapeActive") && body.include?("data-hero-landscape"),
+       "a narrow viewport with hero_landscape must not swap in a portrait")
+check!(runtime.include?("hydrateHeroPortrait();"),
+       "hydratePageFragments must draw the plate before the later fragment chain")
+plate_call = runtime.index("function hydratePageFragments")
+later = runtime.index("hydrateHomeSections();", plate_call || 0)
+check!(plate_call && runtime.index("hydrateHeroPortrait();", plate_call) &&
+         runtime.index("hydrateHeroPortrait();", plate_call) < later,
+       "the plate draw must start at the beginning of hydratePageFragments")
 onerror = body[/probe\.onerror = function \(\) \{.*?\n        \};/m]
 check!(onerror && !onerror.include?("img.src") && !onerror.include?("is-shown"),
        "a failed image load must leave the plate black, got #{onerror.inspect}")

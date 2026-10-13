@@ -13,6 +13,24 @@ is `Pandorga::VERSION` (`lib/pandorga/version.rb`).
 
 Read [CHANGELOG.md](../CHANGELOG.md) before you bump.
 
+## Narrow hero (1.9.0)
+
+Optional `pandorga.home.hero_landscape` is a root-relative path or an
+absolute URL of a 16:9 image. At or below 767px the home hero uses that
+file through `<picture>` and a 16:9 plate, with `object-fit: contain`, so
+the 3:4 portrait is not cropped into the band. Home front matter
+`hero_landscape` overrides the site key. Omit both and every width keeps
+the 3:4 plate. The theme does not ship the photograph.
+
+```yaml
+pandorga:
+  home:
+    hero_landscape: /media/images/hero/home-16x9.jpg
+```
+
+The portrait pool is unchanged. Variants under `variants/` stay 3:4 fills
+for the portrait plate.
+
 ## Detail URLs (1.7.3)
 
 1.7.2 wrote one static page per article, post, project, and product,
@@ -221,7 +239,7 @@ Consumer sites should pin a release tag, not `main`:
 gem "pandorga", "~> 1.3"
 
 # Or pin a GitHub release tag
-gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v1.8.5"
+gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v1.9.0"
 ```
 
 After a bump, run `bundle update pandorga` and commit `Gemfile.lock`. Host
@@ -271,7 +289,7 @@ Manual publish (optional, local MFA may apply):
 
 ```bash
 mise exec -- gem build pandorga.gemspec
-mise exec -- gem push pandorga-1.8.5.gem
+mise exec -- gem push pandorga-1.9.0.gem
 ```
 
 ## Android shell (1.2+)

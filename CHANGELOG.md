@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.9.0] — 2026-10-13
+
+### Added
+
+- Optional `pandorga.home.hero_landscape` (home front matter
+  `hero_landscape` overrides it): a 16:9 image for viewports at or below
+  767px, via `<picture>`, shown whole in a 16:9 plate
+
+### Changed
+
+- Without that key the phone hero plate stays 3:4. It no longer cover-crops
+  the portrait into a 4:3 band
+- The hero image keeps `fetchpriority="high"`. A configured landscape file
+  is preloaded on narrow viewports. The portrait probe sets `fetchPriority`
+  to `high`, applies `srcset` before `src`, and the plate draw starts with
+  the other home fetches
+- Home links `tailwind.css` before the icon scripts so that sheet is not
+  held behind parser-blocking script
+
+Text faces still load after the first paint with `display=swap` and the
+metric-matched fallbacks from 1.8.4. One listing shell still serves every
+detail URL.
+
 ## [1.8.5] — 2026-10-13
 
 ### Fixed

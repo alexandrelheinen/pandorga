@@ -4,7 +4,7 @@ The public shell is host-agnostic. Studio and Pages Functions are documented
 here because that is the supported editor host today.
 
 1. Pin the gem from RubyGems: `gem "pandorga", "~> 1.3"`.
-   A Git pin uses the release you ship, for example `tag: "v1.8.5"`.
+   A Git pin uses the release you ship, for example `tag: "v1.9.0"`.
 2. On Pages v3, set the Ruby version to 3.4.4 so Pages uses the image Ruby
    and does not compile a toolchain.
 3. Pages runs `bundle install` before the build command. The build command

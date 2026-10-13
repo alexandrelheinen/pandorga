@@ -370,8 +370,10 @@
 
 /* ── Portrait plate ──
    Beside the copy on a wide page the plate is portrait (3:4): its height
-   matches the left column and the width is W = 3/4 × H. Edge-to-edge on a
-   phone it is landscape (4:3) from the band width. */
+   matches the left column and the width is W = 3/4 × H. On a phone it stays
+   3:4. A wider box would cover-crop that portrait a second time. When
+   hero_landscape is set, the phone plate is 16:9 and the picture source is
+   that file. */
 .home-hero-plate {
   position: relative;
   z-index: 1;
@@ -387,12 +389,6 @@
   flex: 0 0 auto;
   min-height: 0;
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-on-surface) 10%, transparent);
-}
-
-@media (max-width: 767px) {
-  .home-hero-plate {
-    aspect-ratio: 4 / 3;
-  }
 }
 
 :root:not([data-theme="dark"]) .home-hero-plate,
@@ -451,6 +447,13 @@ html[data-theme="light"] .home-hero-plate {
   }
 }
 
+.home-hero-plate picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
 .home-hero-plate img {
   width: 100%;
   height: 100%;
@@ -467,6 +470,21 @@ html[data-theme="light"] .home-hero-plate {
 
 .home-hero-plate img.is-shown {
   opacity: 1;
+}
+
+/* 16:9 file in a 16:9 plate. contain shows the whole frame. The image is
+   visible without waiting for the portrait runtime, so it can be the LCP. */
+@media (max-width: 767px) {
+  .home-hero-plate--landscape {
+    aspect-ratio: 16 / 9;
+  }
+
+  .home-hero-plate--landscape img {
+    object-fit: contain;
+    object-position: center center;
+    opacity: 1;
+    transition: none;
+  }
 }
 
 .home-hero-plate:hover img {
@@ -1933,8 +1951,9 @@ html[data-theme="light"] .home-featured .ledger-poster {
    ends flush with the viewport and adds no scrollable width; this must stay
    below 768px, which is where .home-band-inner swaps that token for --gutter.
    The side hairlines go with it: a border pinned to the screen edge reads as a
-   frame cut off rather than as the plate's edge. Orientation still owns the
-   crop; object-fit: cover re-crops the image inside the wider box. */
+   frame cut off rather than as the plate's edge. The plate stays 3:4, the
+   same frame as the portrait file, so cover does not crop it again. A
+   configured hero_landscape switches this query to 16:9 and contain. */
 @media (max-width: 767px) {
   .home-hero-portrait {
     max-width: none;
