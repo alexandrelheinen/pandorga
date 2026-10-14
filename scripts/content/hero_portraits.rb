@@ -6,8 +6,9 @@
 # Optional width variants live under variants/ so they are not extra draws.
 # Variants should be 3:4 portrait fills (not landscape width-only resizes):
 # the plate is object-fit cover at 3:4, including on a phone, so a 480×270
-# landscape candidate is too short and looks soft. A separate 16:9 file for
-# narrow viewports is pandorga.home.hero_landscape, not a pool variant.
+# landscape candidate is too short and looks soft. A 16:9 file for a narrow
+# viewport is the optional `landscape` field on a portraits.json entry.
+# pandorga.home.hero_landscape is only the fallback when no entry has one.
 
 require "pathname"
 

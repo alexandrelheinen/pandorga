@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.10.0] — 2026-10-14
+
+### Added
+
+- A portrait entry in `pages/home/portraits.json` may set `landscape`, a
+  16:9 URL. At or below 767px the home hero draws at random from the
+  entries that have one and paints that file. `pandorga.home.hero_landscape`
+  is the fallback when none do. The phone plate stays 16:9
+
+### Changed
+
+- On article, draft, product, and project detail pages, category and tag
+  chips sit above the title
+- On a phone, the detail title sits closer to the nav (`pt-10` to
+  `--space-xl`). The gaps inside the title block, before the contents
+  list, and between that block and the text each drop one spacing token.
+  Desktop dossier spacing stays as it was
+- Article and draft section headings grow by 2pt on `h2` and 1pt on `h3`.
+  The same sizes apply to project and product bodies
+
 ## [1.9.1] — 2026-10-14
 
 ### Fixed

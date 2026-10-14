@@ -372,8 +372,8 @@
    Beside the copy on a wide page the plate is portrait (3:4): its height
    matches the left column and the width is W = 3/4 × H. On a phone it stays
    3:4. A wider box would cover-crop that portrait a second time. When
-   hero_landscape is set, the phone plate is 16:9 and the picture source is
-   that file. */
+   hero_landscape is set, or a portrait entry has its own landscape, the
+   phone plate is 16:9 and the chosen 16:9 file is shown whole. */
 .home-hero-plate {
   position: relative;
   z-index: 1;
@@ -472,8 +472,10 @@ html[data-theme="light"] .home-hero-plate {
   opacity: 1;
 }
 
-/* 16:9 file in a 16:9 plate. contain shows the whole frame. The image is
-   visible without waiting for the portrait runtime, so it can be the LCP. */
+/* 16:9 file in a 16:9 plate. contain shows the whole frame. The image stays
+   hidden until the chosen file has loaded, so a fallback source does not
+   flash before a pool landscape replaces it. The plate is already 16:9, so
+   the wait does not move the layout. transition none so the paint is not a fade. */
 @media (max-width: 767px) {
   .home-hero-plate--landscape {
     aspect-ratio: 16 / 9;
@@ -482,8 +484,12 @@ html[data-theme="light"] .home-hero-plate {
   .home-hero-plate--landscape img {
     object-fit: contain;
     object-position: center center;
-    opacity: 1;
+    opacity: 0;
     transition: none;
+  }
+
+  .home-hero-plate--landscape img.is-shown {
+    opacity: 1;
   }
 }
 

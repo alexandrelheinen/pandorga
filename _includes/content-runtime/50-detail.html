@@ -6,6 +6,16 @@
       var description = fm.description || fm.tagline || '';
       var parts = ['<div class="md:sticky md:top-32 text-detail-sidebar">'];
 
+      var chips = '';
+      if (typeof renderTagChips === 'function') {
+        var tagBase = { posts: '/pages/blog/', articles: '/pages/articles/',
+                        project: '/pages/projects/' }[fm.layout === 'project' ? 'project' :
+                        (fm.layout === 'post' ? 'posts' : (fm.layout === 'article' ? 'articles' : ''))];
+        chips = renderTagChips(fm.tags, tagBase ? {
+          hrefFor: function (tag) { return tagBase + '?tag=' + encodeURIComponent(tag); }
+        } : undefined) || '';
+      }
+
       if (title) {
         parts.push('<div class="article-sidebar-heading mb-8">');
         if (fm.icon) {
@@ -14,6 +24,11 @@
              it green there regardless. */
           parts.push('<span class="material-symbols-outlined text-5xl md:text-6xl text-primary mb-4 block leading-none" aria-hidden="true">' + escapeHtml(fm.icon) + '</span>');
         }
+        /* Classification sits above the title, as a kicker. Tags replaced
+           category on articles and posts; an entry that still has category
+           keeps that line with the chips. */
+        if (fm.category) parts.push('<span class="text-tertiary font-bold">' + escapeHtml(fm.category) + '</span>');
+        if (chips) parts.push(chips);
         parts.push('<h1 class="text-title">' + escapeHtml(title) + '</h1>');
         if (fm.layout === 'post' && fm.thumbnail) {
           parts.push(
@@ -35,20 +50,8 @@
 
       parts.push('<div class="flex flex-col gap-6 text-tertiary font-label text-xs article-meta mb-8">');
       parts.push('<div class="flex flex-col gap-2">');
-      // Tags replaced category on articles and posts; resources still classify
-      // on category, so both are read.
-      if (fm.category) parts.push('<span class="text-tertiary font-bold">' + escapeHtml(fm.category) + '</span>');
-      // The private Liquid path renders these as links into the listing
-      // filter; rendering them as inert spans here gave the same page two
-      // different affordances depending on which path drew it.
-      if (typeof renderTagChips === 'function') {
-        var tagBase = { posts: '/pages/blog/', articles: '/pages/articles/',
-                        project: '/pages/projects/' }[fm.layout === 'project' ? 'project' :
-                        (fm.layout === 'post' ? 'posts' : (fm.layout === 'article' ? 'articles' : ''))];
-        parts.push(renderTagChips(fm.tags, tagBase ? {
-          hrefFor: function (tag) { return tagBase + '?tag=' + encodeURIComponent(tag); }
-        } : undefined));
-      }
+      if (!title && fm.category) parts.push('<span class="text-tertiary font-bold">' + escapeHtml(fm.category) + '</span>');
+      if (!title && chips) parts.push(chips);
       if (dateHtml) parts.push('<div class="mt-1">' + dateHtml + '</div>');
       if (fm.layout === 'product') {
         if (fm.company) parts.push('<span class="text-secondary font-bold">' + escapeHtml(fm.company) + '</span>');

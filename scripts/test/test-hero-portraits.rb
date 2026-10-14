@@ -135,8 +135,11 @@ landscape_plate = home_css[/@media \(max-width: 767px\) \{\s*\.home-hero-plate--
 check!(landscape_plate&.include?("aspect-ratio: 16 / 9"),
        "a landscape plate is 16:9 on a phone, got #{landscape_plate.inspect}")
 landscape_img = home_css[/\.home-hero-plate--landscape img \{[^}]*\}/m]
-check!(landscape_img&.include?("object-fit: contain") && landscape_img.include?("opacity: 1"),
-       "the 16:9 file is shown whole and can paint without the portrait fade, got #{landscape_img.inspect}")
+check!(landscape_img&.include?("object-fit: contain") && landscape_img.include?("opacity: 0"),
+       "the 16:9 plate stays empty until the chosen file loads, got #{landscape_img.inspect}")
+landscape_shown = home_css[/\.home-hero-plate--landscape img\.is-shown \{[^}]*\}/m]
+check!(landscape_shown&.include?("opacity: 1"),
+       "the chosen 16:9 file paints in the fixed plate, got #{landscape_shown.inspect}")
 
 runtime = RUNTIME.read
 start = runtime.index("function heroPortraitEntries")
@@ -158,8 +161,11 @@ check!(onload && onload.index("applyHeroPortraitSources") && onload.index("img.s
        "srcset must be applied before src so the full file is not the first request")
 check!(body.include?("probe.fetchPriority = 'high'"),
        "the portrait probe must use fetchPriority high")
-check!(body.include?("heroLandscapeActive") && body.include?("data-hero-landscape"),
-       "a narrow viewport with hero_landscape must not swap in a portrait")
+check!(body.include?("heroLandscapeEntries") && body.include?("paintNarrowHero") &&
+         body.include?("entry.landscape"),
+       "a narrow viewport draws from entries that carry a landscape URL")
+check!(body.include?("showConfiguredLandscape") && body.include?("data-hero-landscape"),
+       "hero_landscape is the fallback when no entry has a landscape")
 check!(runtime.include?("hydrateHeroPortrait();"),
        "hydratePageFragments must draw the plate before the later fragment chain")
 plate_call = runtime.index("function hydratePageFragments")

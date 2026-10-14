@@ -66,11 +66,26 @@ layout: shell
   <div class="grid grid-cols-1 gap-8 lg:gap-12 items-start text-detail-grid">
     <aside>
       <div class="md:sticky md:top-32 text-detail-sidebar">
+        {% capture detail_tags %}
+            {% if page.tags and page.tags.size > 0 %}
+            <div class="ledger-chip-row">
+              {% for tag in page.tags %}
+                {% if tag_base %}
+              <a class="ledger-chip" href="{{ tag_base }}{{ tag | url_encode }}">{{ tag }}</a>
+                {% else %}
+              <span class="ledger-chip">{{ tag }}</span>
+                {% endif %}
+              {% endfor %}
+            </div>
+            {% endif %}
+          {% endcapture %}
+
         {% if page.collection == "posts" or page.collection == "articles" or page.layout == "product" or page.layout == "project" %}
         <div class="article-sidebar-heading mb-8">
           {% if page.icon %}
           <span class="material-symbols-outlined text-5xl md:text-6xl text-secondary mb-4 block leading-none" aria-hidden="true">{{ page.icon }}</span>
           {% endif %}
+          {{ detail_tags }}
           <h1 class="text-title">{{ page.title }}</h1>
           {% if page.collection == "posts" and page.thumbnail %}
           <figure class="article-sidebar-thumbnail">
@@ -87,20 +102,12 @@ layout: shell
         <div class="flex flex-col gap-6 text-tertiary font-label text-xs article-meta mb-8">
           <div class="flex flex-col gap-2">
             {% comment %}
-              Classification. `tags` replaced `category` on articles and posts;
-              an entry with no tags renders no chip row at all.
+              Classification sits in the heading, above the title. Collections
+              that do not render that heading keep the chips here.
             {% endcomment %}
-            {% if page.tags and page.tags.size > 0 %}
-            <div class="ledger-chip-row">
-              {% for tag in page.tags %}
-                {% if tag_base %}
-              <a class="ledger-chip" href="{{ tag_base }}{{ tag | url_encode }}">{{ tag }}</a>
-                {% else %}
-              <span class="ledger-chip">{{ tag }}</span>
-                {% endif %}
-              {% endfor %}
-            </div>
-            {% endif %}
+            {% unless page.collection == "posts" or page.collection == "articles" or page.layout == "product" or page.layout == "project" %}
+            {{ detail_tags }}
+            {% endunless %}
 
             {% if page.collection == "posts" or page.collection == "articles" %}
               {% include page/date_evolution.html stacked=true %}

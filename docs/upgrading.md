@@ -13,6 +13,36 @@ is `Pandorga::VERSION` (`lib/pandorga/version.rb`).
 
 Read [CHANGELOG.md](../CHANGELOG.md) before you bump.
 
+## Mobile hero pool (1.10.0)
+
+At or below 767px the home hero draws at random from
+`pages/home/portraits.json` entries that set `landscape`, and paints that
+entry's 16:9 URL. `src` stays the 3:4 file used above 767px. `srcset` and
+`sizes` stay optional and are not applied to the landscape file.
+
+`pandorga.home.hero_landscape` (home front matter `hero_landscape` overrides
+it) is the fallback, used only when no entry has `landscape`. Set it so the
+first paint is a fixed 16:9 plate. Omit it, and omit every `landscape`, and
+the phone plate stays 3:4.
+
+```json
+[
+  {
+    "src": "/media/images/hero/plate.jpg",
+    "landscape": "/media/images/hero/plate-16x9.jpg"
+  }
+]
+```
+
+```yaml
+pandorga:
+  home:
+    hero_landscape: /media/images/hero/fallback-16x9.jpg
+```
+
+The folder export does not invent `landscape`. The site adds the field to
+each entry that has a 16:9 file.
+
 ## Narrow hero (1.9.0)
 
 Optional `pandorga.home.hero_landscape` is a root-relative path or an
@@ -28,8 +58,8 @@ pandorga:
     hero_landscape: /media/images/hero/home-16x9.jpg
 ```
 
-The portrait pool is unchanged. Variants under `variants/` stay 3:4 fills
-for the portrait plate.
+Variants under `variants/` stay 3:4 fills for the portrait plate. From
+1.10.0 the single URL above is the fallback. See Mobile hero pool.
 
 ## Detail URLs (1.7.3)
 
@@ -239,7 +269,7 @@ Consumer sites should pin a release tag, not `main`:
 gem "pandorga", "~> 1.3"
 
 # Or pin a GitHub release tag
-gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v1.9.1"
+gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v1.10.0"
 ```
 
 After a bump, run `bundle update pandorga` and commit `Gemfile.lock`. Host
@@ -289,7 +319,7 @@ Manual publish (optional, local MFA may apply):
 
 ```bash
 mise exec -- gem build pandorga.gemspec
-mise exec -- gem push pandorga-1.9.1.gem
+mise exec -- gem push pandorga-1.10.0.gem
 ```
 
 ## Android shell (1.2+)

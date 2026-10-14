@@ -413,6 +413,8 @@ layout: shell
       html += '<span class="shard-accent projects-hero-shard" aria-hidden="true"></span>';
       html += '<div class="projects-hero-body">';
       if (line) html += line;
+      var chips = runtime.renderTagChips(fm.tags, { hrefFor: tagHref });
+      if (chips) html += chips;
       html += '<h1 class="projects-hero-title">' + esc(name) + '</h1>';
       if (fm.title && fm.title !== name) {
         html += '<p class="projects-hero-subtitle">' + esc(fm.title) + '</p>';
@@ -464,9 +466,6 @@ layout: shell
           esc(String(fm.external_url).replace(/^https?:\/\/(www\.)?/i, '').replace(/\/+$/, '')) +
           '</a>');
       }
-      var chips = runtime.renderTagChips(fm.tags, { hrefFor: tagHref });
-      if (chips) rows += dossierRow('Tags', chips);
-
       var html = '<div class="lg:sticky lg:top-32 projects-dossier">';
       if (rows) {
         html += '<p class="projects-dossier-title">Dossier</p>';

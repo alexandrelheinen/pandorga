@@ -403,6 +403,20 @@ aside:has(> .text-detail-sidebar) {
   border-bottom: 0;
 }
 
+/* Tag and category lines are the kicker, above the title. */
+.text-detail-sidebar .article-sidebar-heading > span.text-tertiary {
+  display: block;
+  margin: 0 0 var(--space-xs);
+  font-family: var(--font-label);
+  font-size: var(--type-label-lg);
+  letter-spacing: 0.04em;
+  color: var(--color-tertiary);
+}
+
+.text-detail-sidebar .article-sidebar-heading .ledger-chip-row {
+  margin: 0 0 var(--space-sm);
+}
+
 /* Canonical shard, bottom-right, as in the mockup. Decoration only: it is
    suppressed below the tablet breakpoint like every other shard. */
 .text-detail-sidebar .article-sidebar-heading::after {
@@ -638,6 +652,14 @@ aside:has(> .text-detail-sidebar) {
   background: var(--color-surface-container-low);
 }
 
+@media (max-width: 1023px) {
+  .text-detail-sidebar .article-toc--disclosure,
+  .projects-dossier .article-toc--disclosure {
+    margin-top: var(--space-md);
+    margin-bottom: 0;
+  }
+}
+
 .article-toc-summary {
   padding: var(--space-sm) var(--space-md);
   font-weight: 400;
@@ -692,13 +714,13 @@ aside:has(> .text-detail-sidebar) {
    to the paragraph under it to stop the eye on its own, and the hairline was
    doing most of the work. h3 and the sidebar h1 move with it below.
 
-   ## takes the card step (`--type-card-lg`), the size ### used to have.
-   ### is the midpoint of that step and the reading size. #### is the reading
+   ## is the card step (`--type-card-lg`) plus 2pt.
+   ### is the midpoint of that step and the reading size, plus 1pt. #### is the reading
    size itself (`--type-prose`), so it matches the paragraph and still reads
    as a heading by weight. */
 .article-content h2 {
   font-family: var(--font-content-title);
-  font-size: var(--type-card-lg);
+  font-size: calc(var(--type-card-lg) + 2pt);
   font-weight: var(--weight-title);
   font-synthesis: none;
   line-height: 1.25;
@@ -724,8 +746,8 @@ aside:has(> .text-detail-sidebar) {
    over a sentence-shaped heading they shout. */
 .article-content h3 {
   font-family: var(--font-content-title);
-  /* Midpoint of ## (--type-card-lg) and #### (--type-prose). */
-  font-size: calc((var(--type-card-lg) + var(--type-prose)) / 2);
+  /* Midpoint of ## (--type-card-lg) and #### (--type-prose), plus 1pt. */
+  font-size: calc((var(--type-card-lg) + var(--type-prose)) / 2 + 1pt);
   font-weight: var(--weight-title);
   font-synthesis: none;
   letter-spacing: normal;
@@ -1106,6 +1128,19 @@ nav.text-page-nav:not(:has(a)) {
 /* ══ Column rhythm at the breakpoints ══ */
 @media (max-width: 767px) {
 
+  /* The listing shell's pt-10 is 2.5rem. On a phone detail the title sits
+     closer to the nav. Listings keep pt-10. */
+  main:has(#articles-detail:not(.hidden),
+      #blog-detail:not(.hidden),
+      #projects-detail:not(.hidden),
+      #cv-detail:not(.hidden)) {
+    padding-top: var(--space-xl);
+  }
+
+  .grid.text-detail-grid {
+    gap: var(--space-lg);
+  }
+
   .text-page-main,
   .text-reading-column,
   .article-content {
@@ -1117,6 +1152,23 @@ nav.text-page-nav:not(:has(a)) {
   .text-detail-sidebar .article-meta {
     padding-left: var(--space-md);
     padding-right: var(--space-md);
+  }
+
+  /* One token tighter between the kicker, title, thesis, and the meta
+     block. Desktop keeps the panel's --space-lg / --space-md rhythm: the
+     dossier is a narrow column beside the reading measure, and the same
+     cut presses the thesis against the title. */
+  .text-detail-sidebar .article-sidebar-heading {
+    padding-bottom: var(--space-md);
+  }
+
+  .text-detail-sidebar .article-sidebar-heading .ledger-chip-row {
+    margin-bottom: var(--space-xs);
+  }
+
+  .text-detail-sidebar .article-sidebar-description,
+  .text-detail-sidebar .article-sidebar-thumbnail {
+    margin-top: var(--space-sm);
   }
 
   /* A four-column benchmark table wanted 468px inside a 355px column at 390px
