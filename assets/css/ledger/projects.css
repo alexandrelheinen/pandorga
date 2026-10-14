@@ -559,7 +559,7 @@
   }
 
   .projects-page .grid.text-detail-grid {
-    gap: var(--space-lg);
+    gap: var(--space-md);
   }
 }
 

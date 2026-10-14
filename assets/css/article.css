@@ -923,7 +923,7 @@ body.figure-lightbox-open {
   .text-page-main[data-dynamic-article-detail],
   .text-page-main[data-dynamic-post-detail],
   .text-page-main[data-dynamic-portfolio-detail] {
-    margin-top: var(--space-xl);
+    margin-top: 0;
   }
 }
 

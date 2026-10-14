@@ -14,9 +14,11 @@
 - On article, draft, product, and project detail pages, category and tag
   chips sit above the title
 - On a phone, the detail title sits closer to the nav (`pt-10` to
-  `--space-xl`). The gaps inside the title block, before the contents
-  list, and between that block and the text each drop one spacing token.
-  Desktop dossier spacing stays as it was
+  `--space-xl`). The gaps inside the title block and before the contents
+  list each drop one spacing token. The contents list keeps `--space-md`
+  under it, inside the title plate. The stacked gap between that plate
+  and the reading column is `--space-md`. Desktop column gutter stays
+  2rem, and 3rem from 1024px
 - Article and draft section headings grow by 2pt on `h2` and 1pt on `h3`.
   The same sizes apply to project and product bodies
 

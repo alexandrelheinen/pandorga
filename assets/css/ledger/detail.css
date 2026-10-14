@@ -656,8 +656,16 @@ aside:has(> .text-detail-sidebar) {
   .text-detail-sidebar .article-toc--disclosure,
   .projects-dossier .article-toc--disclosure {
     margin-top: var(--space-md);
-    margin-bottom: 0;
+    margin-bottom: var(--space-md);
   }
+}
+
+/* The desktop contents card is the last block in the dossier when Related
+   Texts are absent, so the same inset keeps its border off the plate edge.
+   Related Texts bring a larger top margin, and the two margins collapse. */
+.text-detail-sidebar .article-toc--sidebar,
+.projects-dossier .article-toc--sidebar {
+  margin-bottom: var(--space-md);
 }
 
 .article-toc-summary {
@@ -1138,7 +1146,17 @@ nav.text-page-nav:not(:has(a)) {
   }
 
   .grid.text-detail-grid {
-    gap: var(--space-lg);
+    gap: var(--space-md);
+  }
+
+  /* The reading column used to add its own top margin on top of this gap,
+     so the two plates sat 3.5rem apart. The gap alone is the separation. */
+  .text-page-main:is([data-dynamic-article-detail],
+      [data-dynamic-post-detail],
+      [data-dynamic-project-detail],
+      [data-dynamic-product-detail],
+      [data-dynamic-portfolio-detail]) {
+    margin-top: 0;
   }
 
   .text-page-main,
