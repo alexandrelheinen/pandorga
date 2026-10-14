@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.10.1] — 2026-10-14
+
+### Changed
+
+- On article, draft, product, and project detail pages, the category pills
+  keep `--space-md` above and below, on a phone and in the desktop dossier
+- The description under the title stays the body face at `--type-prose`,
+  and uses `--color-on-surface-variant`, the muted ink of secondary text
+- On a phone, the contents dropdown links use `--type-prose`. The gap above
+  that dropdown is `--space-sm`. The gap under it stays `--space-md`, the
+  same inset as the pills. The date text keeps `--space-sm` under its own
+  rule and above the action rule
+
 ## [1.10.0] — 2026-10-14
 
 ### Added

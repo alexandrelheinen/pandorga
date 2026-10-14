@@ -749,7 +749,7 @@ body.figure-lightbox-open {
   font-weight: var(--weight-body);
   line-height: var(--leading-body);
   letter-spacing: normal;
-  color: var(--color-legend);
+  color: var(--color-on-surface-variant);
   margin: 0;
   text-transform: none;
 }
