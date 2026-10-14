@@ -413,8 +413,15 @@ aside:has(> .text-detail-sidebar) {
   color: var(--color-tertiary);
 }
 
+/* The pills are the only thing between the plate edge and the title when
+   they lead the block, so the same token above and below centres them.
+   An icon above the row already leaves --space-md (its mb-4). */
+.text-detail-sidebar .article-sidebar-heading:has(> .ledger-chip-row:first-child) {
+  padding-top: var(--space-md);
+}
+
 .text-detail-sidebar .article-sidebar-heading .ledger-chip-row {
-  margin: 0 0 var(--space-sm);
+  margin: 0 0 var(--space-md);
 }
 
 /* Canonical shard, bottom-right, as in the mockup. Decoration only: it is
@@ -477,15 +484,15 @@ aside:has(> .text-detail-sidebar) {
   color: var(--color-secondary);
 }
 
-/* Lead thesis. `description` is the article's own one-sentence claim — body
-   face at the prose size, in legend ink so it sits under the H1. */
+/* Lead thesis. `description` is the article's own one-sentence claim — the
+   body face at the prose size, in the same muted ink as other secondary text. */
 .text-detail-sidebar .article-sidebar-description {
   font-family: var(--font-body);
   font-style: normal;
   font-size: var(--type-prose);
   font-weight: var(--weight-body);
   line-height: var(--leading-body);
-  color: var(--color-legend);
+  color: var(--color-on-surface-variant);
   margin: var(--space-md) 0 0;
 }
 
@@ -657,6 +664,26 @@ aside:has(> .text-detail-sidebar) {
   .projects-dossier .article-toc--disclosure {
     margin-top: var(--space-md);
     margin-bottom: var(--space-md);
+  }
+}
+
+/* Phone: the dropdown is the contents control. Its links match the reading
+   size. The gap above it shrinks; the gap under it stays the pill inset. */
+@media (max-width: 767px) {
+  .text-detail-sidebar .article-toc--disclosure .article-toc-link,
+  .projects-dossier .article-toc--disclosure .article-toc-link {
+    font-size: var(--type-prose);
+  }
+
+  .text-detail-sidebar:has(.article-toc--disclosure) .article-meta,
+  .projects-dossier:has(.article-toc--disclosure) .article-meta,
+  .projects-page .projects-dossier:has(.article-toc--disclosure) .projects-dossier-rows {
+    padding-bottom: 0;
+  }
+
+  .text-detail-sidebar .article-toc--disclosure,
+  .projects-dossier .article-toc--disclosure {
+    margin-top: var(--space-sm);
   }
 }
 
@@ -1180,8 +1207,12 @@ nav.text-page-nav:not(:has(a)) {
     padding-bottom: var(--space-md);
   }
 
-  .text-detail-sidebar .article-sidebar-heading .ledger-chip-row {
-    margin-bottom: var(--space-xs);
+  /* The date row's own top rule leaves --space-sm above the text. The
+     flex gap was stacking another --space-md on the action rule, so the
+     date sat high in that band. Drop the gap and the action margin is the
+     matching --space-sm under the text. */
+  .text-detail-sidebar .article-meta {
+    gap: 0;
   }
 
   .text-detail-sidebar .article-sidebar-description,

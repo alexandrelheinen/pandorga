@@ -241,6 +241,7 @@
 .projects-page .projects-lead-subtitle,
 .projects-page .projects-hero-subtitle {
   margin: 0;
+  font-family: var(--font-body);
   color: var(--color-on-surface-variant);
   letter-spacing: 0.02em;
 }
@@ -459,9 +460,10 @@
 
 .projects-page .projects-hero-standfirst {
   margin: var(--space-md) 0 0;
+  font-family: var(--font-body);
   font-size: var(--type-subtitle);
   line-height: var(--leading-body);
-  color: var(--color-legend);
+  color: var(--color-on-surface-variant);
   max-width: var(--reading-measure);
 }
 
@@ -551,6 +553,25 @@
   .projects-page .projects-hero-standfirst {
     margin-top: var(--space-sm);
   }
+}
+
+/* Tag row centred between the hero edge and the title. The column is a
+   flex stack with a --space-xs gap, so the margins make up the rest of
+   --space-md on each side. */
+.projects-page .projects-hero-body > .ledger-chip-row {
+  margin-bottom: calc(var(--space-md) - var(--space-xs));
+}
+
+.projects-page .projects-hero-body > :not(.ledger-chip-row) + .ledger-chip-row {
+  margin-top: calc(var(--space-md) - var(--space-xs));
+}
+
+.projects-page .projects-hero-body > .ledger-chip-row + .projects-hero-title {
+  margin-top: 0;
+}
+
+.projects-page .projects-hero-body:has(> .ledger-chip-row:first-child) {
+  padding-top: var(--space-md);
 }
 
 @media (max-width: 1023px) {
