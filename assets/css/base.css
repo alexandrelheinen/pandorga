@@ -1026,6 +1026,13 @@ a.ledger-chip:hover {
   text-decoration-color: color-mix(in srgb, var(--color-link-hover) 75%, transparent);
 }
 
+/* Read / Read article pills in listings and cards. The label line is drawn
+   under the glyphs and crosses the button edge. Focus keeps the outline. */
+:is(.ledger-card-foot, .ledger-row-foot, .home-featured-foot, .writing-lead-foot) .ledger-cta:is(:link, :visited, :hover, :focus, :focus-visible, :active),
+:is(.ledger-card-foot, .ledger-row-foot, .home-featured-foot, .writing-lead-foot) .ledger-cta:is(:link, :visited, :hover, :focus, :focus-visible, :active)>span:not(.ledger-cta-arrow):not(.ledger-cta-icon) {
+  text-decoration: none;
+}
+
 .ledger-cta-arrow {
   transition: transform var(--motion-duration-fast) var(--motion-ease-default);
 }

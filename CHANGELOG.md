@@ -7,6 +7,9 @@
 - The article description under the detail title uses `--type-prose`, the
   same size as the body text. Family, weight, color, and spacing stay as
   they were
+- Read and Read article pills in listings and cards do not underline the
+  label. Hover, focus, and visited stay plain. Focus still shows the
+  outline
 
 ## [1.9.0] — 2026-10-13
 
