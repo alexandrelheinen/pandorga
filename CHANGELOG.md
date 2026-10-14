@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.9.1] — 2026-10-14
+
+### Fixed
+
+- The article description under the detail title uses `--type-prose`, the
+  same size as the body text. Family, weight, color, and spacing stay as
+  they were
+
 ## [1.9.0] — 2026-10-13
 
 ### Added

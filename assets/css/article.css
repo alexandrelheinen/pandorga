@@ -745,7 +745,7 @@ body.figure-lightbox-open {
 
 .article-sidebar-description {
   font-family: var(--font-body);
-  font-size: var(--type-body);
+  font-size: var(--type-prose);
   font-weight: var(--weight-body);
   line-height: var(--leading-body);
   letter-spacing: normal;
