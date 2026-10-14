@@ -464,12 +464,11 @@ aside:has(> .text-detail-sidebar) {
 }
 
 /* Lead thesis. `description` is the article's own one-sentence claim — body
-   face and body size, in legend ink so it sits under the H1 without matching
-   the reading column. */
+   face at the prose size, in legend ink so it sits under the H1. */
 .text-detail-sidebar .article-sidebar-description {
   font-family: var(--font-body);
   font-style: normal;
-  font-size: var(--type-body);
+  font-size: var(--type-prose);
   font-weight: var(--weight-body);
   line-height: var(--leading-body);
   color: var(--color-legend);
