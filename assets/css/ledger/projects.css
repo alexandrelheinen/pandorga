@@ -539,6 +539,30 @@
    which start at 768px. A project holds the split back to 1024px for the
    reason recorded in the layout: at tablet width the dossier is narrow enough
    to break a repository slug across three lines mid-word. */
+@media (max-width: 767px) {
+  .projects-page .projects-hero-body {
+    padding: var(--space-lg);
+  }
+
+  .projects-page .projects-hero-title {
+    margin-top: var(--space-xs);
+  }
+
+  .projects-page .projects-hero-standfirst {
+    margin-top: var(--space-sm);
+  }
+}
+
+@media (max-width: 1023px) {
+  .projects-page .projects-hero {
+    margin-bottom: var(--space-xl);
+  }
+
+  .projects-page .grid.text-detail-grid {
+    gap: var(--space-lg);
+  }
+}
+
 @media (min-width: 768px) and (max-width: 1023px) {
   .projects-page .grid.text-detail-grid {
     grid-template-columns: minmax(0, 1fr);

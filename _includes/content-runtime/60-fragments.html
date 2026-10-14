@@ -519,6 +519,8 @@
     // content/media/images/hero/. One entry is chosen per document load.
     // A file that fails to load is skipped. The plate stays black until one
     // pool file has loaded, and stays black when every entry fails.
+    // At or below 767px the draw uses entries that carry `landscape` (a 16:9
+    // URL). The single data-hero-landscape URL is the fallback when none do.
     function heroPortraitEntries(data) {
       var list = Array.isArray(data) ? data : [];
       var entries = [];
@@ -536,6 +538,10 @@
         var sizes = typeof entry.sizes === 'string' ? entry.sizes.trim() : '';
         if (srcset) record.srcset = srcset;
         if (sizes) record.sizes = sizes;
+        // Optional 16:9 file for the phone plate. Absent, the entry stays a
+        // portrait and the narrow draw skips it.
+        var landscape = typeof entry.landscape === 'string' ? entry.landscape.trim() : '';
+        if (landscape) record.landscape = landscape;
         entries.push(record);
       }
       return entries;
@@ -595,6 +601,16 @@
       });
     }
 
+    function heroLandscapeEntries(entries) {
+      var list = [];
+      var i;
+      var rows = entries || [];
+      for (i = 0; i < rows.length; i++) {
+        if (rows[i] && rows[i].landscape) list.push(rows[i]);
+      }
+      return list;
+    }
+
     function showHeroPortrait(img, entries) {
       var chosen = pickHeroPortrait(entries, Math.random);
       if (!chosen) return Promise.resolve();
@@ -613,28 +629,123 @@
       return next();
     }
 
-    function heroLandscapeActive(img) {
+    function configuredLandscape(img) {
       var url = img && img.getAttribute('data-hero-landscape');
-      if (!url || !String(url).trim() || !window.matchMedia) return false;
-      return window.matchMedia('(max-width: 767px)').matches;
+      url = url ? String(url).trim() : '';
+      return url;
     }
 
-    function clearHeroSources(img) {
-      img.removeAttribute('src');
-      img.removeAttribute('srcset');
-      img.removeAttribute('sizes');
-      img.alt = '';
+    function heroPlate(img) {
+      var node = img && img.parentElement;
+      while (node) {
+        if (node.classList && node.classList.contains('home-hero-plate')) return node;
+        node = node.parentElement;
+      }
+      return null;
+    }
+
+    function setNarrowSource(img, url) {
+      var picture = img.parentElement;
+      if (!picture || String(picture.tagName).toUpperCase() !== 'PICTURE') return;
+      var source = picture.querySelector('source');
+      if (!url) {
+        if (source) source.removeAttribute('srcset');
+        return;
+      }
+      if (!source) {
+        source = document.createElement('source');
+        source.setAttribute('media', '(max-width: 767px)');
+        picture.insertBefore(source, img);
+      }
+      source.setAttribute('srcset', url);
+    }
+
+    function applyHeroLandscapeFile(img, chosen) {
+      var nextSrc = resolveAssetUrl(chosen && (chosen.landscape || chosen.src));
+      var nextAlt = (chosen && chosen.alt) || '';
+      if (!nextSrc) return Promise.resolve(false);
+      if (img.getAttribute('src') === nextSrc) {
+        img.alt = nextAlt;
+        img.removeAttribute('srcset');
+        img.removeAttribute('sizes');
+        setNarrowSource(img, nextSrc);
+        img.classList.add('is-shown');
+        return Promise.resolve(true);
+      }
+      return new Promise(function (resolve) {
+        var probe = new Image();
+        probe.fetchPriority = 'high';
+        probe.onload = function () {
+          img.alt = nextAlt;
+          img.removeAttribute('srcset');
+          img.removeAttribute('sizes');
+          setNarrowSource(img, nextSrc);
+          img.fetchPriority = 'high';
+          img.src = nextSrc;
+          img.classList.add('is-shown');
+          resolve(true);
+        };
+        probe.onerror = function () {
+          resolve(false);
+        };
+        probe.src = nextSrc;
+      });
+    }
+
+    function showHeroLandscape(img, entries) {
+      var chosen = pickHeroPortrait(entries, Math.random);
+      if (!chosen) return Promise.resolve(false);
+      var start = entries.indexOf(chosen);
+      var ordered = entries.slice(start).concat(entries.slice(0, start));
+      var index = 0;
+      function next() {
+        if (index >= ordered.length) return Promise.resolve(false);
+        var entry = ordered[index];
+        index += 1;
+        return applyHeroLandscapeFile(img, entry).then(function (ok) {
+          if (ok) return true;
+          return next();
+        });
+      }
+      return next();
+    }
+
+    function showConfiguredLandscape(img) {
+      var url = configuredLandscape(img);
+      if (!url) return Promise.resolve(false);
+      var plate = heroPlate(img);
+      if (plate) plate.classList.add('home-hero-plate--landscape');
+      return applyHeroLandscapeFile(img, { landscape: url, alt: '' });
+    }
+
+    function paintNarrowHero(img) {
+      img.classList.remove('is-shown');
+      return loadJson('pages/home/portraits.json').then(function (data) {
+        var entries = heroPortraitEntries(data);
+        var landscapes = heroLandscapeEntries(entries);
+        if (landscapes.length) {
+          var plate = heroPlate(img);
+          if (plate) plate.classList.add('home-hero-plate--landscape');
+          return showHeroLandscape(img, landscapes).then(function (ok) {
+            if (ok) return;
+            return showConfiguredLandscape(img);
+          });
+        }
+        if (configuredLandscape(img)) return showConfiguredLandscape(img);
+        return showHeroPortrait(img, entries);
+      }).catch(function (error) {
+        console.error(error);
+        if (configuredLandscape(img)) return showConfiguredLandscape(img);
+      });
     }
 
     function watchHeroFrame(img) {
-      var url = img.getAttribute('data-hero-landscape');
-      if (!url || !String(url).trim() || !window.matchMedia) return;
+      if (!window.matchMedia) return;
       var mq = window.matchMedia('(max-width: 767px)');
       if (!mq.addEventListener) return;
       mq.addEventListener('change', function () {
         if (mq.matches) {
-          clearHeroSources(img);
-          img.classList.add('is-shown');
+          paintNarrowHero(img);
           return;
         }
         img.classList.remove('is-shown');
@@ -650,7 +761,9 @@
       var img = document.querySelector('[data-content-hero-portrait]');
       if (!img) return Promise.resolve();
       watchHeroFrame(img);
-      if (heroLandscapeActive(img)) return Promise.resolve();
+      if (window.matchMedia && window.matchMedia('(max-width: 767px)').matches) {
+        return paintNarrowHero(img);
+      }
       return loadJson('pages/home/portraits.json').then(function (data) {
         return showHeroPortrait(img, heroPortraitEntries(data));
       }).catch(function (error) {

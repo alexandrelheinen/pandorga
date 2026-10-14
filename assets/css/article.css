@@ -73,13 +73,13 @@
 }
 
 .article-content h2 {
-  /* Same step ### used to take. */
-  font-size: var(--type-card-lg);
+  /* Card step, plus 2pt. detail.css owns the same size when it loads. */
+  font-size: calc(var(--type-card-lg) + 2pt);
 }
 
 .article-content h3 {
-  /* Halfway between ## and the reading size. */
-  font-size: calc((var(--type-card-lg) + var(--type-prose)) / 2);
+  /* Halfway between ## and the reading size, plus 1pt. */
+  font-size: calc((var(--type-card-lg) + var(--type-prose)) / 2 + 1pt);
 }
 
 .article-content h4 {
@@ -923,7 +923,7 @@ body.figure-lightbox-open {
   .text-page-main[data-dynamic-article-detail],
   .text-page-main[data-dynamic-post-detail],
   .text-page-main[data-dynamic-portfolio-detail] {
-    margin-top: 2.5rem;
+    margin-top: var(--space-xl);
   }
 }
 

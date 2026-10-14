@@ -30,10 +30,10 @@ if (!slice.includes('function pickHeroPortrait')) {
 }
 
 const api = new Function(
-  `${slice}\nreturn { heroPortraitEntries, pickHeroPortrait };`
+  `${slice}\nreturn { heroPortraitEntries, heroLandscapeEntries, pickHeroPortrait };`
 )();
 
-const { heroPortraitEntries, pickHeroPortrait } = api;
+const { heroPortraitEntries, heroLandscapeEntries, pickHeroPortrait } = api;
 
 let failed = 0;
 
@@ -80,6 +80,31 @@ same(
   ],
   'normalised rows'
 );
+
+same(
+  heroPortraitEntries([
+    { src: '/media/images/hero/a.jpg', landscape: '  /media/images/hero/a-16x9.jpg  ' },
+    { src: '/media/images/hero/b.jpg', landscape: '' },
+    { src: '/media/images/hero/c.jpg', landscape: '   ' },
+    { src: '/media/images/hero/d.jpg', landscape: 4 },
+  ]),
+  [
+    { src: '/media/images/hero/a.jpg', alt: '', landscape: '/media/images/hero/a-16x9.jpg' },
+    { src: '/media/images/hero/b.jpg', alt: '' },
+    { src: '/media/images/hero/c.jpg', alt: '' },
+    { src: '/media/images/hero/d.jpg', alt: '' },
+  ],
+  'optional landscape'
+);
+same(
+  heroLandscapeEntries([
+    { src: '/media/images/hero/a.jpg', alt: '', landscape: '/media/images/hero/a-16x9.jpg' },
+    { src: '/media/images/hero/b.jpg', alt: '' },
+  ]),
+  [{ src: '/media/images/hero/a.jpg', alt: '', landscape: '/media/images/hero/a-16x9.jpg' }],
+  'landscape pool'
+);
+same(heroLandscapeEntries([]), [], 'empty landscape pool');
 
 // AC-HERO-06
 const two = [
