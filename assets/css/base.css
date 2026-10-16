@@ -488,7 +488,7 @@ html body {
 }
 
 .back-link:hover {
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 /* Text selection: quiet ink wash at high transparency, matching the
@@ -937,6 +937,7 @@ a.no-underline:active {
    line around a card, so the quieter mix is the proportionate one. */
 a.ledger-chip:hover {
   color: var(--color-on-surface);
+  text-decoration: none;
   /* Resting fill is 16% accent in light; hover must clear that. */
   background: color-mix(in srgb, var(--color-primary) 28%, var(--color-surface-high));
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-primary) 45%, var(--border-gentle));
@@ -1000,7 +1001,7 @@ a.ledger-chip:hover {
 /* Text CTAs carry a gentle accent underline so the clickable cue is not the
    same gesture as the marker wash on titles. Emphasis buttons keep a box
    fill instead — underline would fight the border. */
-.ledger-cta:not(.ledger-cta--emphasis):not(.ledger-cta--emphasis-alt)>span:not(.ledger-cta-arrow):not(.ledger-cta-icon) {
+.ledger-cta:not(.ledger-cta--emphasis):not(.ledger-cta--emphasis-alt):not(.home-featured-cta):not(.writing-lead-cta)>span:not(.ledger-cta-arrow):not(.ledger-cta-icon) {
   text-decoration: underline;
   text-decoration-color: color-mix(in srgb, var(--color-primary) 50%, transparent);
   text-decoration-thickness: 1.5px;
@@ -1022,17 +1023,23 @@ a.ledger-chip:hover {
   color: var(--color-link-hover);
 }
 
-.ledger-cta:not(.ledger-cta--emphasis):not(.ledger-cta--emphasis-alt):hover>span:not(.ledger-cta-arrow):not(.ledger-cta-icon) {
+.ledger-cta:not(.ledger-cta--emphasis):not(.ledger-cta--emphasis-alt):not(.home-featured-cta):not(.writing-lead-cta):hover>span:not(.ledger-cta-arrow):not(.ledger-cta-icon) {
   text-decoration-color: color-mix(in srgb, var(--color-link-hover) 75%, transparent);
 }
 
 /* Pill read-more only. The box is the affordance, so the label line would
    cross the border. Plain text read-more keeps the underline above.
    Focus keeps the outline. */
+:is(.ledger-cta--emphasis, .ledger-cta--emphasis-alt),
+:is(.ledger-cta--emphasis, .ledger-cta--emphasis-alt)>span:not(.ledger-cta-arrow):not(.ledger-cta-icon),
 :is(.ledger-cta--emphasis, .ledger-cta--emphasis-alt):is(:link, :visited, :hover, :focus, :focus-visible, :active),
 :is(.home-featured-foot, .writing-lead-foot) :is(.home-featured-cta, .writing-lead-cta):is(:link, :visited, :hover, :focus, :focus-visible, :active),
 :is(.ledger-cta--emphasis, .ledger-cta--emphasis-alt):is(:link, :visited, :hover, :focus, :focus-visible, :active)>span:not(.ledger-cta-arrow):not(.ledger-cta-icon),
-:is(.home-featured-foot, .writing-lead-foot) :is(.home-featured-cta, .writing-lead-cta).ledger-cta:is(:link, :visited, :hover, :focus, :focus-visible, :active)>span:not(.ledger-cta-arrow):not(.ledger-cta-icon) {
+:is(.home-featured-foot, .writing-lead-foot) :is(.home-featured-cta, .writing-lead-cta).ledger-cta:is(:link, :visited, :hover, :focus, :focus-visible, :active)>span:not(.ledger-cta-arrow):not(.ledger-cta-icon),
+.projects-hero-actions .ledger-cta,
+.projects-hero-actions .ledger-cta:is(:link, :visited, :hover, :focus, :focus-visible, :active),
+.projects-hero-actions .ledger-cta>span:not(.ledger-cta-arrow):not(.ledger-cta-icon),
+.projects-hero-actions .ledger-cta:is(:link, :visited, :hover, :focus, :focus-visible, :active)>span:not(.ledger-cta-arrow):not(.ledger-cta-icon) {
   text-decoration: none;
 }
 
