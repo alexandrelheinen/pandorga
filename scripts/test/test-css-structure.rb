@@ -226,48 +226,6 @@ sheets.each do |path|
   end
 end
 
-# Pill and chip controls rely on their box or surface fill as the affordance;
-# their label text must not be underlined at rest or on hover.
-base_sheet = strip_comments(File.read(CSS_ROOT.join("base.css")))
-projects_sheet = strip_comments(File.read(CSS_ROOT.join("ledger/projects.css")))
-detail_runtime = File.read(REPO_ROOT.join("_includes/content-runtime/50-detail.html"))
-
-require_declarations(
-  errors, "assets/css/base.css", base_sheet,
-  ".back-link:hover", ["text-decoration: none"]
-)
-require_declarations(
-  errors, "assets/css/base.css", base_sheet,
-  "a.ledger-chip:hover", ["text-decoration: none"]
-)
-require_declarations(
-  errors, "assets/css/ledger/projects.css", projects_sheet,
-  ".projects-page .projects-hero-actions .ledger-cta", ["text-decoration: none"]
-)
-require_declarations(
-  errors, "assets/css/ledger/projects.css", projects_sheet,
-  ".projects-page .projects-hero-actions .ledger-cta:hover", ["text-decoration: none"]
-)
-require_declarations(
-  errors, "assets/css/ledger/projects.css", projects_sheet,
-  ".projects-page .projects-hero-actions .ledger-cta > span:not(.ledger-cta-arrow):not(.ledger-cta-icon)",
-  ["text-decoration: none"]
-)
-require_declarations(
-  errors, "assets/css/ledger/projects.css", projects_sheet,
-  ".projects-page .projects-hero-actions .ledger-cta:hover > span:not(.ledger-cta-arrow):not(.ledger-cta-icon)",
-  ["text-decoration: none"]
-)
-if declaration_bodies(projects_sheet, ".projects-page .projects-dossier-row dd a:hover").any?
-  errors << "assets/css/ledger/projects.css: .projects-page .projects-dossier-row dd a:hover must exclude :not(.ledger-chip)"
-end
-if detail_runtime.match?(/class="[^"]*\bback-link\b[^"]*\bhover:underline\b/)
-  errors << "_includes/content-runtime/50-detail.html: .back-link must not carry hover:underline"
-end
-unless base_sheet.include?(":not(.home-featured-cta):not(.writing-lead-cta)")
-  errors << "assets/css/base.css: .ledger-cta underline rule must exclude .home-featured-cta and .writing-lead-cta"
-end
-
 fail!("CSS structure problems:\n  - #{errors.join("\n  - ")}") unless errors.empty?
 
 puts "  #{sheets.size} stylesheet(s) balanced, no conflict markers."

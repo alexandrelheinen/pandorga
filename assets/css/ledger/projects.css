@@ -478,18 +478,11 @@
   padding: var(--space-sm) var(--space-md);
   background: var(--color-surface-card);
   color: var(--color-on-surface);
-  text-decoration: none;
 }
 
 .projects-page .projects-hero-actions .ledger-cta:hover {
   background: var(--color-surface-high);
   color: var(--color-primary);
-  text-decoration: none;
-}
-
-.projects-page .projects-hero-actions .ledger-cta > span:not(.ledger-cta-arrow):not(.ledger-cta-icon),
-.projects-page .projects-hero-actions .ledger-cta:hover > span:not(.ledger-cta-arrow):not(.ledger-cta-icon) {
-  text-decoration: none;
 }
 
 /* The first action is whatever the project itself puts first — the source for
@@ -651,7 +644,7 @@
   text-decoration: none;
 }
 
-.projects-page .projects-dossier-row dd a:not(.ledger-chip):hover {
+.projects-page .projects-dossier-row dd a:hover {
   text-decoration: underline;
 }
 

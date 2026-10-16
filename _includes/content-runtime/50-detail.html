@@ -417,7 +417,7 @@
       var label = options.backLabel || translate(options.backLabelKey || 'back', lang);
       return [
         '<a href="', escapeAttr(options.backUrl || '#'), '" ',
-        'class="back-link text-sm font-label inline-flex items-center gap-2 no-underline text-primary mb-8 block" ',
+        'class="back-link text-sm font-label inline-flex items-center gap-2 no-underline hover:underline text-primary mb-8 block" ',
         'id="', escapeAttr(options.id || 'runtime-back-link'), '">',
         '<span class="material-symbols-outlined text-sm" aria-hidden="true">arrow_left_alt</span>',
         escapeHtml(label),
