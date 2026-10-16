@@ -226,6 +226,28 @@ sheets.each do |path|
   end
 end
 
+# PLT-AC-41. Home project inventory rows use the square icon mark, two-line
+# code + title body, and no tagline preview or attached-resource icons; the
+# desktop specimen height matches the N-entry inventory height.
+home_sheet = strip_comments(File.read(CSS_ROOT.join("ledger/home.css")))
+%w[
+  home-project-inventory-copy
+  home-project-inventory-resources
+  home-project-inventory-resource
+].each do |retired_home|
+  if home_sheet.match?(/[.#]#{Regexp.escape(retired_home)}\b/)
+    errors << "assets/css/ledger/home.css: .#{retired_home} must be removed (PLT-AC-41)"
+  end
+end
+require_declarations(
+  errors, "assets/css/ledger/home.css", home_sheet,
+  ".home-project-inventory-media", ["aspect-ratio: 1 / 1"]
+)
+require_declarations(
+  errors, "assets/css/ledger/home.css", home_sheet,
+  ".home-projects-bench", ["--home-specimen-height: var(--home-inventory-min-height)"]
+)
+
 fail!("CSS structure problems:\n  - #{errors.join("\n  - ")}") unless errors.empty?
 
 puts "  #{sheets.size} stylesheet(s) balanced, no conflict markers."

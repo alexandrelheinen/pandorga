@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.10.2] — 2026-10-16
+
+### Changed
+
+- On the home projects bench, each inventory row shows the project icon mark
+  (or initial fallback), optional index and label strip, and title, without a
+  thumbnail poster, tagline preview, or attached-resource icons. On desktop
+  (`>= 900px`) each row fits that two-line body and square icon mark, and the
+  specimen height matches the inventory stack
+- Project hero action pills keep their label text free of underlines at rest
+  and on hover
+
 ## [1.10.1] — 2026-10-14
 
 ### Changed

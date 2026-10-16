@@ -399,9 +399,10 @@ layout: shell
         async function lockSpecimenHeight() {
           var bench = specimenSlot.closest('.home-projects-bench');
           if (!bench) return;
+          bench.style.setProperty('--home-project-icon-count', String(iconSlots));
           var tallest = await measureTallestSpecimen();
-          /* Floor at the CSS inventory minimum so six rows always clear
-             three stacked resource icons (see --home-inventory-min-height). */
+          /* Desktop matches the specimen height to the N-entry inventory stack
+             (see --home-inventory-min-height); mobile uses the tallest specimen. */
           var inventoryMin = 0;
           var raw = window.getComputedStyle(bench)
             .getPropertyValue('--home-inventory-min-height').trim();
@@ -412,7 +413,7 @@ layout: shell
             inventoryMin = Math.ceil(probe.getBoundingClientRect().height);
             probe.remove();
           }
-          var locked = Math.max(tallest, inventoryMin);
+          var locked = inventoryMin > 0 ? inventoryMin : tallest;
           if (locked > 0) {
             bench.style.setProperty('--home-specimen-height', locked + 'px');
           }
@@ -441,12 +442,10 @@ layout: shell
               selected: entry.slug === selectedSlug,
               index: i + 1
             });
-            row.addEventListener('click', function (event) {
-              if (event.target.closest('.home-project-inventory-resources')) return;
+            row.addEventListener('click', function () {
               select(entry.slug);
             });
             row.addEventListener('keydown', function (event) {
-              if (event.target.closest('.home-project-inventory-resources')) return;
               if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
                 select(entry.slug);

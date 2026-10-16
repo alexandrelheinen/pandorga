@@ -330,9 +330,9 @@
     }
 
     /* Rack card for the home portfolio bench.
-     * Desktop: thumb (or icon, or initial) beside a code line, title and
-     * tagline. The mobile strip shows the project glyph only. Selectable rows
-     * update the specimen. */
+     * Desktop: square icon mark (or initial) beside a code line and title.
+     * The mobile strip shows the project glyph only. Selectable rows update
+     * the specimen. */
     function renderProjectInventoryRow(item, options) {
       options = options || {};
       var f = blockFields(item);
@@ -357,12 +357,12 @@
         row.setAttribute('aria-label', name);
       }
 
-      var media = renderPosterMedia(fm.thumbnail, name);
       var initial = String(name || '?').charAt(0).toUpperCase();
-      if (!media && fm.icon) {
+      var media;
+      if (fm.icon) {
         media = '<div class="home-project-inventory-mark" aria-hidden="true">' +
           '<span class="material-symbols-outlined">' + escapeHtml(fm.icon) + '</span></div>';
-      } else if (!media) {
+      } else {
         media = '<div class="home-project-inventory-mark home-project-inventory-mark--initial" aria-hidden="true">' +
           escapeHtml(initial) + '</div>';
       }
@@ -388,9 +388,6 @@
           '<a class="ledger-card-stretch" href="' + escapeAttr(href) + '">' +
           escapeHtml(name) + '</a></h3>';
       }
-      if (fm.tagline) {
-        html += '<p class="home-project-inventory-copy font-body">' + escapeHtml(fm.tagline) + '</p>';
-      }
       html += '</div>';
       if (fm.icon) {
         html += '<span class="home-project-inventory-glyph material-symbols-outlined" aria-hidden="true">' +
@@ -399,7 +396,6 @@
         html += '<span class="home-project-inventory-glyph home-project-inventory-glyph--initial" aria-hidden="true">' +
           escapeHtml(initial) + '</span>';
       }
-      html += renderProjectResourceBadges(fm);
 
       row.innerHTML = html;
       return row;
@@ -471,32 +467,6 @@
       if (fm.article_url) links.push(renderCtaLink(fm.article_url, options.articleLabel || 'Article', { icon: 'article' }));
       if (fm.external_url) links.push(renderCtaLink(fm.external_url, options.externalLabel || 'Visit', { icon: 'public' }));
       return links.join('');
-    }
-
-    /* Square resource marks for the home inventory rack — same fields as
-     * renderProjectLinks (github / article_url / external_url), icon-only
-     * indicators (not links). */
-    function renderProjectResourceBadges(fm) {
-      var badges = [];
-      if (fm.github) {
-        badges.push({ icon: 'code', label: 'Code' });
-      }
-      if (fm.article_url) {
-        badges.push({ icon: 'article', label: 'Article' });
-      }
-      if (fm.external_url) {
-        badges.push({ icon: 'public', label: 'Site' });
-      }
-      if (!badges.length) return '';
-      return '<div class="home-project-inventory-resources" aria-label="Attached resources">' +
-        badges.map(function (badge) {
-          return '<span class="home-project-inventory-resource" title="' +
-            escapeAttr(badge.label) + '" aria-label="' +
-            escapeAttr(badge.label) + '">' +
-            '<span class="material-symbols-outlined" aria-hidden="true">' +
-            escapeHtml(badge.icon) + '</span></span>';
-        }).join('') +
-        '</div>';
     }
 
     /* Home specimen — the featured project on the portfolio bench. A system

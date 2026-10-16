@@ -1321,10 +1321,6 @@ button.home-project-inventory-row {
   display: none;
 }
 
-.home-project-inventory-resources {
-  display: none;
-}
-
 .home-project-inventory-glyph {
   display: inline-flex;
   align-items: center;
@@ -1367,23 +1363,20 @@ button.home-project-inventory-row {
 
 @media (min-width: 900px) {
 
-  /* Desktop fallback before JS measures the tallest specimen.
-     Specimen and inventory share equal columns (specimen was 38% then
-     +20% → 45.6%; the list matches that width). Rows still reserve
-     height for three stacked resource icons. */
+  /* Specimen and inventory share equal columns (~45.6% each). Each row fits
+     its square icon mark and two-line code + title body; the specimen height
+     matches the N-entry inventory stack. */
   .home-projects-bench {
-    --home-inventory-icon-size: 1.55rem;
-    --home-inventory-icon-gap: 0.2rem;
-    --home-inventory-resources-height: calc(
-      3 * var(--home-inventory-icon-size) + 2 * var(--home-inventory-icon-gap)
-    );
+    --home-inventory-mark-size: 2.75rem;
     --home-inventory-row-min: calc(
-      var(--home-inventory-resources-height) + 2 * var(--space-sm)
+      var(--home-inventory-mark-size) + 2 * var(--space-sm) + 2px
     );
     --home-inventory-min-height: calc(
-      6 * var(--home-inventory-row-min) + 5 * var(--space-sm) + 2 * var(--space-md)
+      var(--home-project-icon-count, 6) * var(--home-inventory-row-min) +
+      (var(--home-project-icon-count, 6) - 1) * var(--space-sm) +
+      2 * var(--space-md)
     );
-    --home-specimen-height: max(36rem, var(--home-inventory-min-height));
+    --home-specimen-height: var(--home-inventory-min-height);
     display: grid;
     grid-template-columns: minmax(0, 45.6%) minmax(0, 45.6%);
     column-gap: var(--space-xl);
@@ -1404,17 +1397,39 @@ button.home-project-inventory-row {
     background: var(--color-panel-contrast);
   }
 
+  .home-specimen-figure:has(> .ledger-poster, > .projects-plate) {
+    flex: 1 1 0;
+    min-height: 0;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: var(--space-sm);
+  }
+
+  .home-specimen-figure > .ledger-poster,
+  .home-specimen-figure > .projects-plate {
+    height: 100%;
+    min-height: 0;
+    aspect-ratio: auto;
+  }
+
   .home-project-specimen .home-specimen-title {
     font-size: var(--type-title);
   }
 
+  .home-project-specimen .ledger-card-copy {
+    flex: 0 0 auto;
+    height: auto;
+    min-height: 0;
+    max-height: calc(var(--type-body) * var(--leading-body) * 2);
+  }
+
   .home-project-inventory-row {
-    flex: 1 1 0;
-    align-items: flex-start;
+    flex: 0 0 auto;
+    align-items: center;
     justify-content: flex-start;
     gap: var(--space-md);
-    height: auto;
+    height: var(--home-inventory-row-min);
     min-height: var(--home-inventory-row-min);
+    box-sizing: border-box;
     padding: var(--space-sm) var(--space-md);
     border: 1px solid var(--border-gentle-divider);
     background: var(--color-surface-card);
@@ -1433,15 +1448,13 @@ button.home-project-inventory-row {
     box-shadow: inset 3px 0 0 var(--color-primary);
   }
 
-  /* Plate fills the row’s content height; width follows 16:9. Stretch keeps
-     it tall while title/copy/icons stay top-aligned with its top edge. */
+  /* Square icon mark beside the two-line code + title body. */
   .home-project-inventory-media {
     display: block;
     flex: 0 0 auto;
-    align-self: stretch;
-    width: auto;
-    height: auto;
-    aspect-ratio: 16 / 9;
+    width: var(--home-inventory-mark-size);
+    height: var(--home-inventory-mark-size);
+    aspect-ratio: 1 / 1;
     overflow: hidden;
     background: var(--color-surface-high);
   }
@@ -1451,33 +1464,25 @@ button.home-project-inventory-row {
     outline-offset: 2px;
   }
 
-  .home-project-inventory-media .ledger-poster,
   .home-project-inventory-mark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
     height: 100%;
     aspect-ratio: auto;
     overflow: hidden;
     background: var(--color-surface-high);
-  }
-
-  .home-project-inventory-media .ledger-poster::after {
-    display: none;
-  }
-
-  .home-project-inventory-mark {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     color: var(--color-primary);
   }
 
   .home-project-inventory-mark .material-symbols-outlined {
-    font-size: 2rem;
+    font-size: 1.5rem;
   }
 
   .home-project-inventory-mark--initial {
     font-family: var(--font-content-title);
-    font-size: var(--type-card-lg);
+    font-size: var(--type-card);
     font-weight: var(--weight-title);
     line-height: 1;
     color: var(--color-on-surface);
@@ -1486,45 +1491,12 @@ button.home-project-inventory-row {
   .home-project-inventory-body {
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
-    align-self: flex-start;
-    gap: 0.2rem;
+    justify-content: center;
+    align-self: center;
+    gap: 0.15rem;
     flex: 1 1 0;
     min-width: 0;
     padding-top: 0;
-  }
-
-  .home-project-inventory-resources {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    align-self: flex-start;
-    flex: 0 0 auto;
-    gap: var(--home-inventory-icon-gap);
-    width: var(--home-inventory-icon-size);
-    min-height: var(--home-inventory-resources-height);
-    position: relative;
-    z-index: 1;
-  }
-
-  /* Neutral marks — same voice as list descriptions, not primary CTAs. */
-  .home-project-inventory-resource {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: var(--home-inventory-icon-size);
-    height: var(--home-inventory-icon-size);
-    flex: 0 0 auto;
-    background: transparent;
-    color: var(--color-on-surface-variant);
-    border: 0;
-  }
-
-  .home-project-inventory-resource .material-symbols-outlined {
-    font-size: 1rem;
-    line-height: 1;
-    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 20;
   }
 
   .home-project-inventory-code .ledger-meta {
@@ -1532,7 +1504,7 @@ button.home-project-inventory-row {
   }
 
   .home-project-inventory-title {
-    margin: 0.2rem 0 0;
+    margin: 0;
     font-family: var(--font-content-title);
     font-size: calc(var(--type-card) - 2pt);
     font-weight: var(--weight-title);
@@ -1547,17 +1519,6 @@ button.home-project-inventory-row {
   .home-project-inventory-row:focus-visible .home-project-inventory-title,
   .home-project-inventory-row.is-selected .home-project-inventory-title {
     color: var(--color-primary);
-  }
-
-  .home-project-inventory-copy {
-    margin: 0;
-    font-size: var(--type-label-lg);
-    font-weight: var(--weight-body);
-    line-height: 1.35;
-    color: var(--color-on-surface-variant);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
 
   /* Two classes: the glyph also carries .material-symbols-outlined, whose
