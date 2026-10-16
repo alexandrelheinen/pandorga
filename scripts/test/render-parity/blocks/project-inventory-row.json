@@ -1,5 +1,5 @@
 {
-  "name": "project-inventory-row/rack card (PLT-AC-15)",
+  "name": "project-inventory-row/rack card (PLT-AC-41)",
   "block": "renderProjectInventoryRow",
   "args": [
     {
@@ -25,28 +25,25 @@
   "selectors": [
     "button.home-project-inventory-row",
     "div.home-project-inventory-media",
-    "div.ledger-poster",
+    "div.home-project-inventory-mark",
     "div.home-project-inventory-code",
     "span.home-project-inventory-index",
     "h3.home-project-inventory-title",
-    "p.home-project-inventory-copy",
-    "span.home-project-inventory-glyph",
-    "div.home-project-inventory-resources",
-    "span.home-project-inventory-resource"
+    "span.home-project-inventory-glyph"
   ],
   "forbidden": [
     "ledger-card-stretch",
-    "role=\"button\""
+    "role=\"button\"",
+    "ledger-poster",
+    "home-project-inventory-copy",
+    "home-project-inventory-resources",
+    "home-project-inventory-resource"
   ],
   "contains": [
     ">02<",
     ">Simulation<",
     ">ARCO<",
-    ">A city-scale race replayed from telemetry.<",
     ">route<",
-    ">code<",
-    ">article<",
-    ">public<",
     "aria-pressed=\"false\"",
     "data-slug=\"arco\""
   ]
