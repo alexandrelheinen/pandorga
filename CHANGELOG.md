@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.12.0] — 2026-10-19
+
 ### Changed
 
 - `pandorga install-functions` fills the Studio tag pickers from the site's `_config.yml` → `pandorga.taxonomies` (with `min` and `max`), falling back to a page's `taxonomy`, then applies `studio.overrides.yml`. The gem's `studio/schema.yml` no longer ships a site's tag vocabulary; a collection without one gets an empty picker and a build warning (PLT-AC-43).

@@ -269,7 +269,7 @@ Consumer sites should pin a release tag, not `main`:
 gem "pandorga", "~> 1.3"
 
 # Or pin a GitHub release tag
-gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v1.11.0"
+gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v1.12.0"
 ```
 
 After a bump, run `bundle update pandorga` and commit `Gemfile.lock`. Host
@@ -319,7 +319,7 @@ Manual publish (optional, local MFA may apply):
 
 ```bash
 mise exec -- gem build pandorga.gemspec
-mise exec -- gem push pandorga-1.11.0.gem
+mise exec -- gem push pandorga-1.12.0.gem
 ```
 
 ## Android shell (1.2+)
