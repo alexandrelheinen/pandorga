@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Home listing bands keep their kicker and note on sites built with
+  `shell_content_agnostic: true`; the slots are always in the HTML and the
+  runtime fills them from `pages/headers.json` (regression from 1.10.0)
+
 ## [1.10.2] — 2026-10-16
 
 ### Changed
