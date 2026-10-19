@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.11.0] — 2026-10-19
+
 ### Fixed
 
 - Home listing bands keep their kicker and note on sites built with
