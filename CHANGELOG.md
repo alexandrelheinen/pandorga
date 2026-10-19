@@ -21,6 +21,8 @@
 - The home project specimen title uses `--type-section` from 900px and
   `--type-card-lg` below it; inventory rack titles use `--type-card`
 - The home specimen meta strip wraps instead of clipping on narrow viewports
+- The home hero summary uses `--color-legend`, the same ink as the other
+  description texts
 
 ## [1.10.2] — 2026-10-16
 

@@ -308,7 +308,7 @@
 
 .home-hero-summary {
   max-width: var(--reading-measure, 45rem);
-  color: var(--color-on-surface);
+  color: var(--color-legend);
   line-height: var(--leading-body);
 }
 
@@ -1867,7 +1867,7 @@ button.home-project-inventory-row {
   margin-top: 0;
   font-size: var(--type-body);
   line-height: var(--leading-body);
-  color: var(--color-on-surface);
+  color: var(--color-legend);
 }
 
 .home-hero-summary p {
