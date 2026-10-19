@@ -10,12 +10,14 @@
 
 ### Changed
 
-- On the home projects bench at or above 900px, the specimen and the filing
-  rack split the band width 7:5 across one `--space-xl` column gap, so both
-  reach the band's content edge. The specimen keeps its 16:9 plate and sets
-  the bench height (the tallest project). The rack rows share that height,
-  each no taller than 1.6 times its minimum, so a short rack does not stretch
-  one row to the full plate
+- On the home projects bench at or above 900px, the specimen column takes 35%
+  of the band (at least 20rem) and the filing rack 45% (at least 21rem) across
+  one `--space-xl` column gap from the band's left edge, keeping the 16:9
+  plate at 60% of its previous height. The specimen sets the bench height (the
+  tallest project), and the rack rows share that height, each capped at 1.6
+  times its minimum
+- Below 900px the project icon-strip glyphs and the plate badge glyph grow to
+  1.375rem
 - The home project specimen title uses `--type-section` from 900px and
   `--type-card-lg` below it; inventory rack titles use `--type-card`
 - The home specimen meta strip wraps instead of clipping on narrow viewports

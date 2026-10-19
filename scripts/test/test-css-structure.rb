@@ -228,9 +228,10 @@ end
 
 # PLT-AC-41. Home project inventory rows use the square icon mark, two-line
 # code + title body, and no tagline preview or attached-resource icons; on
-# desktop the specimen and rack split the band 7:5 across one --space-xl gap,
-# the specimen sets the bench height, rack titles use --type-card, and the
-# specimen strip wraps instead of clipping.
+# desktop the specimen (35%, min 20rem) and rack (45%, min 21rem) start at the
+# band's left edge across one --space-xl gap, the specimen sets the bench
+# height, rack titles use --type-card, the specimen strip wraps instead of
+# clipping, and below 900px the rack tile glyphs are 1.375rem.
 home_sheet = strip_comments(File.read(CSS_ROOT.join("ledger/home.css")))
 %w[
   home-project-inventory-copy
@@ -247,7 +248,7 @@ require_declarations(
 )
 require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
-  ".home-projects-bench", ["grid-template-columns: minmax(0, 7fr) minmax(0, 5fr)", "column-gap: var(--space-xl)", "--home-inventory-row-max: calc(1.6 * var(--home-inventory-row-min))"]
+  ".home-projects-bench", ["grid-template-columns: max(35%, 20rem) max(45%, 21rem)", "column-gap: var(--space-xl)", "justify-content: start", "--home-inventory-row-max: calc(1.6 * var(--home-inventory-row-min))"]
 )
 require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
@@ -257,8 +258,13 @@ require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
   ".home-project-inventory-title", ["font-size: var(--type-card)"]
 )
+require_declarations(
+  errors, "assets/css/ledger/home.css", home_sheet,
+  ".home-project-inventory-row .home-project-inventory-glyph", ["font-size: 1.375rem"]
+)
 [
   "45.6%",
+  "minmax(0, 7fr)",
   "--home-inventory-min-height",
   "calc(var(--type-card) - 2pt)"
 ].each do |forbidden_home|
