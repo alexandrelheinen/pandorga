@@ -1,6 +1,8 @@
 {%- comment -%}
   One homepage listing band. Expects `band` from site.data.pandorga_home_bands.
-  Markup slots are filled by the home layout script from writing_index.json.
+  Kicker and note slots are always emitted, prefilled from headers.yml when it
+  was read at build time and filled by the runtime otherwise (PLT-AC-42).
+  Listing slots are filled by the home layout script from writing_index.json.
 {%- endcomment -%}
 {%- assign _accent = band.accent -%}
 {%- assign _limit = band.home.limit | default: 3 -%}
@@ -28,13 +30,9 @@
     {%- if _section.title != blank -%}{%- assign _title = _section.title -%}{%- endif -%}
     <div class="ledger-section-banner" data-content-home-section="{{ band.section_key }}">
       <div class="ledger-section-lead">
-        {%- if _section.kicker != blank -%}
         <span class="ledger-kicker" data-content-section-kicker>{{ _section.kicker }}</span>
-        {%- endif -%}
         <h2 class="section-title" data-content-section-title>{{ _title }}</h2>
-        {%- if _section.note != blank -%}
         <p class="home-section-note font-body" data-content-section-note>{{ _section.note }}</p>
-        {%- endif -%}
       </div>
       <div class="home-section-aside">
         <a class="ledger-cta" href="{{ _path }}">
