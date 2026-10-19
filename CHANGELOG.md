@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.13.0] — 2026-10-19
+
 ### Added
 
 - `pandorga export` and the new `pandorga thumbnails [root]` command write 16:9 center-cropped width variants (`variants/<stem>-{480,960,1440}.jpg`, progressive JPEG at quality 82, stripped of metadata, never upscaled) beside each local `/media/...` project thumbnail when ImageMagick is installed (logging one warning otherwise), export `thumbnail_srcset` on project front matter and `writing_index.json`, and render `srcset` and `sizes` on project cards and the home specimen (PLT-AC-44).
