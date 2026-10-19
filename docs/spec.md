@@ -179,7 +179,7 @@ pandorga:
       detail: /articles/:slug/
       language: en
       accent: green
-      taxonomy: { tags: [Aesthetics, AI, Data, DevOps, Mathematics, Robotics, Social], max: 3, min: 1 }
+      taxonomy: { tags: [AI, Data, Robotics], max: 3, min: 1 }   # example vocabulary; each site declares its own
       nav:  { group: Writing, icon: newsmode }
       home: { featured: true, limit: 3 }
 
@@ -190,7 +190,7 @@ pandorga:
       detail: /posts/:slug/
       language: pt-BR
       accent: ochre
-      taxonomy: { tags: [arte, brasilidade, carme, …], max: 3 }
+      taxonomy: { tags: [arte, pesquisa, técnico], max: 3 }   # example vocabulary
       nav:  { group: Writing, icon: stylus_note }
       home: { limit: 4 }
 
@@ -289,7 +289,7 @@ Background alternation (`home-band--contrast`) and accents (`page-accent--*`) de
 
 ### 5.5 Studio
 
-The composed schema is built by the `pandorga studio-schema` command. It generates `studio/schema.yml` from the `studio.yml` of each used template, instantiated with the registry collections and taxonomy, plus an optional website `studio.overrides.yml`. This happens during the build process. The `test-studio-content-files` gate will compare the generated output with the expected output.
+The composed schema is built by the `pandorga studio-schema` command. It generates `studio/schema.yml` from the `studio.yml` of each used template, instantiated with the registry collections and taxonomy, plus an optional website `studio.overrides.yml`. This happens during the build process. The `test-studio-content-files` gate will compare the generated output with the expected output. `pandorga install-functions` applies the same taxonomy step to the installed `studio/schema.yml`, so editing `pandorga.taxonomies` changes the Studio tag options without a gem release (`PLT-AC-43`).
 
 The Function operates without an embedded owner. `GITHUB_REPO` becomes mandatory without a default. CORS is read from `STUDIO_ALLOWED_ORIGINS` with exact equality instead of the current `origin.includes("pages.dev")` which accepts any Pages project.
 
@@ -538,6 +538,7 @@ Criteria are written in EARS format. Every criterion is referenced by at least o
 - `PLT-AC-40` A hero portrait entry may set `landscape`, a 16:9 URL. An entry with only `src` keeps that shape. At or below 767px the hero draws at random from the entries that have `landscape` and paints that URL. `hero_landscape` is used only when no entry has one. The plate stays `16 / 9` while that image loads (`test-hero-portraits`).
 - `PLT-AC-41` On the home projects bench, each inventory row renders the project icon mark (or initial fallback), optional index and label strip, and title, without a thumbnail poster, tagline preview, or attached-resource icons. On viewports at or above 900px the specimen column takes 35% of the band (at least 20rem) and the rack 45% (at least 21rem) across one `--space-xl` column gap, starting at the band's left edge; the specimen keeps its 16:9 plate and sets the bench height (the tallest project), and the rack rows share that height, each at least the square icon mark plus its padding and no taller than 1.6 times that. The specimen title uses `--type-section` from 900px and `--type-card-lg` below it; rack titles use `--type-card`. The specimen strip wraps instead of clipping. Below 900px the rack tile glyphs and the plate badge glyph are 1.375rem (`test-ledger-blocks`, `test-css-structure`).
 - `PLT-AC-42` Every home listing band renders its kicker, title, and note slots (`data-content-section-kicker`, `data-content-section-title`, `data-content-section-note`). When `content/pages/headers.yml` was read at build time, the slots carry that text. When it was not, as on a `shell_content_agnostic` build, the kicker and note slots are empty and the runtime fills them from `pages/headers.json`, or removes a slot whose field is empty (`test-home-band-intro`).
+- `PLT-AC-43` `pandorga install-functions` fills every Studio collection's `tags` picker (a `tags` field of type `select`) from the site's `_config.yml`. For each collection in the installed `studio/schema.yml` (the `content` groups, and the `collections` index when the schema has one), the picker's `options.values` equal `pandorga.taxonomies.<collection>.tags`, and `options.max` / `options.min` equal that entry's `max` / `min` when set. A collection without a top-level entry falls back to the `taxonomy` of the `pandorga.pages[]` entry whose `collection` names it, the same order the tag validator uses. A collection with no vocabulary at all keeps its picker with `values: []`, and the command prints a warning naming it. Free-text `tags` fields (type `string`) are left as they are. A site `studio.overrides.yml` is applied afterwards, as `pandorga studio-schema` does. The gem's `studio/schema.yml` ships no site vocabulary: its `tags` pickers carry `values: []` (`test-studio-taxonomy`).
 
 ## 13. Owner decisions
 

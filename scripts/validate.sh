@@ -44,6 +44,7 @@ TESTS=(
   scripts/test/test-studio-api-contract.rb
   scripts/test/test-studio-rewrite-api-contract.rb
   scripts/test/test-studio-schema-composition.rb
+  scripts/test/test-studio-taxonomy.rb
   scripts/test/test-text-excerpt.rb
   scripts/test/test-git-chronology.rb
   scripts/test/test-math-row-breaks.rb

@@ -1201,14 +1201,12 @@ discs.
 An element renders only if a populated field backs it. The classification axes,
 as enforced by [`_plugins/lib/tag_validator.rb`](_plugins/lib/tag_validator.rb):
 
-* **Articles** classify on `tags`, one to three, from a closed English
-  vocabulary: `Aesthetics`, `AI`, `Data`, `DevOps`, `Mathematics`,
-  `Robotics`, `Social`. All 22 carry them.
-* **Rascunhos** classify on `tags` too, by subject and in Portuguese, **zero to
-  three**: `arte`, `brasilidade`, `carme`, `devaneio`, `engraçadinho`,
-  `música`, `pesquisa`, `provocação`, `técnico`, `trabalho`. Unlike articles
-  the field may be empty — a notebook holds pages that file nowhere. 29 of 30
-  carry at least one.
+* **Articles** classify on `tags`, one to three, from the closed vocabulary
+  the site declares in `_config.yml` → `pandorga.taxonomies`.
+* **Rascunhos** classify on `tags` too, **zero to three**, from the closed
+  vocabulary the site declares in `_config.yml` → `pandorga.taxonomies`.
+  Unlike articles the field may be empty — a notebook holds pages that file
+  nowhere.
 * `category` is rejected on both collections — one classification axis, not
   two.
 * **Projects** carry free `tags` (all 8 do), plus `label`, `status`,
