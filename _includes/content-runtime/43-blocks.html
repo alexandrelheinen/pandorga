@@ -300,7 +300,7 @@
      *
      * A video URL still renders rather than vanishing, but it downloads
      * nothing until the reader asks for it. */
-    function renderPosterMedia(src, alt) {
+    function renderPosterMedia(src, alt, options) {
       var url = String(src || '').trim();
       if (!url) return '';
       var isVideo = /\.(mp4|webm|mov)(\?|#|$)/i.test(url);
@@ -312,9 +312,15 @@
           '</div>'
         ].join('');
       }
+      var opts = options || {};
+      var srcset = String(opts.srcset || '').trim();
+      var sizes = String(opts.sizes || '').trim();
       return [
         '<div class="ledger-poster">',
-        '<img src="', escapeAttr(url), '" alt="', escapeAttr(alt || ''),
+        '<img src="', escapeAttr(url), '"',
+        srcset ? ' srcset="' + escapeAttr(srcset) + '"' : '',
+        (srcset && sizes) ? ' sizes="' + escapeAttr(sizes) + '"' : '',
+        ' alt="', escapeAttr(alt || ''),
         '" loading="lazy" decoding="async"',
         // Thumbnails are frequently hotlinked to third-party hosts. When one
         // dies, remove the frame rather than leaving an empty plate behind.
@@ -323,6 +329,16 @@
         '</div>'
       ].join('');
     }
+
+    /* Project thumbnail sizes (PLT-AC-44):
+     * - Home specimen (home.css PLT-AC-41): >= 900px column is max(35%, 20rem)
+     *   inside max-width 80rem (1408px at html 110%), minus card padding =>
+     *   ~431 CSS px at 1440px viewport (31vw = 446px -> 480w at DPR 1, 960w at
+     *   DPR 2); below 900px full band width (390px at DPR 2 = 780px -> 960w).
+     * - Projects grid card (projects.css): 3 cols >= 1024px (~384px -> 28vw),
+     *   2 cols >= 700px (~46vw), 1 col below (92vw). */
+    var PROJECT_CARD_SIZES = '(min-width: 1024px) 28vw, (min-width: 700px) 46vw, 92vw';
+    var HOME_SPECIMEN_SIZES = '(min-width: 900px) 31vw, 92vw';
 
     function twoDigits(value) {
       var label = String(Number(value));
@@ -418,7 +434,10 @@
       if (options.frameCorners) {
         html += '<span class="ledger-frame-corners" aria-hidden="true"></span>';
       }
-      var poster = renderPosterMedia(fm.thumbnail, name);
+      var poster = renderPosterMedia(fm.thumbnail, name, {
+        srcset: fm.thumbnail_srcset,
+        sizes: options.sizes || PROJECT_CARD_SIZES
+      });
       if (poster) {
         html += poster;
       } else if (options.glyphFallback && fm.icon) {
@@ -501,7 +520,10 @@
       var mark = fm.icon
         ? { cls: 'material-symbols-outlined', text: fm.icon }
         : { cls: 'is-initial', text: String(name || '').charAt(0).toUpperCase() };
-      var poster = renderPosterMedia(fm.thumbnail, name);
+      var poster = renderPosterMedia(fm.thumbnail, name, {
+        srcset: fm.thumbnail_srcset,
+        sizes: options.sizes || HOME_SPECIMEN_SIZES
+      });
       html += '<div class="home-specimen-figure">';
       if (poster) {
         html += poster + '<span class="home-specimen-badge ' + mark.cls + '" aria-hidden="true">' +

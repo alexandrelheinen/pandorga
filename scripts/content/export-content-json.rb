@@ -21,6 +21,7 @@ require_relative "../lib/content_license"
 require_relative "../lib/writing_index_contract"
 require_relative "band_art"
 require_relative "hero_portraits"
+require_relative "../../lib/pandorga/thumbnail_variants"
 
 REPO_ROOT = Pathname.new(ENV.fetch("PANDORGA_SITE_ROOT", Dir.pwd)).expand_path
 CONTENT_ROOT = Pathname.new(ARGV[0] || "content").expand_path
@@ -119,6 +120,16 @@ def rewrite_media_references(text)
   return text unless text.is_a?(String) && !text.empty?
 
   rewrite_media_attribute_paths(rewrite_markdown_media_paths(text))
+end
+
+def rewrite_srcset_media_urls(srcset)
+  return nil unless srcset.is_a?(String) && !srcset.strip.empty?
+
+  srcset.split(",").map do |candidate|
+    url, descriptor = candidate.strip.split(/\s+/, 2)
+    resolved = resolve_media_url(url)
+    descriptor ? "#{resolved} #{descriptor}" : resolved
+  end.join(", ")
 end
 
 def rewrite_front_matter_media!(front_matter)
@@ -360,6 +371,11 @@ def export_markdown_tree(source_dir, output_dir, type)
     end
 
     apply_git_chronology!(front_matter, repo_relative_path, type)
+    if type == "project"
+      raw_srcset = Pandorga::ThumbnailVariants.srcset_for(REPO_ROOT, front_matter["thumbnail"])
+      rewritten_srcset = rewrite_srcset_media_urls(raw_srcset)
+      front_matter["thumbnail_srcset"] = rewritten_srcset if rewritten_srcset
+    end
     rewrite_front_matter_media!(front_matter)
 
     if ContentKeys::KEYED_TYPES.include?(type)
@@ -594,7 +610,7 @@ def writing_index_entry_from_export(payload, content_root, collection)
   end
 
   legacy = File.basename(source_path, File.extname(source_path))
-  {
+  entry = {
     "slug" => slug,
     "key" => key,
     "title" => title,
@@ -630,6 +646,9 @@ def writing_index_entry_from_export(payload, content_root, collection)
       "path_segment" => slug
     )
   }
+  exported_srcset = payload.dig("front_matter", "thumbnail_srcset").to_s
+  entry["thumbnail_srcset"] = exported_srcset unless exported_srcset.empty?
+  entry
 end
 
 def export_derived_data(content_root, output_root)
@@ -709,6 +728,8 @@ def export_collection_trees
   end
   trees
 end
+
+Pandorga::ThumbnailVariants.generate(REPO_ROOT)
 
 files = export_collection_trees
 files["page_fragments"] = export_page_fragments(CONTENT_ROOT.join("pages"), OUTPUT_ROOT.join("pages"))

@@ -14,6 +14,7 @@ module Pandorga
 end
 
 require_relative "pandorga/registry"
+require_relative "pandorga/thumbnail_variants"
 
 # Jekyll loads this file as a plugin when `plugins: [pandorga]`.
 require_relative "pandorga/jekyll" if defined?(Jekyll)

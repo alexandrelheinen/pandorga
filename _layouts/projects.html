@@ -154,7 +154,13 @@ layout: shell
        imagery still reads as finished rather than as broken. */
     function plateHtml(item, modifier) {
       var fm = item.front_matter || {};
-      var poster = runtime.renderPosterMedia(fm.thumbnail, projectName(item));
+      var sizes = modifier === 'projects-plate--card'
+        ? '(min-width: 1024px) 28vw, (min-width: 700px) 46vw, 92vw'
+        : '(min-width: 900px) 38vw, 92vw';
+      var poster = runtime.renderPosterMedia(fm.thumbnail, projectName(item), {
+        srcset: fm.thumbnail_srcset,
+        sizes: sizes
+      });
       var cls = 'projects-plate' + (modifier ? ' ' + modifier : '');
       if (poster) return '<div class="' + cls + '">' + poster + '</div>';
       if (!fm.icon) return '';
