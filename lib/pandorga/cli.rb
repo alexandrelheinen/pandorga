@@ -7,6 +7,7 @@ require_relative "commands/publish"
 require_relative "commands/install_functions"
 require_relative "commands/studio_schema"
 require_relative "commands/new"
+require_relative "commands/thumbnails"
 
 module Pandorga
   # Dispatch for `exe/pandorga`.
@@ -18,7 +19,8 @@ module Pandorga
       "serve" => Commands::Serve,
       "publish" => Commands::Publish,
       "install-functions" => Commands::InstallFunctions,
-      "studio-schema" => Commands::StudioSchema
+      "studio-schema" => Commands::StudioSchema,
+      "thumbnails" => Commands::Thumbnails
     }.freeze
 
     module_function
@@ -52,6 +54,7 @@ module Pandorga
           pandorga new PATH               Scaffold a site from the minimal example
           pandorga doctor                 Check site config and environment
           pandorga export [src] [dest]    Export content collections to JSON
+          pandorga thumbnails [root]      Write 16:9 width variants for project thumbnails
           pandorga serve                  Local Jekyll serve with JSON re-export
           pandorga publish                Sync content JSON to R2
           pandorga install-functions      Copy functions/ and studio/ into site root

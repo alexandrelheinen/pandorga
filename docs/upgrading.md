@@ -13,6 +13,10 @@ is `Pandorga::VERSION` (`lib/pandorga/version.rb`).
 
 Read [CHANGELOG.md](../CHANGELOG.md) before you bump.
 
+## Project thumbnail variants (1.13+)
+
+`pandorga export` (and `pandorga thumbnails`) writes 16:9 width variants (`variants/<stem>-{480,960,1440}.jpg`) beside each local `/media/...` project thumbnail and sets `thumbnail_srcset` in the exported project front matter; the content pipeline needs ImageMagick on the runner, and sites may commit or ignore `variants/` folders.
+
 ## Mobile hero pool (1.10.0)
 
 At or below 767px the home hero draws at random from

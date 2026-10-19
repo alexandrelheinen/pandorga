@@ -71,6 +71,7 @@ TESTS=(
   scripts/test/test-css-delivery.rb
   scripts/test/test-discovery.rb
   scripts/test/test-hero-portraits.rb
+  scripts/test/test-thumbnail-variants.rb
 )
 
 failed=0
@@ -88,6 +89,11 @@ done
 
 echo "-- scripts/test/test-hero-portraits.mjs"
 if ! node scripts/test/test-hero-portraits.mjs; then
+  failed=1
+fi
+
+echo "-- scripts/test/test-poster-srcset.mjs"
+if ! node scripts/test/test-poster-srcset.mjs; then
   failed=1
 fi
 
