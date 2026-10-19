@@ -1035,10 +1035,10 @@ html[data-theme="light"] .home-hero-plate {
    the inventory. Taglines clamp to two lines with an ellipsis; chips wrap
    whole pills like the projects index; spare height parks chips and the foot
    on the floor. Every plate is 16:9, the ratio the thumbnails are drawn at,
-   with the title below it. From 900px the specimen and the rack share equal
-   columns (~45.6% each); rows reserve height for three resource icons.
-   Below 900px the rack is an icon strip above the specimen, one column
-   per project. */
+   with the title below it. From 900px the specimen and the rack split the
+   band width 7:5 across one `--space-xl` column gap, and the rack rows share
+   the specimen height. Below 900px the rack is an icon strip above the
+   specimen, one column per project. */
 .home-projects-bench {
   --home-specimen-height: 32rem;
   --home-icon-btn-size: 2.75rem;
@@ -1101,8 +1101,16 @@ html[data-theme="light"] .home-hero-plate {
   letter-spacing: 0.03em;
 }
 
+/* The specimen strip flows as text, so a long label wraps between words
+   instead of clipping the start year on a phone. */
 .home-specimen-strip .ledger-meta {
+  display: block;
+  white-space: normal;
   font-size: var(--type-label-lg);
+}
+
+.home-specimen-strip .ledger-meta-sep {
+  margin-inline: var(--space-sm);
 }
 
 .home-specimen-folio,
@@ -1363,22 +1371,19 @@ button.home-project-inventory-row {
 
 @media (min-width: 900px) {
 
-  /* Specimen and inventory share equal columns (~45.6% each). Each row fits
-     its square icon mark and two-line code + title body; the specimen height
-     matches the N-entry inventory stack. */
+  /* Specimen and filing rack split the band 7:5 across one `--space-xl` gap,
+     reaching the full content width. The specimen keeps its 16:9 plate and
+     sets the bench height; rack rows share that height. */
   .home-projects-bench {
-    --home-inventory-mark-size: 2.75rem;
+    --home-inventory-mark-size: 3rem;
     --home-inventory-row-min: calc(
       var(--home-inventory-mark-size) + 2 * var(--space-sm) + 2px
     );
-    --home-inventory-min-height: calc(
-      var(--home-project-icon-count, 6) * var(--home-inventory-row-min) +
-      (var(--home-project-icon-count, 6) - 1) * var(--space-sm) +
-      2 * var(--space-md)
-    );
-    --home-specimen-height: var(--home-inventory-min-height);
+    /* Rows share the specimen height, but a short rack must not stretch a
+       single row to the full plate. */
+    --home-inventory-row-max: calc(1.6 * var(--home-inventory-row-min));
     display: grid;
-    grid-template-columns: minmax(0, 45.6%) minmax(0, 45.6%);
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
     column-gap: var(--space-xl);
     align-items: stretch;
   }
@@ -1390,6 +1395,7 @@ button.home-project-inventory-row {
     gap: var(--space-sm);
     box-sizing: border-box;
     width: 100%;
+    min-height: var(--home-specimen-height);
     min-width: 0;
     min-height: 0;
     overflow: hidden;
@@ -1397,38 +1403,18 @@ button.home-project-inventory-row {
     background: var(--color-panel-contrast);
   }
 
-  .home-specimen-figure:has(> .ledger-poster, > .projects-plate) {
-    flex: 1 1 0;
-    min-height: 0;
-    grid-template-rows: minmax(0, 1fr) auto;
-    gap: var(--space-sm);
-  }
-
-  .home-specimen-figure > .ledger-poster,
-  .home-specimen-figure > .projects-plate {
-    height: 100%;
-    min-height: 0;
-    aspect-ratio: auto;
-  }
-
   .home-project-specimen .home-specimen-title {
-    font-size: var(--type-title);
-  }
-
-  .home-project-specimen .ledger-card-copy {
-    flex: 0 0 auto;
-    height: auto;
-    min-height: 0;
-    max-height: calc(var(--type-body) * var(--leading-body) * 2);
+    font-size: var(--type-section);
   }
 
   .home-project-inventory-row {
-    flex: 0 0 auto;
+    flex: 1 1 0;
     align-items: center;
     justify-content: flex-start;
     gap: var(--space-md);
-    height: var(--home-inventory-row-min);
+    height: auto;
     min-height: var(--home-inventory-row-min);
+    max-height: var(--home-inventory-row-max);
     box-sizing: border-box;
     padding: var(--space-sm) var(--space-md);
     border: 1px solid var(--border-gentle-divider);
@@ -1506,7 +1492,7 @@ button.home-project-inventory-row {
   .home-project-inventory-title {
     margin: 0;
     font-family: var(--font-content-title);
-    font-size: calc(var(--type-card) - 2pt);
+    font-size: var(--type-card);
     font-weight: var(--weight-title);
     line-height: 1.2;
     color: var(--color-on-surface);

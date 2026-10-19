@@ -8,6 +8,18 @@
   `shell_content_agnostic: true`; the slots are always in the HTML and the
   runtime fills them from `pages/headers.json` (regression from 1.10.0)
 
+### Changed
+
+- On the home projects bench at or above 900px, the specimen and the filing
+  rack split the band width 7:5 across one `--space-xl` column gap, so both
+  reach the band's content edge. The specimen keeps its 16:9 plate and sets
+  the bench height (the tallest project). The rack rows share that height,
+  each no taller than 1.6 times its minimum, so a short rack does not stretch
+  one row to the full plate
+- The home project specimen title uses `--type-section` from 900px and
+  `--type-card-lg` below it; inventory rack titles use `--type-card`
+- The home specimen meta strip wraps instead of clipping on narrow viewports
+
 ## [1.10.2] — 2026-10-16
 
 ### Changed

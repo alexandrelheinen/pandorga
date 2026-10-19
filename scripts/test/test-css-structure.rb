@@ -227,8 +227,10 @@ sheets.each do |path|
 end
 
 # PLT-AC-41. Home project inventory rows use the square icon mark, two-line
-# code + title body, and no tagline preview or attached-resource icons; the
-# desktop specimen height matches the N-entry inventory height.
+# code + title body, and no tagline preview or attached-resource icons; on
+# desktop the specimen and rack split the band 7:5 across one --space-xl gap,
+# the specimen sets the bench height, rack titles use --type-card, and the
+# specimen strip wraps instead of clipping.
 home_sheet = strip_comments(File.read(CSS_ROOT.join("ledger/home.css")))
 %w[
   home-project-inventory-copy
@@ -245,8 +247,25 @@ require_declarations(
 )
 require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
-  ".home-projects-bench", ["--home-specimen-height: var(--home-inventory-min-height)"]
+  ".home-projects-bench", ["grid-template-columns: minmax(0, 7fr) minmax(0, 5fr)", "column-gap: var(--space-xl)", "--home-inventory-row-max: calc(1.6 * var(--home-inventory-row-min))"]
 )
+require_declarations(
+  errors, "assets/css/ledger/home.css", home_sheet,
+  ".home-specimen-strip .ledger-meta", ["display: block", "white-space: normal"]
+)
+require_declarations(
+  errors, "assets/css/ledger/home.css", home_sheet,
+  ".home-project-inventory-title", ["font-size: var(--type-card)"]
+)
+[
+  "45.6%",
+  "--home-inventory-min-height",
+  "calc(var(--type-card) - 2pt)"
+].each do |forbidden_home|
+  if home_sheet.include?(forbidden_home)
+    errors << "assets/css/ledger/home.css: #{forbidden_home} must be removed (PLT-AC-41)"
+  end
+end
 
 fail!("CSS structure problems:\n  - #{errors.join("\n  - ")}") unless errors.empty?
 
