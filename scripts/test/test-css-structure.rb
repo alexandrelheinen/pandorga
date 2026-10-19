@@ -273,6 +273,16 @@ require_declarations(
   end
 end
 
+# PLT-AC-23. The home hero summary uses --color-legend, the ink of the other
+# description texts.
+require_declarations(
+  errors, "assets/css/ledger/home.css", home_sheet,
+  ".home-hero-summary", ["color: var(--color-legend)"]
+)
+if declaration_bodies(home_sheet, ".home-hero-summary").any? { |body| declarations(body).include?("color:var(--color-on-surface)") }
+  errors << "assets/css/ledger/home.css: .home-hero-summary must use --color-legend (PLT-AC-23)"
+end
+
 fail!("CSS structure problems:\n  - #{errors.join("\n  - ")}") unless errors.empty?
 
 puts "  #{sheets.size} stylesheet(s) balanced, no conflict markers."
