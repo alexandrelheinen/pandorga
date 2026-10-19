@@ -7,6 +7,7 @@
 # - Thumbnail / image fields accept HTTPS URLs or /media/… paths (hotlink OK).
 # - Calendar days use type date with format yyyy-MM-dd
 # - Form order: identity (key, title, description) → options → body last
+# Tag vocabularies are empty here: install-functions fills them from the site's _config.yml (PLT-AC-43).
 
 media:
   name: media
@@ -72,19 +73,7 @@ content:
             options:
               multiple: true
               max: 3
-              values:
-                [
-                  arte,
-                  brasilidade,
-                  carme,
-                  devaneio,
-                  engraçadinho,
-                  música,
-                  pesquisa,
-                  provocação,
-                  técnico,
-                  trabalho,
-                ]
+              values: []
           - name: language
             label: Language
             type: select
@@ -170,10 +159,8 @@ content:
             description: "One to three."
             options:
               multiple: true
-              min: 1
               max: 3
-              values:
-                [Aesthetics, AI, Data, DevOps, Mathematics, Robotics, Social]
+              values: []
           - name: language
             label: Language
             type: select
@@ -441,7 +428,7 @@ content:
           - name: label
             label: Label
             type: string
-            description: "Small caps line above the project name (e.g. Robotics)."
+            description: "Small caps line above the project name."
           - name: icon
             label: Icon
             type: string

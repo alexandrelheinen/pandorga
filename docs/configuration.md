@@ -47,7 +47,7 @@ Each value is a Google Fonts family name, or a map with `family` plus optional `
 
 Closed tag vocabularies per collection (`tags`, `max`, `min`). Page-local
 `pandorga.pages[].taxonomy` is also accepted when a collection has no top-level
-entry.
+entry. `pandorga install-functions` copies these vocabularies into the installed Studio schema (`studio/schema.yml`), so the Studio tag pickers always offer this list. A collection with no vocabulary gets an empty picker and a warning.
 
 ## `pandorga.pages[]`
 

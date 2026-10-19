@@ -1,0 +1,9 @@
+pandorga:
+  taxonomies:
+    articles:
+      tags: [Design, Organizations]
+      max: 2
+      min: 1
+    posts:
+      tags: [alpha, beta, gamma]
+      max: 3

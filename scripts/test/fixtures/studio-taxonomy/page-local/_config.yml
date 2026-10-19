@@ -1,0 +1,9 @@
+pandorga:
+  pages:
+    - key: articles
+      template: articles
+      collection: articles
+      path: /pages/articles/
+      taxonomy:
+        tags: [Notes]
+        max: 1
