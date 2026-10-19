@@ -942,13 +942,14 @@ Letter-spacing in use, by frequency: `0.1em` (12), `0.08em` (10), `0.12em` (7),
   always below the plate; a tagline clamped to the
   height the plate leaves; tags, outbound links and an emphasis "Open
   project" cue). From 900px the specimen and a `panelContrast` filing rack
-  split the band 7:5 across a `--space-xl` gap; rack rows are equal-flex
+  take 35% and 45% of the band across a `--space-xl` gap, from its left edge;
+  rack rows are equal-flex
   cards (square icon mark, code line, title; the selected one steps to
   `surfaceHigh` with a 3px `primary` inset rule) that share the specimen's
   height. Rack click swaps the specimen
   in place; specimen click opens the project. Below 900px the rack is an
   icon strip above the specimen, one equal column per project (up to six)
-  so it spans the band. Contract: `PLT-AC-13`–`17` in
+  so it spans the band, with 1.375rem glyphs. Contract: `PLT-AC-13`–`17` in
   `templates/portfolio/README.md`. Below 768px the hero portrait runs to the screen edge, pulled
   out of the band's gutter by exactly `--gutter-mobile` on each side and losing
   its side hairlines, which at the edge would read as a frame cut off.

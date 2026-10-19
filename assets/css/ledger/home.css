@@ -1035,10 +1035,11 @@ html[data-theme="light"] .home-hero-plate {
    the inventory. Taglines clamp to two lines with an ellipsis; chips wrap
    whole pills like the projects index; spare height parks chips and the foot
    on the floor. Every plate is 16:9, the ratio the thumbnails are drawn at,
-   with the title below it. From 900px the specimen and the rack split the
-   band width 7:5 across one `--space-xl` column gap, and the rack rows share
-   the specimen height. Below 900px the rack is an icon strip above the
-   specimen, one column per project. */
+   with the title below it. From 900px the specimen column takes 35% of the
+   band (at least 20rem) and the rack 45% (at least 21rem) across one
+   `--space-xl` column gap, starting at the band's left edge, and the rack
+   rows share the specimen height. Below 900px the rack is an icon strip
+   above the specimen, one column per project. */
 .home-projects-bench {
   --home-specimen-height: 32rem;
   --home-icon-btn-size: 2.75rem;
@@ -1213,6 +1214,22 @@ html[data-theme="light"] .home-hero-plate {
   color: var(--color-primary);
 }
 
+@media (max-width: 899px) {
+  .home-specimen-figure:has(> .ledger-poster)>.home-specimen-badge {
+    font-size: 1.375rem;
+  }
+
+  /* Two classes: the Material Symbols sheet loads after this one and resets
+     the glyph size on a single class. */
+  .home-project-inventory-row .home-project-inventory-glyph {
+    font-size: 1.375rem;
+  }
+
+  .home-project-inventory-row .home-project-inventory-glyph--initial {
+    font-size: var(--type-card);
+  }
+}
+
 .home-project-specimen .home-specimen-title {
   margin: 0;
   font-size: var(--type-card-lg);
@@ -1371,9 +1388,10 @@ button.home-project-inventory-row {
 
 @media (min-width: 900px) {
 
-  /* Specimen and filing rack split the band 7:5 across one `--space-xl` gap,
-     reaching the full content width. The specimen keeps its 16:9 plate and
-     sets the bench height; rack rows share that height. */
+  /* The specimen column is 35% of the band (at least 20rem), which keeps the
+     16:9 plate at 60% of the 7:5 split's height; the rack is 45% (at least
+     21rem); the pair starts at the band's left edge and leaves the rest of
+     the row blank. The specimen sets the bench height; rack rows share it. */
   .home-projects-bench {
     --home-inventory-mark-size: 3rem;
     --home-inventory-row-min: calc(
@@ -1383,8 +1401,9 @@ button.home-project-inventory-row {
        single row to the full plate. */
     --home-inventory-row-max: calc(1.6 * var(--home-inventory-row-min));
     display: grid;
-    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    grid-template-columns: max(35%, 20rem) max(45%, 21rem);
     column-gap: var(--space-xl);
+    justify-content: start;
     align-items: stretch;
   }
 
