@@ -424,7 +424,8 @@ html[data-theme="dark"] {
 }
 
 /* Shared mark foundation */
-.ledger-mark {
+.ledger-mark,
+.ledger-chip {
   --mark-ink: var(--color-primary);
   --mark-1: var(--mark-a);
   --mark-2: var(--mark-b);
@@ -979,75 +980,30 @@ a.no-underline:active {
   font-weight: var(--weight-label);
   letter-spacing: 0.03em;
   padding: 0.15rem 0.45rem;
-  /* Tags carry the page's accent rather than a neutral grey. Both values mix
-     `--color-primary`, which `.page-accent--*` rebinds per page, so a chip is
-     blue on Projects, green on Articles and the CV, ochre on Rascunhos with
-     no per-page rule anywhere. The fill stays mostly surface so a row of
-     chips reads as metadata and not as a row of buttons; the ink carries
-     most of the hue, which is what makes the tag legible as a tag.
-     Note this is `.ledger-chip` only: the page-header tag line (the CV's
-     "Engineering Leadership. Team Building…") is a separate
-     `data-content-header-tags` span and is deliberately left alone. */
-  background: color-mix(in srgb, var(--color-primary) 16%, var(--color-surface-high));
+  /* Tags use a borderless felt-pen mark in the page accent, rebound via
+     --color-primary by .page-accent--*. No inset ring or border is applied. */
   color: color-mix(in srgb, var(--color-primary) 82%, var(--color-on-surface));
   text-decoration: none;
-  border-radius: var(--radius-card);
-  /* The hover hairline arrives as an inset ring rather than a border, and is
-     declared transparent here so it has something to transition from. This is
-     not the shadow the system forbids — nothing is offset, blurred or spread,
-     so it draws a 1px line on the chip's own edge, exactly where a border
-     would sit. A real border would be the idiom, but it would have to be
-     present at rest to avoid a 2px jump under the pointer, and the padding
-     compensation that costs only lands exactly at integer device pixel
-     ratios: at 1.75 the browser snaps the border to 0.571px and the chip
-     quietly loses most of a pixel on both axes. The ring takes no space at
-     any ratio, so the resting chip keeps its size, its fill and its square
-     corners. */
-  box-shadow: inset 0 0 0 1px transparent;
-  transition: color var(--motion-duration-fast) var(--motion-ease-default), background-color var(--motion-duration-fast) var(--motion-ease-default), box-shadow var(--motion-duration-fast) var(--motion-ease-default), border-color var(--motion-duration-fast) var(--motion-ease-default);
+  border: 0;
+  border-radius: 0;
+  transition: color var(--motion-duration-fast) var(--motion-ease-default);
 }
 
-/* Hover reads `.ledger-card:hover` — one tonal step plus an accent-warmed
-   hairline — at chip scale.
+a.ledger-chip {
+  color: color-mix(in srgb, var(--color-primary) 82%, var(--color-on-surface));
+}
 
-   The step cannot be a ladder rung: the chip's resting fill is already the
-   ladder's top one. What it used to do instead was borrow a rung from the
-   other surface family (`surfaceHigh` → `surfaceContainerHigh`), which is
-   the defect DESIGN.md records under *Two surface families name the same
-   colours* — in dark the two are the same value to the byte, so the hover
-   measured 1.000 : 1 and only the text changed, and in light they are close
-   enough to have read the same way. Tinting the resting fill with the page
-   accent instead is a real step in both palettes — down on paper, up on the
-   dark canvas — and stays right whichever way the light ladder is pointed,
-   which the borrowed rung did not. 8% is the value
-   `.listing-filter-chip.is-active` already uses for an accent-tinted fill.
-
-   The hairline carries the rest, at 35% accent over plain `--border-gentle`
-   rather than the card's 40% over `--border-gentle-hover`. A line drawn
-   around something this small is a far larger share of its ink than the same
-   line around a card, so the quieter mix is the proportionate one. */
+/* Hover deepens the mark strength. */
 a.ledger-chip:hover {
+  --mark-1: var(--mark-hover-a);
+  --mark-2: var(--mark-hover-b);
+  --mark-3: var(--mark-hover-c);
   color: var(--color-on-surface);
-  /* Resting fill is 16% accent in light; hover must clear that. */
-  background: color-mix(in srgb, var(--color-primary) 28%, var(--color-surface-high));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-primary) 45%, var(--border-gentle));
-  /* No-op for the filled chip, which has no border. It matters on the sources
-     facets, the one place that outlines the chip instead of filling it: the
-     ring would otherwise be drawn just inside that outline and the two
-     hairlines would read as one 2px line. Handing the edge to the ring keeps
-     the hover at a single line there too, and the fill that page expects on
-     hover still arrives. */
   border-color: transparent;
 }
 
 [data-theme="dark"] a.ledger-chip {
-  background: color-mix(in srgb, var(--color-primary) 10%, var(--color-surface-high));
   color: color-mix(in srgb, var(--color-primary) 78%, var(--color-on-surface));
-}
-
-[data-theme="dark"] a.ledger-chip:hover {
-  background: color-mix(in srgb, var(--color-primary) 22%, var(--color-surface-high));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-primary) 35%, var(--border-gentle));
 }
 
 /* Dates live here. The chips and language pills inside the strip set their
