@@ -613,11 +613,10 @@ html[data-theme="light"] .writing-index .writing-lead-media .ledger-poster {
 }
 
 .writing-rail .listing-filter-chip {
+  align-self: flex-start;
   justify-content: flex-start;
-  padding: 0.4rem 0.5rem;
-  background: none;
+  padding: 0.4rem 0.5rem 0.4rem calc(0.5rem + 2px);
   border: 0;
-  border-left: 2px solid transparent;
   color: var(--color-on-surface-variant);
   font-family: var(--font-label);
   font-size: var(--type-label-lg);
@@ -628,20 +627,12 @@ html[data-theme="light"] .writing-index .writing-lead-media .ledger-poster {
 }
 
 .writing-rail .listing-filter-chip:hover {
-  background: var(--color-surface-high);
-  border-left-color: var(--color-outline-variant);
   color: var(--color-on-surface);
 }
 
-/* The active state is carried by the page accent, the tinted fill and the rule
-   on the left edge. Cabin (label role) can take real weight; colour still does
-   the selected cue so the rail stays quiet. `--color-primary` follows
-   `.page-accent--*` (green on Articles, ochre on Rascunhos), so the same rail
-   markup does not stay locked to secondary. */
+/* Active filter chip uses the shared highlighter mark without a left border rule or tinted fill. */
 .writing-rail .listing-filter-chip.is-active {
-  background: color-mix(in srgb, var(--color-primary) 8%, transparent);
-  border-left-color: var(--color-primary);
-  color: var(--color-primary);
+  color: var(--color-on-surface);
 }
 
 /* ── Licence ──
