@@ -397,6 +397,8 @@ html[data-theme="light"] {
   --mark-quiet-b: 9%;
   --mark-quiet-c: 3%;
   --facet-ink-mix: 82%;
+  /* Detail actions: green section primary on the gray hover mark was 4.48:1 at 82%. */
+  --action-ink-mix: 74%;
   --mk-angle: 104deg;
   --mk-s0: 0.9%;
   --mk-s1: 2.6%;
@@ -424,6 +426,7 @@ html[data-theme="dark"] {
   --mark-quiet-c: 3%;
   /* Not 100%: the YouTube red facet was 4.24:1 on its own dark mark. */
   --facet-ink-mix: 85%;
+  --action-ink-mix: 85%;
 }
 
 /* Shared mark foundation */

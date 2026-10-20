@@ -145,7 +145,7 @@ a.back-link .material-symbols-outlined {
   --mark-1: var(--mark-hover-a);
   --mark-2: var(--mark-hover-b);
   --mark-3: var(--mark-hover-c);
-  color: color-mix(in srgb, var(--color-primary) var(--facet-ink-mix), var(--color-on-surface));
+  color: color-mix(in srgb, var(--color-primary) var(--action-ink-mix), var(--color-on-surface));
 }
 
 .detail-action .material-symbols-outlined {
@@ -196,7 +196,7 @@ a.back-link .material-symbols-outlined {
   --mark-1: var(--mark-hover-a);
   --mark-2: var(--mark-hover-b);
   --mark-3: var(--mark-hover-c);
-  color: color-mix(in srgb, var(--color-primary) var(--facet-ink-mix), var(--color-on-surface));
+  color: color-mix(in srgb, var(--color-primary) var(--action-ink-mix), var(--color-on-surface));
 }
 
 .detail-type-size-trigger:focus-visible {

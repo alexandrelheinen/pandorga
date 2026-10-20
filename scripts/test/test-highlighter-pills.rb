@@ -84,7 +84,8 @@ expected_light_tokens = {
   "--mark-hover-c" => "9%",
   "--mark-quiet-a" => "12%",
   "--mark-quiet-b" => "9%",
-  "--mark-quiet-c" => "3%"
+  "--mark-quiet-c" => "3%",
+  "--action-ink-mix" => "74%"
 }
 
 expected_dark_tokens = {
@@ -102,7 +103,8 @@ expected_dark_tokens = {
   "--mark-hover-c" => "7%",
   "--mark-quiet-a" => "10%",
   "--mark-quiet-b" => "7%",
-  "--mark-quiet-c" => "3%"
+  "--mark-quiet-c" => "3%",
+  "--action-ink-mix" => "85%"
 }
 
 expected_light_tokens.each do |k, v|
@@ -244,6 +246,14 @@ fail!(".detail-action must set margin: 1px") unless detail_action[:declarations]
 detail_type_size = parsed_files["detail.css"].find { |r| r[:selector] == ".detail-type-size-trigger" }
 fail!("missing .detail-type-size-trigger in detail.css") unless detail_type_size
 fail!(".detail-type-size-trigger must set margin: 1px") unless detail_type_size[:declarations]["margin"] == "1px"
+
+# Detail action hover text on the gray hover mark must meet 4.5:1 with the
+# green section primary, which takes the deeper action ink mix.
+[".detail-action:hover", ".detail-type-size-trigger:hover"].each do |sel|
+  rule = parsed_files["detail.css"].find { |r| r[:selector] == sel }
+  fail!("missing #{sel} in detail.css") unless rule
+  fail!("#{sel} must mix its text with var(--action-ink-mix)") unless rule[:declarations]["color"].to_s.include?("var(--action-ink-mix)")
+end
 
 filter_trigger = parsed_files["base.css"].find { |r| r[:selector] == ".listing-filter-trigger" }
 fail!("missing .listing-filter-trigger in base.css") unless filter_trigger
