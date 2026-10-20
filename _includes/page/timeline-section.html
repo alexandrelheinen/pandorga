@@ -336,13 +336,24 @@
       if (zoomLabel) zoomLabel.textContent = formatZoomLabel();
     }
 
+    function centerTimeMs() {
+      var x = wrapper.scrollLeft + wrapper.clientWidth / 2;
+      return minT + ((x - LABEL_W) / chartW) * rangeMs;
+    }
+
+    function renderKeepingCenter() {
+      var c = centerTimeMs();
+      render();
+      wrapper.scrollLeft = centerPreservingScroll(c, xPosMs, wrapper.clientWidth, Math.max(0, container.offsetWidth - wrapper.clientWidth));
+      if (typeof updatePanButtons === 'function') updatePanButtons();
+    }
+
     function changeZoom(direction) {
       var maxZoomYears = Math.max(MIN_ZOOM_YEARS, rangeMs / MS_YEAR);
       var factor = direction > 0 ? 0.75 : 1.33;
       zoomYears = Math.max(MIN_ZOOM_YEARS, Math.min(maxZoomYears, zoomYears * factor));
       updateZoomLabel();
-      render();
-      scrollToToday();
+      renderKeepingCenter();
     }
 
     function scrollToToday() {
@@ -890,8 +901,7 @@
     window.addEventListener('resize', function () {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(function () {
-        render();
-        scrollToToday();
+        renderKeepingCenter();
       }, 150);
     });
 
@@ -906,7 +916,7 @@
     document.querySelectorAll('.timeline-lane-toggle').forEach(function (cb) {
       cb.addEventListener('change', function () {
         laneVisible[cb.dataset.lane] = cb.checked;
-        render();
+        renderKeepingCenter();
       });
     });
 
@@ -914,7 +924,7 @@
     if (expandCb) {
       expandCb.addEventListener('change', function () {
         writingExpanded = expandCb.checked;
-        render();
+        renderKeepingCenter();
       });
     }
 
