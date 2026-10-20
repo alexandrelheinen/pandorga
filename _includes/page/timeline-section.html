@@ -189,6 +189,13 @@
     var el = document.getElementById('timeline-data');
 
     function bootTimeline(payload) {
+    /* The inline stub can boot before the runtime JSON arrives, and the JSON
+       then boots again. Abort the earlier boot's listeners on persistent
+       elements so each input is handled once, by the current data. */
+    if (bootTimeline.listeners) bootTimeline.listeners.abort();
+    var listeners = new AbortController();
+    bootTimeline.listeners = listeners;
+    var bootScope = { signal: listeners.signal };
     var meta = payload.meta || {};
     var events = payload.events || [];
     var buckets = Array.isArray(payload.writing_buckets) ? payload.writing_buckets : [];
@@ -312,12 +319,14 @@
     var maxYear = new Date(maxT).getFullYear();
     var rangeMs = maxT - minT || MS_DAY;
     var chartW = 720;
+    var renderedClientW = 0;
 
     function visibleChartWidth() {
       return Math.max(480, (wrapper.clientWidth || 720) - LABEL_W);
     }
 
     function updateChartWidth() {
+      renderedClientW = wrapper.clientWidth;
       var visibleW = visibleChartWidth();
       var maxZoomYears = Math.max(MIN_ZOOM_YEARS, rangeMs / MS_YEAR);
       if (zoomYears > maxZoomYears) zoomYears = maxZoomYears;
@@ -337,7 +346,9 @@
     }
 
     function centerTimeMs() {
-      var x = wrapper.scrollLeft + wrapper.clientWidth / 2;
+      /* Use the width the chart was last rendered at: on resize the wrapper
+         is already at its new width while chartW still maps the old one. */
+      var x = wrapper.scrollLeft + (renderedClientW || wrapper.clientWidth) / 2;
       return minT + ((x - LABEL_W) / chartW) * rangeMs;
     }
 
@@ -666,7 +677,7 @@
           startX = e.clientX;
           startScroll = wrapper.scrollLeft;
         }
-      });
+      }, bootScope);
 
       wrapper.addEventListener('pointermove', function (e) {
         if (isSelecting) {
@@ -685,7 +696,7 @@
             wrapper.scrollLeft = startScroll - dx;
           }
         }
-      });
+      }, bootScope);
 
       var endPointerDrag = function () {
         if (!isSelecting && !isPanCandidate) return;
@@ -715,8 +726,8 @@
         }
       };
 
-      wrapper.addEventListener('pointerup', endPointerDrag);
-      wrapper.addEventListener('pointercancel', endPointerDrag);
+      wrapper.addEventListener('pointerup', endPointerDrag, bootScope);
+      wrapper.addEventListener('pointercancel', endPointerDrag, bootScope);
     }
 
     function renderBars(track, items, color, barHeight, ongoingAllowed, laneH, gap) {
@@ -903,7 +914,7 @@
       resizeTimer = setTimeout(function () {
         renderKeepingCenter();
       }, 150);
-    });
+    }, bootScope);
 
     /* The bars carry their colour as an inline style, so a palette swap has to
        redraw them — the CSS variables alone cannot reach an already-painted
@@ -911,13 +922,13 @@
     document.addEventListener('shell-theme-change', function () {
       refreshColors();
       render();
-    });
+    }, bootScope);
 
     document.querySelectorAll('.timeline-lane-toggle').forEach(function (cb) {
       cb.addEventListener('change', function () {
         laneVisible[cb.dataset.lane] = cb.checked;
         renderKeepingCenter();
-      });
+      }, bootScope);
     });
 
     var expandCb = document.getElementById('timeline-writing-expanded');
@@ -925,11 +936,11 @@
       expandCb.addEventListener('change', function () {
         writingExpanded = expandCb.checked;
         renderKeepingCenter();
-      });
+      }, bootScope);
     }
 
     if (selectionClear) {
-      selectionClear.addEventListener('click', clearSelection);
+      selectionClear.addEventListener('click', clearSelection, bootScope);
     }
 
     function maxScrollLeft() {
@@ -951,12 +962,12 @@
 
     var panPrevBtn = document.getElementById('timeline-pan-prev');
     if (panPrevBtn) {
-      panPrevBtn.addEventListener('click', function () { panBy(-0.9); });
+      panPrevBtn.addEventListener('click', function () { panBy(-0.9); }, bootScope);
     }
 
     var panNextBtn = document.getElementById('timeline-pan-next');
     if (panNextBtn) {
-      panNextBtn.addEventListener('click', function () { panBy(0.9); });
+      panNextBtn.addEventListener('click', function () { panBy(0.9); }, bootScope);
     }
 
     var panTodayBtn = document.getElementById('timeline-pan-today');
@@ -965,16 +976,22 @@
         var todayX = xPosMs(todayT);
         var target = Math.max(0, Math.min(maxScrollLeft(), todayX - wrapper.clientWidth + 24));
         wrapper.scrollTo({ left: target, behavior: scrollBehavior() });
-      });
+      }, bootScope);
+    }
+
+    function setPanButtonDisabled(btn, disabled) {
+      if (!btn) return;
+      btn.disabled = disabled;
+      btn.setAttribute('aria-disabled', disabled ? 'true' : 'false');
     }
 
     function updatePanButtons() {
-      if (panPrevBtn) panPrevBtn.disabled = wrapper.scrollLeft <= 0;
-      if (panNextBtn) panNextBtn.disabled = wrapper.scrollLeft >= maxScrollLeft() - 1;
+      setPanButtonDisabled(panPrevBtn, wrapper.scrollLeft <= 0);
+      setPanButtonDisabled(panNextBtn, wrapper.scrollLeft >= maxScrollLeft() - 1);
     }
 
     if (wrapper) {
-      wrapper.addEventListener('scroll', updatePanButtons, { passive: true });
+      wrapper.addEventListener('scroll', updatePanButtons, { passive: true, signal: listeners.signal });
       wrapper.addEventListener('keydown', function (e) {
         if (e.target !== wrapper || e.ctrlKey || e.metaKey || e.altKey) return;
         var handled = true;
@@ -1014,14 +1031,14 @@
         if (handled) {
           e.preventDefault();
         }
-      });
+      }, bootScope);
     }
 
     if (zoomInBtn) {
-      zoomInBtn.addEventListener('click', function () { changeZoom(1); });
+      zoomInBtn.addEventListener('click', function () { changeZoom(1); }, bootScope);
     }
     if (zoomOutBtn) {
-      zoomOutBtn.addEventListener('click', function () { changeZoom(-1); });
+      zoomOutBtn.addEventListener('click', function () { changeZoom(-1); }, bootScope);
     }
 
     updateZoomLabel();
