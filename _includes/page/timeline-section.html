@@ -264,6 +264,17 @@
     var selectionBand = null;
     var dragState = { active: false, anchorMs: 0 };
 
+    function panTarget(scrollLeft, visibleW, maxScroll, step) {
+      // step is a signed fraction of the visible width (e.g. 0.1, -0.9)
+      return Math.round(Math.min(maxScroll, Math.max(0, scrollLeft + step * visibleW)));
+    }
+
+    function centerPreservingScroll(centerMs, xPosMs, visibleW, maxScroll) {
+      // xPosMs maps a timestamp to an x pixel within the scroll content
+      var target = xPosMs(centerMs) - visibleW / 2;
+      return Math.round(Math.min(maxScroll, Math.max(0, target)));
+    }
+
     function parseDate(s) {
       var p = s.split('-');
       return new Date(+p[0], +p[1] - 1, +p[2] || 1);
