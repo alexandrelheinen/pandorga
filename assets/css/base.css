@@ -432,8 +432,8 @@ html[data-theme="dark"] {
 .lang-pill,
 .source-facet,
 .bib-facet,
-.ledger-cta--emphasis,
-.ledger-cta--emphasis-alt {
+:is(.ledger-cta--emphasis, .ledger-cta--emphasis-alt),
+:is(.detail-action, .detail-type-size-trigger, .article-related-section-pill, .listing-filter-trigger) {
   --mark-ink: var(--color-primary);
   --mark-1: var(--mark-a);
   --mark-2: var(--mark-b);
@@ -473,7 +473,7 @@ html[data-theme="dark"] {
   --mk-y: 20%;
 }
 
-:is(.ledger-chip, .listing-filter-chip, .ledger-cta, .detail-action, .detail-type-size-trigger, .listing-filter-trigger, .site-rail-link):focus-visible {
+:is(.ledger-chip, .listing-filter-chip, .ledger-cta, .detail-action, .detail-type-size-trigger, .site-rail-link, .listing-filter-trigger):focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
@@ -792,22 +792,29 @@ a.no-underline:active {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.35rem 0.75rem;
-  border: 1.5px solid var(--border-ink);
+  margin: 1px;
+  /* +0.5px per side keeps the box of the removed 1.5px border (with the margin). */
+  padding: calc(0.35rem + 0.5px) calc(0.75rem + 0.5px);
+  border: 0;
   border-radius: var(--radius-card);
-  background: var(--color-surface-card);
+  --mark-ink: var(--color-on-surface-variant);
+  --mark-1: var(--mark-quiet-a);
+  --mark-2: var(--mark-quiet-b);
+  --mark-3: var(--mark-quiet-c);
   color: var(--color-on-surface-variant);
   cursor: pointer;
   transition: color var(--motion-duration-fast) var(--motion-ease-default),
-    border-color var(--motion-duration-fast) var(--motion-ease-default),
     background-color var(--motion-duration-fast) var(--motion-ease-default);
 }
 
+/* Neutral control: a quiet gray mark at rest, a deeper one on hover and
+   while its panel is open. */
 .listing-filter-trigger:hover,
 .listing-filter-trigger[aria-expanded="true"] {
+  --mark-1: var(--mark-hover-a);
+  --mark-2: var(--mark-hover-b);
+  --mark-3: var(--mark-hover-c);
   color: var(--color-secondary);
-  border-color: var(--color-secondary);
-  background: var(--color-surface-high);
 }
 
 .listing-filter-trigger .material-symbols-outlined {

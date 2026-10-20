@@ -115,14 +115,21 @@ a.back-link .material-symbols-outlined {
   border-top: 1px solid var(--border-gentle-faint);
 }
 
+/* Back, Share, Cite, PDF and the reading-size step are neutral controls: a
+   quiet gray highlighter mark at rest, a deeper one on hover (or while the
+   size menu is open), with the margin standing in for the removed border. */
 .detail-action {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
+  margin: 1px;
   padding: 0.35rem 0.85rem;
-  background: var(--color-surface-card);
-  border: 1px solid var(--border-ink);
+  border: 0;
   border-radius: var(--radius-pill);
+  --mark-ink: var(--color-on-surface-variant);
+  --mark-1: var(--mark-quiet-a);
+  --mark-2: var(--mark-quiet-b);
+  --mark-3: var(--mark-quiet-c);
   font-family: var(--font-label);
   font-size: var(--type-label-lg);
   font-weight: var(--weight-label);
@@ -131,13 +138,13 @@ a.back-link .material-symbols-outlined {
   text-decoration: none !important;
   cursor: pointer;
   transition: background-color var(--motion-duration-fast) var(--motion-ease-default),
-    border-color var(--motion-duration-fast) var(--motion-ease-default),
     color var(--motion-duration-fast) var(--motion-ease-default);
 }
 
 .detail-action:hover {
-  background: var(--color-surface-high);
-  border-color: var(--color-primary);
+  --mark-1: var(--mark-hover-a);
+  --mark-2: var(--mark-hover-b);
+  --mark-3: var(--mark-hover-c);
   color: var(--color-primary);
 }
 
@@ -165,10 +172,14 @@ a.back-link .material-symbols-outlined {
   display: inline-flex;
   align-items: center;
   gap: 0.2rem;
+  margin: 1px;
   padding: 0.35rem 0.55rem 0.35rem 0.7rem;
-  background: var(--color-surface-card);
-  border: 1px solid var(--border-ink);
+  border: 0;
   border-radius: var(--radius-pill);
+  --mark-ink: var(--color-on-surface-variant);
+  --mark-1: var(--mark-quiet-a);
+  --mark-2: var(--mark-quiet-b);
+  --mark-3: var(--mark-quiet-c);
   font-family: var(--font-label);
   font-size: var(--type-label-lg);
   font-weight: var(--weight-label);
@@ -177,20 +188,20 @@ a.back-link .material-symbols-outlined {
   color: var(--color-on-surface);
   cursor: pointer;
   transition: background-color var(--motion-duration-fast) var(--motion-ease-default),
-    border-color var(--motion-duration-fast) var(--motion-ease-default),
     color var(--motion-duration-fast) var(--motion-ease-default);
 }
 
 .detail-type-size-trigger:hover,
 .detail-type-size-trigger[aria-expanded="true"] {
-  background: var(--color-surface-high);
-  border-color: var(--color-primary);
+  --mark-1: var(--mark-hover-a);
+  --mark-2: var(--mark-hover-b);
+  --mark-3: var(--mark-hover-c);
   color: var(--color-primary);
 }
 
 .detail-type-size-trigger:focus-visible {
-  outline: 1px solid var(--color-primary);
-  outline-offset: 1px;
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .detail-type-size-trigger .material-symbols-outlined {
@@ -1279,7 +1290,10 @@ nav.text-page-nav:not(:has(a)) {
   padding: 0.2rem 0.7rem;
   min-height: 1.65rem;
   border-radius: 0;
-  background: color-mix(in srgb, var(--color-on-surface-variant) 18%, transparent);
+  --mark-ink: var(--color-on-surface-variant);
+  --mark-1: var(--mark-quiet-a);
+  --mark-2: var(--mark-quiet-b);
+  --mark-3: var(--mark-quiet-c);
   color: var(--color-on-surface-variant);
   font-family: var(--font-label);
   font-size: var(--type-label);
