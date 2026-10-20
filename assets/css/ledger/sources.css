@@ -171,24 +171,32 @@
   display: contents;
 }
 
-/* One geometry for all four. The border is currentColor rather than a fixed
-   token, so each chip outlines itself in whatever ink it is already using and
-   the row stays a family across both palettes. The shared category chip is a
-   filled chip everywhere else on the site; here it outlines like its three
-   neighbors, and its hover still fills — which is how a reader can tell that
-   this one, alone, is a link. */
+/* One geometry for all four. Facets lose their border and get a facet-strength
+   mark in their own ink. The tag chip is the only link and deepens its mark
+   on hover. */
 .source-facets .source-facet,
 .source-facets .ledger-chip,
 .source-facets .lang-pill {
   display: inline-flex;
   align-items: center;
   height: var(--source-facet-height);
-  padding: 0 var(--space-sm);
-  border: 1.5px solid color-mix(in srgb, currentColor 40%, var(--border-ink));
+  padding: 0 calc(var(--space-sm) + 1.5px);
+  border: 0;
   border-radius: var(--radius-card);
-  background: transparent;
   white-space: nowrap;
   font-size: var(--type-label);
+}
+
+.source-facets .ledger-chip {
+  --mark-1: var(--mark-facet-a);
+  --mark-2: var(--mark-facet-b);
+  --mark-3: var(--mark-facet-c);
+}
+
+.source-facets a.ledger-chip:hover {
+  --mark-1: var(--mark-hover-a);
+  --mark-2: var(--mark-hover-b);
+  --mark-3: var(--mark-hover-c);
 }
 
 /* The two chips this page owns. The shared pill and chip bring their own
@@ -199,12 +207,19 @@
   font-weight: var(--weight-label);
   letter-spacing: 0.03em;
   line-height: 1;
-  color: var(--color-on-surface-variant);
+  --facet-ink: var(--color-on-surface-variant);
+  color: color-mix(in srgb, var(--facet-ink) var(--facet-ink-mix), var(--color-on-surface));
+  --mark-ink: currentColor;
+  --mark-1: var(--mark-facet-a);
+  --mark-2: var(--mark-facet-b);
+  --mark-3: var(--mark-facet-c);
 }
 
-/* flag-icons sizes from the em, so the flag's own font-size is its height. */
+/* flag-icons sizes from the em, so the flag's own font-size is its height.
+   The country chip gets no mark because the flag is its own shape. */
 .source-facet--country {
   padding-inline: 0.35rem;
+  background: none;
 }
 
 .source-facet--country .fi {
@@ -323,5 +338,5 @@ html[data-theme="light"] .source-card {
 /* The medium chip and the card edge read the same custom property, so they
    cannot drift apart: one colour, stated once, shown twice. */
 .source-facet--medium {
-  color: var(--source-accent);
+  --facet-ink: var(--source-accent);
 }

@@ -396,6 +396,7 @@ html[data-theme="light"] {
   --mark-quiet-a: 12%;
   --mark-quiet-b: 9%;
   --mark-quiet-c: 3%;
+  --facet-ink-mix: 82%;
   --mk-angle: 104deg;
   --mk-s0: 0.9%;
   --mk-s1: 2.6%;
@@ -421,12 +422,16 @@ html[data-theme="dark"] {
   --mark-quiet-a: 10%;
   --mark-quiet-b: 7%;
   --mark-quiet-c: 3%;
+  --facet-ink-mix: 100%;
 }
 
 /* Shared mark foundation */
 .ledger-mark,
 .ledger-chip,
-.listing-filter-chip:is(:hover, .is-active) {
+.listing-filter-chip:is(:hover, .is-active),
+.lang-pill,
+.source-facet,
+.bib-facet {
   --mark-ink: var(--color-primary);
   --mark-1: var(--mark-a);
   --mark-2: var(--mark-b);
@@ -956,17 +961,23 @@ a.no-underline:active {
   font-size: var(--type-label);
   font-weight: var(--weight-label);
   letter-spacing: 0.03em;
-  padding: 0.1rem 0.4rem;
-  border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+  padding: calc(0.1rem + 1px) calc(0.4rem + 1px);
+  border: 0;
   white-space: nowrap;
+  --facet-ink: currentColor;
+  color: color-mix(in srgb, var(--facet-ink) var(--facet-ink-mix), var(--color-on-surface));
+  --mark-ink: currentColor;
+  --mark-1: var(--mark-facet-a);
+  --mark-2: var(--mark-facet-b);
+  --mark-3: var(--mark-facet-c);
 }
 
 .lang-pill--enus {
-  color: var(--color-primary);
+  --facet-ink: var(--color-primary);
 }
 
 .lang-pill--ptbr {
-  color: var(--color-secondary);
+  --facet-ink: var(--color-secondary);
 }
 
 .ledger-chip-row {
