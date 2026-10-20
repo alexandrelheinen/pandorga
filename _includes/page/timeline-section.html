@@ -262,7 +262,14 @@
     var zoomLabel = document.getElementById('timeline-zoom-label');
     var selectionLayer = null;
     var selectionBand = null;
-    var dragState = { active: false, anchorMs: 0 };
+    var registeredTracks = new Set();
+    var isSelecting = false;
+    var isPanCandidate = false;
+    var isPanning = false;
+    var pointerId = null;
+    var anchorMs = 0;
+    var startX = 0;
+    var startScroll = 0;
 
     function panTarget(scrollLeft, visibleW, maxScroll, step) {
       // step is a signed fraction of the visible width (e.g. 0.1, -0.9)
@@ -624,23 +631,82 @@
     }
 
     function setupSelectionDrag(track) {
-      track.addEventListener('mousedown', function (e) {
-        if (e.button !== 0 || e.target !== track) return;
-        dragState.active = true;
-        dragState.anchorMs = timeFromClientX(e.clientX);
-        setSelection(dragState.anchorMs, dragState.anchorMs);
-        e.preventDefault();
-      });
+      registeredTracks.add(track);
     }
 
-    window.addEventListener('mousemove', function (e) {
-      if (!dragState.active) return;
-      setSelection(dragState.anchorMs, timeFromClientX(e.clientX));
-    });
+    if (wrapper) {
+      wrapper.addEventListener('pointerdown', function (e) {
+        if (e.button !== 0) return;
+        if (e.pointerType === 'touch') return;
 
-    window.addEventListener('mouseup', function () {
-      dragState.active = false;
-    });
+        if (e.shiftKey && registeredTracks.has(e.target)) {
+          isSelecting = true;
+          pointerId = e.pointerId;
+          anchorMs = timeFromClientX(e.clientX);
+          setSelection(anchorMs, anchorMs);
+          if (wrapper.setPointerCapture) {
+            try { wrapper.setPointerCapture(e.pointerId); } catch (err) {}
+          }
+          e.preventDefault();
+        } else {
+          isPanCandidate = true;
+          isPanning = false;
+          pointerId = e.pointerId;
+          startX = e.clientX;
+          startScroll = wrapper.scrollLeft;
+        }
+      });
+
+      wrapper.addEventListener('pointermove', function (e) {
+        if (isSelecting) {
+          setSelection(anchorMs, timeFromClientX(e.clientX));
+        } else if (isPanCandidate) {
+          var dx = e.clientX - startX;
+          if (!isPanning && Math.abs(dx) >= 4) {
+            isPanning = true;
+            if (wrapper.setPointerCapture) {
+              try { wrapper.setPointerCapture(e.pointerId); } catch (err) {}
+            }
+            wrapper.classList.add('is-dragging');
+            hideTip();
+          }
+          if (isPanning) {
+            wrapper.scrollLeft = startScroll - dx;
+          }
+        }
+      });
+
+      var endPointerDrag = function () {
+        if (!isSelecting && !isPanCandidate) return;
+
+        if (pointerId !== null && wrapper.hasPointerCapture && wrapper.hasPointerCapture(pointerId)) {
+          try { wrapper.releasePointerCapture(pointerId); } catch (err) {}
+        }
+        wrapper.classList.remove('is-dragging');
+
+        var panned = isPanning;
+
+        isSelecting = false;
+        isPanCandidate = false;
+        isPanning = false;
+        pointerId = null;
+
+        if (panned) {
+          var suppressClick = function (clickEvent) {
+            clickEvent.stopPropagation();
+            clickEvent.preventDefault();
+            window.removeEventListener('click', suppressClick, true);
+          };
+          window.addEventListener('click', suppressClick, true);
+          setTimeout(function () {
+            window.removeEventListener('click', suppressClick, true);
+          }, 100);
+        }
+      };
+
+      wrapper.addEventListener('pointerup', endPointerDrag);
+      wrapper.addEventListener('pointercancel', endPointerDrag);
+    }
 
     function renderBars(track, items, color, barHeight, ongoingAllowed, laneH, gap) {
       items.forEach(function (ev) {
@@ -657,6 +723,7 @@
     }
 
     function render() {
+      registeredTracks.clear();
       updateChartWidth();
       container.innerHTML = '';
       barRegistry = [];
