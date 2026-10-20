@@ -883,6 +883,7 @@
       container.style.height = y + 'px';
       container.style.minHeight = '';
       applySelectionHighlight();
+      updatePanButtons();
     }
 
     var resizeTimer;
@@ -921,6 +922,91 @@
       selectionClear.addEventListener('click', clearSelection);
     }
 
+    function maxScrollLeft() {
+      return Math.max(0, container.offsetWidth - wrapper.clientWidth);
+    }
+
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    function scrollBehavior() {
+      return reduceMotion && reduceMotion.matches ? 'auto' : 'smooth';
+    }
+
+    function panBy(step) {
+      wrapper.scrollTo({
+        left: panTarget(wrapper.scrollLeft, wrapper.clientWidth, maxScrollLeft(), step),
+        behavior: scrollBehavior()
+      });
+    }
+
+    var panPrevBtn = document.getElementById('timeline-pan-prev');
+    if (panPrevBtn) {
+      panPrevBtn.addEventListener('click', function () { panBy(-0.9); });
+    }
+
+    var panNextBtn = document.getElementById('timeline-pan-next');
+    if (panNextBtn) {
+      panNextBtn.addEventListener('click', function () { panBy(0.9); });
+    }
+
+    var panTodayBtn = document.getElementById('timeline-pan-today');
+    if (panTodayBtn) {
+      panTodayBtn.addEventListener('click', function () {
+        var todayX = xPosMs(todayT);
+        var target = Math.max(0, Math.min(maxScrollLeft(), todayX - wrapper.clientWidth + 24));
+        wrapper.scrollTo({ left: target, behavior: scrollBehavior() });
+      });
+    }
+
+    function updatePanButtons() {
+      if (panPrevBtn) panPrevBtn.disabled = wrapper.scrollLeft <= 0;
+      if (panNextBtn) panNextBtn.disabled = wrapper.scrollLeft >= maxScrollLeft() - 1;
+    }
+
+    if (wrapper) {
+      wrapper.addEventListener('scroll', updatePanButtons, { passive: true });
+      wrapper.addEventListener('keydown', function (e) {
+        if (e.target !== wrapper || e.ctrlKey || e.metaKey || e.altKey) return;
+        var handled = true;
+        switch (e.key) {
+          case 'ArrowLeft':
+            panBy(e.shiftKey ? -0.9 : -0.1);
+            break;
+          case 'ArrowRight':
+            panBy(e.shiftKey ? 0.9 : 0.1);
+            break;
+          case 'PageUp':
+            panBy(-0.9);
+            break;
+          case 'PageDown':
+            panBy(0.9);
+            break;
+          case 'Home':
+            wrapper.scrollTo({ left: 0, behavior: scrollBehavior() });
+            break;
+          case 'End':
+            var todayX = xPosMs(todayT);
+            var target = Math.max(0, Math.min(maxScrollLeft(), todayX - wrapper.clientWidth + 24));
+            wrapper.scrollTo({ left: target, behavior: scrollBehavior() });
+            break;
+          case '+':
+          case '=':
+            changeZoom(1);
+            break;
+          case '-':
+          case '−':
+            changeZoom(-1);
+            break;
+          default:
+            handled = false;
+            break;
+        }
+        if (handled) {
+          e.preventDefault();
+        }
+      });
+    }
+
     if (zoomInBtn) {
       zoomInBtn.addEventListener('click', function () { changeZoom(1); });
     }
@@ -931,6 +1017,7 @@
     updateZoomLabel();
     render();
     scrollToToday();
+    updatePanButtons();
     }
 
     function loadTimeline() {
