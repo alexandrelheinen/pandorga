@@ -240,7 +240,7 @@
         {%- for _item in _group.pages -%}
         {%- assign _key = _item.key -%}
         {%- assign _p = _all_pages | where: "key", _key | first -%}
-        <a href="{{ _p.url }}" class="site-rail-link{% if nav_active == _key %} is-active{% endif %}"
+        <a href="{{ _p.url }}" class="site-rail-link{% if nav_active == _key %} is-active{% if _p.accent and _p.accent != 'blue' %} page-accent--{{ _p.accent }}{% endif %}{% endif %}"
           {% if nav_active == _key %}aria-current="page"{% endif %}>{{ _p.title }}</a>
         {%- endfor -%}
         {%- endfor -%}

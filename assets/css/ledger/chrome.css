@@ -91,20 +91,11 @@
   box-shadow: none;
   background: linear-gradient(104deg,
       transparent 0.9%,
-      color-mix(in srgb, var(--color-primary) 18%, transparent) 2.4%,
-      color-mix(in srgb, var(--color-primary) 14%, transparent) 58%,
-      color-mix(in srgb, var(--color-primary) 5%, transparent) 98%);
+      color-mix(in srgb, var(--color-primary) var(--mark-a), transparent) 2.4%,
+      color-mix(in srgb, var(--color-primary) var(--mark-b), transparent) 58%,
+      color-mix(in srgb, var(--color-primary) var(--mark-c), transparent) 98%);
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
-}
-
-[data-theme="dark"] .site-rail-link.is-active {
-  background: linear-gradient(104deg,
-      transparent 0.9%,
-      color-mix(in srgb, var(--color-primary) 14%, transparent) 2.4%,
-      color-mix(in srgb, var(--color-primary) 10%, transparent) 58%,
-      color-mix(in srgb, var(--color-primary) 4%, transparent) 98%);
-  box-shadow: none;
 }
 
 /* The rail needs room for six labels before it earns its place; below that
