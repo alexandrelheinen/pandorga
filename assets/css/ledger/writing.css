@@ -207,16 +207,20 @@
   border-top: 1px solid var(--border-gentle-divider);
 }
 
+/* Solid mark: opaque under the label, fades only in the trailing padding;
+   hover fills solid. */
 .writing-index .writing-lead-foot .writing-lead-cta {
   margin-left: auto;
   padding: 0.35rem var(--space-md);
-  background: var(--color-primary);
+  background: linear-gradient(104deg, transparent 0.9%, var(--color-primary) 2.4%, var(--color-primary) calc(100% - 0.8rem), color-mix(in srgb, var(--color-primary) 40%, transparent) 100%);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
   color: var(--color-on-primary);
   font-weight: var(--weight-label);
 }
 
 .writing-index .writing-lead-cta:hover {
-  background: color-mix(in srgb, var(--color-primary) 85%, var(--color-on-surface));
+  background: var(--color-primary);
   color: var(--color-on-primary);
   text-decoration: none;
 }
