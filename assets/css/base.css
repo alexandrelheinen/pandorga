@@ -378,6 +378,97 @@ html body {
       color-mix(in srgb, var(--color-tertiary) 2%, transparent) 98%);
 }
 
+/* Highlighter mark tokens */
+html:root,
+html[data-theme="light"] {
+  --mark-a: 18%;
+  --mark-b: 14%;
+  --mark-c: 5%;
+  --mark-strong-a: 28%;
+  --mark-strong-b: 22%;
+  --mark-strong-c: 8%;
+  --mark-facet-a: 14%;
+  --mark-facet-b: 11%;
+  --mark-facet-c: 4%;
+  --mark-hover-a: 30%;
+  --mark-hover-b: 24%;
+  --mark-hover-c: 9%;
+  --mark-quiet-a: 12%;
+  --mark-quiet-b: 9%;
+  --mark-quiet-c: 3%;
+  --mk-angle: 104deg;
+  --mk-s0: 0.9%;
+  --mk-s1: 2.6%;
+  --mk-mid: 58%;
+  --mk-end: 98%;
+  --mk-h: 100%;
+  --mk-y: 50%;
+}
+
+html[data-theme="dark"] {
+  --mark-a: 14%;
+  --mark-b: 10%;
+  --mark-c: 4%;
+  --mark-strong-a: 22%;
+  --mark-strong-b: 17%;
+  --mark-strong-c: 6%;
+  --mark-facet-a: 14%;
+  --mark-facet-b: 11%;
+  --mark-facet-c: 4%;
+  --mark-hover-a: 24%;
+  --mark-hover-b: 18%;
+  --mark-hover-c: 7%;
+  --mark-quiet-a: 10%;
+  --mark-quiet-b: 7%;
+  --mark-quiet-c: 3%;
+}
+
+/* Shared mark foundation */
+.ledger-mark {
+  --mark-ink: var(--color-primary);
+  --mark-1: var(--mark-a);
+  --mark-2: var(--mark-b);
+  --mark-3: var(--mark-c);
+  background: linear-gradient(var(--mk-angle), transparent var(--mk-s0), color-mix(in srgb, var(--mark-ink) var(--mark-1), transparent) var(--mk-s1), color-mix(in srgb, var(--mark-ink) var(--mark-2), transparent) var(--mk-mid), color-mix(in srgb, var(--mark-ink) var(--mark-3), transparent) var(--mk-end), transparent 100%) 0 var(--mk-y) / 100% var(--mk-h) no-repeat;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+:is(.ledger-chip, .site-rail-link, .listing-filter-chip):nth-child(3n+1) {
+  --mk-angle: 104deg;
+  --mk-s0: 0.9%;
+  --mk-s1: 2.6%;
+  --mk-mid: 58%;
+  --mk-end: 98%;
+  --mk-h: 100%;
+  --mk-y: 50%;
+}
+
+:is(.ledger-chip, .site-rail-link, .listing-filter-chip):nth-child(3n+2) {
+  --mk-angle: 97deg;
+  --mk-s0: 1.8%;
+  --mk-s1: 4%;
+  --mk-mid: 66%;
+  --mk-end: 96%;
+  --mk-h: 88%;
+  --mk-y: 85%;
+}
+
+:is(.ledger-chip, .site-rail-link, .listing-filter-chip):nth-child(3n) {
+  --mk-angle: 111deg;
+  --mk-s0: 0.4%;
+  --mk-s1: 1.8%;
+  --mk-mid: 48%;
+  --mk-end: 92%;
+  --mk-h: 90%;
+  --mk-y: 20%;
+}
+
+:is(.ledger-chip, .listing-filter-chip, .ledger-cta, .detail-action, .detail-type-size-trigger, .listing-filter-trigger, .site-rail-link):focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 /* ── Page-level accent ────────────────────────────────────────────────
    The shared triad (theme/theme-vars-block.liquid) declares one primary per
    theme, but each section of the site reads in its own hue: Projects and
