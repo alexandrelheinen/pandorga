@@ -156,8 +156,9 @@
 }
 
 .bib-facet--news {
-  /* Hardcoded salmon colors for now, since punctual */
-  --facet-ink: #b7756e;
+  /* Hardcoded salmon colors for now, since punctual. Pre-mixed toward the
+     text color: plain salmon stayed under 4.5:1 on its mark in light. */
+  --facet-ink: color-mix(in srgb, #b7756e 85%, var(--color-on-surface));
 }
 
 .bib-key {

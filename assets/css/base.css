@@ -422,7 +422,8 @@ html[data-theme="dark"] {
   --mark-quiet-a: 10%;
   --mark-quiet-b: 7%;
   --mark-quiet-c: 3%;
-  --facet-ink-mix: 100%;
+  /* Not 100%: the YouTube red facet was 4.24:1 on its own dark mark. */
+  --facet-ink-mix: 85%;
 }
 
 /* Shared mark foundation */
@@ -814,7 +815,9 @@ a.no-underline:active {
   --mark-1: var(--mark-hover-a);
   --mark-2: var(--mark-hover-b);
   --mark-3: var(--mark-hover-c);
-  color: var(--color-secondary);
+  /* Darkened in light like the strong marks: plain secondary on the gray
+     hover mark was 3.65:1. */
+  color: color-mix(in srgb, var(--color-secondary) var(--facet-ink-mix), var(--color-on-surface));
 }
 
 .listing-filter-trigger .material-symbols-outlined {
