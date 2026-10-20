@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Pills, tags, facets, filters, and buttons use a borderless felt-pen highlighter wash with deterministic nth-child geometry variants, quiet and strong mark strengths, solid fill on hover, and section-accented active rail links (PLT-AC-46).
+
 ## [1.13.0] — 2026-10-19
 
 ### Added

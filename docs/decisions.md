@@ -3,6 +3,14 @@
 ADR-style log for constraints that diverge from or freeze choices in
 [spec.md](spec.md). Newest first.
 
+## ADR-004: Selected-state contrast for highlighter pills
+
+Date: 2026-10-20  
+Status: accepted  
+Refs: `PLT-AC-46`, [spec.md §5](spec.md)
+
+The felt-pen highlighter wash used for selected filter chips and active menu links produces a mark-to-background contrast ratio of approximately 1.3:1 against the page surface. This wash is non-text and decorative; the selected state does not rely on the mark boundary alone. Selection is communicated through the combination of the mark, a text ink step from `on-surface-variant` to `on-surface` (3.19:1 light, 2.01:1 dark), and semantic state via `aria-pressed="true"` or `aria-current="page"`, matching the established desktop rail menu model.
+
 ## ADR-003: Object-store env names for v1
 
 Date: 2026-10-05  

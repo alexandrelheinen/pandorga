@@ -58,5 +58,9 @@ measured home requests the same files as an unset site. See
 The font hosts stay preconnected. The text-face sheet is still inserted
 after the first paint, with `display=swap`.
 
+## Section accents in the navigation
+
+When a section's listing page declares an `accent` (such as `green` or `ochre`), the desktop top-bar rail link for that section applies `page-accent--<accent>` when active, tinting the active felt-pen mark with the section's accent color rather than default blue. Detail pages within that section inherit the same active rail link accent.
+
 For the full token inventory and design rules, see [DESIGN.md](../DESIGN.md)
 in the repository root.
