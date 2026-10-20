@@ -1,7 +1,5 @@
 # CV timeline temporal pan
 
-Status: planned, not yet implemented (`PLT-AC-47`). The timeline today pans only through native horizontal scrolling, and a plain drag selects a period.
-
 ## Intent
 
 Let the reader move along time at the current zoom, with any input (pointer, touch, wheel, keyboard, on-screen buttons), without losing their place when they zoom, toggle lanes, or resize.
@@ -44,4 +42,4 @@ Native horizontal scroll on `#timeline-chart-wrapper` (`scrollLeft`) drives pan,
 
 No Node build for the public site shell; timeline logic remains inline in `_includes/page/timeline-section.html`. `panTarget` and `centerPreservingScroll` are pure functions placed directly before `parseDate`, so `test-timeline-pan.mjs` can execute them from the real source. The selection hint reads "Shift+drag to select a period". The pan and Today buttons reuse the zoom button classes and tokens.
 
-Backward compatibility: today a plain drag selects a period; once this ships it will pan instead. The CHANGELOG will note the change when this ships.
+Backward compatibility: a plain drag used to select a period; it now pans. The CHANGELOG notes the change.
