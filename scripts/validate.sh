@@ -73,6 +73,7 @@ TESTS=(
   scripts/test/test-hero-portraits.rb
   scripts/test/test-thumbnail-variants.rb
   scripts/test/test-highlighter-pills.rb
+  scripts/test/test-timeline-pan.rb
 )
 
 failed=0
@@ -105,6 +106,11 @@ fi
 
 echo "-- scripts/test/test-studio-pipeline-focus.mjs"
 if ! node scripts/test/test-studio-pipeline-focus.mjs; then
+  failed=1
+fi
+
+echo "-- scripts/test/test-timeline-pan.mjs"
+if ! node scripts/test/test-timeline-pan.mjs; then
   failed=1
 fi
 
