@@ -431,7 +431,9 @@ html[data-theme="dark"] {
 .listing-filter-chip:is(:hover, .is-active),
 .lang-pill,
 .source-facet,
-.bib-facet {
+.bib-facet,
+.ledger-cta--emphasis,
+.ledger-cta--emphasis-alt {
   --mark-ink: var(--color-primary);
   --mark-1: var(--mark-a);
   --mark-2: var(--mark-b);
@@ -1060,8 +1062,8 @@ a.ledger-chip:hover {
 }
 
 /* Text CTAs carry a gentle accent underline so the clickable cue is not the
-   same gesture as the marker wash on titles. Emphasis buttons keep a box
-   fill instead — underline would fight the border. */
+   same gesture as the marker wash on titles. Emphasis buttons carry a
+   strong mark instead. */
 .ledger-cta:not(.ledger-cta--emphasis):not(.ledger-cta--emphasis-alt)>span:not(.ledger-cta-arrow):not(.ledger-cta-icon) {
   text-decoration: underline;
   text-decoration-color: color-mix(in srgb, var(--color-primary) 50%, transparent);
@@ -1111,63 +1113,47 @@ a.ledger-chip:hover {
    Those set real button padding (0.85rem vertical, --space-lg horizontal) and a
    solid filled background for the primary case. `.ledger-cta--emphasis` is the
    one or two truly primary actions per page (e.g. hero "Full Curriculum
-   Vitæ"): still a `.ledger-cta`, just with tight padding and a tinted fill
-   instead of a heavy solid block, so it reads as a real button — with color
-   and contrast — without becoming a bulky box. Reuse this instead of adding
+   Vitæ"): still a `.ledger-cta`, just with tight padding and a strong
+   highlighter mark instead of a tinted box or a heavy solid block, so it
+   reads as a real button without becoming a bulky box; hover fills solid. Reuse this instead of adding
    another one-off CTA class. `--emphasis-alt` swaps the hue to secondary, for
    a second hero-level action (e.g. "Contacts") that needs to read as a
    distinct button next to the primary one rather than a duplicate of it. */
 .ledger-cta--emphasis {
+  margin: 1px;
   padding: 0.35rem 0.85rem;
-  border: 1px solid var(--color-primary);
+  border: 0;
   border-radius: var(--radius-card);
-  background: color-mix(in srgb, var(--color-primary) 22%, var(--color-background));
+  --mark-ink: var(--color-primary);
+  --mark-1: var(--mark-strong-a);
+  --mark-2: var(--mark-strong-b);
+  --mark-3: var(--mark-strong-c);
+  color: color-mix(in srgb, var(--color-primary) var(--facet-ink-mix), var(--color-on-surface));
   transition: color var(--motion-duration-fast) var(--motion-ease-default),
-    border-color var(--motion-duration-fast) var(--motion-ease-default),
     background-color var(--motion-duration-fast) var(--motion-ease-default);
 }
 
 .ledger-cta--emphasis:hover {
   color: var(--color-on-primary, var(--color-surface));
-  border-color: var(--color-link-hover);
   background: var(--color-primary);
 }
 
 .ledger-cta--emphasis-alt {
+  margin: 1px;
   padding: 0.35rem 0.85rem;
-  border: 1px solid var(--color-secondary);
+  border: 0;
   border-radius: var(--radius-card);
-  background: color-mix(in srgb, var(--color-secondary) 22%, var(--color-background));
-  color: var(--color-secondary);
+  --mark-ink: var(--color-secondary);
+  --mark-1: var(--mark-strong-a);
+  --mark-2: var(--mark-strong-b);
+  --mark-3: var(--mark-strong-c);
+  color: color-mix(in srgb, var(--color-secondary) var(--facet-ink-mix), var(--color-on-surface));
   transition: color var(--motion-duration-fast) var(--motion-ease-default),
-    border-color var(--motion-duration-fast) var(--motion-ease-default),
     background-color var(--motion-duration-fast) var(--motion-ease-default);
-}
-
-[data-theme="dark"] .ledger-cta--emphasis {
-  background: color-mix(in srgb, var(--color-primary) 18%, var(--color-background));
-}
-
-[data-theme="dark"] .ledger-cta--emphasis-alt {
-  background: color-mix(in srgb, var(--color-secondary) 18%, var(--color-background));
-}
-
-/* Dark resting mixes sit after the shared :hover fill and match its
-   specificity (attr + class vs class + :hover), so without these the
-   primary button kept the 14% wash under the pointer while the ink
-   stepped to on-primary — dark text on a near-black hero. Alt escaped
-   because its :hover rule already follows the dark rest. */
-[data-theme="dark"] .ledger-cta--emphasis:hover {
-  background: var(--color-primary);
-}
-
-[data-theme="dark"] .ledger-cta--emphasis-alt:hover {
-  background: var(--color-secondary);
 }
 
 .ledger-cta--emphasis-alt:hover {
   color: var(--color-on-secondary, var(--color-surface));
-  border-color: var(--color-secondary);
   background: var(--color-secondary);
 }
 
