@@ -70,4 +70,42 @@ fail!("restoreListingDocument is not on the runtime") unless BOOT.include?("rest
   fail!("#{layout} listing does not restore the document") unless source.include?("restoreListingDocument()")
 end
 
+# PLT-AC-46: Menu mark follows section accent on desktop rail, mobile menu unchanged
+rail_link_markup = SHELL[/<nav class="site-rail".*?<\/nav>/m]
+fail!("site-rail nav not found") unless rail_link_markup
+fail!("active site-rail-link must get page-accent--{{ _p.accent }}") unless rail_link_markup.include?("page-accent--{{ _p.accent }}")
+fail!("active site-rail-link accent must be guarded by != 'blue'") unless rail_link_markup.include?("_p.accent != 'blue'") || rail_link_markup.include?('_p.accent != "blue"')
+
+mobile_menu = SHELL[/<div id="mobile-menu".*?<\/div>\s*<\/div>/m]
+fail!("mobile menu not found") unless mobile_menu
+fail!("mobile menu must not contain page-accent (PLT-AC-46)") if mobile_menu.include?("page-accent")
+fail!("mobile menu must not contain gradient/mark (PLT-AC-46)") if mobile_menu.include?("linear-gradient") || mobile_menu.include?("ledger-mark")
+
+EXPECTED_MOBILE_MENU = <<~'HTML'.strip
+        <div id="mobile-menu"
+          class="hidden absolute right-0 top-full mt-1 min-w-[14rem] py-2 bg-surface border border-gentle-subtle shadow-sm z-50"
+          role="menu" aria-label="Explore">
+          <div class="flex flex-col px-3 gap-0">
+            {% for _group in site.data.nav %}
+            {% unless forloop.first %}<div class="h-px bg-outline-variant/30 my-1.5" role="separator"></div>{% endunless %}
+            {% for _item in _group.pages %}
+            {% assign _key = _item.key %}
+            {% assign _p = _all_pages | where: "key", _key | first %}
+            {% comment %}The inactive state carries no weight class: Cabin's axis starts
+            at 400 and the font loader requests nothing below it, so the `font-light` this
+            used to set asked for a 300 that resolves straight back to 400 and changed
+            nothing on the page. The variant ink is what marks the state.{% endcomment %}
+            <a href="{{ _p.url }}" role="menuitem"
+              class="flex items-center gap-2.5 font-body {% if nav_active == _key %}text-primary font-semibold{% else %}text-on-surface-variant hover:text-primary{% endif %} transition-colors duration-300 py-2 px-1">
+              {% if _item.icon %}<span class="material-symbols-outlined text-lg shrink-0 flex items-center justify-center" aria-hidden="true">{{ _item.icon }}</span>{% endif %}
+              <span class="leading-none">{{ _p.title }}</span>
+            </a>
+            {% endfor %}
+            {% endfor %}
+          </div>
+        </div>
+HTML
+
+fail!("mobile menu is not byte-identical to pre-change snapshot (PLT-AC-46)") unless mobile_menu.strip == EXPECTED_MOBILE_MENU
+
 puts "PASS test-shell-a11y"

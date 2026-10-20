@@ -72,6 +72,7 @@ TESTS=(
   scripts/test/test-discovery.rb
   scripts/test/test-hero-portraits.rb
   scripts/test/test-thumbnail-variants.rb
+  scripts/test/test-highlighter-pills.rb
 )
 
 failed=0
