@@ -21,6 +21,10 @@
             </ul>
           </div>
 
+          <div class="cv-timeline-control-group">
+            <p class="cv-timeline-hint font-body text-xs text-on-surface-variant">Shift+drag to select a period</p>
+          </div>
+
           <div class="cv-timeline-control-group" id="timeline-selection-panel" hidden>
             <h3 class="cv-timeline-control-title card-meta">Selected period</h3>
             <p id="timeline-selection-range" class="cv-timeline-range code-technical"></p>
@@ -58,9 +62,12 @@
       </div>
 
       <div class="cv-timeline-canvas">
-        <div id="timeline-chart-wrapper" class="applet-canvas relative w-full overflow-x-auto">
+        <div id="timeline-chart-wrapper" class="applet-canvas relative w-full overflow-x-auto" tabindex="0" role="region" aria-label="Career timeline, use arrow keys to move in time">
           <div id="timeline-chart" class="relative"></div>
           <div id="timeline-zoom-controls" class="timeline-applet-control cv-timeline-zoom sticky left-0 z-10 flex items-center gap-2 border px-2 py-1.5 w-fit ml-2 mt-4 mb-4 pointer-events-auto">
+            <button type="button" id="timeline-pan-prev" class="timeline-zoom-btn timeline-applet-control font-label text-sm leading-none w-8 h-8 border text-on-surface-variant hover:border-primary hover:text-primary transition-colors" aria-label="Pan left">‹</button>
+            <button type="button" id="timeline-pan-today" class="timeline-zoom-btn timeline-applet-control font-label text-sm leading-none h-8 px-2 border text-on-surface-variant hover:border-primary hover:text-primary transition-colors" aria-label="Scroll to today">Today</button>
+            <button type="button" id="timeline-pan-next" class="timeline-zoom-btn timeline-applet-control font-label text-sm leading-none w-8 h-8 border text-on-surface-variant hover:border-primary hover:text-primary transition-colors" aria-label="Pan right">›</button>
             <button type="button" id="timeline-zoom-out" class="timeline-zoom-btn timeline-applet-control font-label text-sm leading-none w-8 h-8 border text-on-surface-variant hover:border-primary hover:text-primary transition-colors" aria-label="Zoom out">−</button>
             <span id="timeline-zoom-label" class="cv-timeline-zoom-label code-technical min-w-[3.5rem] text-center">2 yr</span>
             <button type="button" id="timeline-zoom-in" class="timeline-zoom-btn timeline-applet-control font-label text-sm leading-none w-8 h-8 border text-on-surface-variant hover:border-primary hover:text-primary transition-colors" aria-label="Zoom in">+</button>
