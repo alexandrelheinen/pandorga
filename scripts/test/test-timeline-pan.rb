@@ -88,4 +88,29 @@ fail!("missing prefers-reduced-motion check") unless script_match.include?("pref
 # 7. Selection hint text present
 fail!("missing hint text 'Shift+drag to select a period'") unless source.include?("Shift+drag to select a period")
 
+# 8. Pan buttons expose their bound state to assistive tech
+fail!("pan buttons must set aria-disabled at bounds") unless script_match.include?("aria-disabled")
+
+# 9. A second boot (inline stub, then runtime JSON) must not stack listeners
+boot_body = function_body(script_match, "bootTimeline")
+fail!("missing bootTimeline function") unless boot_body
+fail!("bootTimeline must abort the previous boot's listeners") unless boot_body.include?("AbortController") && boot_body.include?(".abort()")
+%w[pointerdown pointermove keydown resize].each do |type|
+  head = boot_body.index(/addEventListener\('#{type}',\s*function\s*\([^)]*\)\s*\{/)
+  fail!("missing #{type} listener in bootTimeline") unless head
+  open_at = boot_body.index("{", head)
+  depth = 0
+  close_at = nil
+  boot_body[open_at..].each_char.with_index do |char, offset|
+    depth += 1 if char == "{"
+    depth -= 1 if char == "}"
+    if depth.zero?
+      close_at = open_at + offset
+      break
+    end
+  end
+  tail = close_at && boot_body[(close_at + 1)..]
+  fail!("#{type} listener must take the boot's abort signal") unless tail&.match?(/\A,\s*bootScope\s*\)/)
+end
+
 puts "PASS test-timeline-pan (PLT-AC-47)"
