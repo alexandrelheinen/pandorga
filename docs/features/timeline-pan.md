@@ -40,6 +40,6 @@ Native horizontal scroll on `#timeline-chart-wrapper` (`scrollLeft`) drives pan,
 
 ## Constraints
 
-No Node build for the public site shell; timeline logic remains inline in `_includes/page/timeline-section.html`. `panTarget` and `centerPreservingScroll` are pure functions placed directly before `parseDate`, so `test-timeline-pan.mjs` can execute them from the real source. The selection hint reads "Shift+drag to select a period". The pan and Today buttons reuse the zoom button classes and tokens.
+No Node build for the public site shell; timeline logic remains inline in `_includes/page/timeline-section.html`. `panTarget` and `centerPreservingScroll` are pure functions placed directly before `parseDate`, so `test-timeline-pan.mjs` can execute them from the real source. The selection hint reads "Shift+drag to select a period". The pan and Today buttons reuse the zoom button classes and tokens. The timeline can boot twice (inline placeholder, then the runtime JSON), so `bootTimeline` aborts the previous boot's listeners through an `AbortController` signal (`bootScope`) passed to every listener on a persistent element. The center date is read with the wrapper width of the last render, because on resize the wrapper already has its new width when the handler runs.
 
 Backward compatibility: a plain drag used to select a period; it now pans. The CHANGELOG notes the change.

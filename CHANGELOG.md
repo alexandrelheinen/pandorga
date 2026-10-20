@@ -6,6 +6,10 @@
 
 - The CV timeline pans in time: drag the chart, use the ‹ Today › controls, or focus it and use the arrow keys, Page Up/Down, Home and End. Zoom, resize and lane toggles keep the date at the center in view. Selecting a period now takes Shift+drag (a plain drag pans) (PLT-AC-47).
 
+### Fixed
+
+- The CV timeline no longer handles an input twice when the inline placeholder boots before the timeline data loads; zoom buttons and resize were affected before this change (PLT-AC-47).
+
 ## [1.13.0] — 2026-10-19
 
 ### Added
