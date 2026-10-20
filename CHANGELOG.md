@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Hovered Back, Share, Cite, and reading-size buttons on article pages meet 4.5:1 in the light theme; the green section text on the gray hover mark was 4.48:1 (PLT-AC-46).
+
 ## [1.14.0] — 2026-10-20
 
 ### Changed
