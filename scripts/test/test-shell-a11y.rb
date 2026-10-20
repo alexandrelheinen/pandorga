@@ -81,7 +81,7 @@ fail!("mobile menu not found") unless mobile_menu
 fail!("mobile menu must not contain page-accent (PLT-AC-46)") if mobile_menu.include?("page-accent")
 fail!("mobile menu must not contain gradient/mark (PLT-AC-46)") if mobile_menu.include?("linear-gradient") || mobile_menu.include?("ledger-mark")
 
-EXPECTED_MOBILE_MENU = <<~'HTML'.strip
+EXPECTED_MOBILE_MENU = <<-'HTML'.strip
         <div id="mobile-menu"
           class="hidden absolute right-0 top-full mt-1 min-w-[14rem] py-2 bg-surface border border-gentle-subtle shadow-sm z-50"
           role="menu" aria-label="Explore">
