@@ -425,7 +425,8 @@ html[data-theme="dark"] {
 
 /* Shared mark foundation */
 .ledger-mark,
-.ledger-chip {
+.ledger-chip,
+.listing-filter-chip:is(:hover, .is-active) {
   --mark-ink: var(--color-primary);
   --mark-1: var(--mark-a);
   --mark-2: var(--mark-b);
@@ -908,9 +909,9 @@ a.no-underline:active {
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
-  padding: 0.35rem 0.55rem;
-  border: 1.5px solid var(--border-ink);
-  border-radius: var(--radius-card);
+  padding: calc(0.35rem + 1.5px) calc(0.55rem + 1.5px);
+  border: 0;
+  border-radius: 0;
   background: transparent;
   color: var(--color-on-surface-variant);
   font-family: var(--font-label);
@@ -919,19 +920,22 @@ a.no-underline:active {
   letter-spacing: 0.02em;
   line-height: 1.2;
   cursor: pointer;
-  transition: border-color var(--motion-duration-fast) var(--motion-ease-default), color var(--motion-duration-fast) var(--motion-ease-default), background-color var(--motion-duration-fast) var(--motion-ease-default);
+  transition: color var(--motion-duration-fast) var(--motion-ease-default);
 }
 
 .listing-filter-chip:hover {
-  border-color: color-mix(in srgb, var(--color-primary) 55%, var(--border-ink));
-  color: var(--color-primary);
+  --mark-1: var(--mark-quiet-a);
+  --mark-2: var(--mark-quiet-b);
+  --mark-3: var(--mark-quiet-c);
+  color: var(--color-on-surface);
 }
 
+/* Active filter chip uses menu-strength mark and full-contrast text. */
 .listing-filter-chip.is-active {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-  /* High-transparency accent wash — selected cue without a solid green plate. */
-  background: color-mix(in srgb, var(--color-primary) 8%, transparent);
+  --mark-1: var(--mark-a);
+  --mark-2: var(--mark-b);
+  --mark-3: var(--mark-c);
+  color: var(--color-on-surface);
 }
 
 .listing-filter-swatch {
