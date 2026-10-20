@@ -5,6 +5,7 @@
 ### Changed
 
 - Pills, tags, facets, filters, and buttons use a borderless felt-pen highlighter wash with deterministic nth-child geometry variants, quiet and strong mark strengths, solid fill on hover, and section-accented active rail links (PLT-AC-46).
+- The CV timeline pans in time: drag the chart, use the ‹ Today › controls, or focus it and use the arrow keys, Page Up/Down, Home and End. Zoom, resize and lane toggles keep the date at the center in view. Selecting a period now takes Shift+drag (a plain drag pans) (PLT-AC-47).
 
 ## [1.13.0] — 2026-10-19
 
