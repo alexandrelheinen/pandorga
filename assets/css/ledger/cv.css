@@ -802,6 +802,27 @@ html[data-theme="light"] .cv-product {
   border: 1.5px solid var(--border-ink);
   border-radius: var(--radius-card);
   overflow: hidden;
+  touch-action: pan-x pan-y;
+}
+
+#timeline-chart-wrapper:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+#timeline-chart {
+  cursor: grab;
+}
+
+#timeline-chart.is-dragging,
+#timeline-chart-wrapper.is-dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.cv-timeline-hint {
+  margin: 0;
+  color: var(--color-on-surface-variant);
 }
 
 /* ── Dossier note and contact call to action ──
