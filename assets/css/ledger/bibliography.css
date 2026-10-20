@@ -122,38 +122,42 @@
   display: inline-flex;
   align-items: center;
   height: var(--bib-facet-height);
-  padding: 0 var(--space-sm);
-  border: 1.5px solid color-mix(in srgb, currentColor 40%, var(--border-ink));
+  padding: 0 calc(var(--space-sm) + 1.5px);
+  border: 0;
   border-radius: var(--radius-card);
-  background: transparent;
   white-space: nowrap;
   font-family: var(--font-label);
   font-size: var(--type-label);
   font-weight: var(--weight-label);
   letter-spacing: 0.03em;
   line-height: 1;
-  color: var(--color-on-surface-variant);
+  --facet-ink: var(--color-on-surface-variant);
+  color: color-mix(in srgb, var(--facet-ink) var(--facet-ink-mix), var(--color-on-surface));
+  --mark-ink: currentColor;
+  --mark-1: var(--mark-facet-a);
+  --mark-2: var(--mark-facet-b);
+  --mark-3: var(--mark-facet-c);
 }
 
 .bib-facet--article {
-  color: var(--color-primary);
+  --facet-ink: var(--color-primary);
 }
 
 .bib-facet--book {
-  color: var(--color-secondary);
+  --facet-ink: var(--color-secondary);
 }
 
 .bib-facet--report {
-  color: var(--color-tertiary);
+  --facet-ink: var(--color-tertiary);
 }
 
 .bib-facet--techreport {
-  color: var(--color-tertiary);
+  --facet-ink: var(--color-tertiary);
 }
 
 .bib-facet--news {
   /* Hardcoded salmon colors for now, since punctual */
-  color: #b7756e;
+  --facet-ink: #b7756e;
 }
 
 .bib-key {
