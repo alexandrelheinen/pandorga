@@ -77,6 +77,7 @@ TESTS=(
   scripts/test/test-timeline-pan.rb
   scripts/test/test-v3-layout.rb
   scripts/test/test-studio-section-texts.rb
+  scripts/test/test-home-article-cards.rb
 )
 
 failed=0

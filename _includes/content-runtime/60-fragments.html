@@ -431,6 +431,13 @@
       ['green', 'ochre'].forEach(function (name) {
         band.classList.toggle('page-accent--' + name, accent === name);
       });
+      /* A header left with no text and no link goes with its rule, and the
+       * band keeps a name from its data-home-label (PLT-AC-52). */
+      if (!root.querySelector('[data-content-section-kicker], [data-content-section-title], [data-content-section-note], .home-section-aside')) {
+        var label = band.getAttribute('data-home-label');
+        if (label && !band.hasAttribute('aria-label')) band.setAttribute('aria-label', label);
+        root.remove();
+      }
     }
 
     function yieldToMain() {

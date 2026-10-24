@@ -275,10 +275,14 @@
         html += '<p class="ledger-card-copy font-body">' +
           escapeHtml(f.preview) + '</p>';
       }
-      html += renderTagChips(f.tags, { hrefFor: options.tagHref, limit: options.tagLimit });
+      var chips = renderTagChips(f.tags, { hrefFor: options.tagHref, limit: options.tagLimit });
+      // `tagsInFoot` sets the chips on the call to action's row, as the home
+      // featured card does (PLT-AC-52); otherwise they sit above the foot.
+      if (!options.tagsInFoot) html += chips;
       // The meta strip above already carries the date, so the footer copy is
       // opt-in rather than the default — printing it twice is the common bug.
       var foot = '';
+      if (options.tagsInFoot) foot += chips;
       if (options.showFooterDates) {
         foot += renderCardFooterDates(f.date, f.lastUpdated, locale);
       }

@@ -763,24 +763,21 @@ html[data-theme="light"] .home-hero-plate {
   display: none;
 }
 
+/* Tags and "Read" share the last row, as on the featured card (PLT-AC-52). */
 .home-card-grid .ledger-card-foot {
-  justify-content: flex-end;
+  justify-content: space-between;
 }
 
-/* A top rule per card, rotating through the palette triad, is what gives the
-   grid its ledger rhythm in the mockup. */
+.home-card-grid .ledger-card-foot .ledger-cta {
+  margin-left: auto;
+}
+
+/* Every card's top rule is the band accent, which `page-accent--<accent>`
+   sets on the section (PLT-AC-52). */
 .home-card-grid .ledger-card {
   border-top-width: 2px;
   border-top-style: solid;
   border-top-color: var(--color-primary);
-}
-
-.home-card-grid .ledger-card:nth-child(2) {
-  border-top-color: var(--color-secondary);
-}
-
-.home-card-grid .ledger-card:nth-child(3) {
-  border-top-color: var(--color-tertiary);
 }
 
 /* ── Rascunhos: dropped sheets ──

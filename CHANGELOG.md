@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Home article cards set their tags and "Read" on one row, like the featured card, and every card's top rule uses the Articles accent instead of rotating through the palette, which drew the second card in the secondary hue (PLT-AC-52).
+- A home band header whose kicker, title and note are all saved empty is removed with its rule instead of leaving an empty ruled strip; the band keeps an `aria-label` (PLT-AC-52).
+
 ## [2.0.0] — 2026-10-24
 
 ### Added
