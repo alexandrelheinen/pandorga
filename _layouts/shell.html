@@ -220,7 +220,7 @@
   {% assign _all_pages = site.pages %}
 
   <!-- TopNavBar. The bar is the banner landmark. The section links are the only nav inside it. -->
-  <header class="sticky top-0 z-50 bg-surface">
+  <header class="site-topbar sticky top-0 z-50">
     <div class="flex justify-between items-center w-full px-6 sm:px-8 md:px-10 pt-5 pb-3.5 leading-none max-w-7xl mx-auto">
       <div class="flex items-center gap-3 sm:gap-4 min-w-0">
         <a href="/" aria-label="{% if _home_label != blank %}{{ _home_label }} – Home{% else %}Home{% endif %}" class="shrink-0 inline-flex items-center gap-3 site-wordmark-link">
@@ -285,8 +285,6 @@
       </div>
       </div>
     </div>
-    <!-- Tonal separator — "No-Line" design rule: background-color shift instead of a CSS border -->
-    <div class="bg-surface-container-low h-[1px]"></div>
   </header>
   <script>
     (function () {
