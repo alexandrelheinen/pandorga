@@ -379,8 +379,8 @@ aside:has(> .text-detail-sidebar) {
    the 78px sticky nav; one sticky offset for the site. The child combinator
    supplies the extra specificity the utility would otherwise win on. */
 .text-detail-sidebar {
-  background: var(--color-panel-contrast);
-  border: 1.5px solid var(--border-ink);
+  background: var(--color-surface-card);
+  border: 1px solid var(--border-ink);
   border-radius: var(--radius-card);
   overflow: hidden;
 }
@@ -410,7 +410,7 @@ aside:has(> .text-detail-sidebar) {
   overflow: hidden;
   margin-bottom: 0;
   padding: var(--space-lg);
-  background: var(--color-panel-contrast);
+  background: var(--color-surface-card);
   border-bottom: 0;
 }
 
@@ -517,7 +517,7 @@ aside:has(> .text-detail-sidebar) {
 .text-detail-sidebar .article-meta {
   margin-bottom: 0;
   padding: 0 var(--space-lg) var(--space-lg);
-  background: var(--color-panel-contrast);
+  background: var(--color-surface-card);
   color: var(--color-on-surface-variant);
   font-family: var(--font-mono);
   font-size: var(--type-meta);
@@ -1202,6 +1202,20 @@ nav.text-page-nav:not(:has(a)) {
   .article-content {
     width: 100% !important;
     max-width: 100% !important;
+  }
+
+  .text-detail-sidebar {
+    background: transparent;
+    border: 0;
+  }
+
+  .text-detail-sidebar .article-sidebar-heading {
+    background: transparent;
+    border-bottom: 1px solid var(--border-gentle-divider);
+  }
+
+  .text-detail-sidebar .article-meta {
+    background: transparent;
   }
 
   .text-detail-sidebar .article-sidebar-heading,

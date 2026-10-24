@@ -17,8 +17,8 @@
 /* Detail pages: title in left third; body starts aligned with the title */
 .text-page-main {
   align-self: start;
-  background-color: var(--color-background);
-  border: 1.5px solid var(--border-ink);
+  background-color: var(--color-surface-card);
+  border: 1px solid var(--border-ink);
   border-radius: var(--radius-card);
   padding: var(--space-md);
   width: 100%;
@@ -106,6 +106,14 @@
    overflow apply. `[jax]` stays ahead of MathJax's own container rule.
    Desktop stays inline. Do not put this overflow on html or body. */
 @media (max-width: 767px) {
+
+  /* Reading view without a box on phones */
+  .text-page-main {
+    background-color: transparent;
+    border: 0;
+    padding: 0;
+  }
+
   .article-content mjx-container:not([display="true"]),
   .article-content mjx-container[jax]:not([display="true"]) {
     display: inline-block;
