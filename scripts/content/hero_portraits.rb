@@ -3,22 +3,20 @@
 # The home hero pool is the folder. The content export writes the public
 # paths to pages/home/portraits.json. The author uploads a photograph under
 # content/media/images/hero/ and does not keep a second list.
-# Optional width variants live under variants/ so they are not extra draws.
-# Variants should be 3:4 portrait fills (not landscape width-only resizes):
-# the plate is object-fit cover at 3:4, including on a phone, so a 480×270
-# landscape candidate is too short and looks soft. A 16:9 file for a narrow
-# viewport is the optional `landscape` field on a portraits.json entry.
-# pandorga.home.hero_landscape is only the fallback when no entry has one.
+# The plate is 16:9 at every width (PLT-AC-51). The export writes 16:9 width
+# variants under variants/ with the project thumbnail generator
+# (Pandorga::ThumbnailVariants), so they are not extra draws. An entry lists
+# only the variants that are 16:9: the old 3:4 hero variants had the same
+# names and must not reach srcset when ImageMagick could not replace them.
 
 require "pathname"
 
 module HeroPortraits
   IMAGE_EXTENSIONS = %w[.jpg .jpeg .png .webp .gif].freeze
   WIDTHS = [480, 960, 1440].freeze
-  # Slightly above the plate CSS width (14/16rem at html 110%) so 1.75–2×
-  # DPR picks the next 3:4 variant instead of a soft 480w. Variants must be
-  # portrait fills; landscape width-only resizes are too short under cover.
-  SIZES = "(max-width: 767px) 100vw, (max-width: 1023px) 18rem, 20rem"
+  # Below 1024px the plate spans the column (edge to edge on a phone); from
+  # 1024px it takes a little under half the row.
+  SIZES = "(max-width: 1023px) 100vw, 50vw"
 
   module_function
 
@@ -29,7 +27,7 @@ module HeroPortraits
       stem = file.basename.to_s.sub(/\.[^.]+\z/, "")
       parts = WIDTHS.filter_map do |width|
         variant = root.join("media/images/hero/variants/#{stem}-#{width}.jpg")
-        next unless variant.file?
+        next unless variant.file? && wide?(variant)
 
         "/media/images/hero/variants/#{variant.basename} #{width}w"
       end
@@ -46,5 +44,55 @@ module HeroPortraits
     dir.children.select do |path|
       path.file? && IMAGE_EXTENSIONS.include?(path.extname.downcase)
     end.sort_by { |path| path.basename.to_s }
+  end
+
+  # True when the file is 16:9 to within a pixel.
+  def wide?(path)
+    size = image_size(path)
+    return false unless size
+
+    width, height = size
+    width.positive? && (height - (width * 9 / 16.0)).abs <= 1
+  end
+
+  # [width, height] from a JPEG or PNG header, sniffed by content, or nil.
+  def image_size(path)
+    File.open(path, "rb") do |io|
+      head = io.read(24).to_s
+      if head.start_with?("\x89PNG\r\n\x1A\n".b) && head.byteslice(12, 4) == "IHDR"
+        return head.byteslice(16, 8).unpack("NN")
+      end
+      return nil unless head.start_with?("\xFF\xD8".b)
+
+      jpeg_size(io)
+    end
+  rescue StandardError
+    nil
+  end
+
+  def jpeg_size(io)
+    io.seek(2)
+    loop do
+      byte = io.read(1)
+      return nil unless byte
+      next unless byte.ord == 0xFF
+
+      marker = io.read(1)&.ord
+      return nil unless marker
+      next if marker == 0xFF || marker == 0x01 || (0xD0..0xD8).cover?(marker)
+      return nil if marker == 0xD9 || marker == 0xDA
+
+      length = io.read(2)&.unpack1("n")
+      return nil unless length && length >= 2
+
+      if (0xC0..0xCF).cover?(marker) && ![0xC4, 0xC8, 0xCC].include?(marker)
+        data = io.read(5)
+        return nil unless data && data.bytesize == 5
+
+        height, width = data.byteslice(1, 4).unpack("nn")
+        return [width, height]
+      end
+      io.seek(length - 2, IO::SEEK_CUR)
+    end
   end
 end
