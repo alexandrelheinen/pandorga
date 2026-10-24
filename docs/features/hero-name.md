@@ -55,3 +55,8 @@ the hero cannot drift. On a phone the two name spans are `inline-block`
 with `white-space: nowrap`, so the only break is the gap between them.
 The 3pt is added to the clamp that 1.4.9 already used: `--type-section`
 below 640px, `--type-section-lg` from 640px to 767px.
+
+From 1024px the hero sets the name on two lines beside a 16:9
+photograph, one line for the given name and one for the family name
+([hero-16x9.md](hero-16x9.md), `PLT-AC-51`). From 768px to 1023px it
+stays on one line.
