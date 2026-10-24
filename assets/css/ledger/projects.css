@@ -161,15 +161,16 @@
   overflow: hidden;
   display: grid;
   background: var(--color-surface-card);
-  border: 1px solid var(--border-gentle-subtle);
-  border-left: 3px solid var(--color-primary);
+  border: 1px solid var(--border-ink);
+  border-top: 2px solid var(--color-primary);
   margin-bottom: var(--space-3xl);
   transition: border-color var(--motion-duration-fast) var(--motion-ease-default);
 }
 
 .projects-page .projects-lead:hover {
   border-color: var(--border-gentle-hover);
-  border-left-color: var(--color-primary);
+  /* Keep the primary top rule; the shorthand above would repaint it. */
+  border-top-color: var(--color-primary);
 }
 
 .projects-page .projects-lead-media {
@@ -526,6 +527,19 @@
    reason recorded in the layout: at tablet width the dossier is narrow enough
    to break a repository slug across three lines mid-word. */
 @media (max-width: 767px) {
+  .projects-page .projects-lead-body {
+    padding: var(--space-md);
+  }
+
+  .projects-page .projects-grid {
+    gap: var(--space-md);
+  }
+
+  .projects-page .ledger-system-card>.ledger-poster,
+  .projects-page .ledger-system-card>.projects-plate {
+    margin: calc(var(--space-md) * -1) calc(var(--space-md) * -1) 0;
+  }
+
   .projects-page .projects-hero-body {
     padding: var(--space-lg);
   }
