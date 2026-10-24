@@ -29,7 +29,6 @@ When `backend` is omitted, a non-empty `base_url` or `content_api_base_url` sele
 | Key | Type | Notes |
 |---|---|---|
 | `hero_art` | string | Include path for hero decoration (default `page/hero-default.html`) |
-| `hero_landscape` | string | Optional URL of a 16:9 image. At or below 767px it is used only when no `pages/home/portraits.json` entry has its own `landscape` URL. Home front matter `hero_landscape` overrides this key. Omitted, and with no entry landscape, the phone plate stays 3:4 |
 
 ## `pandorga.fonts`
 
