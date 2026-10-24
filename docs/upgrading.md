@@ -13,11 +13,37 @@ is `Pandorga::VERSION` (`lib/pandorga/version.rb`).
 
 Read [CHANGELOG.md](../CHANGELOG.md) before you bump.
 
+## 16:9 home hero (breaking, next major)
+
+The home hero plate is 16:9 at every width (`PLT-AC-51`). A site upgrading
+from 1.x changes:
+
+- **Photographs.** Every file in `content/media/images/hero/` should be a
+  16:9 original (1920 px wide covers the 1440 variant). A 3:4 file is
+  center-cropped to 16:9.
+- **Variants.** `pandorga export` (or `pandorga thumbnails`) now writes
+  16:9 `variants/<stem>-{480,960,1440}.jpg` for each hero photograph and
+  replaces the old 3:4 files of the same name. Delete any other hero file
+  under `variants/`, such as a separate 16:9 copy kept for phones.
+- **`portraits.json`.** The export no longer needs anything added by hand.
+  Drop the `landscape` field from any entry the site writes or patches; the
+  runtime ignores it. `srcset` lists only 16:9 variants, and `sizes` is
+  `(max-width: 1023px) 100vw, 50vw`.
+- **Config.** Remove `pandorga.home.hero_landscape` and home front matter
+  `hero_landscape`. Both are ignored.
+- **Name size.** From 1024px the name sets on two lines. The theme sizes it
+  with `.home-ledger .home-hero-title` so the longer part fills the copy
+  column. A site that sets its own hero name size can keep it below
+  1024px; from 1024px set `--hero-name-fit` (the longer part's width in
+  em) and `--hero-name-max` instead of a font size.
+
 ## Project thumbnail variants (1.13+)
 
 `pandorga export` (and `pandorga thumbnails`) writes 16:9 width variants (`variants/<stem>-{480,960,1440}.jpg`) beside each local `/media/...` project thumbnail and sets `thumbnail_srcset` in the exported project front matter; the content pipeline needs ImageMagick on the runner, and sites may commit or ignore `variants/` folders.
 
 ## Mobile hero pool (1.10.0)
+
+Superseded by the 16:9 home hero above.
 
 At or below 767px the home hero draws at random from
 `pages/home/portraits.json` entries that set `landscape`, and paints that
@@ -48,6 +74,8 @@ The folder export does not invent `landscape`. The site adds the field to
 each entry that has a 16:9 file.
 
 ## Narrow hero (1.9.0)
+
+Superseded by the 16:9 home hero above.
 
 Optional `pandorga.home.hero_landscape` is a root-relative path or an
 absolute URL of a 16:9 image. At or below 767px the home hero uses that

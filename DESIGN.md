@@ -824,7 +824,7 @@ the sources host line, the network hint and the detail back link all follow.
 | Token | Base | Larger | Line height |
 | :--- | :--- | :--- | :--- |
 | `pageTitle` | 3.625rem | 5.875rem (≥768px) | 0.95 |
-| `homeHeroTitle` | `clamp(var(--type-section), calc(100cqi * 0.92 / 14.5), var(--type-page-lg))` | floor `--type-section-lg` (≥640px) | 1.05 |
+| `homeHeroTitle` | `clamp(var(--type-section), calc(100cqi * 0.92 / 14.5), var(--type-page-lg))` | floor `--type-section-lg` (≥640px); `min(calc(100cqi / var(--hero-name-fit, 8.4)), var(--hero-name-max, 4.5rem))` on two lines (≥1024px) | 1.05 |
 | `pageHeaderTitle` | 2.5rem | 3.5rem (≥768px) | 1.15 → 1.1 |
 | `textTitle` | 2.15rem | 2.65rem (≥768px) | 1.12 |
 | `textTitle` in the dossier | 1.95rem | 2.25rem (≥1024px) | 1.15 |
@@ -836,9 +836,11 @@ The home hero sizes to its copy column through a container query on
 `--type-page-lg`. The floor is the band-title step (`--type-section`, then
 `--type-section-lg` from 640px) so the name meets Articles, Rascunhos, and
 Projects on a phone instead of falling to the card size. Below 768px the
-name may wrap (`white-space: normal`); from 768px it stays one line. The
-given name is `onSurface` and the family name is `primary` on the same
-line. An earlier container-query fit —
+name may wrap (`white-space: normal`); from 768px to 1023px it stays one
+line. From 1024px the copy column is 46% of the row and the name sets on
+two lines, given name over family name, sized so the longer part
+(`--hero-name-fit` em wide) fills the column. The given name is
+`onSurface` and the family name is `primary`. An earlier container-query fit —
 `min(4.875rem, calc(100cqw * 0.96 / 4.5))`, whose `4.5` was the advance of
 `"Hello, I am"` in Lora — remains in `base.css` but reaches no markup.
 
@@ -950,9 +952,13 @@ Letter-spacing in use, by frequency: `0.1em` (12), `0.08em` (10), `0.12em` (7),
   in place; specimen click opens the project. Below 900px the rack is an
   icon strip above the specimen, one equal column per project (up to six)
   so it spans the band, with 1.375rem glyphs. Contract: `PLT-AC-13`–`17` in
-  `templates/portfolio/README.md`. Below 768px the hero portrait runs to the screen edge, pulled
+  `templates/portfolio/README.md`. The hero photograph is one 16:9 plate at
+  every width (`PLT-AC-51`). Below 768px it runs to the screen edge, pulled
   out of the band's gutter by exactly `--gutter-mobile` on each side and losing
-  its side hairlines, which at the edge would read as a frame cut off.
+  its side hairlines, which at the edge would read as a frame cut off. From
+  768px to 1023px it spans the column under the copy. From 1024px it takes
+  the row beside the two-line name, as tall as the copy and at least 15rem,
+  and covers that box like the featured article poster.
 * **Writing index.** Masthead over a hairline, then a `panelContrast` filter
   deck (tag tabs, sort, keyword), then a `panelContrast` lead panel for the
   newest entry, then an archive of `.ledger-row`s under a section banner.
