@@ -68,14 +68,20 @@ function structuredCloneSafe(value) {
 /**
  * Drop empty optional scalars/arrays from a map before dump, keeping unknown keys.
  * Empty string / null / undefined / [] are omitted for known schema fields.
+ * Fields with `keep_empty: true` keep any string, "" included, because empty
+ * (hide the text) and absent (theme default) mean different things for them.
  */
 export function pruneEmptyFields(doc, fields) {
   if (!doc || typeof doc !== "object" || Array.isArray(doc)) return doc;
   const known = new Set((fields || []).map((f) => f.name).filter(Boolean));
+  const keepEmpty = new Set(
+    (fields || []).filter((f) => f && f.keep_empty === true).map((f) => f.name)
+  );
   const out = { ...doc };
   for (const key of Object.keys(out)) {
     if (!known.has(key)) continue;
     const val = out[key];
+    if (keepEmpty.has(key) && typeof val === "string") continue;
     if (val === "" || val == null) {
       delete out[key];
     } else if (Array.isArray(val) && val.length === 0) {
