@@ -129,8 +129,13 @@ check!(plate_img&.match?(/opacity:\s*0/) && plate_img.match?(/transition:[^;]*op
 shown = home_css[/^\.home-hero-plate img\.is-shown \{.*?\n\}/m]
 check!(shown&.match?(/opacity:\s*1/),
        "a ready photograph fades to full opacity, got #{shown.inspect}")
-check!(!home_css.include?("aspect-ratio: 4 / 3"),
-       "the phone plate must not cover-crop the portrait into 4:3")
+# Scoped to the hero rules: other home cards (the Rascunhos posters,
+# PLT-AC-49) may use 4:3. Any spacing of 4/3 counts.
+hero_crops = home_css.scan(/([^{}]*home-hero[^{}]*)\{([^{}]*)\}/).select do |_selector, body|
+  body.match?(/aspect-ratio:\s*4\s*\/\s*3/)
+end
+check!(hero_crops.empty?,
+       "the phone plate must not cover-crop the portrait into 4:3, got #{hero_crops.map(&:first).map(&:strip).inspect}")
 landscape_plate = home_css[/@media \(max-width: 767px\) \{\s*\.home-hero-plate--landscape \{[^}]*\}/m]
 check!(landscape_plate&.include?("aspect-ratio: 16 / 9"),
        "a landscape plate is 16:9 on a phone, got #{landscape_plate.inspect}")
