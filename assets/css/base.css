@@ -234,7 +234,7 @@ html body {
   font-family: var(--font-body);
   font-size: var(--font-size-body);
   font-weight: var(--weight-body);
-  background-color: var(--color-background);
+  background-color: var(--color-canvas);
   /* Quiet square grid on both palettes; only --color-background changes. */
   background-image:
     linear-gradient(color-mix(in srgb, var(--color-outline) 4%, transparent) 1px, transparent 1px),
@@ -1254,19 +1254,9 @@ a.ledger-chip:hover {
   display: flex;
   flex-direction: column;
   background: var(--color-surface-card);
-  border: 1.5px solid var(--border-ink);
+  border: 1px solid var(--border-ink);
   border-radius: var(--radius-card);
   transition: background-color var(--motion-duration-fast) var(--motion-ease-default), border-color var(--motion-duration-fast) var(--motion-ease-default);
-}
-
-/* Light paper: match the CV disclaimer edge — 1px outline hairline, not the
-   1.5px ink frame dark mode needs for faint canvas borders. */
-:root:not([data-theme="dark"]) .ledger-card,
-:root:not([data-theme="dark"]) .ledger-system-card,
-html[data-theme="light"] .ledger-card,
-html[data-theme="light"] .ledger-system-card {
-  border-width: 1px;
-  border-color: var(--border-ink);
 }
 
 /* Drafting corner brackets — four L-corners, no labels. Pure decoration.
@@ -1326,19 +1316,6 @@ html[data-theme="light"] .ledger-system-card {
   border-color: color-mix(in srgb, var(--color-primary) 10%, var(--border-ink));
 }
 
-/* Cards and rows sitting on contrast bands keep the same transparent rest
-   as the canvas cards; hover steps to surface-high-contrast. */
-.home-band--contrast .ledger-card,
-.home-band--contrast .ledger-row,
-.home-band--contrast .home-index-panel {
-  background: var(--color-surface-card-contrast);
-}
-
-.home-band--contrast .ledger-card:hover,
-.home-band--contrast .ledger-row:hover,
-.home-band--contrast .home-index-panel:hover {
-  background: var(--color-surface-high-contrast);
-}
 
 /* A project card used to end in a "Details" link pointing at the same place
    its own title points at, which is a second copy of the destination the
