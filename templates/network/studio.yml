@@ -17,6 +17,16 @@ files:
       - name: title
         label: Title
         type: string
+      - name: note
+        label: Description
+        type: string
+        keep_empty: true
+        description: "Shown under this page's panel title in the home references band. Clear the field to hide it."
+      - name: cta
+        label: Home link label
+        type: string
+        keep_empty: true
+        description: "Label of the panel link on the home page. Default: Open. Clear the field to hide it; delete the line in the YAML source to bring the default back."
       - name: accent
         label: Accent
         type: select

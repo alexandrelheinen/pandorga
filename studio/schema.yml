@@ -541,12 +541,12 @@ content:
     type: group
     items:
       - name: page_home
-        label: Home
+        label: Home references band
         type: file
         path: content/pages/headers.yml
         format: yaml
         root_key: index
-        description: "Home page detail, including how Sources, Network, and Bibliography are presented on the index band."
+        description: "Title, kicker and description of the home band that groups Sources, Network and Bibliography."
         fields:
           - name: title
             label: Title
@@ -568,6 +568,93 @@ content:
           - name: title
             label: Title
             type: string
+          - name: summary_title
+            label: Summary title
+            type: string
+            keep_empty: true
+            description: "Heading of the summary section of the CV page. Default: Summary. Clear the field to hide it; delete the line in the YAML source to bring the default back."
+          - name: experience_title
+            label: Experience title
+            type: string
+            keep_empty: true
+            description: "Heading of the experience section of the CV page. Default: Experience. Clear the field to hide it; delete the line in the YAML source to bring the default back."
+          - name: products_title
+            label: Products title
+            type: string
+            keep_empty: true
+            description: "Heading of the products section of the CV page. Default: Products. Clear the field to hide it; delete the line in the YAML source to bring the default back."
+          - name: education_title
+            label: Education title
+            type: string
+            keep_empty: true
+            description: "Heading of the education section of the CV page. Default: Education. Clear the field to hide it; delete the line in the YAML source to bring the default back."
+          - name: languages_title
+            label: Languages title
+            type: string
+            keep_empty: true
+            description: "Heading of the languages section of the CV page. Default: Languages. Clear the field to hide it; delete the line in the YAML source to bring the default back."
+          - name: timeline_title
+            label: Timeline title
+            type: string
+            keep_empty: true
+            description: "Heading of the timeline section of the CV page. Default: Timeline. Clear the field to hide it; delete the line in the YAML source to bring the default back."
+          - name: contact_label
+            label: Contact label
+            type: string
+            keep_empty: true
+            description: "Heading of the contact section of the CV page. Default: Contact. Clear the field to hide it; delete the line in the YAML source to bring the default back."
+          - name: accent
+            label: Accent
+            type: select
+            options:
+              values: [green, ochre, blue, slate]
+          - name: tags
+            label: Tags
+            type: string
+            list: true
+      - name: page_projects
+        label: Projects
+        type: file
+        path: content/pages/headers.yml
+        format: yaml
+        root_key: projects
+        description: "Projects listing page chrome (title, kicker, note). Project entries live under Portfolio."
+        fields:
+          - name: title
+            label: Title
+            type: string
+          - name: kicker
+            label: Kicker
+            type: string
+          - name: note
+            label: Description
+            type: string
+            description: "Shown under the projects band title on the home page. Clear the field to hide it."
+          - name: cta
+            label: Home link label
+            type: string
+            keep_empty: true
+            description: "Label of the home band link to the projects page. Default: View all. Clear the field to hide it; delete the line in the YAML source to bring the default back."
+          - name: others_kicker
+            label: Project grid kicker
+            type: string
+            keep_empty: true
+            description: "Kicker of the section banner above the project grid on the projects page. Default: Index. Clear the field to hide it; delete the line in the YAML source to bring the default back."
+          - name: others_title
+            label: Project grid title
+            type: string
+            keep_empty: true
+            description: "Title of the section banner above the project grid on the projects page. Default: Other projects. Clear the field to hide it; delete the line in the YAML source to bring the default back."
+          - name: repositories_kicker
+            label: Repositories kicker
+            type: string
+            keep_empty: true
+            description: "Kicker of the section banner above the repository list on the projects page. Default: Open source. Clear the field to hide it; delete the line in the YAML source to bring the default back."
+          - name: repositories_title
+            label: Repositories title
+            type: string
+            keep_empty: true
+            description: "Title of the section banner above the repository list on the projects page. Default: Repositories. Clear the field to hide it; delete the line in the YAML source to bring the default back."
           - name: accent
             label: Accent
             type: select
@@ -595,6 +682,11 @@ content:
           - name: note
             label: Description
             type: string
+          - name: cta
+            label: Home link label
+            type: string
+            keep_empty: true
+            description: "Label of the home band link to this page. Default: View all. Clear the field to hide it; delete the line in the YAML source to bring the default back."
           - name: accent
             label: Accent
             type: select
@@ -621,6 +713,11 @@ content:
           - name: note
             label: Description
             type: string
+          - name: cta
+            label: Home link label
+            type: string
+            keep_empty: true
+            description: "Label of the home band link to this page. Default: View all. Clear the field to hide it; delete the line in the YAML source to bring the default back."
           - name: accent
             label: Accent
             type: select
@@ -641,6 +738,16 @@ content:
           - name: title
             label: Title
             type: string
+          - name: note
+            label: Description
+            type: string
+            keep_empty: true
+            description: "Shown under this page's panel title in the home references band. Clear the field to hide it."
+          - name: cta
+            label: Home link label
+            type: string
+            keep_empty: true
+            description: "Label of the panel link on the home page. Default: Open. Clear the field to hide it; delete the line in the YAML source to bring the default back."
           - name: accent
             label: Accent
             type: select
@@ -661,6 +768,16 @@ content:
           - name: title
             label: Title
             type: string
+          - name: note
+            label: Description
+            type: string
+            keep_empty: true
+            description: "Shown under this page's panel title in the home references band. Clear the field to hide it."
+          - name: cta
+            label: Home link label
+            type: string
+            keep_empty: true
+            description: "Label of the panel link on the home page. Default: Open. Clear the field to hide it; delete the line in the YAML source to bring the default back."
           - name: accent
             label: Accent
             type: select
@@ -684,6 +801,13 @@ content:
           - name: note
             label: Description
             type: string
+            keep_empty: true
+            description: "Shown under the Bibliography panel title in the home references band. Clear the field to hide it."
+          - name: cta
+            label: Home link label
+            type: string
+            keep_empty: true
+            description: "Label of the panel link on the home page. Default: Open. Clear the field to hide it; delete the line in the YAML source to bring the default back."
           - name: accent
             label: Accent
             type: select
