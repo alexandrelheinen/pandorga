@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [2.0.1] — 2026-10-24
+
 ### Fixed
 
 - Home article cards set their tags and "Read" on one row, like the featured card, and every card's top rule uses the Articles accent instead of rotating through the palette, which drew the second card in the secondary hue (PLT-AC-52).
