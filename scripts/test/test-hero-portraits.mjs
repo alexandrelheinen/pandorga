@@ -30,10 +30,10 @@ if (!slice.includes('function pickHeroPortrait')) {
 }
 
 const api = new Function(
-  `${slice}\nreturn { heroPortraitEntries, heroLandscapeEntries, pickHeroPortrait };`
+  `${slice}\nreturn { heroPortraitEntries, pickHeroPortrait };`
 )();
 
-const { heroPortraitEntries, heroLandscapeEntries, pickHeroPortrait } = api;
+const { heroPortraitEntries, pickHeroPortrait } = api;
 
 let failed = 0;
 
@@ -81,30 +81,20 @@ same(
   'normalised rows'
 );
 
+// AC-HERO-08: one 16:9 frame at every width. A stale landscape key from an
+// older export is dropped, so no width draws a second file.
 same(
   heroPortraitEntries([
-    { src: '/media/images/hero/a.jpg', landscape: '  /media/images/hero/a-16x9.jpg  ' },
-    { src: '/media/images/hero/b.jpg', landscape: '' },
-    { src: '/media/images/hero/c.jpg', landscape: '   ' },
-    { src: '/media/images/hero/d.jpg', landscape: 4 },
+    { src: '/media/images/hero/a.jpg', landscape: '/media/images/hero/a-16x9.jpg' },
+    { src: '/media/images/hero/b.jpg', srcset: '/v/b-480.jpg 480w', sizes: '50vw', landscape: 'x' },
   ]),
   [
-    { src: '/media/images/hero/a.jpg', alt: '', landscape: '/media/images/hero/a-16x9.jpg' },
-    { src: '/media/images/hero/b.jpg', alt: '' },
-    { src: '/media/images/hero/c.jpg', alt: '' },
-    { src: '/media/images/hero/d.jpg', alt: '' },
+    { src: '/media/images/hero/a.jpg', alt: '' },
+    { src: '/media/images/hero/b.jpg', alt: '', srcset: '/v/b-480.jpg 480w', sizes: '50vw' },
   ],
-  'optional landscape'
+  'landscape dropped'
 );
-same(
-  heroLandscapeEntries([
-    { src: '/media/images/hero/a.jpg', alt: '', landscape: '/media/images/hero/a-16x9.jpg' },
-    { src: '/media/images/hero/b.jpg', alt: '' },
-  ]),
-  [{ src: '/media/images/hero/a.jpg', alt: '', landscape: '/media/images/hero/a-16x9.jpg' }],
-  'landscape pool'
-);
-same(heroLandscapeEntries([]), [], 'empty landscape pool');
+check(!/landscape/i.test(slice), 'the picker slice must not read a landscape field');
 
 // AC-HERO-06
 const two = [
