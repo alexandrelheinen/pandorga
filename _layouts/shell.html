@@ -66,10 +66,6 @@
   {%- endcomment -%}
   <link href="https://fonts.googleapis.com" rel="preconnect" />
   <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-  {%- assign _hero_landscape = page.hero_landscape | default: site.pandorga.home.hero_landscape | default: "" | strip -%}
-  {%- if page.layout == "home" and _hero_landscape != blank -%}
-  <link rel="preload" as="image" href="{{ _hero_landscape | escape }}" fetchpriority="high" media="(max-width: 767px)" />
-  {%- endif -%}
   {% include theme/critical-preload.html %}
   <link rel="stylesheet" href="/assets/css/base.css" />
   <link rel="stylesheet" href="/assets/css/global-link.css" />
