@@ -540,6 +540,19 @@ html[data-theme="dark"] {
   font-optical-sizing: auto;
 }
 
+.card-title,
+.ledger-card-title {
+  font-weight: var(--weight-emphasis);
+}
+
+@media (max-width: 767px) {
+  .card-title,
+  .ledger-card-title {
+    font-size: var(--type-card-sm);
+    line-height: 1.25;
+  }
+}
+
 /* Label-face meta on CV identity lines, etc. */
 .card-meta {
   font-family: var(--font-label);
@@ -574,8 +587,7 @@ html[data-theme="dark"] {
   letter-spacing: 0.04em;
 }
 
-/* Dates, kickers, section notes — body face at meta size. */
-.ledger-meta,
+/* Kickers, section notes — body face at meta size. */
 .ledger-kicker,
 .ledger-section-note {
   font-family: var(--font-body);
@@ -1041,14 +1053,19 @@ a.ledger-chip:hover {
 
 /* Dates live here. The chips and language pills inside the strip set their
    own uppercase, so the strip itself leaves case alone — running small caps
-   over a date is heavier than the date deserves. */
+   over a date is heavier than the date deserves. Meta uses mono face. */
 .ledger-meta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-sm);
   color: var(--color-on-surface-variant);
-  letter-spacing: 0.04em;
+  font-family: var(--font-mono);
+  font-size: var(--type-micro);
+  font-weight: var(--weight-body);
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
 }
 
 /* A separator is ink, not a border. --color-outline-variant is tuned for
@@ -1351,8 +1368,33 @@ a.ledger-chip:hover {
   flex: 1;
 }
 
+@media (max-width: 767px) {
+  .ledger-card-body,
+  .ledger-system-card {
+    padding: var(--space-md);
+  }
+}
+
 .ledger-card-copy {
   flex: 1;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .ledger-card-copy {
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+  }
+}
+
+@media (max-width: 767px) {
+  .ledger-card-copy {
+    font-size: var(--type-dek);
+  }
 }
 
 .ledger-card-foot {
