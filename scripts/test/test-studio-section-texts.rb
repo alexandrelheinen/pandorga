@@ -259,7 +259,12 @@ STUB_DOM_JS = <<~'JS'
         h('p', { 'data-content-panel-note': 'resources', id: 'built-note' }, ['Built note'])
       ]),
       h('section', { 'data-content-header-name': '', id: 'cv' }, [
-        h('h2', { 'data-content-header-text': 'cv.summary_title', id: 'cv-title' }, ['Summary'])
+        h('div', { id: 'cv-rail' }, [
+          h('div', { 'data-content-header-wrap': '', id: 'cv-head' }, [
+            h('h2', { 'data-content-header-text': 'cv.summary_title', id: 'cv-title' }, ['Summary']),
+            h('span', { 'aria-hidden': 'true', id: 'cv-rule' }, [])
+          ])
+        ])
       ]),
       h('section', { 'data-content-header-name': '', 'aria-labelledby': 'x', id: 'named' }, [
         h('h2', { 'data-content-header-text': 'cv.experience_title', id: 'named-title' }, ['Experience'])
@@ -291,6 +296,7 @@ HYDRATOR_CASES_JS = <<~'JS'
     expect(byId(r, 'panel-title') && byId(r, 'panel-title').textContent === 'Network', 'absent network.title must keep the built title');
     expect(byId(r, 'panel-cta') && byId(r, 'panel-cta').textContent === 'Open', 'null network.cta must keep "Open"');
     expect(byId(r, 'cv-title') && byId(r, 'cv-title').textContent === 'Summary', 'non-string cv.summary_title must keep "Summary"');
+    expect(byId(r, 'cv-rule'), 'a CV heading that stays must keep its rule');
     expect(!byId(r, 'note'), 'absent network.note must remove the note');
     expect(!byId(r, 'built-note'), 'absent resources.note must remove the note');
     expect(!byId(r, 'panel').hasAttribute('aria-label'), 'a panel that keeps its title must not get aria-label');
@@ -312,6 +318,7 @@ HYDRATOR_CASES_JS = <<~'JS'
     expect(!byId(r, 'head'), 'a panel head left with no child must be removed');
     expect(byId(r, 'panel') && byId(r, 'panel').getAttribute('aria-label') === 'Network', 'a panel whose title is hidden must keep "Network" as aria-label');
     expect(!byId(r, 'cv-title'), 'empty cv.summary_title must remove the heading');
+    expect(!byId(r, 'cv-rule') && byId(r, 'cv-rail'), 'empty cv.summary_title must remove the rule with its head, keeping the rail');
     expect(byId(r, 'cv') && byId(r, 'cv').getAttribute('aria-label') === 'Summary', 'a CV section whose heading is hidden must get aria-label "Summary"');
     expect(byId(r, 'named') && !byId(r, 'named').hasAttribute('aria-label'), 'a region named by aria-labelledby must not get aria-label');
     expect(!byId(r, 'named-title'), 'empty cv.experience_title must remove the heading');
@@ -466,6 +473,12 @@ item(4) do
   end
 
   css = read("assets/css/ledger/home.css").gsub(%r{/\*.*?\*/}m, "")
+  # A panel with an empty title keeps its link on the right, as with a title.
+  cta_right = css.scan(/([^{}]*)\{([^{}]*)\}/).any? do |sel, body|
+    sel.split(",").any? { |s| s.strip.match?(/\A\.home-index-panel-head\s*>?\s*\.ledger-cta\z/) } &&
+      body.match?(/margin-(left|inline-start)\s*:\s*auto\b/)
+  end
+  fail!("home.css must right-align the panel link on its own (.home-index-panel-head > .ledger-cta { margin-left: auto })") unless cta_right
   rules = css.scan(/([^{}]*\.home-index-note[^{}]*)\{([^{}]*)\}/)
   fail!("home.css has no .home-index-note rule") if rules.empty?
   rules.each do |sel, body|
@@ -499,7 +512,14 @@ item(6) do
   unless box.match?(/<h2 class="section-title cv-register-title"[^>]*\{%-?\s*if include\.text_key\s*-?%\}\s*data-content-header-text="\{\{ include\.text_key \}\}"/)
     fail!("cv-box.html must put include.text_key on h2.cv-register-title as data-content-header-text")
   end
-  fail!("cv-box.html must render the h2 only when include.title is not empty") unless box.match?(/\{%-?\s*if include\.title != ""\s*-?%\}\s*<h2 class="section-title cv-register-title"/)
+  fail!("cv-box.html must render the h2 only when include.title is not empty") unless box.match?(/\{%-?\s*if include\.title != ""\s*-?%\}\s*(<div class="cv-register-head" data-content-header-wrap>\s*)?<h2 class="section-title cv-register-title"/)
+  # An empty title drops the decorative rule with the heading, at build time
+  # and when the runtime removes the heading (they share one header wrap).
+  head = box[/\{%-?\s*if include\.title != ""\s*-?%\}(.*?)^\s*\{%-?\s*endif\s*-?%\}/m, 1].to_s
+  unless head.match?(/\A\s*<div class="cv-register-head" data-content-header-wrap>\s*<h2 class="section-title cv-register-title".*?<\/h2>\s*<span class="cv-register-rule" aria-hidden="true"><\/span>\s*<\/div>\s*\z/m)
+    fail!("cv-box.html must wrap the h2 and span.cv-register-rule in div.cv-register-head[data-content-header-wrap] rendered only when include.title is not empty")
+  end
+  fail!("cv-box.html must render span.cv-register-rule only inside the title block") unless box.scan("cv-register-rule").size == 1
   section = box[/<section class="cv-register"[^>]*>/m].to_s
   fail!("section.cv-register must carry data-content-header-name") unless section.include?("data-content-header-name")
   fail!("section.cv-register must carry aria-label=\"{{ include.label }}\" when include.title is empty") unless section.match?(/\{%\s*if include\.title == ""\s*%\}\s*aria-label="\{\{ include\.label \}\}"/)
