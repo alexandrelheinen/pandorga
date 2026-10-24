@@ -21,17 +21,31 @@
       {%- for panel in band.pages -%}
       {%- assign _panel_page = site.pages | where: "key", panel.key | first -%}
       {%- assign _panel_title = panel.title | default: _panel_page.title | default: panel.key -%}
+      {%- comment -%} Headers win when the key is set; an empty value hides the text (PLT-AC-50). {%- endcomment -%}
+      {%- assign _panel_head = site.data.page_headers[panel.key] -%}
+      {%- assign _panel_default = _panel_title -%}
+      {%- if _panel_head.title != nil -%}{%- assign _panel_title = _panel_head.title | strip -%}{%- endif -%}
+      {%- assign _panel_cta = "Open" -%}
+      {%- if _panel_head.cta != nil -%}{%- assign _panel_cta = _panel_head.cta | strip -%}{%- endif -%}
+      {%- assign _panel_note = _panel_head.note | strip -%}
       {%- assign _panel_path = panel.path | default: _panel_page.url -%}
       {%- assign _art_key = panel.key -%}
       {%- if panel.key == "resources" -%}{%- assign _art_key = "sources" -%}{%- endif -%}
-      <article class="home-index-panel"{% if panel.template == "bibliography" %} id="home-bib-panel"{% endif %}>
-        <div class="home-index-panel-head">
-          <h3 class="home-index-title">{{ _panel_title }}</h3>
-          <a class="ledger-cta" href="{{ _panel_path }}">
-            <span>Open</span>
+      <article class="home-index-panel"{% if panel.template == "bibliography" %} id="home-bib-panel"{% endif %} data-content-header-name{% if _panel_title == "" %} aria-label="{{ _panel_default | escape }}"{% endif %}>
+        {%- if _panel_title != "" or _panel_cta != "" -%}
+        <div class="home-index-panel-head" data-content-header-group>
+          {%- if _panel_title != "" -%}
+          <h3 class="home-index-title" data-content-header-text="{{ panel.key }}.title">{{ _panel_title }}</h3>
+          {%- endif -%}
+          {%- if _panel_cta != "" -%}
+          <a class="ledger-cta" href="{{ _panel_path }}" data-content-header-wrap>
+            <span data-content-header-text="{{ panel.key }}.cta">{{ _panel_cta }}</span>
             <span class="material-symbols-outlined ledger-cta-arrow" aria-hidden="true">chevron_right</span>
           </a>
+          {%- endif -%}
         </div>
+        {%- endif -%}
+        <p class="home-index-note font-body" data-content-panel-note="{{ panel.key }}"{% if _panel_note == "" %} hidden{% endif %}>{{ _panel_note }}</p>
         {%- if panel.template == "bibliography" -%}
         <figure class="home-index-plate" id="home-bib-plate" hidden></figure>
         {%- else -%}

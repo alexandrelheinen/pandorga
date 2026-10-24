@@ -84,7 +84,6 @@ sheets.each do |path|
     ledger-section-rule
     home-band--ruled
     home-index-shard--gamma
-    home-index-note
     post-content
     home-hero-pandorga-svg
     table-csv

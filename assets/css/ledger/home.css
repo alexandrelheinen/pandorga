@@ -1543,6 +1543,14 @@ button.home-project-inventory-row {
   width: 100%;
 }
 
+/* Panel description from the page's headers note (PLT-AC-50). */
+.home-index-note {
+  margin: 0;
+  padding: 0 var(--space-md) var(--space-sm);
+  font-size: var(--type-dek);
+  color: var(--color-on-surface-variant);
+}
+
 /* Card-scale title, not `.section-title`: that face is for band banners and
    was oversized once the three index panels sat in one row. Locked here so
    Sources / Network / Bibliography share one title register. */
