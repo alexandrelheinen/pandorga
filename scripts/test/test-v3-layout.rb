@@ -368,7 +368,63 @@ end
 # 49.9 Rascunhos --------------------------------------------------------------
 item(9) do
   h = "ledger/home.css"
-  fail!("home.css still rotates draft cards") if SHEETS[h][:text].include?("rotate(")
+  rules = SHEETS[h][:rules]
+  wide = ->(r) { r[:media]&.include?(WIDE) }
+  # Selectors with `:nth-child()` are matched without whitespace, so
+  # `nth-child(4n + 1)` and `nth-child(4n+1)` count as the same rule.
+  loose = ->(sel) { sel.gsub(/\s+/, "") }
+  find = lambda do |sel, media|
+    rules.select { |r| loose.(r[:sel]) == loose.(sel) && media_match?(r[:media], media) }.flat_map { |r| r[:decls] }
+  end
+  want = lambda do |sel, media, expected|
+    list = find.(sel, media)
+    if list.empty?
+      fail!("#{where(h, sel, media)} has no rule")
+      next
+    end
+    expected.each do |prop, v|
+      got = value(list, prop)
+      fail!("#{where(h, sel, media)} #{prop}: expected `#{v}`, found `#{got || 'unset'}`") unless got == v
+    end
+  end
+
+  # Desktop keeps the dropped-sheet tilt; phones never rotate a card.
+  %w[4n+1 4n+2 4n+3 4n].each do |n|
+    t = value(find.(".home-draft-list>*:nth-child(#{n})", WIDE), "transform")
+    next if t&.match?(/\Arotate\(\s*-?(?!0(\.0+)?deg)[\d.]+deg\s*\)\z/)
+
+    fail!("#{where(h, ".home-draft-list>*:nth-child(#{n})", WIDE)} must keep a non-zero rotate(), found `#{t || 'unset'}`")
+  end
+  rules.each do |r|
+    next if wide.(r)
+
+    r[:decls].each do |p, v|
+      fail!("#{r[:sel]}#{r[:media] ? " @media (#{r[:media]})" : ''} sets #{p}: #{v}; rotate() only from 768px") if v.include?("rotate(")
+    end
+  end
+
+  # Phones: two cards side by side, the third a landscape card across both
+  # columns, the rest hidden.
+  third = ".home-draft-list>.home-draft-card:nth-child(3)"
+  want.(third, MOBILE, { "grid-column" => "1 / -1", "flex-direction" => "row" })
+  want.("#{third} .ledger-poster", MOBILE, {
+    "flex" => "0 0 38%", "aspect-ratio" => "auto", "align-self" => "stretch"
+  })
+  want.("#{third} .ledger-poster img", MOBILE, { "position" => "absolute", "inset" => "0" })
+  want.("#{third} .ledger-card-body", MOBILE, { "flex" => "1 1 auto", "min-width" => "0" })
+  want.(".home-draft-list>.home-draft-card:nth-child(n + 4)", MOBILE, { "display" => "none" })
+  rules.each do |r|
+    next unless r[:sel].include?("home-draft") && r[:sel].include?("nth-child(3)") && wide.(r)
+    next unless r[:decls].any? { |p, _| %w[grid-column flex-direction].include?(p) }
+
+    fail!("#{r[:sel]} @media (#{r[:media]}) reshapes the third card from 768px; phones only")
+  end
+  rules.each do |r|
+    next unless loose.(r[:sel]).include?("nth-child(n+4)") && r[:sel].include?("home-draft") && !r[:media]&.include?(MOBILE)
+
+    fail!("#{r[:sel]} hides drafts outside phones") if r[:decls].any? { |p, v| p == "display" && v == "none" }
+  end
+
   expect(h, ".home-draft-card .ledger-poster", { "aspect-ratio" => "4 / 3" }, media: MOBILE)
   expect(h, ".home-draft-card .ledger-meta", {
     "flex-wrap" => "nowrap", "white-space" => "nowrap", "overflow" => "hidden"
@@ -378,11 +434,12 @@ item(9) do
   expect_clamp(h, ".home-draft-card .ledger-card-title", 3)
   expect_clamp(h, ".home-draft-card .ledger-card-copy", 3)
   expect_clamp(h, ".home-draft-card .ledger-card-copy", 4, media: WIDE, display: false)
-  SHEETS[h][:rules].each do |r|
+  rules.each do |r|
     next unless r[:sel].include?("home-draft-card .ledger-card-copy")
 
     r[:decls].each do |p, v|
       fail!("#{r[:sel]} still clamps to #{v}") if p.end_with?("line-clamp") && %w[5 6].include?(v)
+      fail!("#{r[:sel]} keeps the 5-6 line filler (#{p}: #{v})") if (p == "min-height" && v.include?("--type-subtitle")) || (p == "height" && v == "0")
     end
   end
 end
