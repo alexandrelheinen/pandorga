@@ -75,6 +75,7 @@ TESTS=(
   scripts/test/test-highlighter-pills.rb
   scripts/test/test-timeline-pan.rb
   scripts/test/test-v3-layout.rb
+  scripts/test/test-studio-section-texts.rb
 )
 
 failed=0
