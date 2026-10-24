@@ -1543,6 +1543,11 @@ button.home-project-inventory-row {
   width: 100%;
 }
 
+/* The Open link keeps the right end of the head when the title is empty. */
+.home-index-panel-head > .ledger-cta {
+  margin-left: auto;
+}
+
 /* Panel description from the page's headers note (PLT-AC-50). */
 .home-index-note {
   margin: 0;
