@@ -172,7 +172,12 @@ function filled(result) {
   return result.projects > 0 && result.articles > 0 && result.posts > 0;
 }
 
-async function main() {
+// On the runner Chrome sometimes never opens its DevTools port (the dbus
+// noise in its stderr is unrelated). A second launch with a fresh profile
+// and port gets past that; the list checks below do not change.
+const LAUNCH_ATTEMPTS = 2;
+
+async function launchChrome() {
   const profile = await mkdtemp(join(tmpdir(), 'pandorga-home-'));
   const port = await freePort();
   const chrome = spawn(chromePath, [
@@ -187,10 +192,35 @@ async function main() {
     `--user-data-dir=${profile}`,
     'about:blank'
   ], { stdio: ['ignore', 'ignore', 'pipe'] });
+  return { chrome, profile, port };
+}
+
+async function stopChrome(chrome, profile) {
+  chrome.kill('SIGKILL');
+  await delay(100);
+  await rm(profile, { recursive: true, force: true });
+}
+
+async function main() {
+  let chrome;
+  let profile;
+  let version;
+  for (let launch = 1; launch <= LAUNCH_ATTEMPTS; launch += 1) {
+    const started = await launchChrome();
+    chrome = started.chrome;
+    profile = started.profile;
+    try {
+      version = await waitForDevtools(started.port, chrome, profile);
+      break;
+    } catch (error) {
+      await stopChrome(chrome, profile);
+      if (launch === LAUNCH_ATTEMPTS) throw error;
+      console.error(`WARN: ${error.message.split('\n')[0].slice(0, 200)}; launching Chrome again`);
+    }
+  }
 
   let failed = false;
   try {
-    const version = await waitForDevtools(port, chrome, profile);
     const ws = await openSocket(version.webSocketDebuggerUrl);
     const browser = new Cdp(ws);
     const created = await browser.send('Target.createTarget', { url: 'about:blank' });
@@ -223,9 +253,7 @@ async function main() {
     }
     ws.close();
   } finally {
-    chrome.kill('SIGKILL');
-    await delay(100);
-    await rm(profile, { recursive: true, force: true });
+    await stopChrome(chrome, profile);
   }
 
   if (failed) process.exit(1);
