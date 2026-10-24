@@ -508,8 +508,14 @@ html[data-theme="light"] .home-hero-plate {
 
 /* ── Section banners ──
    Atelier plate edge: a denser hairline, a longer accent rule, and a short
-   vertical tick so each band reads as a ruled plate rather than a soft fade. */
+   vertical tick so each band reads as a ruled plate rather than a soft fade.
+   The banner is a 2-column grid so the lead's children join the template. */
 .home-band:not(.home-band--hero) .ledger-section-banner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--space-md);
+  row-gap: var(--space-xs);
+  align-items: baseline;
   padding-top: var(--space-lg);
   padding-bottom: var(--space-sm);
   border-top: 1px solid var(--border-gentle);
@@ -537,48 +543,56 @@ html[data-theme="light"] .home-hero-plate {
   background: color-mix(in srgb, var(--color-primary) 55%, var(--color-outline));
 }
 
-.home-section-aside {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-sm);
-  max-width: 30rem;
+.home-band .ledger-section-lead {
+  display: contents;
 }
 
-/* The aside sits at the end of the banner, so its contents align to that same
-   edge — button and copy on one axis. Aligning the button left while the copy
-   ran right made every band look like a zigzag. */
-@media (min-width: 768px) {
-  .home-section-aside {
-    align-items: flex-end;
-    text-align: right;
-  }
-
-  .home-section-aside .ledger-cta {
-    align-self: flex-end;
-  }
+.home-band .ledger-section-banner .ledger-kicker {
+  grid-column: 1 / -1;
+  grid-row: 1;
 }
 
-/* The lead column of a banner holds the kicker, the title and the note, all
-   three filled from content/pages/headers.yml. It has to be able to
-   shrink: the banner is a flex row and the aside beside it is sized by its
-   button, so without this the note pushes the button off the line. */
+.home-band .ledger-kicker:empty {
+  display: none;
+}
+
+.home-band .ledger-section-banner .section-title {
+  grid-column: 1;
+  grid-row: 2;
+  margin: 0;
+  font-size: var(--type-section-sm);
+}
+
+.home-band .home-section-aside {
+  grid-column: 2;
+  grid-row: 2;
+  align-self: baseline;
+  margin-top: 0;
+}
+
+/* Outside the home bands the banner is still a flex row, so the lead has to
+   be able to shrink or the note pushes the aside off the line. */
 .ledger-section-banner .ledger-section-lead {
   min-width: 0;
 }
 
-/* One line under the title saying what the band holds. It is prose rather than
-   a chrome label, so it takes the body face and the reading measure instead of
-   the uppercase treatment `.ledger-section-note` carries in base.css — that
-   one is the right-hand tally at the end of a banner, which is a different
-   thing standing in a different place.
-
-   The element is removed outright when the field is empty (see
-   hydrateHomeSections), so this margin never opens a gap of its own. */
-.home-section-note {
-  margin: var(--space-sm) 0 0;
+.home-band .home-section-note {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  margin: 0;
+  font-size: var(--type-dek);
   max-width: var(--reading-measure, 45rem);
   color: var(--color-on-surface-variant);
+}
+
+@media (min-width: 768px) {
+  .home-band .ledger-section-banner .section-title {
+    font-size: var(--type-section);
+  }
+
+  .home-band .home-section-note {
+    font-size: var(--type-body);
+  }
 }
 
 /* ── Featured article band ── */
