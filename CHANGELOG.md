@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Every page sits on one canvas (`--color-canvas`, from `neutrals.canvas`, else `panel_contrast`) with square 1px hairline cards on the card surface and a 2px accent rule on featured cards. Home bands set the title and "View all" on one row with the note below; band titles, card titles, excerpts and metadata step down below 768px, metadata uses the mono face, and excerpts clamp to 3 lines on phones and 4 from 768px (PLT-AC-49).
+- On phones the featured article opens with its image edge to edge, Rascunhos show three untilted cards (two side by side, the third a landscape card across both columns; the tilt stays from 768px), project posters run edge to edge, and the reading column and its sidebar have no box (PLT-AC-49).
+- The Sources, Network and Bibliography panels open with the title and Open link above the illustration. The top bar sits on the translucent canvas with a hairline, and the theme and menu buttons are bordered squares (PLT-AC-49).
+- Text calls to action ("View all", "Open", "Read", "Repository", "Article") carry the strong highlighter mark instead of an underline (PLT-AC-49).
+
+### Removed
+
+- The radial blur pools, the decorative shards outside the footer, and the frame corners inside cards (PLT-AC-49).
+
 ## [1.14.1] — 2026-10-20
 
 ### Fixed

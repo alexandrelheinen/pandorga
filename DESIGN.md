@@ -1091,27 +1091,13 @@ everything else, so the query catches them too.
   Placement, size and hue are set per use by the page stylesheet, never by the
   utility.
 
-  Fifteen uses site-wide, all `aria-hidden`. No panel carries two shards in
-  the same corner or the same hue, and no two panels carry the same pair of
-  corners, which is the whole rule the placement follows:
+  Since `PLT-AC-49` the shards live only in the site footer: the page and
+  card shards competed with the content on the new canvas and were removed.
+  The footer pair is `aria-hidden`; the hero kite is listed for reference:
 
   | Where | Class | Corner | Hue |
   | :--- | :--- | :--- | :--- |
   | Home hero band | `.home-hero-pandorga` (geometric kite & ribbon) | background | `primary` / `secondary` / `tertiary` |
-  | Home hero portrait | `.shard-accent.home-hero-shard` | top-right | `primary` |
-  | Home featured card | `.shard-accent.home-featured-shard` | top-left | `tertiary` |
-  | Home featured card | `.shard-accent-beta.home-featured-shard--beta` | bottom-right | `secondary` |
-  | Home index panel | `.shard-accent.home-index-shard` | bottom-right | `secondary` |
-  | Home index panel | `.shard-accent-beta.home-index-shard--beta` | bottom-left | `primary` |
-  | Writing index lead panel | `.shard-accent.writing-lead-shard` | bottom-left | `primary` |
-  | Writing index lead panel | `.shard-accent-beta.writing-lead-shard--beta` | top-right | `tertiary` |
-  | CV dossier | `.shard-accent.cv-dossier-shard` | top-right | `secondary` |
-  | CV dossier | `.shard-accent-beta.cv-dossier-shard--beta` | bottom-left | `primary` |
-  | Projects lead | `.shard-accent.projects-lead-shard` | top-right | `primary` |
-  | Projects hero | `.shard-accent.projects-hero-shard` | bottom-right | `secondary` |
-  | Rascunhos masthead | `.shard-accent.rascunhos-shard` | top-right | `secondary` |
-  | Sources masthead | `.shard-accent.sources-masthead-shard` | top-right | `secondary` |
-  | Sources foot | `.shard-accent-beta.sources-foot-shard` | bottom-left | `tertiary` |
   | Site footer | `.shard-accent.site-footer-shard` | bottom-right | `secondary` |
   | Site footer | `.shard-accent-beta.site-footer-shard--beta` | bottom-left | `primary` |
 
@@ -1119,13 +1105,6 @@ everything else, so the query catches them too.
   carries both class names, so any media query that repositions the pair has to
   restate the base rule's `auto` offsets on the beta: leave all four set and
   the browser resolves to top and left, and the pair collapses into one corner.
-  And a shard behind an opaque plate is a shard nobody sees, which is why the
-  home featured pair goes around its poster rather than across the card.
-
-  On the writing index the shard was for a long time written to stand down
-  whenever the featured entry carried a thumbnail — and that panel selects the
-  first entry that *has* one, so the condition was always true and the shard
-  never rendered on a built page.
 
   A further shard sits on the detail sidebar heading. It is a `::after`
   pseudo-element, so it cannot take the utility class and re-implements it by

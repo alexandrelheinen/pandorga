@@ -60,7 +60,7 @@ after the first paint, with `display=swap`.
 
 ## Canvas
 
-Planned, not yet implemented (`PLT-AC-49`). Every page sits on one ground,
+Every page sits on one ground (`PLT-AC-49`),
 `--color-canvas`, and cards sit on it with the card surface
 (`surface_card`). A palette may set `neutrals.canvas`; without it the
 canvas is `neutrals.panel_contrast` (`#f4f4f4` light, `#141418` dark in the
