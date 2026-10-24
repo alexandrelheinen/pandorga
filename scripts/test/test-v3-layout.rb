@@ -3,7 +3,7 @@
 
 # PLT-AC-49. Canvas and card layout (docs/features/v3-layout.md).
 #
-# Each check names the acceptance item it covers (49.1 … 49.13). Pass item
+# Each check names the acceptance item it covers (49.1 … 49.14). Pass item
 # numbers to run a subset: `ruby scripts/test/test-v3-layout.rb 5 7`.
 # The parser understands nested @media blocks and splits selector lists only
 # on top-level commas, so `:is()` / `:where()` lists stay whole.
@@ -528,6 +528,26 @@ item(13) do
     allowed = IMPORTANT_BASELINE.fetch(rel, 0)
     fail!("#{rel} has #{count} !important (baseline #{allowed})") if count > allowed
   end
+end
+
+# 49.14 Top bar fit -----------------------------------------------------------
+RAIL_FROM = "min-width:1280px"
+
+item(14) do
+  chrome = "ledger/chrome.css"
+  expect(chrome, ".site-rail", { "display" => "none" })
+  expect(chrome, ".site-rail", { "display" => "flex" }, media: RAIL_FROM)
+  expect(chrome, "#site-menu", { "display" => "none" }, media: RAIL_FROM)
+  SHEETS[chrome][:rules].each do |r|
+    next unless r[:media]
+    next unless %w[.site-rail #site-menu].include?(r[:sel])
+    next unless r[:decls].any? { |p, _| p == "display" }
+    next if r[:media] == "(#{RAIL_FROM})"
+
+    fail!("#{chrome} #{r[:sel]} sets display under @media #{r[:media]}; only (#{RAIL_FROM}) may")
+  end
+  expect(chrome, ".site-rail", { "gap" => "var(--space-sm)" }, media: "min-width:1280px)and(max-width:1439px")
+  expect(chrome, ".site-rail", { "gap" => "var(--space-lg)" })
 end
 
 if $failures.empty?
