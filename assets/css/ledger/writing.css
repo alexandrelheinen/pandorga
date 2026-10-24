@@ -59,40 +59,6 @@
   }
 }
 
-/* The mockup filled the right of this panel with a fabricated proof figure.
-   A shard bleeding off the corner holds that weight instead.
-
-   This used to be a single 19rem wedge at the top right, stood down whenever
-   the entry carried a thumbnail — and the panel picks the first entry that
-   *has* a thumbnail, so the condition was always true and the shard never
-   rendered on a built page. It is a pair now, placed around the plate rather
-   than instead of it.
-
-   The alpha sits bottom left, under the foot of the copy, the one corner the
-   plate never reaches at any width. The beta is a true corner accent at the
-   top right: it is offset far enough up that its visible part is the triangle
-   above the plate's top edge, and it tucks behind the plate as it descends
-   rather than fighting it. Neither corner repeats the home panel's pair, and
-   the hues are the only two this page has — `.page-accent--green` rebinds
-   primary onto secondary, so green and ochre is the whole palette here. */
-.writing-index .writing-lead-shard {
-  left: -3.5rem;
-  bottom: -4rem;
-  width: 12rem;
-  height: 12rem;
-  background: var(--color-primary);
-}
-
-.writing-index .writing-lead-shard--beta {
-  left: auto;
-  right: -4rem;
-  bottom: auto;
-  top: -5rem;
-  width: 10rem;
-  height: 10rem;
-  background: var(--color-tertiary);
-}
-
 .writing-index .writing-lead-inner {
   position: relative;
   z-index: 1;
@@ -736,34 +702,6 @@ html[data-theme="light"] .writing-index .writing-lead-media .ledger-poster {
   .writing-rail-licence {
     padding-left: 0;
     border-left: 0;
-  }
-}
-
-/* Between the 640px shard cut-off and the desktop layout the panel is narrow
-   enough that a shard sized for the wide card reaches the middle of it: at
-   768px the 19rem one this started as ran straight through the lead headline.
-   Back to corner accents. The CV dossier and the rascunhos masthead carry the
-   same correction. Both corners are restated, not just the size, because the
-   base rule sets one of `top`/`bottom` and `left`/`right` to `auto` on the
-   beta and a size-only override would leave the pair half-placed: the beta
-   carries both class names, so the alpha rule matches it too, and an element
-   left with all four offsets set resolves to top and left, which drops the
-   pair into a single corner. */
-@media (max-width: 1023px) {
-  .writing-index .writing-lead-shard {
-    left: -2.5rem;
-    bottom: -3rem;
-    width: 8.5rem;
-    height: 8.5rem;
-  }
-
-  .writing-index .writing-lead-shard--beta {
-    left: auto;
-    bottom: auto;
-    right: -3rem;
-    top: -3.5rem;
-    width: 7.5rem;
-    height: 7.5rem;
   }
 }
 

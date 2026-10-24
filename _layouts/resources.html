@@ -6,15 +6,7 @@ layout: shell
       {% include page/listing-runtime-attrs.html
          default_collection="resources"
          default_path="/pages/sources/" %}>
-  {%- comment -%}
-    The shards live here rather than inside the shared page header include,
-    which every listing uses and which no single page may restyle — the same
-    arrangement /pages/blog/ uses for its masthead. They bracket the grid
-    rather than sitting on it: a page of many small cards has no one panel to
-    accent, so the accent goes on the space above and below the run.
-  {%- endcomment -%}
   <div class="sources-masthead">
-    <span class="shard-accent sources-masthead-shard" aria-hidden="true"></span>
     {% include page/page-header.html key=page.key listing_filter=true spacer_class="mb-8"
        header_class="sources-header mb-10 md:mb-12"
        filter_label="Filter"
@@ -29,7 +21,6 @@ layout: shell
       </section>
     </div>
     <div id="resource-pagination" class="source-pagination"></div>
-    <span class="shard-accent shard-accent-beta sources-foot-shard" aria-hidden="true"></span>
   </section>
 </main>
 

@@ -16,12 +16,7 @@ layout: shell
          default_path="/pages/blog/"
          default_detail="/posts/:slug/" %}>
 
-  {%- comment -%}
-    Masthead. The shard lives here rather than inside the shared page header
-    include, which every listing uses and which no single page may restyle.
-  {%- endcomment -%}
   <div class="rascunhos-masthead" data-rascunhos-masthead>
-    <span class="shard-accent rascunhos-shard" aria-hidden="true"></span>
     {% include page/page-header.html key=page.key
        header_class="rascunhos-header" %}
   </div>

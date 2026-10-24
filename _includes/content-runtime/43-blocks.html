@@ -431,9 +431,6 @@
       if (options.className) card.className += ' ' + options.className;
 
       var html = '';
-      if (options.frameCorners) {
-        html += '<span class="ledger-frame-corners" aria-hidden="true"></span>';
-      }
       var poster = renderPosterMedia(fm.thumbnail, name, {
         srcset: fm.thumbnail_srcset,
         sizes: options.sizes || PROJECT_CARD_SIZES

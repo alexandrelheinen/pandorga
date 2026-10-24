@@ -25,33 +25,6 @@
   margin-bottom: var(--space-2xl);
 }
 
-/* Sized to the masthead it accents. It used to be 24rem x 15rem, which fitted
-   while the filter deck was a strip under the title and made the masthead
-   260px tall; with the filter moved into the rail the masthead is 107px and a
-   15rem shard hung 50px into the body, cutting across the rail's keyword box.
-   An accent that reaches the content it is accenting is not an accent. */
-.rascunhos-shard {
-  top: calc(-1 * var(--space-2xl));
-  right: calc(-1 * var(--space-xl));
-  width: 16rem;
-  height: 9rem;
-  /* Page accent (ochre via `.page-accent--ochre`), not the triad secondary. */
-  background: var(--color-primary);
-}
-
-/* Between the 640px shard cut-off and the desktop layout a 24rem shard is
-   wider than the masthead is tall: at 768px it covered the title and the
-   standfirst and read as a mis-clipped slab rather than a corner accent. The
-   writing lead and the CV dossier carry the same correction. */
-@media (max-width: 1023px) {
-  .rascunhos-shard {
-    top: calc(-1 * var(--space-xl));
-    right: calc(-1 * var(--space-lg));
-    width: 12rem;
-    height: 8rem;
-  }
-}
-
 .rascunhos-header {
   position: relative;
   z-index: 1;
