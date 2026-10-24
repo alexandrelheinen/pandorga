@@ -29,6 +29,45 @@
   outline: none;
 }
 
+/* Translucent top bar over canvas ground. */
+.site-topbar {
+  background-color: color-mix(in srgb, var(--color-canvas) 92%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border-gentle-divider);
+}
+
+/* Boxed controls for theme and mobile menu toggles. */
+#theme-toggle-btn {
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--color-outline-variant);
+  background-color: var(--color-surface-card);
+  color: var(--color-on-surface);
+  border-radius: var(--radius-card);
+}
+
+#mobile-menu-btn {
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--color-outline-variant);
+  background-color: var(--color-surface-card);
+  color: var(--color-on-surface);
+  border-radius: var(--radius-card);
+}
+
+#theme-toggle-btn:hover,
+#theme-toggle-btn:focus-visible {
+  color: var(--color-primary);
+  border-color: var(--color-outline);
+}
+
+#mobile-menu-btn:hover,
+#mobile-menu-btn:focus-visible {
+  color: var(--color-primary);
+  border-color: var(--color-outline);
+}
+
 .site-wordmark-link {
   display: inline-flex;
   align-items: center;
