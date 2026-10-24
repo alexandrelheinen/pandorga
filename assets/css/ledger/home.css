@@ -1024,14 +1024,6 @@ html[data-theme="light"] .home-hero-plate {
   border-top: 2px solid var(--color-primary);
 }
 
-.home-band--contrast .home-project-specimen {
-  background: var(--color-surface-card-contrast);
-}
-
-.home-band--contrast .home-project-specimen:hover {
-  background: var(--color-surface-high-contrast);
-}
-
 .home-specimen-strip,
 .home-project-inventory-code {
   display: flex;
@@ -1289,8 +1281,8 @@ button.home-project-inventory-row {
   min-width: 0;
   height: var(--home-icon-btn-size);
   padding: 0;
-  border: 1px solid var(--border-gentle-divider);
-  background: var(--color-panel-contrast);
+  border: 1px solid var(--border-ink);
+  background: var(--color-surface-card);
   cursor: pointer;
   transition: background-color var(--motion-duration-fast) var(--motion-ease-default),
     border-color var(--motion-duration-fast) var(--motion-ease-default);
@@ -1333,12 +1325,6 @@ button.home-project-inventory-row {
 .home-project-inventory-row:hover .home-project-inventory-glyph,
 .home-project-inventory-row:focus-visible .home-project-inventory-glyph {
   color: var(--color-primary);
-}
-
-.home-band--contrast .home-project-inventory-row:hover,
-.home-band--contrast .home-project-inventory-row:focus-visible,
-.home-band--contrast .home-project-inventory-row.is-selected {
-  background: var(--color-surface-high-contrast);
 }
 
 @media (min-width: 900px) {
@@ -1391,17 +1377,12 @@ button.home-project-inventory-row {
     max-height: var(--home-inventory-row-max);
     box-sizing: border-box;
     padding: var(--space-sm) var(--space-md);
-    border: 1px solid var(--border-gentle-divider);
+    border: 1px solid var(--border-ink);
     background: var(--color-surface-card);
     outline: none;
   }
 
-  .home-band--contrast .home-project-inventory-row {
-    background: var(--color-surface-card-contrast);
-  }
-
-  .home-project-inventory-row.is-selected,
-  .home-band--contrast .home-project-inventory-row.is-selected {
+  .home-project-inventory-row.is-selected {
     background: var(--color-surface-high);
     border-color: var(--border-gentle-divider);
     outline: none;
