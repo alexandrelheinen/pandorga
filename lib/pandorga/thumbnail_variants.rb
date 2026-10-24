@@ -12,8 +12,8 @@ require_relative "registry"
 
 module Pandorga
   # Generates 16:9 center-cropped width variants for local project thumbnails
-  # and computes their srcset strings.
-  # Refs: PLT-AC-44
+  # and the home hero photographs, and computes their srcset strings.
+  # Refs: PLT-AC-44, PLT-AC-51
   module ThumbnailVariants
     WIDTHS = [480, 960, 1440].freeze
     IMAGE_EXTENSIONS = %w[.jpg .jpeg .png .webp].freeze
@@ -25,6 +25,9 @@ module Pandorga
       root = Pathname.new(site_root).expand_path
       content_root = resolve_content_root(root)
       sources = project_thumbnail_sources(root, content_root)
+      hero_sources(content_root).each do |src|
+        sources << src unless sources.any? { |known| known.expand_path == src.expand_path }
+      end
 
       summary = { sources: sources.length, written: 0, skipped: 0, failed: 0 }
       return summary if sources.empty?
@@ -55,7 +58,10 @@ module Pandorga
           end
 
           dest = variants_dir.join("#{stem}-#{width}.jpg")
-          if dest.file? && dest.mtime >= src_mtime
+          # A newer variant is kept only when it is already this 16:9 size.
+          # Hero variants used to be 3:4 under the same names.
+          if dest.file? && dest.mtime >= src_mtime &&
+             identify_size(bins[:identify], dest) == [width, (width * 9) / 16]
             summary[:skipped] += 1
             next
           end
@@ -159,6 +165,16 @@ module Pandorga
       sources
     end
 
+    # Every image directly in media/images/hero/ (the hero pool, PLT-AC-51).
+    def hero_sources(content_root)
+      dir = Pathname.new(content_root).join("media/images/hero")
+      return [] unless dir.directory?
+
+      dir.children.select do |path|
+        path.file? && IMAGE_EXTENSIONS.include?(path.extname.downcase)
+      end.sort_by { |path| path.basename.to_s }
+    end
+
     def normalize_local_media_path(path)
       value = path.to_s.strip
       return nil if value.empty?
@@ -233,6 +249,16 @@ module Pandorga
       return nil unless status.success?
 
       out.to_s.strip.to_i
+    rescue StandardError
+      nil
+    end
+
+    def identify_size(identify_cmd, src)
+      cmd = [*identify_cmd, "-ping", "-format", "%w %h", "#{src}[0]"]
+      out, _err, status = Open3.capture3(*cmd)
+      return nil unless status.success?
+
+      out.to_s.split.map(&:to_i)
     rescue StandardError
       nil
     end
