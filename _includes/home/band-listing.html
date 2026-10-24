@@ -2,6 +2,7 @@
   One homepage listing band. Expects `band` from site.data.pandorga_home_bands.
   Kicker and note slots are always emitted, prefilled from headers.yml when it
   was read at build time and filled by the runtime otherwise (PLT-AC-42).
+  Link label comes from headers cta; an empty cta hides the link.
   Listing slots are filled by the home layout script from writing_index.json.
 {%- endcomment -%}
 {%- assign _accent = band.accent -%}
@@ -9,7 +10,9 @@
 {%- assign _featured = band.home.featured -%}
 {%- assign _lang = band.language | default: site.pandorga.identity.locale | default: "en" -%}
 {%- assign _path = band.path -%}
+{%- assign _section = site.data.page_headers[band.section_key] -%}
 {%- assign _cta = band.home.cta | default: "View all" -%}
+{%- if _section.cta != nil -%}{%- assign _cta = _section.cta | strip -%}{%- endif -%}
 {%- assign _slot_id = "home-band-" | append: band.key -%}
 <section
   id="home-{{ band.key }}"
@@ -25,7 +28,6 @@
   data-home-language="{{ _lang }}"
 >
   <div class="home-band-inner">
-    {%- assign _section = site.data.page_headers[band.section_key] -%}
     {%- assign _title = band.title -%}
     {%- if _section.title != blank -%}{%- assign _title = _section.title -%}{%- endif -%}
     <div class="ledger-section-banner" data-content-home-section="{{ band.section_key }}">
@@ -34,12 +36,14 @@
         <h2 class="section-title" data-content-section-title>{{ _title }}</h2>
         <p class="home-section-note font-body" data-content-section-note>{{ _section.note }}</p>
       </div>
-      <div class="home-section-aside">
+      {%- if _cta != "" -%}
+      <div class="home-section-aside" data-content-header-wrap>
         <a class="ledger-cta" href="{{ _path }}">
-          <span>{{ _cta }}</span>
+          <span data-content-header-text="{{ band.section_key }}.cta">{{ _cta }}</span>
           <span class="material-symbols-outlined ledger-cta-arrow" aria-hidden="true">chevron_right</span>
         </a>
       </div>
+      {%- endif -%}
     </div>
     {%- if _featured -%}
     <div id="{{ _slot_id }}-featured" data-home-featured-slot data-tag-base="{{ _path }}"></div>
