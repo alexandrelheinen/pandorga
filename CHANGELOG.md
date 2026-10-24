@@ -13,6 +13,10 @@
 
 - The radial blur pools, the decorative shards outside the footer, and the frame corners inside cards (PLT-AC-49).
 
+### Fixed
+
+- From 1024px to 1279px the top bar no longer runs the section links under the wordmark and the theme and menu buttons. The links stay in the menu until 1280px, and the rail gap is tighter up to 1439px (PLT-AC-49).
+
 ## [1.14.1] — 2026-10-20
 
 ### Fixed
