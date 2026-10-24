@@ -8,6 +8,7 @@
 
 ### Changed
 
+- **Breaking.** The home hero plate is 16:9 at every width. From 1024px the name sets on two lines in a 46% copy column and the photograph takes the rest of the row, as tall as the copy and at least 15rem, with `object-fit: cover`; below 1024px the plate spans the column. The export writes 16:9 `variants/<stem>-{480,960,1440}.jpg` for each hero photograph with the project thumbnail generator and lists only 16:9 variants in `portraits.json`. See docs/upgrading.md (PLT-AC-51).
 - Every page sits on one canvas (`--color-canvas`, from `neutrals.canvas`, else `panel_contrast`) with square 1px hairline cards on the card surface and a 2px accent rule on featured cards. Home bands set the title and "View all" on one row with the note below; band titles, card titles, excerpts and metadata step down below 768px, metadata uses the mono face, and excerpts clamp to 3 lines on phones and 4 from 768px (PLT-AC-49).
 - On phones the featured article opens with its image edge to edge, Rascunhos show three untilted cards (two side by side, the third a landscape card across both columns; the tilt stays from 768px), project posters run edge to edge, and the reading column and its sidebar have no box (PLT-AC-49).
 - The Sources, Network and Bibliography panels open with the title and Open link above the illustration. The top bar sits on the translucent canvas with a hairline, and the theme and menu buttons are bordered squares (PLT-AC-49).
@@ -15,10 +16,12 @@
 
 ### Removed
 
+- **Breaking.** `pandorga.home.hero_landscape`, home front matter `hero_landscape`, the `landscape` field of a `portraits.json` entry, the narrow-viewport hero draw and its preload, and the 3:4 hero variants (PLT-AC-51).
 - The radial blur pools, the decorative shards outside the footer, and the frame corners inside cards (PLT-AC-49).
 
 ### Fixed
 
+- From 1024px the hero layout rules apply: the base plate rules (`max-width`, `position`, `aspect-ratio`) used to follow them in `home.css` and win on source order (PLT-AC-51).
 - From 1024px to 1279px the top bar no longer runs the section links under the wordmark and the theme and menu buttons. The links stay in the menu until 1280px, and the rail gap is tighter up to 1439px (PLT-AC-49).
 
 ## [1.14.1] — 2026-10-20
