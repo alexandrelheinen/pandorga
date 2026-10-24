@@ -172,14 +172,6 @@
   border-left-color: var(--color-primary);
 }
 
-.projects-page .projects-lead-shard {
-  right: -5rem;
-  top: -5rem;
-  width: 18rem;
-  height: 18rem;
-  background: var(--color-primary);
-}
-
 .projects-page .projects-lead-media {
   position: relative;
   display: block;
@@ -418,14 +410,6 @@
   display: grid;
   background: var(--color-panel-contrast);
   margin-bottom: var(--space-2xl);
-}
-
-.projects-page .projects-hero-shard {
-  right: -4rem;
-  bottom: -6rem;
-  width: 16rem;
-  height: 16rem;
-  background: var(--color-secondary);
 }
 
 .projects-page .projects-hero-body {

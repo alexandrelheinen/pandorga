@@ -62,46 +62,6 @@ html[data-theme="light"] .cv-product {
   }
 }
 
-.cv-dossier-shard {
-  top: -4rem;
-  right: -3rem;
-  width: 16rem;
-  height: 16rem;
-  background: var(--color-secondary);
-}
-
-.cv-dossier-shard--beta {
-  top: auto;
-  right: auto;
-  left: -3rem;
-  bottom: -4rem;
-  width: 12rem;
-  height: 12rem;
-  background: var(--color-primary);
-}
-
-/* A shard is a corner accent. Between the 640px suppression breakpoint and the
-   desktop layout the panel is narrow enough that a 16rem shard stops being a
-   corner and starts crossing the title — "Curriculum Vitæ" was reading over a
-   tonal step at 768px. Same correction on the writing lead and the rascunhos
-   masthead, which had the same collision. */
-@media (max-width: 1023px) {
-  .cv-dossier-shard {
-    top: -2.5rem;
-    right: -2rem;
-    width: 9rem;
-    height: 9rem;
-  }
-
-  .cv-dossier-shard--beta {
-    top: auto;
-    left: -2rem;
-    bottom: -2.5rem;
-    width: 7rem;
-    height: 7rem;
-  }
-}
-
 .cv-dossier-inner {
   position: relative;
   z-index: 1;

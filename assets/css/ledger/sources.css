@@ -7,31 +7,10 @@
    `language`, and the publisher host from `link`. Every colour is a token, so
    both palettes resolve from the same rules. */
 
-/* ── Shards ──
-   The page had no depth treatment of any kind, and it is the wrong shape for
-   the ambient pool the home bands carry: a pool behind a grid of many small
-   cards only darkens one corner of it. Shards instead, the two canonical
-   polygons from base.css, one at each end of the run — top right above the
-   grid, bottom left below it, the diagonal pair the CV dossier uses inside
-   one panel, opened out across the page. In dark the source cards stay
-   opaque so the shard reads in the gutter, not through the poster.
-
-   Neither container takes `overflow: hidden`: the masthead holds the filter
-   popover, which would be clipped by it. The offsets are therefore sized to
-   stay inside the page's own gutter at every width the shards survive, the
-   way the rascunhos masthead does it. The shared utility already unmounts
-   both below 640px. */
-/* The masthead outranks the grid because the filter popover opens out of it.
-   Lifting the header over its own shard puts the popover inside a stacking
-   context, and the grid below has to be lifted over the foot shard in the
-   same way — without this the cards would be painted over an open filter
-   panel. */
 .sources-masthead {
   position: relative;
   z-index: 2;
 }
-
-
 
 .sources-header {
   position: relative;
@@ -41,14 +20,6 @@
 .sources-header .page-header-tags {
   color: var(--color-primary);
   opacity: 0.85;
-}
-
-.sources-masthead-shard {
-  top: calc(-1 * var(--space-2xl));
-  right: calc(-1 * var(--space-xl));
-  width: 16rem;
-  height: 9rem;
-  background: var(--color-primary);
 }
 
 .sources-body {
@@ -63,34 +34,6 @@
 .sources-body>.source-pagination {
   position: relative;
   z-index: 1;
-}
-
-/* The foot of the page, beside the pagination. It reaches up behind the last
-   row of cards. In dark those cards are opaque again, so what shows is the
-   wedge in the gutter and the band across the pagination strip. */
-.sources-foot-shard {
-  left: calc(-1 * var(--space-xl));
-  bottom: calc(-1 * var(--space-lg));
-  width: 14rem;
-  height: 8rem;
-  background: color-mix(in srgb, var(--color-primary) 70%, transparent);
-}
-
-/* Below the desktop layout the page gutter halves, so the shards have to come
-   back inside it or they widen the document. */
-@media (max-width: 1023px) {
-  .sources-masthead-shard {
-    top: calc(-1 * var(--space-xl));
-    right: calc(-1 * var(--space-lg));
-    width: 12rem;
-    height: 8rem;
-  }
-
-  .sources-foot-shard {
-    left: calc(-1 * var(--space-lg));
-    width: 10rem;
-    height: 7rem;
-  }
 }
 
 /* Pagination hides rather than unmounts, so the cards keep their identity

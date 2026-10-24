@@ -104,40 +104,6 @@
   }
 }
 
-/* Ambient pool behind the hero.
- *
- * Same weight as the earlier primary-container bloom, but keyed to neutral
- * ink/outline so it stays grey paper depth instead of a blue spotlight. */
-.home-band--hero::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  top: -18%;
-  right: 8%;
-  width: min(38rem, 60%);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: radial-gradient(circle,
-      color-mix(in srgb, var(--color-outline) 22%, transparent) 0%,
-      color-mix(in srgb, var(--color-on-surface) 8%, transparent) 42%,
-      transparent 72%);
-  filter: blur(52px);
-  pointer-events: none;
-}
-
-[data-theme="dark"] .home-band--hero::before {
-  background: radial-gradient(circle,
-      color-mix(in srgb, var(--color-on-surface) 10%, transparent) 0%,
-      color-mix(in srgb, var(--color-outline) 8%, transparent) 50%,
-      transparent 70%);
-  filter: blur(60px);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .home-band--hero::before {
-    transition: opacity var(--motion-duration-slow, 400ms) var(--motion-ease-default);
-  }
-}
 
 .home-hero {
   display: grid;
@@ -401,51 +367,7 @@ html[data-theme="light"] .home-hero-plate {
   box-shadow: none;
 }
 
-/* Silk facet behind the portrait — restored; the Borders pass had hidden it. */
-.home-hero-shard {
-  top: -2.25rem;
-  right: -2rem;
-  width: 15rem;
-  height: 15rem;
-  background: var(--color-primary);
-  opacity: var(--cubist-shard-opacity-strong, 16%);
-  z-index: 0;
-}
 
-@media (max-width: 1023px) {
-  .home-hero-shard {
-    width: 11rem;
-    height: 11rem;
-    top: -1.5rem;
-    right: -1.25rem;
-  }
-}
-
-@media (max-width: 1023px) {
-  .home-hero-portrait::before {
-    content: "";
-    position: absolute;
-    z-index: 0;
-    top: 55%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 140%;
-    height: 120%;
-    border-radius: 50%;
-    background: radial-gradient(circle,
-        color-mix(in srgb, var(--color-outline) 18%, transparent) 0%,
-        color-mix(in srgb, var(--color-on-surface) 7%, transparent) 45%,
-        transparent 72%);
-    filter: blur(40px);
-    pointer-events: none;
-  }
-
-  [data-theme="dark"] .home-hero-portrait::before {
-    background: radial-gradient(circle,
-        color-mix(in srgb, var(--color-on-surface) 12%, transparent) 0%,
-        transparent 70%);
-  }
-}
 
 .home-hero-plate picture {
   display: block;
@@ -685,65 +607,6 @@ html[data-theme="light"] .home-hero-plate {
 @media (min-width: 1280px) {
   .home-featured.home-featured--illustrated {
     grid-template-columns: minmax(0, 1fr) 15rem;
-  }
-}
-
-/* Shards on the featured panel, which carried none: the one card the home
-   page leads with was also the only one on the band with no footing in the
-   cubist half of the identity.
-
-   The pair is placed around the poster rather than across the card, because
-   the poster is opaque and a shard behind it is a shard nobody sees. The
-   alpha takes the top-left, over the index column, where there is nothing but
-   chrome and air. The beta takes the bottom-right and comes out from *under*
-   the poster into the strip below it, which is the same move the index band
-   makes with its own plates.
-
-   Hues are the two the home band does not already spend: the index panels
-   below run secondary and primary, so this pair runs tertiary and secondary,
-   and neither repeats the corner its neighbor uses. Shards are absolutely
-   positioned, so they are not grid items and the three-column template is
-   untouched. */
-.home-featured-shard {
-  left: -3rem;
-  top: -3.5rem;
-  width: 11rem;
-  height: 11rem;
-  background: var(--color-tertiary);
-}
-
-.home-featured-shard--beta {
-  left: auto;
-  right: -3rem;
-  top: auto;
-  bottom: -4rem;
-  width: 13rem;
-  height: 13rem;
-  background: var(--color-secondary);
-}
-
-/* Below the two-column layout the panel is short and the columns stack, so a
-   shard sized for the wide card reaches the title.
-
-   The beta restates `top`/`left` as `auto`. It carries both class names, so
-   the rule above also matches it, and an override that gives it a `bottom`
-   without taking back the `top` leaves it with all four offsets set — at
-   which point top and left win and the pair collapses into one corner. */
-@media (max-width: 1023px) {
-  .home-featured-shard {
-    width: 8rem;
-    height: 8rem;
-    top: -2.5rem;
-    left: -2.5rem;
-  }
-
-  .home-featured-shard--beta {
-    width: 9rem;
-    height: 9rem;
-    top: auto;
-    left: auto;
-    bottom: -3rem;
-    right: -2.5rem;
   }
 }
 
@@ -1653,23 +1516,6 @@ button.home-project-inventory-row {
  * the page background. */
 .home-band--index {
   isolation: isolate;
-}
-
-[data-theme="dark"] .home-band--index::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  top: -8%;
-  left: 50%;
-  width: min(72rem, 100%);
-  height: 116%;
-  transform: translateX(-50%);
-  border-radius: 50%;
-  background: radial-gradient(ellipse,
-      color-mix(in srgb, var(--color-primary) 5%, transparent) 0%,
-      transparent 70%);
-  filter: blur(70px);
-  pointer-events: none;
 }
 
 .home-index-split {

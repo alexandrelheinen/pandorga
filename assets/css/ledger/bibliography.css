@@ -16,14 +16,6 @@
   opacity: 0.85;
 }
 
-.bib-masthead-shard {
-  top: calc(-1 * var(--space-2xl));
-  right: calc(-1 * var(--space-xl));
-  width: 16rem;
-  height: 9rem;
-  background: var(--color-secondary);
-}
-
 .bib-body {
   position: relative;
 }
@@ -32,29 +24,6 @@
 .bib-body>.bib-pagination {
   position: relative;
   z-index: 1;
-}
-
-.bib-foot-shard {
-  left: calc(-1 * var(--space-xl));
-  bottom: calc(-1 * var(--space-lg));
-  width: 14rem;
-  height: 8rem;
-  background: color-mix(in srgb, var(--color-primary) 70%, transparent);
-}
-
-@media (max-width: 1023px) {
-  .bib-masthead-shard {
-    top: calc(-1 * var(--space-xl));
-    right: calc(-1 * var(--space-lg));
-    width: 12rem;
-    height: 8rem;
-  }
-
-  .bib-foot-shard {
-    left: calc(-1 * var(--space-lg));
-    width: 10rem;
-    height: 7rem;
-  }
 }
 
 .bib-hidden {

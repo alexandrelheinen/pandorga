@@ -51,7 +51,6 @@ layout: shell
           </div>
         </div>
         <div class="home-hero-portrait">
-          <span class="shard-accent home-hero-shard" aria-hidden="true"></span>
           <div class="home-hero-plate-wrap">
             <span class="ledger-frame-crosshairs" aria-hidden="true"></span>
             <figure class="home-hero-plate{% if _hero_landscape != blank %} home-hero-plate--landscape{% endif %}">
@@ -173,8 +172,6 @@ layout: shell
       var chips = runtime.renderTagChips(entry.tags, { hrefFor: tagHref });
       var cta = runtime.renderCtaLink(href, 'Read', { className: 'home-featured-cta' });
       wrap.innerHTML = [
-        '<span class="shard-accent home-featured-shard" aria-hidden="true"></span>',
-        '<span class="shard-accent shard-accent-beta home-featured-shard home-featured-shard--beta" aria-hidden="true"></span>',
         '<div class="home-featured-lead">',
         '<div class="home-featured-rail">',
         '<span class="ledger-chip home-featured-badge">Featured</span>',

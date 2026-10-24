@@ -235,7 +235,6 @@ layout: shell
       var line = ledgerLine(fm, 'ledger-system-icon');
 
       var html = '<article class="projects-lead">';
-      html += '<span class="shard-accent projects-lead-shard" aria-hidden="true"></span>';
       /* The plate links to the same place as the title beside it. It is out of
          the tab order so keyboard users are not made to pass the same
          destination twice, but it keeps its accessible name — the poster's alt
@@ -416,7 +415,6 @@ layout: shell
       var line = ledgerLine(fm, 'projects-hero-icon');
 
       var html = '<header class="projects-hero">';
-      html += '<span class="shard-accent projects-hero-shard" aria-hidden="true"></span>';
       html += '<div class="projects-hero-body">';
       if (line) html += line;
       var chips = runtime.renderTagChips(fm.tags, { hrefFor: tagHref });
