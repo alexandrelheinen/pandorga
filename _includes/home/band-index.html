@@ -25,17 +25,18 @@
       {%- assign _art_key = panel.key -%}
       {%- if panel.key == "resources" -%}{%- assign _art_key = "sources" -%}{%- endif -%}
       <article class="home-index-panel"{% if panel.template == "bibliography" %} id="home-bib-panel"{% endif %}>
-        <span class="shard-accent home-index-shard" aria-hidden="true"></span>
+        <div class="home-index-panel-head">
+          <h3 class="home-index-title">{{ _panel_title }}</h3>
+          <a class="ledger-cta" href="{{ _panel_path }}">
+            <span>Open</span>
+            <span class="material-symbols-outlined ledger-cta-arrow" aria-hidden="true">chevron_right</span>
+          </a>
+        </div>
         {%- if panel.template == "bibliography" -%}
         <figure class="home-index-plate" id="home-bib-plate" hidden></figure>
         {%- else -%}
         <figure class="home-index-plate" data-content-band-art="{{ _art_key }}" hidden></figure>
         {%- endif -%}
-        <h3 class="home-index-title">{{ _panel_title }}</h3>
-        <a class="ledger-cta" href="{{ _panel_path }}">
-          <span>Open</span>
-          <span class="material-symbols-outlined ledger-cta-arrow" aria-hidden="true">chevron_right</span>
-        </a>
       </article>
       {%- endfor -%}
     </div>
