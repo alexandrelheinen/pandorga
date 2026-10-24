@@ -2,14 +2,35 @@
   Grouped index band (sources / network / bibliography). Expects `band` with
   kind=index and a pages array from PandorgaRegistry.home_bands.
 {%- endcomment -%}
+{%- comment -%}
+  The band's name when its header is gone: the panels' default titles. A
+  header whose kicker, title and note are all blank in headers.yml is not
+  emitted at all, so no empty ruled strip is left (PLT-AC-52).
+{%- endcomment -%}
+{%- assign _band_label = "" -%}
+{%- for panel in band.pages -%}
+{%- assign _label_page = site.pages | where: "key", panel.key | first -%}
+{%- assign _label = panel.title | default: _label_page.title | default: panel.key -%}
+{%- if _band_label != "" -%}{%- assign _band_label = _band_label | append: ", " -%}{%- endif -%}
+{%- assign _band_label = _band_label | append: _label -%}
+{%- endfor -%}
+{%- assign _hide_banner = false -%}
+{%- if site.data.page_headers -%}
+{%- assign _band_head = site.data.page_headers[band.section_key] -%}
+{%- assign _band_text = _band_head.kicker | append: _band_head.title | append: _band_head.note | strip -%}
+{%- if _band_text == "" -%}{%- assign _hide_banner = true -%}{%- endif -%}
+{%- endif -%}
 <section
   id="home-{{ band.group }}"
   class="home-band home-band--contrast home-band--index"
   data-home-band
   data-home-kind="index"
   data-home-group="{{ band.group }}"
+  data-home-label="{{ _band_label | escape }}"
+  {%- if _hide_banner %} aria-label="{{ _band_label | escape }}"{% endif %}
 >
   <div class="home-band-inner">
+    {%- unless _hide_banner -%}
     <div class="ledger-section-banner" data-content-home-section="{{ band.section_key }}">
       <div class="ledger-section-lead">
         <span class="ledger-kicker" data-content-section-kicker></span>
@@ -17,6 +38,7 @@
         <p class="home-section-note font-body" data-content-section-note></p>
       </div>
     </div>
+    {%- endunless -%}
     <div class="home-index-split">
       {%- for panel in band.pages -%}
       {%- assign _panel_page = site.pages | where: "key", panel.key | first -%}
