@@ -1537,10 +1537,10 @@ button.home-project-inventory-row {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--space-md);
-  padding: 0 0 var(--space-lg);
-  background: var(--color-surface-card-contrast);
-  border: 1.5px solid var(--border-ink);
+  gap: 0;
+  padding: 0;
+  background: var(--color-surface-card);
+  border: 1px solid var(--border-ink);
   border-radius: var(--radius-card);
   transition:
     background-color var(--motion-duration-fast) var(--motion-ease-default),
@@ -1548,59 +1548,18 @@ button.home-project-inventory-row {
 }
 
 .home-index-panel:hover {
-  background: var(--color-surface-high-contrast);
+  background: var(--color-surface-high);
   border-color: var(--border-gentle-hover);
 }
 
-/* The plates are line-art, so the cubist half of the identity had no footing
-   on this band at all. One shard per panel, the canonical polygons across
-   the set, rotating hue the way every other shard on the site does.
- *
- * They sit in the foot of the panel, under the title and the link: the plate
- * above carries an opaque background, so a shard behind it would be a shard
- * nobody sees. `overflow: hidden` on the panel above keeps the negative
- * offsets out of the document scroll width, and the shared utility already
- * unmounts both below 640px. */
-.home-index-shard {
-  right: -3rem;
-  bottom: -3.5rem;
-  width: 11rem;
-  height: 11rem;
-  background: var(--color-secondary);
-}
-
-.home-index-shard--beta {
-  right: auto;
-  left: -3rem;
-  bottom: -3.5rem;
-  width: 11rem;
-  height: 11rem;
-  background: var(--color-primary);
-}
-
-/* Between the shard cut-off and the layout each panel is the full
-   band wide on small screens, so a shard sized for half of it stops being a corner accent. */
-@media (max-width: 899px) {
-
-  .home-index-shard,
-  .home-index-shard--beta {
-    width: 8rem;
-    height: 8rem;
-    bottom: -2.5rem;
-  }
-}
-
-.home-index-panel:not(:has(.home-index-plate)) {
-  padding-top: var(--space-xl);
-}
-
-/* The title and the link have to sit clear of the shard behind them. The
-   plate is excluded because it is the one child that must stay full-bleed,
-   and the shard because it is the thing being sat clear of. */
-.home-index-panel> :not(.home-index-plate):not(.shard-accent) {
-  position: relative;
-  z-index: 1;
-  margin-inline: var(--space-lg);
+/* Header row for index panels: holds title and Open link. */
+.home-index-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  width: 100%;
 }
 
 /* Card-scale title, not `.section-title`: that face is for band banners and
@@ -1627,6 +1586,7 @@ button.home-project-inventory-row {
   min-height: 0;
   margin: 0;
   background: var(--color-background);
+  border-top: 1px solid var(--border-gentle-divider);
   border-bottom: 1px solid var(--border-gentle-subtle);
 }
 
