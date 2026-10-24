@@ -138,14 +138,24 @@
 }
 
 /* The rail needs room for six labels before it earns its place; below that
-   the Explore menu carries the same links. */
-@media (min-width: 1024px) {
+   the Explore menu carries the same links. At 1024px and 1240px the six
+   labels ran under the wordmark on the left and the controls on the right,
+   so the rail starts at 1280px (PLT-AC-49 item 14). */
+@media (min-width: 1280px) {
   .site-rail {
     display: flex;
   }
 
   #site-menu {
     display: none;
+  }
+}
+
+/* Between 1280px and 1439px the bar is only just wide enough; the tighter
+   gap keeps clear space beside the wordmark and the controls. */
+@media (min-width: 1280px) and (max-width: 1439px) {
+  .site-rail {
+    gap: var(--space-sm);
   }
 }
 
