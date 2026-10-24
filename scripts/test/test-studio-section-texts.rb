@@ -114,13 +114,15 @@ PAGE_FIELDS = {
   "page_cv" => %w[summary_title experience_title products_title education_title languages_title timeline_title contact_label]
 }.freeze
 
+# Fields held to the new-field rules (string, optional, described, keep_empty).
+# The bibliography note already exists but follows the same rule.
 NEW_FIELDS = {
   "page_projects" => %w[cta others_kicker others_title repositories_kicker repositories_title],
   "page_articles" => %w[cta],
   "page_rascunhos" => %w[cta],
   "page_sources" => %w[note cta],
   "page_network" => %w[note cta],
-  "page_bibliography" => %w[cta],
+  "page_bibliography" => %w[note cta],
   "page_cv" => %w[summary_title experience_title products_title education_title languages_title timeline_title contact_label]
 }.freeze
 
