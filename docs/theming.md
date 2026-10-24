@@ -58,6 +58,15 @@ measured home requests the same files as an unset site. See
 The font hosts stay preconnected. The text-face sheet is still inserted
 after the first paint, with `display=swap`.
 
+## Canvas
+
+Planned, not yet implemented (`PLT-AC-49`). Every page sits on one ground,
+`--color-canvas`, and cards sit on it with the card surface
+(`surface_card`). A palette may set `neutrals.canvas`; without it the
+canvas is `neutrals.panel_contrast` (`#f4f4f4` light, `#141418` dark in the
+gem). Keep the card surface and the canvas apart by at least one tonal step
+so the hairline cards stay legible.
+
 ## Section accents in the navigation
 
 Planned, not yet implemented (`PLT-AC-46`). When a section's listing page declares an `accent` (such as `green` or `ochre`), the desktop top-bar rail link for that section will apply `page-accent--<accent>` when active, tinting the active felt-pen mark with the section's accent color rather than the default blue. Detail pages within that section will inherit the same active rail link accent. Today the active rail mark stays blue in every section.

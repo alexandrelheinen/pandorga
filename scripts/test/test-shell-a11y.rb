@@ -28,7 +28,8 @@ fail!("shell home link needs an identity.name fallback") unless SHELL.include?("
 fail!("footer home link needs an identity.name fallback") unless FOOTER.include?("site.pandorga.identity.name")
 
 fail!("top bar is still a nav") if SHELL.include?('<nav class="sticky')
-fail!("top bar is not a header") unless SHELL.include?('<header class="sticky top-0 z-50 bg-surface">')
+# PLT-AC-49: the header paints the translucent canvas through .site-topbar.
+fail!("top bar is not a header") unless SHELL.include?('<header class="site-topbar sticky top-0 z-50">')
 fail!("section links lost their name") unless SHELL.include?('aria-label="Sections"')
 navs = SHELL.scan(/<nav\b/).size
 fail!("shell should have one nav landmark, found #{navs}") unless navs == 1

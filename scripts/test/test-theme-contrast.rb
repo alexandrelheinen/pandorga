@@ -71,8 +71,8 @@ def mix(color_a, color_b, percentage)
 end
 
 themes = [
-  { name: "light", theme: light, menu_strength: 18, strong_strength: 28, facet_strength: 14, quiet_strength: 12 },
-  { name: "dark", theme: dark, menu_strength: 14, strong_strength: 22, facet_strength: 14, quiet_strength: 10 }
+  { name: "light", theme: light, menu_strength: 18, strong_strength: 28, hover_strength: 30, facet_strength: 14, quiet_strength: 12 },
+  { name: "dark", theme: dark, menu_strength: 14, strong_strength: 22, hover_strength: 24, facet_strength: 14, quiet_strength: 10 }
 ]
 
 themes.each do |entry|
@@ -112,6 +112,17 @@ themes.each do |entry|
       m_head = mix(accent, bg, entry[:menu_strength])
       c = contrast(on_surface, m_head)
       fail!("PLT-AC-46 Menu active #{mode} #{accent} on #{bg}: #{c.round(2)}:1 < 4.5:1") if c < 4.5
+    end
+
+    # F9: Text calls to action (PLT-AC-49): the emphasis ink over the strong
+    # and hover mark heads, on every step a card or the canvas can show.
+    (surfaces + [neutrals["panel_contrast"]]).compact.uniq.each do |bg|
+      # The ink is `--action-ink-mix`: 74% accent in light, 85% in dark.
+      f9_text = mix(accent, on_surface, (mode == "light") ? 74 : 85)
+      [entry[:strong_strength], entry[:hover_strength]].each do |strength|
+        c = contrast(f9_text, mix(accent, bg, strength))
+        fail!("PLT-AC-49 F9 #{mode} #{accent} at #{strength}% on #{bg}: #{c.round(2)}:1 < 4.5:1") if c < 4.5
+      end
     end
 
     # F6: Solid mark (inverted on-primary text over solid accent at glyph)
