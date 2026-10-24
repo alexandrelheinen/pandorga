@@ -966,7 +966,6 @@ html[data-theme="light"] .home-hero-plate {
   border-top-width: 2px;
   border-top-style: solid;
   border-top-color: var(--color-tertiary);
-  transform: rotate(0deg);
   transition: transform var(--motion-duration-fast) var(--motion-ease-default),
     background-color var(--motion-duration-fast) var(--motion-ease-default),
     border-color var(--motion-duration-fast) var(--motion-ease-default);
@@ -979,25 +978,73 @@ html[data-theme="light"] .home-hero-plate {
 
 /* A handful of fixed degrees per grid position — not a JS random() — so the
    tilt is identical on every render and every screenshot. */
-.home-draft-list>*:nth-child(4n + 1) {
-  transform: rotate(-1.2deg);
+@media (min-width: 768px) {
+  .home-draft-list>*:nth-child(4n + 1) {
+    transform: rotate(-1.2deg);
+  }
+
+  .home-draft-list>*:nth-child(4n + 2) {
+    transform: rotate(0.9deg);
+  }
+
+  .home-draft-list>*:nth-child(4n + 3) {
+    transform: rotate(-0.7deg);
+  }
+
+  .home-draft-list>*:nth-child(4n) {
+    transform: rotate(1.1deg);
+  }
+
+  .home-draft-card:hover,
+  .home-draft-card:focus-within {
+    transform: rotate(0deg);
+  }
 }
 
-.home-draft-list>*:nth-child(4n + 2) {
-  transform: rotate(0.9deg);
-}
+@media (max-width: 767px) {
+  .home-draft-list>.home-draft-card:nth-child(3) {
+    grid-column: 1 / -1;
+    flex-direction: row;
+  }
 
-.home-draft-list>*:nth-child(4n + 3) {
-  transform: rotate(-0.7deg);
-}
+  .home-draft-list>.home-draft-card:nth-child(3) .ledger-poster {
+    flex: 0 0 38%;
+    aspect-ratio: auto;
+    align-self: stretch;
+  }
 
-.home-draft-list>*:nth-child(4n) {
-  transform: rotate(1.1deg);
-}
+  .home-draft-list>.home-draft-card:nth-child(3) .ledger-poster img,
+  .home-draft-list>.home-draft-card:nth-child(3) .ledger-poster video {
+    position: absolute;
+    inset: 0;
+  }
 
-.home-draft-card:hover,
-.home-draft-card:focus-within {
-  transform: rotate(0deg);
+  .home-draft-list>.home-draft-card:nth-child(3) .ledger-card-body {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .home-draft-list>.home-draft-card:nth-child(n + 4) {
+    display: none;
+  }
+
+  .home-draft-card .ledger-poster {
+    aspect-ratio: 4 / 3;
+  }
+
+  .home-draft-card .ledger-meta {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .home-draft-card .ledger-card-title {
+    font-size: var(--type-dek);
+  }
+
+  .home-draft-card .ledger-card-copy {
+    font-size: var(--type-label);
+  }
 }
 
 .home-draft-card .ledger-card-body {
@@ -1012,6 +1059,11 @@ html[data-theme="light"] .home-hero-plate {
 .home-draft-card .ledger-card-title {
   font-size: var(--type-card);
   line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .home-draft-card .ledger-meta {
@@ -1026,30 +1078,18 @@ html[data-theme="light"] .home-hero-plate {
   font-weight: var(--weight-body);
   line-height: var(--leading-body);
   color: var(--color-legend);
-  /* Fill the surplus the equal-height grid hands the body. `height: 0` with
-     `flex: 1` gives the paragraph a definite block size from the flex
-     allocation, so line-clamp/overflow clip against that height instead of
-     growing past the ellipsis (the old flex:1 + clamp:2 bug that left text
-     after "…" and sliced mid-glyph at the card edge). */
   flex: 1 1 auto;
-  /* With the 16:9 plate, this band keeps the whole card about 20% shorter
-     than the old 16/12.6 poster and 8.4-line excerpt, on narrow and wide grids. */
-  min-height: calc(var(--type-subtitle) * var(--leading-body) * 5.33);
-  height: 0;
   display: -webkit-box;
-  -webkit-line-clamp: 5;
-  line-clamp: 5;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-/* Four-up posters were the tall part of the old card. Give the excerpt a
-   little of that height back so the wide card is 20% shorter too, not more. */
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .home-draft-card .ledger-card-copy {
-    min-height: calc(var(--type-subtitle) * var(--leading-body) * 6.05);
-    -webkit-line-clamp: 6;
-    line-clamp: 6;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
   }
 }
 
