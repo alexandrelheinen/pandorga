@@ -112,64 +112,6 @@
   align-items: start;
 }
 
-@media (min-width: 1024px) {
-  .home-hero {
-    /* Copy content height sets the flex line. Portrait stretches to that
-       height; aspect-ratio then sets W = 3/4 × H. Children are taken out of
-       flow so the photo's intrinsic box cannot inflate the line or collapse
-       the copy. */
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-    gap: var(--space-2xl);
-  }
-
-  .home-hero-copy {
-    flex: 1 1 auto;
-    min-width: min(100%, 20rem);
-  }
-
-  .home-hero-portrait {
-    position: relative;
-    flex: 0 0 auto;
-    align-self: stretch;
-    width: auto;
-    height: auto;
-    aspect-ratio: 3 / 4;
-    overflow: hidden;
-    min-width: 0;
-    min-height: 0;
-    max-width: none;
-    justify-self: unset;
-  }
-
-  .home-hero-plate-wrap {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    flex: none;
-  }
-
-  .home-hero-plate {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    aspect-ratio: auto;
-    flex: none;
-  }
-
-  .home-hero-plate img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    max-width: none;
-    object-fit: cover;
-  }
-}
-
 .home-hero-copy {
   display: flex;
   flex-direction: column;
@@ -293,8 +235,6 @@
 .home-hero-portrait {
   position: relative;
   width: 100%;
-  max-width: 16rem;
-  justify-self: end;
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -334,18 +274,16 @@
   transform: translateY(0);
 }
 
-/* ── Portrait plate ──
-   Beside the copy on a wide page the plate is portrait (3:4): its height
-   matches the left column and the width is W = 3/4 × H. On a phone it stays
-   3:4. A wider box would cover-crop that portrait a second time. When
-   hero_landscape is set, or a portrait entry has its own landscape, the
-   phone plate is 16:9 and the chosen 16:9 file is shown whole. */
+/* ── Photograph plate ──
+   One 16:9 frame at every width, the shape of the hero photographs, so
+   below 1024px cover does not crop them. From 1024px the plate fills a box
+   as tall as the copy and cover trims the sides or the top (PLT-AC-51). */
 .home-hero-plate {
   position: relative;
   z-index: 1;
   margin: 0;
   overflow: hidden;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 16 / 9;
   /* Black in both themes: the photograph fades in over this, so a theme
      canvas here would read as the wrong picture arriving late. */
   background: black;
@@ -369,18 +307,11 @@ html[data-theme="light"] .home-hero-plate {
 
 
 
-.home-hero-plate picture {
-  display: block;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-}
-
 .home-hero-plate img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 52% 18%;
+  object-position: center;
   display: block;
   filter: saturate(1.05) contrast(0.98);
   opacity: 0;
@@ -394,27 +325,6 @@ html[data-theme="light"] .home-hero-plate {
   opacity: 1;
 }
 
-/* 16:9 file in a 16:9 plate. contain shows the whole frame. The image stays
-   hidden until the chosen file has loaded, so a fallback source does not
-   flash before a pool landscape replaces it. The plate is already 16:9, so
-   the wait does not move the layout. transition none so the paint is not a fade. */
-@media (max-width: 767px) {
-  .home-hero-plate--landscape {
-    aspect-ratio: 16 / 9;
-  }
-
-  .home-hero-plate--landscape img {
-    object-fit: contain;
-    object-position: center center;
-    opacity: 0;
-    transition: none;
-  }
-
-  .home-hero-plate--landscape img.is-shown {
-    opacity: 1;
-  }
-}
-
 .home-hero-plate:hover img {
   transform: scale(1.02);
 }
@@ -425,6 +335,76 @@ html[data-theme="light"] .home-hero-plate {
   .home-hero-plate:hover img {
     transform: none;
     transition: none;
+  }
+}
+
+/* ── Hero from 1024px ──
+   The copy takes 46% and the name sets on two lines, given name over family
+   name, so the photograph takes the rest of the row. The copy sets the band
+   height; the plate wrapper and the plate leave the flow and the photograph
+   covers that box, at least 15rem tall, like the featured article poster.
+   This block follows the base hero rules on purpose: before them, their
+   max-width, position and aspect-ratio won on source order (PLT-AC-51). */
+@media (min-width: 1024px) {
+  .home-hero {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: var(--space-2xl);
+  }
+
+  .home-hero-copy {
+    flex: 0 0 46%;
+    min-width: 0;
+  }
+
+  .home-hero-portrait {
+    flex: 1 1 0;
+    align-self: stretch;
+    width: auto;
+    min-width: 0;
+    min-height: 15rem;
+    max-width: none;
+    aspect-ratio: auto;
+    overflow: hidden;
+  }
+
+  .home-hero-plate-wrap {
+    position: absolute;
+    inset: 0;
+    aspect-ratio: auto;
+  }
+
+  .home-hero-plate {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+  }
+
+  .home-hero-plate img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  /* --hero-name-fit is the longer name part in em at the title's tracking;
+     a site with a longer word raises it. The selector outranks a site's
+     one-line size written as .home-ledger .home-hero-title. */
+  .home-ledger .home-hero-title {
+    white-space: normal;
+    font-size: min(calc(100cqi / var(--hero-name-fit, 8.4)), var(--hero-name-max, 4.5rem));
+  }
+
+  .home-hero-given,
+  .home-hero-family {
+    display: inline-block;
+    white-space: nowrap;
   }
 }
 
@@ -1815,9 +1795,8 @@ html[data-theme="light"] .home-featured .ledger-poster {
    ends flush with the viewport and adds no scrollable width; this must stay
    below 768px, which is where .home-band-inner swaps that token for --gutter.
    The side hairlines go with it: a border pinned to the screen edge reads as a
-   frame cut off rather than as the plate's edge. The plate stays 3:4, the
-   same frame as the portrait file, so cover does not crop it again. A
-   configured hero_landscape switches this query to 16:9 and contain. */
+   frame cut off rather than as the plate's edge. The plate stays 16:9, the
+   same frame as the photograph, so cover does not crop it. */
 @media (max-width: 767px) {
   .home-hero-portrait {
     max-width: none;
@@ -1829,14 +1808,6 @@ html[data-theme="light"] .home-featured .ledger-poster {
     max-width: none;
     width: 100%;
     border-inline: 0;
-  }
-}
-
-/* ── Hero portrait between phone and desktop ──
-   Keep the plate modest; the 3:4 crop applies from tablet up. */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .home-hero-portrait {
-    max-width: 14rem;
   }
 }
 
