@@ -87,6 +87,9 @@
     --color-surface-variant: {{ surface_variant_value }};
     --color-surface-dim: {{ ts.surface_dim | default: "#d9d9d9" }};
     --color-panel-contrast: {{ tn.panel_contrast | default: bg_secondary }};
+    /* The page ground every card sits on (PLT-AC-49). A palette may name its
+       own `canvas`; otherwise it is the panel-contrast step. */
+    --color-canvas: {{ tn.canvas | default: tn.panel_contrast | default: bg_secondary }};
     --color-surface-card: {{ tn.surface_card | default: surface_value }};
     --color-surface-card-contrast: {{ tn.surface_card_contrast | default: tn.surface_card | default: surface_value }};
     --color-surface-high: {{ tn.surface_high | default: tn.surface_container_high | default: "#e8e8e8" }};

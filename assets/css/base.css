@@ -170,12 +170,15 @@ html {
   --type-page-lg: 2.9015rem;
   --type-section: 1.9015rem;
   --type-section-lg: 2.1515rem;
+  /* Phone steps for home band titles and card titles (PLT-AC-49). */
+  --type-section-sm: 1.375rem;
 
   /* Content titles — Newsreader Regular 400 */
   --type-title: 2.20165rem;
   --type-title-lg: 2.64165rem;
   --type-card: 1.4015rem;
   --type-card-lg: 1.5515rem;
+  --type-card-sm: 1.1875rem;
 
   /* Reading + UI — Newsreader Light 300.
      Default reading size is 1.2rem below 1024px and 1.25rem from there.

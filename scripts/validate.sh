@@ -74,6 +74,7 @@ TESTS=(
   scripts/test/test-thumbnail-variants.rb
   scripts/test/test-highlighter-pills.rb
   scripts/test/test-timeline-pan.rb
+  scripts/test/test-v3-layout.rb
 )
 
 failed=0
