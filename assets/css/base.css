@@ -440,6 +440,7 @@ html[data-theme="dark"] {
 .source-facet,
 .bib-facet,
 :is(.ledger-cta--emphasis, .ledger-cta--emphasis-alt),
+.ledger-cta:where(:not(.ledger-cta--emphasis):not(.ledger-cta--emphasis-alt)),
 :is(.detail-action, .detail-type-size-trigger, .article-related-section-pill, .listing-filter-trigger) {
   --mark-ink: var(--color-primary);
   --mark-1: var(--mark-a);
@@ -1094,17 +1095,6 @@ a.ledger-chip:hover {
   line-height: 1;
 }
 
-/* Text CTAs carry a gentle accent underline so the clickable cue is not the
-   same gesture as the marker wash on titles. Emphasis buttons carry a
-   strong mark instead. */
-.ledger-cta:not(.ledger-cta--emphasis):not(.ledger-cta--emphasis-alt)>span:not(.ledger-cta-arrow):not(.ledger-cta-icon) {
-  text-decoration: underline;
-  text-decoration-color: color-mix(in srgb, var(--color-primary) 50%, transparent);
-  text-decoration-thickness: 1.5px;
-  text-underline-offset: 0.48em;
-  text-underline-position: under;
-}
-
 .ledger-cta-icon,
 .ledger-cta-arrow {
   display: inline-flex;
@@ -1115,12 +1105,21 @@ a.ledger-chip:hover {
   text-decoration: none;
 }
 
-.ledger-cta:hover {
-  color: var(--color-link-hover);
+/* Plain text CTAs carry the strong highlighter mark without an underline. */
+.ledger-cta:where(:not(.ledger-cta--emphasis):not(.ledger-cta--emphasis-alt)) {
+  --mark-1: var(--mark-strong-a);
+  --mark-2: var(--mark-strong-b);
+  --mark-3: var(--mark-strong-c);
+  padding: 0.2rem 0.45rem;
+  text-decoration: none;
+  color: color-mix(in srgb, var(--color-primary) var(--action-ink-mix), var(--color-on-surface));
 }
 
-.ledger-cta:not(.ledger-cta--emphasis):not(.ledger-cta--emphasis-alt):hover>span:not(.ledger-cta-arrow):not(.ledger-cta-icon) {
-  text-decoration-color: color-mix(in srgb, var(--color-link-hover) 75%, transparent);
+.ledger-cta:where(:not(.ledger-cta--emphasis):not(.ledger-cta--emphasis-alt)):hover {
+  --mark-1: var(--mark-hover-a);
+  --mark-2: var(--mark-hover-b);
+  --mark-3: var(--mark-hover-c);
+  color: color-mix(in srgb, var(--color-primary) var(--action-ink-mix), var(--color-on-surface));
 }
 
 /* Pill read-more only. The box is the affordance, so the label line would
