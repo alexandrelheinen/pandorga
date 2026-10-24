@@ -23,8 +23,8 @@ end
 
 guide = ROOT.join("docs/getting-started.md").read
 readme = ROOT.join("README.md").read
-unless guide.include?('gem at `~> 1.3`')
-  warn "FAIL test-new: getting-started must document the scaffold pin ~> 1.3"
+unless guide.include?('gem at `~> 2.0`')
+  warn "FAIL test-new: getting-started must document the scaffold pin ~> 2.0"
   exit 1
 end
 if readme.include?("once 1.1 is on RubyGems")
@@ -51,8 +51,8 @@ scaffold = ROOT.join("lib/pandorga/commands/new.rb").read
     exit 1
   end
 end
-unless deploy.include?('~> 1.3') && deploy.include?(%(tag: "v#{version}"))
-  warn "FAIL test-new: deploy doc must pin ~> 1.3 and tag v#{version}"
+unless deploy.include?('~> 2.0') && deploy.include?(%(tag: "v#{version}"))
+  warn "FAIL test-new: deploy doc must pin ~> 2.0 and tag v#{version}"
   exit 1
 end
 unless deploy.include?("content/*") && deploy.include?("docs/*") && deploy.include?("Gemfile.lock")
@@ -108,8 +108,8 @@ end
 end
 
 gemfile = DEST.join("Gemfile").read
-unless gemfile.include?('gem "pandorga", "~> 1.3"')
-  warn "FAIL test-new: Gemfile must pin pandorga ~> 1.3\n#{gemfile}"
+unless gemfile.include?('gem "pandorga", "~> 2.0"')
+  warn "FAIL test-new: Gemfile must pin pandorga ~> 2.0\n#{gemfile}"
   exit 1
 end
 unless gemfile.include?("path:") && gemfile.include?("github:")
