@@ -1,6 +1,20 @@
 ---
 layout: shell
 ---
+{%- comment -%} Section titles from the page headers: absent keeps the default, empty hides it (PLT-AC-50). {%- endcomment -%}
+{%- assign _cv_head = site.data.page_headers[page.key] -%}
+{%- assign _summary_title = "Summary" -%}
+{%- if _cv_head.summary_title != nil -%}{%- assign _summary_title = _cv_head.summary_title | strip -%}{%- endif -%}
+{%- assign _experience_title = "Experience" -%}
+{%- if _cv_head.experience_title != nil -%}{%- assign _experience_title = _cv_head.experience_title | strip -%}{%- endif -%}
+{%- assign _products_title = "Products" -%}
+{%- if _cv_head.products_title != nil -%}{%- assign _products_title = _cv_head.products_title | strip -%}{%- endif -%}
+{%- assign _education_title = "Education" -%}
+{%- if _cv_head.education_title != nil -%}{%- assign _education_title = _cv_head.education_title | strip -%}{%- endif -%}
+{%- assign _languages_title = "Languages" -%}
+{%- if _cv_head.languages_title != nil -%}{%- assign _languages_title = _cv_head.languages_title | strip -%}{%- endif -%}
+{%- assign _contact_label = "Contact" -%}
+{%- if _cv_head.contact_label != nil -%}{%- assign _contact_label = _cv_head.contact_label | strip -%}{%- endif -%}
 
 <main class="cv-page{% if page.accent and page.accent != 'blue' %} page-accent--{{ page.accent }}{% endif %} max-w-7xl mx-auto px-4 sm:px-8 md:px-16 pt-10 pb-16 min-h-screen">
     <div id="cv-page-header">
@@ -13,7 +27,9 @@ layout: shell
                     standfirst_class="cv-dossier-standfirst font-body hidden" %}
                 <div class="cv-dossier-aside">
                     <div class="cv-contact-cta" id="contact">
-                        <span class="cv-contact-cta-label">Contact</span>
+                        {%- if _contact_label != "" -%}
+                        <span class="cv-contact-cta-label" data-content-header-text="{{ page.key }}.contact_label">{{ _contact_label }}</span>
+                        {%- endif -%}
                         {% include page/professional-connections.html wrapper_class="cv-contacts" %}
                     </div>
                 </div>
@@ -30,7 +46,8 @@ layout: shell
         {% capture cv_summary %}
         <div class="cv-summary font-body" data-content-fragment="cv/summary" data-content-quiet></div>
         {% endcapture %}
-        {% include cv/cv-box.html id="summary" title="Summary" content=cv_summary %}
+        {%- capture _summary_title_key -%}{{ page.key }}.summary_title{%- endcapture -%}
+        {% include cv/cv-box.html id="summary" title=_summary_title text_key=_summary_title_key label="Summary" content=cv_summary %}
 
         {% capture cv_experience %}
         <div id="cv-experience-list" class="cv-entry-stack" data-content-reserve aria-busy="true">
@@ -39,7 +56,8 @@ layout: shell
             <span class="cv-reserve-card" aria-hidden="true"></span>
         </div>
         {% endcapture %}
-        {% include cv/cv-box.html id="experience" title="Experience" content=cv_experience %}
+        {%- capture _experience_title_key -%}{{ page.key }}.experience_title{%- endcapture -%}
+        {% include cv/cv-box.html id="experience" title=_experience_title text_key=_experience_title_key label="Experience" content=cv_experience %}
 
         {% capture cv_products %}
         <div id="cv-products-grid" class="cv-product-grid" data-content-reserve aria-busy="true">
@@ -48,7 +66,8 @@ layout: shell
             <span class="cv-reserve-card" aria-hidden="true"></span>
         </div>
         {% endcapture %}
-        {% include cv/cv-box.html id="products" title="Products" content=cv_products %}
+        {%- capture _products_title_key -%}{{ page.key }}.products_title{%- endcapture -%}
+        {% include cv/cv-box.html id="products" title=_products_title text_key=_products_title_key label="Products" content=cv_products %}
 
         {% capture cv_education %}
         <div id="cv-education-list" class="cv-entry-stack" data-content-reserve aria-busy="true">
@@ -56,7 +75,8 @@ layout: shell
             <span class="cv-reserve-card" aria-hidden="true"></span>
         </div>
         {% endcapture %}
-        {% include cv/cv-box.html id="education" title="Education" content=cv_education %}
+        {%- capture _education_title_key -%}{{ page.key }}.education_title{%- endcapture -%}
+        {% include cv/cv-box.html id="education" title=_education_title text_key=_education_title_key label="Education" content=cv_education %}
 
         {% capture cv_languages %}
         <div id="cv-languages-list" class="cv-language-list" data-content-reserve aria-busy="true">
@@ -64,7 +84,8 @@ layout: shell
             <span class="cv-reserve-card" aria-hidden="true"></span>
         </div>
         {% endcapture %}
-        {% include cv/cv-box.html id="languages" title="Languages" content=cv_languages %}
+        {%- capture _languages_title_key -%}{{ page.key }}.languages_title{%- endcapture -%}
+        {% include cv/cv-box.html id="languages" title=_languages_title text_key=_languages_title_key label="Languages" content=cv_languages %}
 
         {% include page/timeline-section.html %}
     </div>

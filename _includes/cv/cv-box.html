@@ -4,14 +4,18 @@
   so the shell lives here rather than being retyped five times.
 
   Parameters:
-    title        — section heading (required)
+    title        — section heading; an empty string drops the heading
+    text_key     — page headers key.field the runtime fills, e.g. "cv.summary_title"
+    label        — default heading, the section's accessible name when title is empty
     content      — pre-captured section body (required)
     id           — anchor id, e.g. "products" for the product back-link
     body_class   — extra classes on the entry column
 {%- endcomment -%}
-<section class="cv-register"{% if include.id %} id="{{ include.id }}"{% endif %}>
+<section class="cv-register"{% if include.id %} id="{{ include.id }}"{% endif %} data-content-header-name{% if include.title == "" %} aria-label="{{ include.label }}"{% endif %}>
   <div class="cv-register-rail">
-    <h2 class="section-title cv-register-title">{{ include.title }}</h2>
+    {%- if include.title != "" -%}
+    <h2 class="section-title cv-register-title"{% if include.text_key %} data-content-header-text="{{ include.text_key }}"{% endif %}>{{ include.title }}</h2>
+    {%- endif -%}
     <span class="cv-register-rule" aria-hidden="true"></span>
   </div>
   <div class="cv-register-body{% if include.body_class %} {{ include.body_class }}{% endif %}">{{ include.content }}</div>

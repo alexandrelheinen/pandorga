@@ -2,10 +2,15 @@
 
   <!-- Timeline. The applet owns its own left rail of controls, so it runs as
        a full-width band rather than inside the register's title rail. -->
-  <section class="cv-band" id="timeline-section">
-    <div class="cv-band-head">
-      <h2 class="section-title">Timeline</h2>
+  {%- assign _timeline_head = site.data.page_headers[page.key] -%}
+  {%- assign _timeline_title = "Timeline" -%}
+  {%- if _timeline_head.timeline_title != nil -%}{%- assign _timeline_title = _timeline_head.timeline_title | strip -%}{%- endif -%}
+  <section class="cv-band" id="timeline-section" data-content-header-name{% if _timeline_title == "" %} aria-label="Timeline"{% endif %}>
+    {%- if _timeline_title != "" -%}
+    <div class="cv-band-head" data-content-header-wrap>
+      <h2 class="section-title" data-content-header-text="{{ page.key }}.timeline_title">{{ _timeline_title }}</h2>
     </div>
+    {%- endif -%}
 
     <div class="cv-timeline-grid">
       <div class="cv-timeline-rail">
