@@ -13,11 +13,13 @@ is `Pandorga::VERSION` (`lib/pandorga/version.rb`).
 
 Read [CHANGELOG.md](../CHANGELOG.md) before you bump.
 
-## 16:9 home hero (breaking, next major)
+## 16:9 home hero (2.0.0, breaking)
 
 The home hero plate is 16:9 at every width (`PLT-AC-51`). A site upgrading
 from 1.x changes:
 
+- **Gemfile.** Pin `gem "pandorga", "~> 2.0"`; `~> 1.3` never resolves
+  2.0.0. Then run `bundle update pandorga`.
 - **Photographs.** Every file in `content/media/images/hero/` should be a
   16:9 original (1920 px wide covers the 1440 variant). A 3:4 file is
   center-cropped to 16:9.
@@ -298,10 +300,10 @@ Consumer sites should pin a release tag, not `main`:
 
 ```ruby
 # Gemfile — RubyGems (preferred once published)
-gem "pandorga", "~> 1.3"
+gem "pandorga", "~> 2.0"
 
 # Or pin a GitHub release tag
-gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v1.14.1"
+gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v2.0.0"
 ```
 
 After a bump, run `bundle update pandorga` and commit `Gemfile.lock`. Host
@@ -323,7 +325,7 @@ for the Pages + object-store order.
 
 ## RubyGems
 
-`pandorga new` pins `gem "pandorga", "~> 1.3"`. Publishing is automated: when a
+`pandorga new` pins `gem "pandorga", "~> 2.0"`. Publishing is automated: when a
 GitHub Release is published, [`.github/workflows/publish-gem.yml`](../.github/workflows/publish-gem.yml)
 pushes the gem via [Trusted Publishing](https://guides.rubygems.org/trusted-publishing/)
 (OIDC; no long-lived API key). The release tag must match `Pandorga::VERSION`
@@ -351,7 +353,7 @@ Manual publish (optional, local MFA may apply):
 
 ```bash
 mise exec -- gem build pandorga.gemspec
-mise exec -- gem push pandorga-1.14.1.gem
+mise exec -- gem push pandorga-2.0.0.gem
 ```
 
 ## Android shell (1.2+)
