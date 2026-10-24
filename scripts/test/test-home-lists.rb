@@ -76,6 +76,11 @@ fail!("probe ignores the phone viewport") unless probe.include?("name: 'mobile'"
 fail!("probe ignores the desktop viewport") unless probe.include?("name: 'desktop'")
 fail!("probe does not pin DevTools to IPv4") unless probe.include?("--remote-debugging-address=127.0.0.1")
 fail!("probe gives Chrome only a few seconds to open DevTools") unless probe.include?("attempt < 200")
+# PLT-AC-26: a Chrome that never opens DevTools (seen on the runner) gets a
+# second launch with a fresh profile and port, not a weaker list check.
+fail!("probe does not relaunch Chrome when DevTools stays closed") unless probe.include?("LAUNCH_ATTEMPTS = 2")
+launch = probe[/async function launchChrome\(.*?\n\}/m].to_s
+fail!("each launch must use a fresh profile and port") unless launch.include?("mkdtemp(") && launch.include?("freePort()")
 
 _out, err, status = Open3.capture3("node", "--check", ROOT.join("scripts/check_home_lists.mjs").to_s)
 fail!("home list probe is not valid JavaScript\n#{err}") unless status.success?
