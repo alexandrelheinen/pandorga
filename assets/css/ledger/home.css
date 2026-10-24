@@ -635,6 +635,28 @@ html[data-theme="light"] .home-hero-plate {
   margin-bottom: var(--space-lg);
 }
 
+@media (max-width: 767px) {
+  /* Stacks image first edge to edge on narrow screens. */
+  .home-featured {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+  }
+
+  .home-featured > .ledger-poster {
+    order: -1;
+    width: 100%;
+    height: auto;
+    margin: 0;
+    aspect-ratio: 16 / 9;
+    border: 0;
+  }
+
+  .home-featured-lead {
+    padding: var(--space-md);
+  }
+}
+
 /* The hover rung, same as `.ledger-card` takes: the panel is one link target
    end to end, so the whole surface answers. */
 .home-featured:hover {
@@ -814,6 +836,18 @@ html[data-theme="light"] .home-hero-plate {
   font-weight: var(--weight-body);
   line-height: var(--home-featured-copy-line);
   color: var(--color-legend);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .home-featured-copy {
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+  }
 }
 
 .home-featured-foot {
@@ -1922,7 +1956,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
   --frame-corner-size: 0.85rem;
 }
 
-@media (max-width: 899px) {
+@media (min-width: 768px) and (max-width: 899px) {
   .home-featured-lead {
     order: 1;
   }
