@@ -255,6 +255,85 @@
       });
     }
 
+    function headerText(headers, key, field, fallback) {
+      if (!headers || typeof headers !== 'object' || Array.isArray(headers)) return fallback;
+      var section = headers[key];
+      if (!section || typeof section !== 'object' || Array.isArray(section)) return fallback;
+      var val = section[field];
+      if (typeof val !== 'string') return fallback;
+      return val.trim();
+    }
+
+    /* An absent field keeps the built default; an empty one removes the element
+     * and its wrapper, keeping the region's accessible name.
+     */
+    function hydrateHeaderTexts(root) {
+      root = root || document;
+      var elements = Array.prototype.slice.call(
+        root.querySelectorAll('[data-content-header-text]')
+      );
+      if (!elements.length) return Promise.resolve();
+      return loadPageHeaders().then(function (headers) {
+        elements.forEach(function (el) {
+          var attr = el.getAttribute('data-content-header-text') || '';
+          var dot = attr.indexOf('.');
+          var key = dot !== -1 ? attr.substring(0, dot) : attr;
+          var field = dot !== -1 ? attr.substring(dot + 1) : '';
+          var text = headerText(headers, key, field, null);
+          if (text === null) return;
+          if (text !== '') {
+            var next = stripSingleParagraph(parseInlineMarkdown(text));
+            if (el.innerHTML.trim() !== next.trim()) el.innerHTML = next;
+          } else {
+            var tag = String(el.tagName || '').toUpperCase();
+            if (tag >= 'H1' && tag <= 'H6' && tag.length === 2) {
+              var nameEl = el.closest('[data-content-header-name]');
+              if (nameEl && !nameEl.hasAttribute('aria-label') && !nameEl.hasAttribute('aria-labelledby')) {
+                nameEl.setAttribute('aria-label', el.textContent.trim());
+              }
+            }
+            var target = el.closest('[data-content-header-wrap]') || el;
+            var parent = target.parentElement;
+            target.remove();
+            if (parent && parent.hasAttribute('data-content-header-group') && parent.childElementCount === 0) {
+              parent.remove();
+            }
+          }
+        });
+      }).catch(function (error) {
+        console.error(error);
+      });
+    }
+
+    function hydratePanelNotes(root) {
+      root = root || document;
+      var elements = Array.prototype.slice.call(
+        root.querySelectorAll('[data-content-panel-note]')
+      );
+      if (!elements.length) return Promise.resolve();
+      return loadPageHeaders().then(function (headers) {
+        elements.forEach(function (el) {
+          var key = el.getAttribute('data-content-panel-note') || '';
+          var text = headerText(headers, key, 'note', '');
+          if (text) {
+            var next = stripSingleParagraph(parseInlineMarkdown(text));
+            if (el.innerHTML.trim() !== next.trim()) el.innerHTML = next;
+            el.hidden = false;
+            el.classList.remove('hidden');
+          } else {
+            el.remove();
+          }
+        });
+      }).catch(function (error) {
+        console.error(error);
+        elements.forEach(function (el) {
+          if (!el.textContent.trim()) {
+            el.remove();
+          }
+        });
+      });
+    }
+
     function hydratePageHeader(root) {
       if (!root) return Promise.resolve();
       var pageKey = root.getAttribute('data-content-page-header');
@@ -795,6 +874,8 @@
       });
       chain.then(function () {
         hydrateHomeSections();
+        hydrateHeaderTexts(document);
+        hydratePanelNotes(document);
         hydrateBandArt();
         hydrateContacts();
       });
