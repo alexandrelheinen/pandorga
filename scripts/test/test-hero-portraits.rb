@@ -9,6 +9,8 @@
 # AC-HERO-04 the plate starts with no photograph
 # AC-HERO-05 the runtime draws once per load and fades the file in after it loads
 # AC-HERO-06 / AC-HERO-07 the picker, executed from the runtime source
+# AC-HERO-08 one 16:9 frame at every width (PLT-AC-51): no landscape file,
+#            no picture source, no width switch
 
 require "fileutils"
 require "json"
@@ -105,16 +107,15 @@ hero_imgs.each do |hero_img|
   check!(hero_img.include?('fetchpriority="high"'),
          "the hero image must request fetchpriority high, got #{hero_img.inspect}")
 end
-check!(layout.include?("page.hero_landscape") && layout.include?("site.pandorga.home.hero_landscape"),
-       "narrow hero reads front matter and pandorga.home.hero_landscape")
-check!(layout.include?('media="(max-width: 767px)"') && layout.include?("<picture>"),
-       "a configured landscape file is a picture source for narrow viewports")
-check!(layout.include?("data-hero-landscape"),
-       "the image carries the landscape URL for the runtime")
+check!(hero_imgs.length == 1 && hero_imgs.first.include?('width="1600"') &&
+         hero_imgs.first.include?('height="900"'),
+       "AC-HERO-08: one 1600×900 plate image, got #{hero_imgs.inspect}")
+check!(!layout.include?("hero_landscape") && !layout.include?("data-hero-landscape") &&
+         !layout.include?("<picture") && !layout.include?("<source"),
+       "AC-HERO-08: the layout has no landscape file and no picture source")
 shell = SHELL.read
-check!(shell.include?('rel="preload" as="image"') && shell.include?('fetchpriority="high"') &&
-         shell.include?('media="(max-width: 767px)"') && shell.include?("hero_landscape"),
-       "the shell preloads a configured landscape image on narrow viewports")
+check!(!shell.include?("hero_landscape") && !shell.match?(/rel="preload" as="image"/),
+       "AC-HERO-08: the shell preloads no hero image")
 tailwind_at = shell.index('href="/assets/css/tailwind.css"')
 icons_at = shell.index("window.__pandorgaIconsHref")
 check!(tailwind_at && icons_at && tailwind_at < icons_at,
@@ -136,15 +137,16 @@ hero_crops = home_css.scan(/([^{}]*home-hero[^{}]*)\{([^{}]*)\}/).select do |_se
 end
 check!(hero_crops.empty?,
        "the phone plate must not cover-crop the portrait into 4:3, got #{hero_crops.map(&:first).map(&:strip).inspect}")
-landscape_plate = home_css[/@media \(max-width: 767px\) \{\s*\.home-hero-plate--landscape \{[^}]*\}/m]
-check!(landscape_plate&.include?("aspect-ratio: 16 / 9"),
-       "a landscape plate is 16:9 on a phone, got #{landscape_plate.inspect}")
-landscape_img = home_css[/\.home-hero-plate--landscape img \{[^}]*\}/m]
-check!(landscape_img&.include?("object-fit: contain") && landscape_img.include?("opacity: 0"),
-       "the 16:9 plate stays empty until the chosen file loads, got #{landscape_img.inspect}")
-landscape_shown = home_css[/\.home-hero-plate--landscape img\.is-shown \{[^}]*\}/m]
-check!(landscape_shown&.include?("opacity: 1"),
-       "the chosen 16:9 file paints in the fixed plate, got #{landscape_shown.inspect}")
+portrait_crops = home_css.scan(/([^{}]*home-hero[^{}]*)\{([^{}]*)\}/).select do |_selector, body|
+  body.match?(/aspect-ratio:\s*3\s*\/\s*4/)
+end
+check!(portrait_crops.empty?,
+       "AC-HERO-08: no hero rule keeps the 3:4 frame, got #{portrait_crops.map(&:first).map(&:strip).inspect}")
+base_plate = home_css[/^\.home-hero-plate \{.*?\n\}/m]
+check!(base_plate&.match?(%r{aspect-ratio:\s*16\s*/\s*9}),
+       "AC-HERO-08: the plate is 16:9 at every width, got #{base_plate.inspect}")
+check!(!home_css.include?("home-hero-plate--landscape"),
+       "AC-HERO-08: the landscape plate class is gone")
 
 runtime = RUNTIME.read
 start = runtime.index("function heroPortraitEntries")
@@ -166,11 +168,8 @@ check!(onload && onload.index("applyHeroPortraitSources") && onload.index("img.s
        "srcset must be applied before src so the full file is not the first request")
 check!(body.include?("probe.fetchPriority = 'high'"),
        "the portrait probe must use fetchPriority high")
-check!(body.include?("heroLandscapeEntries") && body.include?("paintNarrowHero") &&
-         body.include?("entry.landscape"),
-       "a narrow viewport draws from entries that carry a landscape URL")
-check!(body.include?("showConfiguredLandscape") && body.include?("data-hero-landscape"),
-       "hero_landscape is the fallback when no entry has a landscape")
+check!(!body.include?("landscape") && !body.include?("matchMedia"),
+       "AC-HERO-08: one draw at every width, with no landscape field and no width switch")
 check!(runtime.include?("hydrateHeroPortrait();"),
        "hydratePageFragments must draw the plate before the later fragment chain")
 plate_call = runtime.index("function hydratePageFragments")
@@ -207,6 +206,8 @@ Dir.mktmpdir("hero-portraits") do |dir|
   payload = JSON.parse(exported.read)
   expected = HeroPortraits.entries(ROOT.join("content"))
   check!(payload == expected, "the exported list must be the hero folder, got #{payload.inspect}")
+  check!(payload.none? { |entry| entry.key?("landscape") },
+         "AC-HERO-08: the export writes no landscape field")
   srcs = payload.map { |entry| entry["src"] }
   check!(srcs == pool_names.map { |name| "/media/images/hero/#{name}" },
          "the export must name the four photographs, got #{srcs.inspect}")

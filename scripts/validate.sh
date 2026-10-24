@@ -71,6 +71,7 @@ TESTS=(
   scripts/test/test-css-delivery.rb
   scripts/test/test-discovery.rb
   scripts/test/test-hero-portraits.rb
+  scripts/test/test-hero-16x9.rb
   scripts/test/test-thumbnail-variants.rb
   scripts/test/test-highlighter-pills.rb
   scripts/test/test-timeline-pan.rb
