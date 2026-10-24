@@ -96,6 +96,12 @@ layout: shell
       runtime.slugFromDetailPattern(window.location.pathname, detailPattern);
     var selectedTag = (params.get('tag') || '').trim();
 
+    /* Section banner texts come from the page headers; a failed fetch keeps
+       the defaults (PLT-AC-50). */
+    var PAGE_KEY = {{ page.key | default: "projects" | jsonify }};
+    var headers = {};
+    var headersReady = runtime.loadPageHeaders().then(function (h) { headers = h || {}; }).catch(function () {});
+
     function entryUrl(slug) {
       return runtime.detailUrl(detailPattern, slug);
     }
@@ -311,8 +317,11 @@ layout: shell
         reposRoot.innerHTML = '';
         return;
       }
-      var html = '<section class="projects-repos">';
-      html += runtime.renderSectionBanner({ kicker: 'Open source', title: 'Repositories' });
+      var reposKicker = runtime.headerText(headers, PAGE_KEY, 'repositories_kicker', 'Open source');
+      var reposTitle = runtime.headerText(headers, PAGE_KEY, 'repositories_title', 'Repositories');
+      /* Without its banner the list keeps its name for assistive tech. */
+      var html = reposTitle ? '<section class="projects-repos">' : '<section class="projects-repos" aria-label="Repositories">';
+      html += runtime.renderSectionBanner({ kicker: reposKicker, title: reposTitle });
       html += '<div class="projects-repo-list">';
       rows.forEach(function (item) {
         var fm = item.front_matter || {};
@@ -392,10 +401,9 @@ layout: shell
         var featured = runtime.pickFeatured(ordered, FEATURED_PICK) || visible[0];
         renderLead(featured);
         rest = visible.filter(function (item) { return item.slug !== featured.slug; });
-        bannerRoot.innerHTML = runtime.renderSectionBanner({
-          kicker: 'Index',
-          title: 'Other projects'
-        });
+        var othersKicker = runtime.headerText(headers, PAGE_KEY, 'others_kicker', 'Index');
+        var othersTitle = runtime.headerText(headers, PAGE_KEY, 'others_title', 'Other projects');
+        bannerRoot.innerHTML = runtime.renderSectionBanner({ kicker: othersKicker, title: othersTitle });
       }
 
       rest.forEach(function (item) { grid.appendChild(renderCard(item)); });
@@ -520,7 +528,9 @@ layout: shell
 
     function loadListing() {
       showListing();
-      runtime.loadWritingIndex(collection).then(renderListing).catch(function (error) {
+      Promise.all([runtime.loadWritingIndex(collection), headersReady]).then(function (results) {
+        renderListing(results[0]);
+      }).catch(function (error) {
         console.error(error);
         state.textContent = 'Projects could not be loaded right now.';
         state.classList.remove('hidden');
