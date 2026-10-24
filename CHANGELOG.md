@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Section texts are editable in Studio from `content/pages/headers.yml`: a projects page form (title, kicker, note, home link label and the two projects page banners), a `cta` link label for every page on the home, a `note` for Sources and Network, and the CV section titles, timeline title and Contact label. The Sources, Network and Bibliography home panels show each page's headers title and, under it, its `note`. A field left out keeps the theme default; a field saved empty renders nothing and a hidden heading keeps its default as the region's accessible name. Studio saves an emptied field as `""` (`keep_empty`), and the runtime fills these texts from `pages/headers.json` for content-agnostic shells (PLT-AC-50).
+
 ### Changed
 
 - Every page sits on one canvas (`--color-canvas`, from `neutrals.canvas`, else `panel_contrast`) with square 1px hairline cards on the card surface and a 2px accent rule on featured cards. Home bands set the title and "View all" on one row with the note below; band titles, card titles, excerpts and metadata step down below 768px, metadata uses the mono face, and excerpts clamp to 3 lines on phones and 4 from 768px (PLT-AC-49).
