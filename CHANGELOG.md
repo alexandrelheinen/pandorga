@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [2.0.2] — 2026-10-25
+
 ### Added
 
 - The home hero summary has its own file, `content/pages/home/summary.md`, editable in Studio as "Hero summary" under Presentation, so the site presentation and the CV page summary can differ. Without the file the hero keeps showing `content/pages/cv/summary.md`; saved empty, the hero shows no summary. The Studio CV summary entry for the public page is now labelled "CV page" (PLT-AC-54).
