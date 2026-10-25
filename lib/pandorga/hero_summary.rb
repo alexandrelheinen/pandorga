@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
-# Home hero summary from content/pages/cv/summary.md.
+# Home hero summary from content/pages/home/summary.md, falling back to
+# content/pages/cv/summary.md when the hero file is absent (PLT-AC-54).
 # That paragraph is the LCP element. Leaving it empty until JSON arrives
 # makes most of LCP render delay, and a guessed empty box shifts the
 # call to action when the real text replaces it.
 # Refs: PLT-AC-23
 module Pandorga
   module HeroSummary
+    HOME_RELATIVE = "content/pages/home/summary.md"
     RELATIVE = "content/pages/cv/summary.md"
     FALLBACK = '<div id="home-cv-summary" class="home-hero-summary font-body" ' \
                'data-content-fragment="cv/summary" data-content-quiet></div>'
@@ -14,11 +16,24 @@ module Pandorga
     module_function
 
     def markdown(source_root)
+      home = read_body(source_root, HOME_RELATIVE)
+      return home unless home.nil?
+
+      read_body(source_root, RELATIVE).to_s
+    end
+
+    # A hero file saved with a blank body hides the hero summary.
+    def hidden?(source_root)
+      read_body(source_root, HOME_RELATIVE) == ""
+    end
+
+    # The stripped body of a content file, or nil when it is absent.
+    def read_body(source_root, relative)
       root = File.expand_path(source_root.to_s)
-      path = File.expand_path(RELATIVE, root)
+      path = File.expand_path(relative, root)
       prefix = root.end_with?(File::SEPARATOR) ? root : root + File::SEPARATOR
-      return "" unless path.start_with?(prefix)
-      return "" unless File.file?(path)
+      return nil unless path.start_with?(prefix)
+      return nil unless File.file?(path)
 
       strip_front_matter(File.read(path, encoding: "UTF-8")).strip
     end

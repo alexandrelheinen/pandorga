@@ -823,7 +823,7 @@ content:
     type: group
     items:
       - name: cv_summary_public
-        label: Public
+        label: CV page
         type: file
         path: content/pages/cv/summary.md
         format: raw
@@ -858,6 +858,16 @@ content:
         type: file
         path: content/pages/home/subtitle.md
         format: raw
+        fields:
+          - name: body
+            component: markdown_body
+
+      - name: home_summary
+        label: Hero summary
+        type: file
+        path: content/pages/home/summary.md
+        format: raw
+        description: "Home hero paragraph. Without this file the hero shows the CV page summary; saved empty, the hero shows none."
         fields:
           - name: body
             component: markdown_body
