@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- The object-store publish syncs `collections/`, `data/`, `pages/` and `media/` as parallel jobs, prints each job's log in a fixed order, and uploads `manifest.json` last, only after every job succeeded. Upload, delete and verification semantics are unchanged (PLT-AC-53).
+
 ## [2.0.1] — 2026-10-24
 
 ### Fixed

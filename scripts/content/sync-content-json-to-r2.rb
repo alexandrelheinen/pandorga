@@ -39,7 +39,7 @@ endpoint = ENV["R2_ENDPOINT"].to_s
 bucket = ENV["R2_BUCKET"].to_s
 fail!("R2_ENDPOINT is required") if endpoint.empty?
 fail!("R2_BUCKET is required") if bucket.empty?
-fail!("aws CLI is required") if Open3.capture3("bash", "-lc", "command -v aws").last.exitstatus != 0
+fail!("aws CLI is required") if Open3.capture3("bash", "-c", "command -v aws").last.exitstatus != 0
 
 SRC = EXPORT_ROOT.join(PREFIX)
 fail!("Missing local prefix directory: #{SRC}") unless SRC.directory?

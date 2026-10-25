@@ -78,6 +78,7 @@ TESTS=(
   scripts/test/test-v3-layout.rb
   scripts/test/test-studio-section-texts.rb
   scripts/test/test-home-article-cards.rb
+  scripts/test/test-parallel-content-publish.rb
 )
 
 failed=0
