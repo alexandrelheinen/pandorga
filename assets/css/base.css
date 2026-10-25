@@ -527,11 +527,11 @@ html[data-theme="dark"] {
   --color-link-hover: color-mix(in srgb, var(--color-tertiary) 72%, var(--color-on-surface));
 }
 
-/* Card / row / collection entry titles — content-title voice (Regular 400). */
+/* Card / row / collection entry titles — content-title voice (Regular 400).
+   Listing rows and source cards also carry .card-title, so they get the voice
+   here and their size from the listing entry rule below. */
 .card-title,
-.ledger-card-title,
-.ledger-row-title,
-.source-card-title {
+.ledger-card-title {
   font-family: var(--font-content-title);
   font-size: var(--type-card);
   font-weight: var(--weight-title);
@@ -552,6 +552,17 @@ html[data-theme="dark"] {
     font-size: var(--type-card-sm);
     line-height: 1.25;
   }
+}
+
+/* Listing entry titles (PLT-AC-55). The Articles and Rascunhos rows and the
+   Sources and Bibliography cards set their entry title at the Rascunhos step
+   at every width. This rule follows the small-screen step above on purpose,
+   so it holds below 768px too. */
+.ledger-row-title,
+.source-card-title,
+.bib-card-title {
+  font-size: var(--type-card-lg);
+  line-height: 1.25;
 }
 
 /* Label-face meta on CV identity lines, etc. */
