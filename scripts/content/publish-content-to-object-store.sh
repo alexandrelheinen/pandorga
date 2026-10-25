@@ -58,36 +58,71 @@ run_ruby() {
 
 sync_json_prefix() {
   local prefix="$1"
-  local src="$EXPORT_ROOT/$prefix"
-  if [ -d "$src" ]; then
-    echo "==> Object store replace sync $prefix/"
-    run_ruby "$ROOT/scripts/content/sync-content-json-to-r2.rb" "$EXPORT_ROOT" "$prefix"
-  fi
+  echo "==> Object store replace sync $prefix/"
+  run_ruby "$ROOT/scripts/content/sync-content-json-to-r2.rb" "$EXPORT_ROOT" "$prefix"
 }
 
-echo "==> Publishing content JSON to bucket: ${S3_BUCKET}"
-echo "==> Endpoint: ${S3_ENDPOINT}"
-echo "==> Site root: ${SITE_ROOT}"
-sync_json_prefix collections
-sync_json_prefix data
-sync_json_prefix pages
-
-echo "==> Upload manifest.json"
-aws s3 cp "$EXPORT_ROOT/manifest.json" "s3://${S3_BUCKET}/manifest.json" \
-  --endpoint-url "$S3_ENDPOINT" \
-  --cache-control "public,max-age=60" \
-  --content-type "application/json"
-
 MEDIA_ROOT="$SITE_ROOT/content/media"
-if [ -d "$MEDIA_ROOT" ]; then
+
+sync_media() {
   echo "==> Sync media/ from ${MEDIA_ROOT}"
   aws s3 sync "$MEDIA_ROOT" "s3://${S3_BUCKET}/media" \
     --endpoint-url "$S3_ENDPOINT" \
     --delete \
     --size-only \
     --cache-control "public,max-age=31536000,immutable"
+}
+
+echo "==> Publishing content JSON to bucket: ${S3_BUCKET}"
+echo "==> Endpoint: ${S3_ENDPOINT}"
+echo "==> Site root: ${SITE_ROOT}"
+
+# The prefixes are disjoint, so their syncs run as parallel jobs (PLT-AC-53).
+# Each job logs to its own file; the logs print in a fixed order afterwards.
+JOB_LOGS="$(mktemp -d)"
+trap 'rm -rf "$JOB_LOGS"' EXIT
+JOB_NAMES=()
+JOB_PIDS=()
+
+start_job() {
+  local name="$1"
+  shift
+  ( "$@" ) > "$JOB_LOGS/$name.log" 2>&1 &
+  JOB_NAMES+=("$name")
+  JOB_PIDS+=("$!")
+}
+
+for prefix in collections data pages; do
+  if [ -d "$EXPORT_ROOT/$prefix" ]; then
+    start_job "$prefix" sync_json_prefix "$prefix"
+  fi
+done
+
+if [ -d "$MEDIA_ROOT" ]; then
+  start_job media sync_media
 else
   echo "==> No content/media at ${MEDIA_ROOT} (skipping media sync)"
 fi
+
+FAILED=()
+for i in "${!JOB_PIDS[@]}"; do
+  if ! wait "${JOB_PIDS[$i]}"; then
+    FAILED+=("${JOB_NAMES[$i]}")
+  fi
+  cat "$JOB_LOGS/${JOB_NAMES[$i]}.log"
+done
+
+if [ "${#FAILED[@]}" -gt 0 ]; then
+  echo "error: object-store sync failed for: ${FAILED[*]}; manifest.json not uploaded." >&2
+  exit 1
+fi
+
+# Readers start from the manifest, so it goes up only after every object it
+# can lead to is in place.
+echo "==> Upload manifest.json"
+aws s3 cp "$EXPORT_ROOT/manifest.json" "s3://${S3_BUCKET}/manifest.json" \
+  --endpoint-url "$S3_ENDPOINT" \
+  --cache-control "public,max-age=60" \
+  --content-type "application/json"
 
 echo "==> Object-store publish complete"
