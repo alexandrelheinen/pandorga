@@ -204,13 +204,6 @@
   text-transform: uppercase;
 }
 
-/* Entry titles — a step above the shared ledger-row scale so the notebook
-   line reads as a title, not a caption. */
-.rascunhos-row .ledger-row-title {
-  font-size: var(--type-card-lg);
-  line-height: 1.25;
-}
-
 /* ══ Ledger entry ══
    Ruled paper, not a stack of cards: the shared row's card fill and padding
    come off, and what separates two entries is the hairline under each one.

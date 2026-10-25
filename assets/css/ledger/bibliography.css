@@ -138,8 +138,6 @@
 
 .bib-card-title {
   margin: 0;
-  font-size: var(--type-card);
-  line-height: 1.25;
   color: var(--color-on-surface);
   overflow-wrap: anywhere;
 }

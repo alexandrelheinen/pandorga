@@ -762,7 +762,7 @@ those tokens — no one-off rem sizes for roles that already have a step.
 | Page H1 | Cinzel Decorative | 400 | `--type-page` / `-lg` |
 | Section | Cinzel Decorative | 400 | `--type-section` / `-lg` |
 | Detail title | Newsreader | 600 | `--type-title` / `-lg` |
-| Card / row title | Newsreader | 600 | `--type-card` / `-lg` |
+| Card / row title | Newsreader | 600 | `--type-card` / `-lg`; listing entry titles always `-lg` (PLT-AC-55) |
 | Prose | Newsreader | 300 | `--type-prose` |
 | UI body | Newsreader | 300 | `--type-body` |
 | Detail standfirst | Newsreader | 300 | `--type-subtitle` (= body − 1pt) |

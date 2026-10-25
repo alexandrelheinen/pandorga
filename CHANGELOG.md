@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Entry titles on the Articles, Sources and Bibliography pages use the Rascunhos size at every width. The Articles rows and Sources cards were a step smaller and shrank again below 768px, and the Bibliography cards were a step smaller (PLT-AC-55).
+
 ## [2.0.2] — 2026-10-25
 
 ### Added
