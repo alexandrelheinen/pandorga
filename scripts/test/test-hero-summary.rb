@@ -33,6 +33,47 @@ Dir.mktmpdir("hero-summary") do |dir|
   fail!("front matter leaked: #{mattered.inspect}") unless mattered == "After the matter."
 end
 
+# PLT-AC-54: the hero has its own file; absent falls back, blank hides.
+Dir.mktmpdir("hero-summary-field") do |dir|
+  cv = File.join(dir, "content/pages/cv")
+  home = File.join(dir, "content/pages/home")
+  FileUtils.mkdir_p([cv, home])
+  File.write(File.join(cv, "summary.md"), "Professional summary.\n")
+
+  fail!("absent hero file must fall back to the CV summary") unless Pandorga::HeroSummary.markdown(dir) == "Professional summary."
+  fail!("absent hero file must not hide the hero summary") if Pandorga::HeroSummary.hidden?(dir)
+
+  File.write(File.join(home, "summary.md"), "What the site holds.\n")
+  own = Pandorga::HeroSummary.markdown(dir)
+  fail!("hero file must win over the CV summary, got #{own.inspect}") unless own == "What the site holds."
+  fail!("a hero file with text must not hide") if Pandorga::HeroSummary.hidden?(dir)
+
+  File.write(File.join(home, "summary.md"), "---\ntitle: Hero\n---\n  \n")
+  fail!("a blank hero file must hide the hero summary") unless Pandorga::HeroSummary.hidden?(dir)
+  fail!("a blank hero file must not fall back to the CV summary") unless Pandorga::HeroSummary.markdown(dir) == ""
+
+  FileUtils.rm_rf(cv)
+  FileUtils.rm_f(File.join(home, "summary.md"))
+  fail!("with neither file the hero must stay a fragment, not hide") if Pandorga::HeroSummary.hidden?(dir)
+end
+
+tag = ROOT.join("lib/pandorga/jekyll/plugins/hero_summary.rb").read
+fail!("hero tag ignores a blank hero file") unless tag.include?("HeroSummary.hidden?")
+
+cv_layout = ROOT.join("_layouts/cv.html").read
+fail!("CV page Summary must keep the cv/summary fragment") unless cv_layout.include?('data-content-fragment="cv/summary"')
+fail!("CV page must not read the hero file") if cv_layout.include?("home/summary")
+
+schema = ROOT.join("studio/schema.yml").read
+hero_entry = schema[/- name: home_summary\n(?:        .*\n)+/]
+fail!("Studio has no Hero summary entry") unless hero_entry
+fail!("Studio Hero summary label") unless hero_entry.include?("label: Hero summary")
+fail!("Studio Hero summary path") unless hero_entry.include?("path: content/pages/home/summary.md")
+fail!("Studio Hero summary is not a markdown body") unless hero_entry.include?("component: markdown_body")
+presentation = schema[/- name: presentation\n.*?(?=\n  - name: )/m]
+fail!("Hero summary is not in the Presentation group") unless presentation&.include?("- name: home_summary")
+fail!("Studio public CV entry is not labelled CV page") unless schema.match?(/- name: cv_summary_public\n\s+label: CV page\n/)
+
 fallback = Pandorga::HeroSummary.element("")
 fail!("missing summary must stay a quiet fragment") unless fallback.include?('data-content-fragment="cv/summary" data-content-quiet')
 fail!("missing summary must not claim to be static") if fallback.include?("data-content-static")

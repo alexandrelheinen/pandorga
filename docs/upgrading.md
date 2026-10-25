@@ -13,6 +13,15 @@ is `Pandorga::VERSION` (`lib/pandorga/version.rb`).
 
 Read [CHANGELOG.md](../CHANGELOG.md) before you bump.
 
+## Hero summary file (2.0.2)
+
+No `pandorga:` keys were added. The home hero reads
+`content/pages/home/summary.md` when it exists, and the CV page keeps
+`content/pages/cv/summary.md`. To split them, copy the current text of
+`cv/summary.md` into `home/summary.md`; the hero does not change, and
+`cv/summary.md` is then free for the CV page alone. Without the new file the
+hero keeps reading `cv/summary.md`. Saved empty, the hero shows no summary.
+
 ## 16:9 home hero (2.0.0, breaking)
 
 The home hero plate is 16:9 at every width (`PLT-AC-51`). A site upgrading
