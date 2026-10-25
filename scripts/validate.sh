@@ -62,6 +62,7 @@ TESTS=(
   scripts/test/test-theme-contrast.rb
   scripts/test/test-hydrate-reserve.rb
   scripts/test/test-hero-summary.rb
+  scripts/test/test-listing-entry-titles.rb
   scripts/test/test-lighthouse-policy.rb
   scripts/test/test-home-lists.rb
   scripts/test/test-home-articles.rb
