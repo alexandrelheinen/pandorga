@@ -104,3 +104,7 @@ fail!("spec is missing PLT-AC-30") unless spec.include?("PLT-AC-30")
 fail!("configuration reference omits pandorga.fonts") unless ROOT.join("docs/configuration.md").read.include?("pandorga.fonts")
 
 puts "PASS test-fonts"
+
+theme_vars = File.read(File.expand_path("../../_includes/theme/theme-vars.html", __dir__))
+fail!("theme-vars.html missing mobile --weight-body rebind (PLT-AC-57 cascade)") unless theme_vars.match?(/@media\s*\(max-width:\s*767px\)[\s\S]*--weight-body:\s*var\(--weight-body-mobile/)
+

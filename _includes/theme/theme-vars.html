@@ -13,4 +13,13 @@
       --motion-duration-slow: 0s;
     }
   }
+
+  /* After theme-vars-block sets --weight-body (desktop), rebind on small
+     viewports. Must live in this style tag: an earlier base.css media
+     query loses to the block's later --weight-body declaration (PLT-AC-57). */
+  @media (max-width: 767px) {
+    :root, [data-theme] {
+      --weight-body: var(--weight-body-mobile, 350);
+    }
+  }
 </style>
