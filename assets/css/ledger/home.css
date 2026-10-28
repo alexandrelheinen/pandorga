@@ -220,6 +220,12 @@
   line-height: var(--leading-body);
 }
 
+@media (min-width: 768px) {
+  .home-hero-summary {
+    max-width: 65ch;
+  }
+}
+
 /* No empty min-height. A guessed line count shifts the call to action
    when the summary is shorter or taller than the reserve. The paragraph
    is in the HTML when content/pages/home/summary.md or
@@ -415,7 +421,7 @@ html[data-theme="light"] .home-hero-plate {
    The banner is a 2-column grid so the lead's children join the template. */
 .home-band:not(.home-band--hero) .ledger-section-banner {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: auto auto 1fr;
   column-gap: var(--space-md);
   row-gap: var(--space-xs);
   align-items: baseline;

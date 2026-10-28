@@ -694,7 +694,8 @@ aside:has(> .text-detail-sidebar) {
 
   .text-detail-sidebar .article-toc--disclosure,
   .projects-dossier .article-toc--disclosure {
-    margin-top: var(--space-sm);
+    margin-top: var(--space-xs);
+    margin-bottom: var(--space-xs);
   }
 }
 
@@ -1184,7 +1185,7 @@ nav.text-page-nav:not(:has(a)) {
   }
 
   .grid.text-detail-grid {
-    gap: var(--space-md);
+    gap: var(--space-xs);
   }
 
   /* The reading column used to add its own top margin on top of this gap,
@@ -1232,12 +1233,32 @@ nav.text-page-nav:not(:has(a)) {
     padding-bottom: var(--space-md);
   }
 
-  /* The date row's own top rule leaves --space-sm above the text. The
-     flex gap was stacking another --space-md on the action rule, so the
-     date sat high in that band. Drop the gap and the action margin is the
-     matching --space-sm under the text. */
+  /* On mobile, date row and action buttons share one compact horizontal band. */
   .text-detail-sidebar .article-meta {
-    gap: 0;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-xs) var(--space-sm);
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .text-detail-sidebar .article-meta > div {
+    margin: 0;
+    padding: 0;
+  }
+
+  .text-detail-sidebar .article-meta .date-evolution > span {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .text-detail-sidebar .article-meta .detail-actions {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
   }
 
   .text-detail-sidebar .article-sidebar-description,

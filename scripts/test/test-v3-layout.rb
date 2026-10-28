@@ -290,7 +290,7 @@ end
 item(5) do
   h = "ledger/home.css"
   expect(h, ".home-band:not(.home-band--hero) .ledger-section-banner", {
-    "display" => "grid", "grid-template-columns" => "minmax(0, 1fr) auto"
+    "display" => "grid", "grid-template-columns" => "auto auto 1fr"
   })
   expect(h, ".home-band .ledger-section-lead", { "display" => "contents" })
   expect(h, ".home-band .ledger-section-banner .ledger-kicker", { "grid-column" => "1 / -1", "grid-row" => "1" })

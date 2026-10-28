@@ -35,6 +35,18 @@
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border-gentle-divider);
+  transition: transform var(--motion-duration-fast) var(--motion-ease-default);
+}
+
+@media (max-width: 767px) {
+  .site-topbar > div {
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
+  }
+
+  .site-topbar.topbar--hidden {
+    transform: translateY(-100%);
+  }
 }
 
 /* Boxed controls for theme and mobile menu toggles. */
