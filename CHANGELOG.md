@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [2.0.4] — 2026-10-28
+
+### Fixed
+
+- Mobile article top compresses dates and action buttons into one band and closes the gap before the reading column.
+- Mobile top bar is shorter and hides on scroll-down (shows on scroll-up, focus, or Explore open).
+- Home hero summary uses a ~65ch measure on desktop.
+- Home section "View all" sits beside the section title instead of at the far right of the band.
+
 ## [2.0.3] — 2026-10-25
 
 ### Fixed
