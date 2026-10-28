@@ -287,11 +287,13 @@
       var wrap = document.getElementById('site-menu');
       var btn = document.getElementById('mobile-menu-btn');
       var menu = document.getElementById('mobile-menu');
+      var topbar = document.querySelector('.site-topbar');
       if (!wrap || !btn || !menu) return;
 
       function setOpen(open) {
         menu.classList.toggle('hidden', !open);
         btn.setAttribute('aria-expanded', String(open));
+        if (open && topbar) topbar.classList.remove('topbar--hidden');
       }
 
       btn.addEventListener('click', function (event) {
@@ -303,6 +305,29 @@
       });
       document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape') setOpen(false);
+      });
+
+      if (!topbar) return;
+      var lastY = window.scrollY || 0;
+      var threshold = 8;
+
+      function onScroll() {
+        var y = window.scrollY || 0;
+        var diff = y - lastY;
+
+        if (y <= 32 || !menu.classList.contains('hidden')) {
+          topbar.classList.remove('topbar--hidden');
+        } else if (diff > threshold) {
+          topbar.classList.add('topbar--hidden');
+        } else if (diff < -threshold) {
+          topbar.classList.remove('topbar--hidden');
+        }
+        lastY = y;
+      }
+
+      window.addEventListener('scroll', onScroll, { passive: true });
+      topbar.addEventListener('focusin', function () {
+        topbar.classList.remove('topbar--hidden');
       });
     })();
   </script>
