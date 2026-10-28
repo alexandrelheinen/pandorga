@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.1.1] — 2026-10-28
+
+### Fixed
+
+- Mobile body weight (`body_weight_mobile` / `--weight-body-mobile`) now wins on viewports under 768px. The rebind lives in `theme-vars.html` after the theme token block so it is not overridden by the desktop `--weight-body` declaration (PLT-AC-57).
+
 ## [2.1.0] — 2026-10-28
 
 ### Added

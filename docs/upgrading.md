@@ -13,6 +13,12 @@ is `Pandorga::VERSION` (`lib/pandorga/version.rb`).
 
 Read [CHANGELOG.md](../CHANGELOG.md) before you bump.
 
+## Mobile body weight cascade (2.1.1)
+
+Bug fix only. `--weight-body` on viewports under 768px now reads
+`pandorga.fonts.body_weight_mobile` because the rebind sits in
+`theme-vars.html` after the palette token block. No config change.
+
 ## Four-family typography & Projects sidebar (2.1.0)
 
 Pandorga 2.1.0 updates theme defaults and layout features:
