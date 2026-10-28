@@ -224,7 +224,7 @@ item(6) do
   title = ".home-ledger .home-hero-title"
   expect_decl(title, "white-space", "normal", media: DESKTOP)
   expect_decl(title, "font-size",
-              "min(calc(100cqi / var(--hero-name-fit, 10.81)), var(--hero-name-max, 4.5rem))",
+              "min(calc(100cqi / var(--hero-name-fit, 6.9)), var(--hero-name-max, 4.5rem))",
               media: DESKTOP)
   %w[.home-hero-given .home-hero-family].each do |sel|
     expect_decl(sel, "display", "inline-block", media: DESKTOP)

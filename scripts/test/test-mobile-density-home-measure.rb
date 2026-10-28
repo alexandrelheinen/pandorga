@@ -75,7 +75,7 @@ def parse_css_rules(css_text)
   rules
 end
 
-# 1. Article page top on mobile
+# 1. Article page top on mobile (PLT-AC-71)
 detail_css = strip_comments(File.read(CSS.join("ledger/detail.css")))
 detail_rules = parse_css_rules(detail_css)
 
@@ -83,24 +83,32 @@ meta_mobile_rules = detail_rules.select do |r|
   r[:media] && r[:media].include?("max-width:767px") && r[:sel] == ".text-detail-sidebar .article-meta"
 end
 
-has_row_layout = meta_mobile_rules.any? do |r|
-  r[:decls].any? { |p, v| p == "flex-direction" && v == "row" }
+has_col_layout = meta_mobile_rules.any? do |r|
+  r[:decls].any? { |p, v| p == "flex-direction" && v == "column" }
 end
 
-unless has_row_layout
-  fail!("detail.css must set flex-direction: row on .text-detail-sidebar .article-meta under @media (max-width: 767px)")
+unless has_col_layout
+  fail!("detail.css must set flex-direction: column on .text-detail-sidebar .article-meta under @media (max-width: 767px) (PLT-AC-71)")
 end
 
-has_wrap_layout = meta_mobile_rules.any? do |r|
-  r[:decls].any? { |p, v| p == "flex-wrap" && v == "wrap" }
+actions_mobile_rules = detail_rules.select do |r|
+  r[:media] && r[:media].include?("max-width:767px") && r[:sel].include?("detail-actions")
 end
 
-has_nowrap = meta_mobile_rules.any? do |r|
+has_nowrap_actions = actions_mobile_rules.any? do |r|
   r[:decls].any? { |p, v| p == "flex-wrap" && v == "nowrap" }
 end
 
-unless has_wrap_layout && !has_nowrap
-  fail!("detail.css must set flex-wrap: wrap (and not nowrap) on .text-detail-sidebar .article-meta under @media (max-width: 767px)")
+unless has_nowrap_actions
+  fail!("detail.css must set flex-wrap: nowrap on .detail-actions under @media (max-width: 767px) (PLT-AC-71)")
+end
+
+has_divider_border = meta_mobile_rules.any? do |r|
+  r[:decls].any? { |p, v| (p == "border-top" || p == "border-bottom" || p == "border-block") && v.include?("border") }
+end
+
+unless has_divider_border
+  fail!("detail.css must set divider borders on .text-detail-sidebar .article-meta under @media (max-width: 767px) (PLT-AC-71)")
 end
 
 toc_disclosure_mobile = detail_rules.select do |r|

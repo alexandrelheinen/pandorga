@@ -152,13 +152,13 @@
 }
 
 /* Name spans the copy column (container query on .home-hero-copy). Divisor
-   is calculated for Ancizar Serif at -0.02em tracking (~5.55em phone
+   is calculated for Ancizar Serif at -0.02em tracking (~6.9em phone
    family-line width). From 640px the floor follows `.section-title` up to
    `--type-section-lg`. Wider columns still grow toward `--type-page-lg`. */
 .home-hero-title {
   font-family: var(--font-title);
   font-weight: 400;
-  font-size: clamp(var(--type-section), calc(100cqi * 0.92 / 5.55), var(--type-page-lg));
+  font-size: clamp(var(--type-section), calc(100cqi * 0.92 / 6.9), var(--type-page-lg));
   line-height: 1.05;
   letter-spacing: -0.02em;
   color: var(--color-on-surface);
@@ -187,7 +187,7 @@
 
 @media (min-width: 640px) {
   .home-hero-title {
-    font-size: clamp(var(--type-section-lg), calc(100cqi * 0.92 / 5.55), var(--type-page-lg));
+    font-size: clamp(var(--type-section-lg), calc(100cqi * 0.92 / 6.9), var(--type-page-lg));
   }
 }
 
@@ -196,14 +196,14 @@
 @media (max-width: 639px) {
   .home-hero-title {
     white-space: normal;
-    font-size: calc(clamp(var(--type-section), calc(100cqi * 0.92 / 5.55), var(--type-page-lg)) + 3pt);
+    font-size: calc(clamp(var(--type-section), calc(100cqi * 0.92 / 6.9), var(--type-page-lg)) + 3pt);
   }
 }
 
 @media (min-width: 640px) and (max-width: 767px) {
   .home-hero-title {
     white-space: normal;
-    font-size: calc(clamp(var(--type-section-lg), calc(100cqi * 0.92 / 5.55), var(--type-page-lg)) + 3pt);
+    font-size: calc(clamp(var(--type-section-lg), calc(100cqi * 0.92 / 6.9), var(--type-page-lg)) + 3pt);
   }
 }
 
@@ -212,6 +212,12 @@
   .home-hero-family {
     display: inline-block;
     white-space: nowrap;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .home-hero-title {
+    font-size: clamp(var(--type-section-lg), calc(100cqi * 0.92 / 10.81), var(--type-page-lg));
   }
 }
 
@@ -408,11 +414,11 @@ html[data-theme="light"] .home-hero-plate {
   }
 
   /* --hero-name-fit is the longer name part in em at the title's tracking
-     (Ancizar full-name default ~10.81em); a site with a longer word raises it.
+     (Ancizar stacked-line default ~6.9em); a site with a longer word raises it.
      The selector outranks a site's one-line size written as .home-ledger .home-hero-title. */
   .home-ledger .home-hero-title {
     white-space: normal;
-    font-size: min(calc(100cqi / var(--hero-name-fit, 10.81)), var(--hero-name-max, 4.5rem));
+    font-size: min(calc(100cqi / var(--hero-name-fit, 6.9)), var(--hero-name-max, 4.5rem));
   }
 
   .home-hero-given,
@@ -476,7 +482,7 @@ html[data-theme="light"] .home-hero-plate {
   grid-column: 1;
   grid-row: 2;
   margin: 0;
-  font-size: var(--type-section-sm);
+  font-size: var(--type-section);
 }
 
 .home-band .home-section-aside {
@@ -503,7 +509,7 @@ html[data-theme="light"] .home-hero-plate {
 
 @media (min-width: 768px) {
   .home-band .ledger-section-banner .section-title {
-    font-size: var(--type-section);
+    font-size: var(--type-section-lg);
   }
 
   .home-band .home-section-note {
@@ -1158,20 +1164,20 @@ html[data-theme="light"] .home-hero-plate {
   width: 2.25rem;
   height: 2.25rem;
   margin: var(--space-sm);
-  font-size: 1.25rem;
+  font-size: calc(1.25rem + 2pt);
   background: var(--color-surface-card);
   color: var(--color-primary);
 }
 
 @media (max-width: 899px) {
   .home-specimen-figure:has(> .ledger-poster)>.home-specimen-badge {
-    font-size: 1.375rem;
+    font-size: calc(1.375rem + 2pt);
   }
 
   /* Two classes: the Material Symbols sheet loads after this one and resets
      the glyph size on a single class. */
   .home-project-inventory-row .home-project-inventory-glyph {
-    font-size: 1.375rem;
+    font-size: calc(1.375rem + 2pt);
   }
 
   .home-project-inventory-row .home-project-inventory-glyph--initial {
@@ -1299,7 +1305,7 @@ button.home-project-inventory-row {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
+  font-size: calc(1.25rem + 2pt);
   line-height: 1;
   color: var(--color-on-surface-variant);
 }
@@ -1425,7 +1431,7 @@ button.home-project-inventory-row {
   }
 
   .home-project-inventory-mark .material-symbols-outlined {
-    font-size: 1.75rem;
+    font-size: calc(1.75rem + 2pt);
   }
 
   .home-project-inventory-mark--initial {

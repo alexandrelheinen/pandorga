@@ -81,6 +81,7 @@ TESTS=(
   scripts/test/test-home-article-cards.rb
   scripts/test/test-parallel-content-publish.rb
   scripts/test/test-mobile-density-home-measure.rb
+  scripts/test/test-regression-gate.rb
 )
 
 failed=0
@@ -118,6 +119,11 @@ fi
 
 echo "-- scripts/test/test-timeline-pan.mjs"
 if ! node scripts/test/test-timeline-pan.mjs; then
+  failed=1
+fi
+
+echo "-- scripts/test/test-regression-gate.mjs"
+if ! node scripts/test/test-regression-gate.mjs; then
   failed=1
 fi
 
