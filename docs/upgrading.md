@@ -13,6 +13,10 @@ is `Pandorga::VERSION` (`lib/pandorga/version.rb`).
 
 Read [CHANGELOG.md](../CHANGELOG.md) before you bump.
 
+## Mobile article/post detail action button wrap (2.2.1)
+
+Bug fix only. Restores `flex-wrap: wrap` on mobile `.text-detail-sidebar .article-meta` under `@media (max-width: 767px)` so action buttons (Back, Share, Cite, reading size) wrap to the next row when dates and actions cannot share one line, preventing button crushing and clipping on narrow screens (regression from 2.1.0) (PLT-AC-67).
+
 ## Ancizar cqi hero clamps, upright list titles, unified markers & hierarchy ladder (2.2.0)
 
 Pandorga 2.2.0 updates title typography, cqi clamps, hero family markers, and section/specimen hierarchy:
@@ -342,7 +346,7 @@ Consumer sites should pin a release tag, not `main`:
 gem "pandorga", "~> 2.0"
 
 # Or pin a GitHub release tag
-gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v2.2.0"
+gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v2.2.1"
 ```
 
 After a bump, run `bundle update pandorga` and commit `Gemfile.lock`. Host
@@ -392,7 +396,7 @@ Manual publish (optional, local MFA may apply):
 
 ```bash
 mise exec -- gem build pandorga.gemspec
-mise exec -- gem push pandorga-2.2.0.gem
+mise exec -- gem push pandorga-2.2.1.gem
 ```
 
 ## Android shell (1.2+)

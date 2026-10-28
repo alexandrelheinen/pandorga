@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.2.1] — 2026-10-28
+
+### Fixed
+
+- CR-18: Mobile article/post detail meta restores `flex-wrap: wrap` so action buttons (Back, Share, Cite, reading size) wrap to the next row when dates and actions cannot share one line, preventing button crushing and clipping on narrow screens (regression from 2.1.0) (PLT-AC-67).
+
 ## [2.2.0] — 2026-10-28
 
 ### Added
