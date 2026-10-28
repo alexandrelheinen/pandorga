@@ -10,7 +10,7 @@
 - CR-16: Bumped project/inventory logo icon and sibling mark font-sizes by +2pt across all breakpoints (`calc(... + 2pt)`) (PLT-AC-69).
 - CR-17: Home band section titles stepped up to `--type-section` below 768px and `--type-section-lg` from 768px, ensuring section headings clearly outrank featured project names (PLT-AC-70).
 - CR-20: Detail reading-progress bar position changed to `position: fixed; top: 0` (bisect note: changed from 4.25rem added in 2.1.0 to stay fixed at viewport top regardless of sticky top bar hide-on-scroll state) (PLT-AC-72).
-- CR-23: Additive headless browser CI regression gate testing home, articles list, EN article detail, and PT post detail across 320, 390, 1440 viewports in light and dark themes for zero horizontal overflow, non-overlapping stacked elements, hero family bounding, and progress bar alignment (PLT-AC-73).
+- Regression gate: Additive headless browser CI regression gate testing home, articles list, EN article detail, and PT post detail across 320, 390, 1440 viewports in light and dark themes for zero horizontal overflow, non-overlapping stacked elements, hero family bounding, and progress bar alignment (PLT-AC-73).
 
 ### Changed
 
