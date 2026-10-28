@@ -19,6 +19,9 @@
 {% assign color_secondary = tc.secondary | default: "#287445" %}
 {% assign color_tertiary = tc.tertiary | default: "#746f30" %}
 {% assign font_cv_body_weight = sf.cv_body_weight | default: 400 %}
+{% assign site_fonts = site.pandorga.fonts %}
+{% assign font_body_weight = site_fonts.body_weight | default: sf.body_weight | default: 300 %}
+{% assign font_body_weight_mobile = site_fonts.body_weight_mobile | default: sf.body_weight_mobile | default: 350 %}
 {% assign bg_secondary = tn.background_secondary | default: tn.surface_container_low | default: "#f5f5f5" %}
 {% assign surface_value = tn.surface | default: "#ffffff" %}
 {% assign surface_variant_value = tn.surface_variant | default: "#e2e2e2" %}
@@ -30,10 +33,11 @@
     --font-body: {{ site | pandorga_font_stack: "body" }};
     --font-cv-body: {{ site | pandorga_font_stack: "cv_body" }};
     --font-cv-body-weight: {{ font_cv_body_weight }};
+    --weight-body: {{ font_body_weight }};
+    --weight-body-mobile: {{ font_body_weight_mobile }};
     --font-serif: {{ site | pandorga_font_stack: "title" }};
-    /* Content titles share the body face at 600 — Cinzel Decorative is
-       reserved for page/display titles. */
-    --font-content-title: var(--font-body);
+    /* Content titles use the title face (Ancizar Serif). */
+    --font-content-title: var(--font-title);
     --font-sans: var(--font-body);
     --font-mono: {{ site | pandorga_font_stack: "mono" }};
     --font-code: {{ site | pandorga_font_stack: "code" }};

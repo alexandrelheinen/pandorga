@@ -1233,11 +1233,11 @@ nav.text-page-nav:not(:has(a)) {
     padding-bottom: var(--space-md);
   }
 
-  /* On mobile, date row and action buttons share one compact horizontal band. */
+  /* On mobile, date row and action buttons share one compact horizontal band on one non-wrapping row. */
   .text-detail-sidebar .article-meta {
     display: flex;
     flex-direction: row;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-xs) var(--space-sm);
@@ -1305,7 +1305,6 @@ nav.text-page-nav:not(:has(a)) {
   font-family: var(--font-label);
   font-size: var(--type-label-lg);
   letter-spacing: 0.08em;
-  text-transform: uppercase;
   color: var(--color-on-surface);
   font-weight: 600;
   margin: 0 0 var(--space-md);

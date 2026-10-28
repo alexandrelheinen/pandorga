@@ -169,13 +169,22 @@
   max-width: 100%;
 }
 
-.home-hero-given,
-.home-hero-family {
+.home-hero-given {
   display: inline;
 }
 
 .home-hero-family {
+  display: inline;
+  font-style: italic;
   color: var(--color-primary);
+  --mark-ink: var(--color-primary);
+  --mark-1: calc(var(--mark-quiet-a) * 0.4);
+  --mark-2: calc(var(--mark-quiet-b) * 0.4);
+  --mark-3: calc(var(--mark-quiet-c) * 0.4);
+  background: linear-gradient(var(--mk-angle, 104deg), transparent var(--mk-s0, 0.9%), color-mix(in srgb, var(--mark-ink) var(--mark-1), transparent) var(--mk-s1, 2.6%), color-mix(in srgb, var(--mark-ink) var(--mark-2), transparent) var(--mk-mid, 58%), color-mix(in srgb, var(--mark-ink) var(--mark-3), transparent) var(--mk-end, 98%), transparent 100%) 0 var(--mk-y, 50%) / 100% var(--mk-h, 100%) no-repeat;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  padding: 0 0.1em;
 }
 
 @media (min-width: 640px) {
@@ -646,7 +655,7 @@ html[data-theme="light"] .home-hero-plate {
 
 [data-home-kind="articles"] .home-card-grid .card-title,
 [data-home-kind="articles"] .home-card-grid .ledger-card-title {
-  font-size: calc(var(--type-card) + 2pt);
+  font-size: var(--type-card);
 }
 
 /* Phone only: the featured card's text sat against the top rule. One
@@ -664,6 +673,7 @@ html[data-theme="light"] .home-hero-plate {
 .home-project-specimen .ledger-card-title,
 .home-project-inventory-title {
   font-family: var(--font-content-title);
+  font-size: var(--type-card);
   font-weight: var(--weight-title);
   font-synthesis: none;
 }
@@ -987,6 +997,16 @@ html[data-theme="light"] .home-hero-plate {
   flex-direction: column;
   align-items: stretch;
   gap: var(--space-md);
+}
+
+.home-projects-inventory-label {
+  display: block;
+  font-family: var(--font-label);
+  font-size: var(--type-label);
+  font-weight: var(--weight-label);
+  letter-spacing: 0.04em;
+  color: var(--color-on-surface-variant);
+  margin-bottom: var(--space-xs);
 }
 
 .home-project-inventory {
@@ -1313,10 +1333,7 @@ button.home-project-inventory-row {
 
 @media (min-width: 900px) {
 
-  /* The specimen column is 35% of the band (at least 20rem), which keeps the
-     16:9 plate at 60% of the 7:5 split's height; the rack is 45% (at least
-     21rem); the pair starts at the band's left edge and leaves the rest of
-     the row blank. The specimen sets the bench height; rack rows share it. */
+  /* The inventory rack sits on the left (45%, min 21rem), and the specimen on the right (35%, min 20rem). */
   .home-projects-bench {
     --home-inventory-mark-size: 3rem;
     --home-inventory-row-min: calc(
@@ -1326,10 +1343,17 @@ button.home-project-inventory-row {
        single row to the full plate. */
     --home-inventory-row-max: calc(1.6 * var(--home-inventory-row-min));
     display: grid;
-    grid-template-columns: max(35%, 20rem) max(45%, 21rem);
+    grid-template-columns: max(45%, 21rem) max(35%, 20rem);
     column-gap: var(--space-xl);
     justify-content: start;
     align-items: stretch;
+  }
+
+  .home-projects-inventory-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    width: 100%;
   }
 
   .home-project-inventory {
@@ -1341,7 +1365,6 @@ button.home-project-inventory-row {
     width: 100%;
     min-height: var(--home-specimen-height);
     min-width: 0;
-    min-height: 0;
     overflow: hidden;
     padding: var(--space-md);
     background: var(--color-panel-contrast);
@@ -1354,7 +1377,7 @@ button.home-project-inventory-row {
   .home-project-inventory-row {
     flex: 1 1 0;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     gap: var(--space-md);
     height: auto;
     min-height: var(--home-inventory-row-min);
@@ -1373,7 +1396,12 @@ button.home-project-inventory-row {
     box-shadow: inset 3px 0 0 var(--color-primary);
   }
 
-  /* Square icon mark beside the two-line code + title body. */
+  /* Logo-only buttons on desktop: hide text body visually. */
+  .home-project-inventory-body {
+    display: none;
+  }
+
+  /* Square icon mark enlarged. */
   .home-project-inventory-media {
     display: block;
     flex: 0 0 auto;
@@ -1402,48 +1430,15 @@ button.home-project-inventory-row {
   }
 
   .home-project-inventory-mark .material-symbols-outlined {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
   }
 
   .home-project-inventory-mark--initial {
     font-family: var(--font-content-title);
-    font-size: var(--type-card);
+    font-size: var(--type-card-lg);
     font-weight: var(--weight-title);
     line-height: 1;
     color: var(--color-on-surface);
-  }
-
-  .home-project-inventory-body {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-self: center;
-    gap: 0.15rem;
-    flex: 1 1 0;
-    min-width: 0;
-    padding-top: 0;
-  }
-
-  .home-project-inventory-code .ledger-meta {
-    font-size: var(--type-label-lg);
-  }
-
-  .home-project-inventory-title {
-    margin: 0;
-    font-family: var(--font-content-title);
-    font-size: var(--type-card);
-    font-weight: var(--weight-title);
-    line-height: 1.2;
-    color: var(--color-on-surface);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .home-project-inventory-row:hover .home-project-inventory-title,
-  .home-project-inventory-row:focus-visible .home-project-inventory-title,
-  .home-project-inventory-row.is-selected .home-project-inventory-title {
-    color: var(--color-primary);
   }
 
   /* Two classes: the glyph also carries .material-symbols-outlined, whose
@@ -1738,12 +1733,18 @@ button.home-project-inventory-row {
    that names the person, says what he does and offers the full record, rather
    than a name band followed by a summary band saying the same thing twice. */
 
-.home-hero-summary {
+.home-hero .home-hero-summary {
   max-width: var(--reading-measure);
   margin-top: 0;
   font-size: var(--type-body);
   line-height: var(--leading-body);
   color: var(--color-legend);
+}
+
+@media (min-width: 768px) {
+  .home-hero .home-hero-summary {
+    max-width: 65ch;
+  }
 }
 
 .home-hero-summary p {

@@ -13,6 +13,20 @@ is `Pandorga::VERSION` (`lib/pandorga/version.rb`).
 
 Read [CHANGELOG.md](../CHANGELOG.md) before you bump.
 
+## Four-family typography & Projects sidebar (2.1.0)
+
+Pandorga 2.1.0 updates theme defaults and layout features:
+
+- **Typography:** Theme defaults switch to Ancizar Serif (title + wordmark) and Ancizar Sans (body + taglines). Cinzel Decorative and Newsreader defaults are replaced. `--font-content-title` now uses `--font-title` (Ancizar Serif). Sites that relied on Cinzel Decorative or Newsreader defaults must explicitly configure `pandorga.fonts` in `_config.yml` if they wish to keep those fonts:
+  ```yaml
+  pandorga:
+    fonts:
+      title: "Cinzel Decorative"
+      body: "Newsreader"
+  ```
+- **Body weights:** Site-configurable via `pandorga.fonts.body_weight` (desktop default 300) and `pandorga.fonts.body_weight_mobile` (mobile default 350). On mobile viewports (`<768px`), `--weight-body` rebinds to `body_weight_mobile`.
+- **Home Projects sidebar (desktop >=900px):** The inventory column moves to the left of the specimen. Inventory buttons become logo-only with enlarged icon marks, displaying accessible titles on hover/focus. A static Marcellus SC label **“Explore projects”** sits above the inventory.
+
 ## Hero summary file (2.0.2)
 
 No `pandorga:` keys were added. The home hero reads
@@ -312,7 +326,7 @@ Consumer sites should pin a release tag, not `main`:
 gem "pandorga", "~> 2.0"
 
 # Or pin a GitHub release tag
-gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v2.0.4"
+gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v2.1.0"
 ```
 
 After a bump, run `bundle update pandorga` and commit `Gemfile.lock`. Host
@@ -362,7 +376,7 @@ Manual publish (optional, local MFA may apply):
 
 ```bash
 mise exec -- gem build pandorga.gemspec
-mise exec -- gem push pandorga-2.0.4.gem
+mise exec -- gem push pandorga-2.1.0.gem
 ```
 
 ## Android shell (1.2+)
