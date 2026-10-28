@@ -95,7 +95,7 @@ async function waitForDevtools(port, chrome, profile) {
       throw new Error(`Chrome exited ${chrome.exitCode}: ${stderr.slice(-500)}`);
     }
     const opened = await activePort(profile);
-    const candidates = opened && opened !== port ? [port, opened] : [port];
+    const candidates = opened && opened !== port ? [opened, port] : [port];
     for (const candidate of candidates) {
       try {
         const response = await fetch(`http://127.0.0.1:${candidate}/json/version`);
@@ -106,7 +106,8 @@ async function waitForDevtools(port, chrome, profile) {
     }
     await delay(100);
   }
-  throw new Error(`Chrome DevTools did not answer on ${port}`);
+  const opened = await activePort(profile);
+  throw new Error(`Chrome DevTools did not answer on ${port}${opened ? ` (active port ${opened})` : ''}`);
 }
 
 async function openSocket(url) {
@@ -121,8 +122,8 @@ async function openSocket(url) {
 function findChrome() {
   const candidates = [
     process.env.CHROME_PATH,
-    '/usr/bin/google-chrome',
     '/usr/bin/google-chrome-stable',
+    '/usr/bin/google-chrome',
     '/usr/bin/chromium',
     '/usr/bin/chromium-browser'
   ].filter(Boolean);
@@ -233,7 +234,7 @@ const ASSERT_EXPRESSION = `
       }
     }
 
-    // 4. Progress bar position
+    // 4. Progress bar position at current scroll
     const detailRoot = document.querySelector('[data-dynamic-article-detail], [data-dynamic-post-detail], [data-detail-view], .text-page-main');
     if (detailRoot) {
       const cs = window.getComputedStyle(detailRoot, '::before');
@@ -261,12 +262,31 @@ async function main() {
 
   await delay(500);
 
-  const { chrome, profile, port: cdpPort } = await launchChrome();
+  const LAUNCH_ATTEMPTS = 3;
+  let chromeStarted;
+  let devtoolsVersion;
+
+  for (let attempt = 1; attempt <= LAUNCH_ATTEMPTS; attempt += 1) {
+    try {
+      chromeStarted = await launchChrome();
+      devtoolsVersion = await waitForDevtools(chromeStarted.port, chromeStarted.chrome, chromeStarted.profile);
+      break;
+    } catch (err) {
+      if (chromeStarted) {
+        await stopProcess(chromeStarted.chrome);
+        await rm(chromeStarted.profile, { recursive: true, force: true });
+      }
+      if (attempt === LAUNCH_ATTEMPTS) throw err;
+      console.warn(`WARN: Chrome launch attempt ${attempt} failed: ${err.message}; retrying...`);
+      await delay(200);
+    }
+  }
+
+  const { chrome, profile } = chromeStarted;
   let failed = false;
 
   try {
-    const version = await waitForDevtools(cdpPort, chrome, profile);
-    const ws = await openSocket(version.webSocketDebuggerUrl);
+    const ws = await openSocket(devtoolsVersion.webSocketDebuggerUrl);
     const browser = new Cdp(ws);
     const created = await browser.send('Target.createTarget', { url: 'about:blank' });
     const attached = await browser.send('Target.attachToTarget', {
@@ -281,6 +301,8 @@ async function main() {
 
     for (const pagePath of PAGES) {
       const targetUrl = `http://127.0.0.1:${serverPort}${pagePath}`;
+      const isDetailPage = pagePath.includes('/articles/') || pagePath.includes('/posts/');
+
       for (const vp of VIEWPORTS) {
         await browser.send('Emulation.setDeviceMetricsOverride', {
           width: vp.width,
@@ -297,6 +319,7 @@ async function main() {
           }, sessionId);
           await delay(50);
 
+          // Assert at scroll 0%
           const evalResult = await browser.send('Runtime.evaluate', {
             expression: ASSERT_EXPRESSION,
             returnByValue: true
@@ -304,11 +327,38 @@ async function main() {
 
           const result = (evalResult.result && evalResult.result.value) || { errors: [] };
           if (result.errors && result.errors.length > 0) {
-            console.error(`FAIL: ${pagePath} (${vp.name}px, ${theme} theme):`);
+            console.error(`FAIL: ${pagePath} (${vp.name}px, ${theme} theme, scroll 0%):`);
             for (const err of result.errors) {
               console.error(`  - ${err}`);
             }
             failed = true;
+          }
+
+          // If detail page, re-assert progress bar at scroll 50% and 90%
+          if (isDetailPage) {
+            for (const pct of [0.5, 0.9]) {
+              await browser.send('Runtime.evaluate', {
+                expression: `window.scrollTo(0, Math.max(100, document.body.scrollHeight * ${pct}));`
+              }, sessionId);
+              await delay(100);
+
+              const scrollResult = await browser.send('Runtime.evaluate', {
+                expression: ASSERT_EXPRESSION,
+                returnByValue: true
+              }, sessionId);
+
+              const sRes = (scrollResult.result && scrollResult.result.value) || { errors: [] };
+              if (sRes.errors && sRes.errors.length > 0) {
+                console.error(`FAIL: ${pagePath} (${vp.name}px, ${theme} theme, scroll ${Math.round(pct * 100)}%):`);
+                for (const err of sRes.errors) {
+                  console.error(`  - ${err}`);
+                }
+                failed = true;
+              }
+            }
+
+            // Scroll back to top
+            await browser.send('Runtime.evaluate', { expression: 'window.scrollTo(0, 0);' }, sessionId);
           }
         }
       }

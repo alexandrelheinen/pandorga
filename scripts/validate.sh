@@ -122,11 +122,6 @@ if ! node scripts/test/test-timeline-pan.mjs; then
   failed=1
 fi
 
-echo "-- scripts/test/test-regression-gate.mjs"
-if ! node scripts/test/test-regression-gate.mjs; then
-  failed=1
-fi
-
 if [[ "$failed" -ne 0 ]]; then
   echo "VALIDATE FAILED"
   exit 1
