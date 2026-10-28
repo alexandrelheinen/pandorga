@@ -19,10 +19,10 @@ pandorga:
   home:
     hero_art: page/hero-default.html
   fonts:
-    title: "Cinzel Decorative"
+    title: "Ancizar Serif"
     body:
-      family: "Newsreader"
-      weights: [300, 400, 500, 600, 700]
+      family: "Ancizar Sans"
+      weights: [300, 350, 400, 600]
     mono:
       family: "Courier Prime"
       weights: [400, 700]

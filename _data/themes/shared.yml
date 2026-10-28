@@ -5,27 +5,27 @@
 # Consumed by theme-context.liquid → theme-vars-block.liquid / font-loader.
 
 fonts:
-  title: "Cinzel Decorative"
-  subtitle: "Newsreader"
+  title: "Ancizar Serif"
+  subtitle: "Ancizar Sans"
   label: "Marcellus SC"
-  body: "Newsreader"
+  body: "Ancizar Sans"
   mono: "Courier Prime"
   code: "Courier Prime"
-  cv_body: "Newsreader"
+  cv_body: "Ancizar Sans"
   cv_body_weight: 400
-  # Fallback after the named face. Body is Newsreader, a serif. A sans
-  # fallback reflows the hero summary when the webfont swaps in.
-  body_fallback: "Georgia, serif"
-  subtitle_fallback: "serif"
+  body_weight: 300
+  body_weight_mobile: 350
+  body_fallback: "sans-serif"
+  subtitle_fallback: "sans-serif"
   title_fallback: "serif"
   label_fallback: "serif"
-  google_title_spec: "wght@400;700;900"
-  google_subtitle_spec: "ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,300;1,6..72,400;1,6..72,500"
+  google_title_spec: "ital,wght@0,400;0,600;1,400"
+  google_subtitle_spec: "wght@300;350;400;600"
   google_label_spec: "wght@400;700"
-  google_body_spec: "wght@300;400;500;600;700"
+  google_body_spec: "wght@300;350;400;600"
   google_mono_spec: "ital,wght@0,400;0,700;1,400;1,700"
   google_code_spec: "ital,wght@0,300;0,400;0,700;1,400;1,700"
-  google_cv_body_spec: "wght@300;400;500;600;700"
+  google_cv_body_spec: "wght@300;350;400;600"
 
 motion:
   duration_fast: "0.15s"

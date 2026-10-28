@@ -104,6 +104,6 @@ fail!("font loader missing") unless font_at && script_at && base_at
 fail!("font stylesheet precedes the preload script") unless script_at < font_at
 fail!("font stylesheet precedes local CSS") unless base_at < font_at
 fail!("font host is not preconnected before the preload script") unless preconnect_at && preconnect_at < script_at
-fail!("body fallback is still a sans") unless shared.include?('body_fallback: "Georgia, serif"')
+fail!("body fallback is not sans-serif") unless shared.include?('body_fallback: "sans-serif"')
 
 puts "PASS test-hero-summary"

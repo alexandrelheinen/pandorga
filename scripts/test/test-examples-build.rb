@@ -147,12 +147,12 @@ end
     warn "FAIL test-examples-build: #{name} home is missing JSON-LD"
     exit 1
   end
-  ledger_faces = "family=Cinzel+Decorative:wght@400;700;900"
+  ledger_faces = "family=Ancizar+Serif:ital,wght@0,400;0,600;1,400"
   unless html.include?(ledger_faces) && html.include?("&display=swap") && html.include?("__pandorgaFontsHref")
     warn "FAIL test-examples-build: #{name} home dropped the ledger font request"
     exit 1
   end
-  unless html.include?("--font-title: 'Cinzel Decorative', 'Pandorga Title Fallback', serif")
+  unless html.include?("--font-title: 'Ancizar Serif', 'Pandorga Ancizar Fallback', serif")
     warn "FAIL test-examples-build: #{name} home dropped the title face"
     exit 1
   end

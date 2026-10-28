@@ -375,6 +375,7 @@
       if (selectable) {
         row.setAttribute('aria-pressed', selected ? 'true' : 'false');
         row.setAttribute('aria-label', name);
+        row.setAttribute('title', name);
       }
 
       var initial = String(name || '?').charAt(0).toUpperCase();

@@ -22,21 +22,18 @@ module Pandorga
       "Cinzel" => "Pandorga Cinzel Fallback",
       "Newsreader" => "Pandorga Body Fallback",
       "Ancizar Serif" => "Pandorga Ancizar Fallback",
+      "Ancizar Sans" => "Pandorga Ancizar Sans Fallback",
       "Marcellus SC" => "Pandorga Label Fallback"
     }.freeze
 
     DEFAULTS = {
-      title: { family: "Cinzel Decorative", spec: "wght@400;700;900", fallback: "serif" },
-      subtitle: {
-        family: "Newsreader",
-        spec: "ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,300;1,6..72,400;1,6..72,500",
-        fallback: "serif"
-      },
+      title: { family: "Ancizar Serif", spec: "ital,wght@0,400;0,600;1,400", fallback: "serif" },
+      subtitle: { family: "Ancizar Sans", spec: "wght@300;350;400;600", fallback: "sans-serif" },
       label: { family: "Marcellus SC", spec: "wght@400;700", fallback: "serif" },
-      body: { family: "Newsreader", spec: "wght@300;400;500;600;700", fallback: "Georgia, serif" },
+      body: { family: "Ancizar Sans", spec: "wght@300;350;400;600", fallback: "sans-serif" },
       mono: { family: "Courier Prime", spec: "ital,wght@0,400;0,700;1,400;1,700", fallback: MONO_FALLBACK },
       code: { family: "Courier Prime", spec: "ital,wght@0,300;0,400;0,700;1,400;1,700", fallback: MONO_FALLBACK },
-      cv_body: { family: "Newsreader", spec: "wght@300;400;500;600;700", fallback: "Georgia, serif" }
+      cv_body: { family: "Ancizar Sans", spec: "wght@300;350;400;600", fallback: "sans-serif" }
     }.freeze
 
     def resolve(site_fonts, theme_fonts = nil)

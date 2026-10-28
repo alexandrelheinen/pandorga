@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+## [2.1.0] — 2026-10-28
+
+### Added
+
+- Site-configurable body weights under `pandorga.fonts.body_weight` (desktop default 300) and `pandorga.fonts.body_weight_mobile` (mobile default 350) wired into CSS custom properties (`--weight-body` and `--weight-body-mobile`) (PLT-AC-57).
+- Static Marcellus SC label **“Explore projects”** above the Home Projects inventory (PLT-AC-61).
+
+### Changed
+
+- Default resolved typography stack switches to four families: Ancizar Serif for titles and top-bar wordmark, Ancizar Sans for body and taglines, Marcellus SC for labels, and Courier Prime for code. Cinzel Decorative and Newsreader defaults are removed from the default stylesheet request (PLT-AC-56).
+- `--font-content-title` uses `--font-title` (Ancizar Serif) instead of body face (PLT-AC-56).
+- On the home hero, `.home-hero-family` renders in italic, primary color, with a highlighter mark wash scaled to ~40% intensity of detail action buttons, while `.home-hero-given` stays upright in default ink (PLT-AC-58).
+- Heading and title selectors in ledger CSS no longer apply `text-transform: uppercase`, and title italics are restricted to `.home-hero-family` and `.section-title em` / `.page-header-title em` (PLT-AC-59, PLT-AC-60).
+- On viewports at or above 900px, the Home Projects bench places the inventory column to the left of the specimen. Inventory buttons become logo-only with enlarged icon marks, keeping accessible labels (`aria-label`) and tooltips on hover/focus (`title`) (PLT-AC-61).
+
 ## [2.0.4] — 2026-10-28
 
 ### Fixed

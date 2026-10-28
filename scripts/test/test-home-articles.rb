@@ -19,8 +19,8 @@ fail!("featured article title is not 2pt larger") unless home.include?(
   '[data-home-kind="articles"] .home-featured-title'
 ) && home.include?("calc(var(--home-featured-title-size) + 2pt)")
 
-fail!("listed article titles are not 2pt larger") unless home.include?(
-  "calc(var(--type-card) + 2pt)"
+fail!("listed article titles are not on --type-card step") unless home.include?(
+  "font-size: var(--type-card);"
 ) && home.include?('[data-home-kind="articles"] .home-card-grid .card-title')
 
 phone = home[/^@media \(max-width: 767px\) \{\n  \[data-home-kind="articles"\] \.home-featured \{.*?\n  \}/m]

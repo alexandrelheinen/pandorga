@@ -34,11 +34,13 @@ When `backend` is omitted, a non-empty `base_url` or `content_api_base_url` sele
 
 | Key | Type | Notes |
 |---|---|---|
-| `title` | string or map | Display face. Default family `Cinzel Decorative`, weights 400, 700, and 900 |
-| `body` | string or map | Reading face. Default family `Newsreader`, weights 300, 400, 500, 600, and 700 |
+| `title` | string or map | Display face. Default family `Ancizar Serif`, weights 400, 600, italic 400 |
+| `body` | string or map | Reading face. Default family `Ancizar Sans`, weights 300, 350, 400, and 600 |
 | `mono` | string or map | Monospace face. Default family `Courier Prime`, roman and italic at 400 and 700 |
 | `label` | string or map | Optional chrome face. Default family `Marcellus SC`, weights 400 and 700 |
 | `subtitle` | string or map | Optional tagline face. Omitted, it follows `body` when the theme used the same family |
+| `body_weight` | integer | Desktop body weight (default 300) |
+| `body_weight_mobile` | integer | Mobile body weight (default 350) |
 
 Each value is a Google Fonts family name, or a map with `family` plus optional `weights` (integers) and `italic` (boolean). An omitted role keeps the Architectural Ledger face. `code` follows `mono`, and the tagline and CV body follow `body`, when the theme used one family for both. Text faces still load after the first paint, with `display=swap`. A `_data/themes/shared.yml` file remains the fallback under any role this map does not set.
 

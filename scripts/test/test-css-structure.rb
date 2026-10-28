@@ -247,7 +247,7 @@ require_declarations(
 )
 require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
-  ".home-projects-bench", ["grid-template-columns: max(35%, 20rem) max(45%, 21rem)", "column-gap: var(--space-xl)", "justify-content: start", "--home-inventory-row-max: calc(1.6 * var(--home-inventory-row-min))"]
+  ".home-projects-bench", ["grid-template-columns: max(45%, 21rem) max(35%, 20rem)", "column-gap: var(--space-xl)", "justify-content: start", "--home-inventory-row-max: calc(1.6 * var(--home-inventory-row-min))"]
 )
 require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
@@ -269,6 +269,24 @@ require_declarations(
 ].each do |forbidden_home|
   if home_sheet.include?(forbidden_home)
     errors << "assets/css/ledger/home.css: #{forbidden_home} must be removed (PLT-AC-41)"
+  end
+end
+
+# PLT-AC-60. Heading and title selectors in ledger CSS do not use text-transform: uppercase.
+title_selector_pattern = /^\.(?:page-header-title|section-title|home-hero-title|card-title|ledger-card-title|text-title|home-featured-title|ledger-row-title|source-card-title|bib-card-title|home-project-inventory-title|home-index-title|article-title|article-related-title|projects-dossier-title)\b/
+
+sheets.each do |path|
+  relative = Pathname.new(path).relative_path_from(REPO_ROOT)
+  cleaned = strip_noise(File.read(path))
+  cleaned.scan(/([^{}]+)\{([^{}]*)\}/m) do |sel, body|
+    next unless body.match?(/text-transform\s*:\s*uppercase/i)
+
+    sel.split(",").each do |part|
+      name = part.gsub(/\s+/, " ").strip
+      next unless name.match?(title_selector_pattern)
+
+      errors << "#{relative}: title selector #{name} applies text-transform: uppercase (PLT-AC-60)"
+    end
   end
 end
 

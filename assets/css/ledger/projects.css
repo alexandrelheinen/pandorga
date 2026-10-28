@@ -601,7 +601,6 @@
   font-family: var(--font-label);
   font-size: var(--type-label-lg);
   letter-spacing: 0.1em;
-  text-transform: uppercase;
   font-weight: 600;
   color: var(--color-on-surface);
 }

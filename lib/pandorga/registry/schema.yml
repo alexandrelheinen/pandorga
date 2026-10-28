@@ -57,10 +57,10 @@ fonts:
   keys:
     title:
       type: string or map
-      notes: Display face. Default family `Cinzel Decorative`, weights 400, 700, and 900
+      notes: Display face. Default family `Ancizar Serif`, weights 400, 600, italic 400
     body:
       type: string or map
-      notes: Reading face. Default family `Newsreader`, weights 300, 400, 500, 600, and 700
+      notes: Reading face. Default family `Ancizar Sans`, weights 300, 350, 400, and 600
     mono:
       type: string or map
       notes: Monospace face. Default family `Courier Prime`, roman and italic at 400 and 700
@@ -70,6 +70,12 @@ fonts:
     subtitle:
       type: string or map
       notes: Optional tagline face. Omitted, it follows `body` when the theme used the same family
+    body_weight:
+      type: integer
+      notes: Desktop body weight (default 300)
+    body_weight_mobile:
+      type: integer
+      notes: Mobile body weight (default 350)
 
 taxonomies:
   title: "`pandorga.taxonomies`"

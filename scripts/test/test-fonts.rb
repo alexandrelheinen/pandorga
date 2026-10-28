@@ -16,9 +16,9 @@ end
 
 require_relative "../../lib/pandorga/fonts"
 
-DEFAULT_HREF = "https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900" \
+DEFAULT_HREF = "https://fonts.googleapis.com/css2?family=Ancizar+Serif:ital,wght@0,400;0,600;1,400" \
                "&family=Marcellus+SC:wght@400;700" \
-               "&family=Newsreader:wght@300;400;500;600;700" \
+               "&family=Ancizar+Sans:wght@300;350;400;600" \
                "&family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700" \
                "&display=swap"
 
@@ -27,11 +27,12 @@ bare = Pandorga::Fonts.resolve(nil, nil)
 from_theme = Pandorga::Fonts.resolve(nil, theme)
 fail!("unset config dropped the ledger faces") unless Pandorga::Fonts.stylesheet_href(bare) == DEFAULT_HREF
 fail!("theme tokens drifted from the ledger faces") unless Pandorga::Fonts.stylesheet_href(from_theme) == DEFAULT_HREF
+fail!("default stylesheet href contained Cinzel") if DEFAULT_HREF.include?("Cinzel")
 
-fail!("title stack dropped Cinzel") unless Pandorga::Fonts.css_stack(from_theme, "title") ==
-  "'Cinzel Decorative', 'Pandorga Title Fallback', serif"
-fail!("body stack dropped the serif fallback") unless Pandorga::Fonts.css_stack(from_theme, "body") ==
-  "'Newsreader', 'Pandorga Body Fallback', Georgia, serif"
+fail!("title stack dropped Ancizar Serif") unless Pandorga::Fonts.css_stack(from_theme, "title") ==
+  "'Ancizar Serif', 'Pandorga Ancizar Fallback', serif"
+fail!("body stack dropped Ancizar Sans") unless Pandorga::Fonts.css_stack(from_theme, "body") ==
+  "'Ancizar Sans', 'Pandorga Ancizar Sans Fallback', sans-serif"
 fail!("label stack dropped the metric fallback") unless Pandorga::Fonts.css_stack(from_theme, "label") ==
   "'Marcellus SC', 'Pandorga Label Fallback', serif"
 fail!("mono stack dropped Courier Prime") unless Pandorga::Fonts.css_stack(from_theme, "mono").start_with?("'Courier Prime', ui-monospace")
@@ -43,7 +44,7 @@ site_faces = Pandorga::Fonts.resolve(
 fail!("Cinzel stack missed its metric fallback") unless Pandorga::Fonts.css_stack(site_faces, "title") ==
   "'Cinzel', 'Pandorga Cinzel Fallback', serif"
 fail!("Ancizar stack missed its metric fallback") unless Pandorga::Fonts.css_stack(site_faces, "body") ==
-  "'Ancizar Serif', 'Pandorga Ancizar Fallback', Georgia, serif"
+  "'Ancizar Serif', 'Pandorga Ancizar Fallback', sans-serif"
 
 custom = Pandorga::Fonts.resolve(
   {
@@ -77,7 +78,7 @@ end
 fail!("corrupted 'behind' left by a font rename (#{broken.size} files): #{broken.join(', ')}") unless broken.empty?
 fail!("code face did not follow mono") unless Pandorga::Fonts.css_stack(custom, "code").start_with?("'IBM Plex Mono'")
 
-kept = Pandorga::Fonts.resolve({ "title" => "Cinzel Decorative" }, theme)
+kept = Pandorga::Fonts.resolve({ "title" => "Ancizar Serif" }, theme)
 fail!("naming the default title changed the stylesheet") unless Pandorga::Fonts.stylesheet_href(kept) == DEFAULT_HREF
 
 ignored = Pandorga::Fonts.resolve({ "title" => "Fraunces</style>" }, theme)
