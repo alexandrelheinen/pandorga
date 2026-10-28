@@ -13,6 +13,16 @@ is `Pandorga::VERSION` (`lib/pandorga/version.rb`).
 
 Read [CHANGELOG.md](../CHANGELOG.md) before you bump.
 
+## Ancizar cqi hero clamps, upright list titles, unified markers & hierarchy ladder (2.2.0)
+
+Pandorga 2.2.0 updates title typography, cqi clamps, hero family markers, and section/specimen hierarchy:
+
+- **CR-10 — Ancizar hero clamps:** Recalculated `.home-hero-title` cqi divisors for Ancizar Serif at -0.02em tracking (~5.55em phone family-line width, ~10.81em desktop full-name cap). Replaced Cinzel comments/factors.
+- **CR-11 — Upright list page titles:** List page header titles (`.page-header-title`) drop hardcoded `class="italic"` and default to upright. Emphasis and marker washes apply only to explicit `*emphasis*` (`<em>`) segments. Token `--type-page` is bumped from 2.4015rem to 2.75rem and `--type-page-lg` from 2.9015rem to 3.35rem.
+- **CR-12 — Hero family marker:** `.home-hero-family` drops `font-style: italic` and keeps primary color, with highlighter mark strength raised to ~0.88× section alpha levels.
+- **CR-13 — Home hierarchy ladder:** Section titles dominate specimen names across mobile and desktop breakpoints. Section title steps are raised (e.g. `--type-section-sm` raised to 1.7rem), and `.home-specimen-title` no longer uses `var(--type-section)` at large breakpoints (>=900px).
+- **CR-14 — Unified title role markers:** Grouped selector in `assets/css/base.css` ensures `em` elements inside `.section-title`, `.page-header-title`, `.home-index-title`, `.card-title`, and `.ledger-card-title` all receive the felt-marker wash.
+
 ## Mobile body weight cascade (2.1.1)
 
 Bug fix only. `--weight-body` on viewports under 768px now reads
@@ -332,7 +342,7 @@ Consumer sites should pin a release tag, not `main`:
 gem "pandorga", "~> 2.0"
 
 # Or pin a GitHub release tag
-gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v2.1.1"
+gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v2.2.0"
 ```
 
 After a bump, run `bundle update pandorga` and commit `Gemfile.lock`. Host
@@ -382,7 +392,7 @@ Manual publish (optional, local MFA may apply):
 
 ```bash
 mise exec -- gem build pandorga.gemspec
-mise exec -- gem push pandorga-2.1.1.gem
+mise exec -- gem push pandorga-2.2.0.gem
 ```
 
 ## Android shell (1.2+)

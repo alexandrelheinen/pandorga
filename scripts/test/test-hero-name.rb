@@ -136,14 +136,14 @@ check!(symbols["family"] == "Rivera Santos", "symbol keys work, got #{symbols.in
 
 hero = css[/\.home-hero-title \{.*?(?=\.home-hero-summary)/m]
 check!(hero, "missing hero title block")
-check!(hero.include?("font-size: clamp(var(--type-section), calc(100cqi * 0.92 / 14.5), var(--type-page-lg));"),
-       "base name size stays the 1.4.9 clamp")
+check!(hero.include?("font-size: clamp(var(--type-section), calc(100cqi * 0.92 / 5.55), var(--type-page-lg));"),
+       "base name size uses Ancizar clamp")
 check!(hero.include?("@media (max-width: 639px)"), "missing phone size query")
-check!(hero.include?("calc(clamp(var(--type-section), calc(100cqi * 0.92 / 14.5), var(--type-page-lg)) + 3pt)"),
+check!(hero.include?("calc(clamp(var(--type-section), calc(100cqi * 0.92 / 5.55), var(--type-page-lg)) + 3pt)"),
        "below 640px the name must be the current clamp plus 3pt")
 check!(hero.include?("@media (min-width: 640px) and (max-width: 767px)"),
        "missing 640-767 size query")
-check!(hero.include?("calc(clamp(var(--type-section-lg), calc(100cqi * 0.92 / 14.5), var(--type-page-lg)) + 3pt)"),
+check!(hero.include?("calc(clamp(var(--type-section-lg), calc(100cqi * 0.92 / 5.55), var(--type-page-lg)) + 3pt)"),
        "from 640px to 767px the name must be the section-lg clamp plus 3pt")
 
 plain = hero.index("@media (min-width: 640px) {")

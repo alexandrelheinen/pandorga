@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [2.2.0] — 2026-10-28
+
+### Added
+
+- CR-10: Recalculated `.home-hero-title` cqi divisors for Ancizar Serif at -0.02em tracking (~5.55em phone family-line width, ~10.81em desktop full-name cap) (PLT-AC-62).
+- CR-11: Fixed/list page titles (`.page-header-title`) default to upright by removing hardcoded `class="italic"` on `[data-content-header-title]`. Inline emphasis and marker wash apply only via `<em>` elements. `--type-page` and `--type-page-lg` tokens bumped so list titles are noticeably larger while detail titles remain unchanged (PLT-AC-63).
+- CR-12: `.home-hero-family` drops `font-style: italic`, keeping primary color and raising marker strength to ~0.88× section alpha levels (PLT-AC-64).
+- CR-13: Home hierarchy ladder adjusted so section titles dominate specimen names on mobile and desktop viewports. Raised `--type-section-sm` to 1.72rem and removed `.home-specimen-title` override to `var(--type-section)` at desktop breakpoints (PLT-AC-65).
+- CR-14: Grouped title role marker selector in `assets/css/base.css` ensures `em` elements inside `.section-title`, `.page-header-title`, `.home-index-title`, `.card-title`, and `.ledger-card-title` receive the primary-color felt-marker wash (PLT-AC-66).
+
 ## [2.1.1] — 2026-10-28
 
 ### Fixed

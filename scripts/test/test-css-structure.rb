@@ -300,6 +300,44 @@ if declaration_bodies(home_sheet, ".home-hero-summary").any? { |body| declaratio
   errors << "assets/css/ledger/home.css: .home-hero-summary must use --color-legend (PLT-AC-23)"
 end
 
+# PLT-AC-62. Hero cqi clamp divisors calculated for Ancizar at -0.02em tracking (~5.55 / ~10.81). Cinzel comments removed.
+if home_sheet.match?(/Cinzel/i)
+  errors << "assets/css/ledger/home.css must not contain Cinzel comments or references (PLT-AC-62)"
+end
+if home_sheet.include?("14.5") || home_sheet.include?("8.4")
+  errors << "assets/css/ledger/home.css: hero clamp divisors must use Ancizar factors (~5.55 / ~10.81) instead of Cinzel (PLT-AC-62)"
+end
+
+# PLT-AC-63. Page header markup must not hardcode class="italic" on title span.
+page_header_html = File.read(REPO_ROOT.join("_includes/page/page-header.html"))
+if page_header_html.include?('data-content-header-title class="italic"') || page_header_html.include?('class="italic" data-content-header-title')
+  errors << "_includes/page/page-header.html: data-content-header-title must not hardcode class=\"italic\" (PLT-AC-63)"
+end
+
+# PLT-AC-64. Hero family drops italic.
+hero_family_body = declaration_bodies(home_sheet, ".home-hero-family").join(";")
+if declarations(hero_family_body).include?("font-style:italic")
+  errors << "assets/css/ledger/home.css: .home-hero-family must remove font-style: italic (PLT-AC-64)"
+end
+
+# PLT-AC-65. Home specimen title must not be set to var(--type-section) at >=900px.
+if home_sheet.include?(".home-project-specimen .home-specimen-title {\n    font-size: var(--type-section);\n  }") ||
+   home_sheet.match?(/\.home-specimen-title\s*\{[^}]*font-size\s*:\s*var\(--type-section\)/)
+  errors << "assets/css/ledger/home.css: .home-specimen-title must not be set to var(--type-section) at 900px (PLT-AC-65)"
+end
+
+# PLT-AC-66. Grouped selector for title role em felt-marker wash.
+base_sheet = strip_comments(File.read(CSS_ROOT.join("base.css")))
+required_marker_selector = ".section-title em, .page-header-title em, .home-index-title em, .card-title em, .ledger-card-title em"
+unless base_sheet.include?(required_marker_selector)
+  errors << "assets/css/base.css: missing grouped title marker selector '#{required_marker_selector}' (PLT-AC-66)"
+end
+
+dark_marker_selector = "[data-theme=\"dark\"] .section-title em, [data-theme=\"dark\"] .page-header-title em, [data-theme=\"dark\"] .home-index-title em, [data-theme=\"dark\"] .card-title em, [data-theme=\"dark\"] .ledger-card-title em"
+unless base_sheet.include?(dark_marker_selector)
+  errors << "assets/css/base.css: missing grouped dark title marker selector '#{dark_marker_selector}' (PLT-AC-66)"
+end
+
 fail!("CSS structure problems:\n  - #{errors.join("\n  - ")}") unless errors.empty?
 
 puts "  #{sheets.size} stylesheet(s) balanced, no conflict markers."
