@@ -91,6 +91,18 @@ unless has_row_layout
   fail!("detail.css must set flex-direction: row on .text-detail-sidebar .article-meta under @media (max-width: 767px)")
 end
 
+has_wrap_layout = meta_mobile_rules.any? do |r|
+  r[:decls].any? { |p, v| p == "flex-wrap" && v == "wrap" }
+end
+
+has_nowrap = meta_mobile_rules.any? do |r|
+  r[:decls].any? { |p, v| p == "flex-wrap" && v == "nowrap" }
+end
+
+unless has_wrap_layout && !has_nowrap
+  fail!("detail.css must set flex-wrap: wrap (and not nowrap) on .text-detail-sidebar .article-meta under @media (max-width: 767px)")
+end
+
 toc_disclosure_mobile = detail_rules.select do |r|
   r[:media] && r[:media].include?("max-width:767px") && r[:sel].include?("article-toc--disclosure")
 end

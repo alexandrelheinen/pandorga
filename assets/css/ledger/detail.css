@@ -1233,11 +1233,11 @@ nav.text-page-nav:not(:has(a)) {
     padding-bottom: var(--space-md);
   }
 
-  /* On mobile, date row and action buttons share one compact horizontal band on one non-wrapping row. */
+  /* On mobile, date row and action buttons share one compact horizontal band. */
   .text-detail-sidebar .article-meta {
     display: flex;
     flex-direction: row;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-xs) var(--space-sm);

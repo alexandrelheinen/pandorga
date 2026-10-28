@@ -560,6 +560,7 @@ Criteria are written in EARS format. Every criterion is referenced by at least o
 - `PLT-AC-64` On `.home-hero-family`, `font-style: italic` is removed, retaining primary color and raising marker strength to ~0.85–0.9× section alpha levels. Hero family is no longer treated as an italic exception (`test-fonts`, `test-css-structure`).
 - `PLT-AC-65` Homepage typography ladder maintains hero > page list H1 > home section titles > specimen/featured project name > card titles. Section titles outrank specimen names at 390px and 1440px, and `.home-specimen-title` no longer uses `var(--type-section)` at desktop breakpoints (`test-v3-layout`, `test-css-structure`).
 - `PLT-AC-66` Every `em` inside title role elements (`.section-title`, `.page-header-title`, `.home-index-title`, `.card-title`, `.ledger-card-title`) receives the primary-color felt-marker wash grouped selector in both light and dark themes (`test-css-structure`).
+- `PLT-AC-67` Under `@media (max-width: 767px)`, `.text-detail-sidebar .article-meta` must use `flex-wrap: wrap` (not `nowrap`), while keeping `flex-direction: row`, so detail action pills remain usable when dates and actions cannot share one line (`test-mobile-density-home-measure`).
 
 ## 13. Owner decisions
 
