@@ -296,9 +296,9 @@ item(5) do
   expect(h, ".home-band .ledger-section-banner .ledger-kicker", { "grid-column" => "1 / -1", "grid-row" => "1" })
   expect(h, ".home-band .ledger-kicker:empty", { "display" => "none" })
   expect(h, ".home-band .ledger-section-banner .section-title", {
-    "grid-column" => "1", "grid-row" => "2", "font-size" => "var(--type-section-sm)"
+    "grid-column" => "1", "grid-row" => "2", "font-size" => "var(--type-section)"
   })
-  expect(h, ".home-band .ledger-section-banner .section-title", { "font-size" => "var(--type-section)" }, media: WIDE)
+  expect(h, ".home-band .ledger-section-banner .section-title", { "font-size" => "var(--type-section-lg)" }, media: WIDE)
   expect(h, ".home-band .home-section-aside", { "grid-column" => "2", "grid-row" => "2" })
   expect(h, ".home-band .home-section-note", {
     "grid-column" => "1 / -1", "grid-row" => "3", "font-size" => "var(--type-dek)"

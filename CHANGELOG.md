@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+## [2.2.2] — 2026-10-28
+
+### Added
+
+- CR-15: Hero longest line clamp divisor updated to upright Ancizar factor (~6.9em), with `--hero-name-fit` default updated to 6.9, so stacked hero titles fit cleanly within copy measure while desktop resolves near 73px (`--hero-name-max`) (PLT-AC-68).
+- CR-16: Bumped project/inventory logo icon and sibling mark font-sizes by +2pt across all breakpoints (`calc(... + 2pt)`) (PLT-AC-69).
+- CR-17: Home band section titles stepped up to `--type-section` below 768px and `--type-section-lg` from 768px, ensuring section headings clearly outrank featured project names (PLT-AC-70).
+- CR-20: Detail reading-progress bar position changed to `position: fixed; top: 0` (bisect note: changed from 4.25rem added in 2.1.0 to stay fixed at viewport top regardless of sticky top bar hide-on-scroll state) (PLT-AC-72).
+- CR-23: Additive headless browser CI regression gate testing home, articles list, EN article detail, and PT post detail across 320, 390, 1440 viewports in light and dark themes for zero horizontal overflow, non-overlapping stacked elements, hero family bounding, and progress bar alignment (PLT-AC-73).
+
+### Changed
+
+- CR-19: Mobile article/post detail (<768px) meta and actions block redesign: published/updated dates stack vertically with breathing room; thin divider lines separate the block from the header plate and reading column; action controls (Back, Share, Cite, reading size, PDF) set as a `nowrap` equal-size icon-only row with visually hidden labels and accessible `aria-label`s fitting 320px viewports without overflow; clear gap added before prose and drop cap (PLT-AC-71).
+
 ## [2.2.1] — 2026-10-28
 
 ### Fixed

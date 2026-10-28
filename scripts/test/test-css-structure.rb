@@ -259,7 +259,7 @@ require_declarations(
 )
 require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
-  ".home-project-inventory-row .home-project-inventory-glyph", ["font-size: 1.375rem"]
+  ".home-project-inventory-row .home-project-inventory-glyph", ["font-size: calc(1.375rem + 2pt)"]
 )
 [
   "45.6%",
@@ -300,12 +300,37 @@ if declaration_bodies(home_sheet, ".home-hero-summary").any? { |body| declaratio
   errors << "assets/css/ledger/home.css: .home-hero-summary must use --color-legend (PLT-AC-23)"
 end
 
-# PLT-AC-62. Hero cqi clamp divisors calculated for Ancizar at -0.02em tracking (~5.55 / ~10.81). Cinzel comments removed.
-if home_sheet.match?(/Cinzel/i)
-  errors << "assets/css/ledger/home.css must not contain Cinzel comments or references (PLT-AC-62)"
+# PLT-AC-62 / PLT-AC-68. Hero cqi clamp divisors calculated for Ancizar (~6.9 / ~10.81). Cinzel and 5.55 comments removed.
+if home_sheet.match?(/Cinzel/i) || home_sheet.include?("5.55")
+  errors << "assets/css/ledger/home.css must not contain Cinzel or obsolete 5.55 comments/divisors (PLT-AC-68)"
 end
-if home_sheet.include?("14.5") || home_sheet.include?("8.4")
-  errors << "assets/css/ledger/home.css: hero clamp divisors must use Ancizar factors (~5.55 / ~10.81) instead of Cinzel (PLT-AC-62)"
+unless home_sheet.include?("calc(100cqi * 0.92 / 6.9)") && home_sheet.include?("var(--hero-name-fit, 6.9)")
+  errors << "assets/css/ledger/home.css: hero clamp divisors must use Ancizar longer-part factor (~6.9) (PLT-AC-68)"
+end
+
+# PLT-AC-69. Inventory / project logo icon font-sizes +2pt.
+require_declarations(
+  errors, "assets/css/ledger/home.css", home_sheet,
+  ".home-project-inventory-glyph", ["font-size: calc(1.25rem + 2pt)"]
+)
+unless home_sheet.include?("calc(1.375rem + 2pt)") && home_sheet.include?("calc(1.75rem + 2pt)")
+  errors << "assets/css/ledger/home.css: inventory icon sizes must be +2pt larger than 2.2.1 rem values (PLT-AC-69)"
+end
+
+# PLT-AC-70. Home section titles one step larger (--type-section / --type-section-lg).
+require_declarations(
+  errors, "assets/css/ledger/home.css", home_sheet,
+  ".home-band .ledger-section-banner .section-title", ["font-size: var(--type-section)"]
+)
+
+# PLT-AC-71. Mobile article/post detail meta + actions redesign.
+unless detail_sheet.include?("flex-direction: column") && detail_sheet.include?("detail-actions")
+  errors << "assets/css/ledger/detail.css: mobile detail meta must stack and include detail-actions (PLT-AC-71)"
+end
+
+# PLT-AC-72. Detail reading-progress bar uses top: 0 (not top: 4.25rem).
+if detail_sheet.include?("top: 4.25rem") || !detail_sheet.include?("top: 0")
+  errors << "assets/css/ledger/detail.css: reading progress bar must use top: 0 instead of 4.25rem (PLT-AC-72)"
 end
 
 # PLT-AC-63. Page header markup must not hardcode class="italic" on title span.
