@@ -8,7 +8,7 @@
       <span data-content-header-eyebrow class="{{ include.eyebrow_class | default: 'font-label text-sm text-secondary block mb-4 hidden' }}" hidden></span>
 
       <h1 class="page-header-title font-title{% if include.title_class %} {{ include.title_class }}{% endif %}">
-        <span data-content-header-title class="italic"{% if _header_title != blank %} data-content-static{% endif %}>{% if _header_title contains "*" %}{% assign _header_bits = _header_title | split: "*" %}{% for _header_bit in _header_bits %}{% assign _header_em = forloop.index0 | modulo: 2 %}{% if _header_em == 1 %}<em>{{ _header_bit | escape }}</em>{% else %}{{ _header_bit | escape }}{% endif %}{% endfor %}{% else %}{{ _header_title | escape }}{% endif %}</span>
+        <span data-content-header-title{% if _header_record.title != nil %} data-content-static{% endif %}>{% if _header_title contains "*" %}{% assign _header_bits = _header_title | split: "*" %}{% for _header_bit in _header_bits %}{% assign _header_em = forloop.index0 | modulo: 2 %}{% if _header_em == 1 %}<em>{{ _header_bit | escape }}</em>{% else %}{{ _header_bit | escape }}{% endif %}{% endfor %}{% else %}{{ _header_title | escape }}{% endif %}</span>
       </h1>
 
       <span data-content-header-tags class="{{ include.tags_class | default: 'page-header-tags font-label text-tertiary mt-4 block hidden' }}" hidden></span>

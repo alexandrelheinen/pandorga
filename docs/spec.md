@@ -555,6 +555,11 @@ Criteria are written in EARS format. Every criterion is referenced by at least o
 - `PLT-AC-59` Italic titles are restricted to `.home-hero-family` and `.section-title em` / `.page-header-title em`; all other headings and card titles remain upright (`test-css-structure`).
 - `PLT-AC-60` Heading and title selectors in ledger CSS do not apply `text-transform: uppercase` (`test-css-structure`).
 - `PLT-AC-61` On viewports at or above 900px, the home projects bench places the inventory column to the left of the specimen. The inventory rows become logo-only buttons with enlarged icon marks and visually hidden body/title text, keeping accessible labels (`aria-label`) and tooltips on hover/focus (`title`). A static Marcellus SC label "Explore projects" sits above the inventory (`test-v3-layout`, `test-css-structure`).
+- `PLT-AC-62` The home hero title container query clamps recalculate divisors for Ancizar Serif at -0.02em tracking (~5.55 for phone family name line, ~10.81 for full name cap). Comments referencing Cinzel are removed (`test-hero-name`, `test-css-structure`).
+- `PLT-AC-63` Fixed/list page titles (`.page-header-title`) are upright by default, removing `class="italic"` on `[data-content-header-title]`. Emphasis and marker wash are applied only via `<em>` elements. When `headers.yml` has no title for a key, `data-content-static` is omitted on fallback so runtime hydration fills inline emphasis (`test-css-structure`).
+- `PLT-AC-64` On `.home-hero-family`, `font-style: italic` is removed, retaining primary color and raising marker strength to ~0.85–0.9× section alpha levels. Hero family is no longer treated as an italic exception (`test-fonts`, `test-css-structure`).
+- `PLT-AC-65` Homepage typography ladder maintains hero > page list H1 > home section titles > specimen/featured project name > card titles. Section titles outrank specimen names at 390px and 1440px, and `.home-specimen-title` no longer uses `var(--type-section)` at desktop breakpoints (`test-v3-layout`, `test-css-structure`).
+- `PLT-AC-66` Every `em` inside title role elements (`.section-title`, `.page-header-title`, `.home-index-title`, `.card-title`, `.ledger-card-title`) receives the primary-color felt-marker wash grouped selector in both light and dark themes (`test-css-structure`).
 
 ## 13. Owner decisions
 

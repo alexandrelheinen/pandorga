@@ -41,6 +41,9 @@ Out:
   (Ancizar Serif, Ancizar Sans, Marcellus SC, Courier Prime) with no Cinzel.
 - `PLT-AC-57` Body weights are site-configurable (`body_weight: 300`,
   `body_weight_mobile: 350`). Mobile query rebinds `--weight-body`.
+- `PLT-AC-62` The home hero title container query clamps use Ancizar Serif
+  factors at -0.02em tracking (~5.55em phone family-line width divisor, ~10.81em
+  desktop full-name cap divisor).
 
 ## Constraints
 
