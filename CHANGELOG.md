@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.2.8] — 2026-10-29
+
+### Changed
+
+- CR-21f: Home Projects band gains `home.limit_mobile` (default 6, mobile strip) and `home.limit_desktop` (default `all`, desktop column ≥900px). Home Projects section subtitle (`.home-section-note`) is constrained to the projects block width (column + card) on desktop so it no longer extends past the block; specimen card unchanged. Gate PLT-AC-79.
+
 ## [2.2.7] — 2026-10-29
 
 ### Changed

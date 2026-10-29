@@ -257,15 +257,40 @@ layout: shell
         var specimenSlot = section.querySelector('[data-home-specimen]');
         var inventorySlot = section.querySelector('[data-home-inventory]');
         var systemTagHref = tagHrefFrom(list);
-        /* Selector strip is sized for six icon buttons on mobile; take up to
-           six projects even when home.limit is lower. */
-        var portfolio = entries.slice(0, Math.max(limit, 6));
+        /* CR-21f: limit_mobile (default 6) for the <900 strip; limit_desktop
+           (default all) for the ≥900 column. Legacy home.limit ignored for
+           portfolio when the dual attrs are present (always emitted). */
+        function parsePortfolioLimit(raw, fallback) {
+          if (raw == null || raw === '') return fallback;
+          var s = String(raw).trim().toLowerCase();
+          if (s === 'all' || s === 'unlimited' || s === 'inf' || s === 'infinity') {
+            return Infinity;
+          }
+          var n = parseInt(s, 10);
+          return (n > 0) ? n : fallback;
+        }
+        var limitMobile = parsePortfolioLimit(
+          section.getAttribute('data-home-limit-mobile'), 6
+        );
+        var limitDesktop = parsePortfolioLimit(
+          section.getAttribute('data-home-limit-desktop'), Infinity
+        );
+        var desktopMq = window.matchMedia('(min-width: 900px)');
+        function activePortfolioLimit() {
+          return desktopMq.matches ? limitDesktop : limitMobile;
+        }
+        function slicePortfolio(source) {
+          var take = activePortfolioLimit();
+          if (!isFinite(take)) return source.slice();
+          return source.slice(0, take);
+        }
+        var portfolio = slicePortfolio(entries);
         if (!portfolio.length) {
           runtime.Listing.showErrorState(list, 'Projects could not be loaded right now.');
           return;
         }
         if (!specimenSlot || !inventorySlot) {
-          fill(list, portfolio.slice(0, limit), function (entry) {
+          fill(list, portfolio, function (entry) {
             return runtime.renderSystemCard(asItem(entry), {
               href: entry.url || runtime.projectUrl(entry.slug),
               tagHref: systemTagHref,
@@ -275,12 +300,13 @@ layout: shell
           return;
         }
 
-        var featuredPick = runtime.pickFeatured(portfolio.map(asItem), {
+        var featuredPick = runtime.pickFeatured(entries.map(asItem), {
           storageKey: 'home-specimen-slug',
           eligible: function () { return true; }
         });
         var selectedSlug = (featuredPick && featuredPick.slug) || portfolio[0].slug;
-        var iconSlots = Math.min(portfolio.length, 6);
+        /* Mobile strip columns follow the visible count (≤ limit_mobile). */
+        var iconSlots = Math.min(portfolio.length, isFinite(limitMobile) ? limitMobile : portfolio.length);
 
         function entryBySlug(slug) {
           return portfolio.filter(function (entry) { return entry.slug === slug; })[0] || portfolio[0];
@@ -455,6 +481,37 @@ layout: shell
         await paintSpecimen(entryBySlug(selectedSlug));
         await afterPaint();
         paintInventory();
+
+        function refreshPortfolioForViewport() {
+          portfolio = slicePortfolio(entries);
+          iconSlots = Math.min(
+            portfolio.length,
+            isFinite(limitMobile) ? limitMobile : portfolio.length
+          );
+          var stillVisible = false;
+          for (var i = 0; i < portfolio.length; i += 1) {
+            if (portfolio[i].slug === selectedSlug) {
+              stillVisible = true;
+              break;
+            }
+          }
+          if (!stillVisible) selectedSlug = portfolio[0].slug;
+          return lockSpecimenHeight().then(function () {
+            return paintSpecimen(entryBySlug(selectedSlug));
+          }).then(function () {
+            paintInventory();
+          });
+        }
+
+        if (typeof desktopMq.addEventListener === 'function') {
+          desktopMq.addEventListener('change', function () {
+            refreshPortfolioForViewport();
+          });
+        } else if (typeof desktopMq.addListener === 'function') {
+          desktopMq.addListener(function () {
+            refreshPortfolioForViewport();
+          });
+        }
 
         var resizeTimer = null;
         var lastMeasureWidth = Math.round(specimenSlot.getBoundingClientRect().width);

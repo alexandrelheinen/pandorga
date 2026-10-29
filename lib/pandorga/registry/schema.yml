@@ -144,7 +144,11 @@ pages:
       - key: "`featured`"
         notes: Lead card for writing bands
       - key: "`limit`"
-        notes: Max items in the band
+        notes: Max items in the band (non-portfolio)
+      - key: "`limit_mobile`"
+        notes: "Portfolio only: max icon buttons in the mobile strip (<900px). Default 6"
+      - key: "`limit_desktop`"
+        notes: "Portfolio only: max icon buttons in the desktop column (≥900px). Default `all` (unlimited)"
       - key: "`cta`"
         notes: Listing CTA label (default `View all`)
       - key: "`false`"

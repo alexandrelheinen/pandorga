@@ -247,7 +247,7 @@ const ASSERT_EXPRESSION = `
   }
 
   // 5. Desktop home projects inventory logo-button stack (PLT-AC-74)
-  // 6. CR-21b/c/d glyph/border/specimen + 16:9/label/gap (PLT-AC-75/76/77)
+  // 6. CR-21b/c/d/e/f glyph/border/specimen + 16:9/label/gap + dual limits/subtitle (PLT-AC-75/76/77/78/79)
   {
     const bench = document.querySelector('.home-projects-bench');
     const rows = document.querySelectorAll('.home-project-inventory-row');
@@ -439,6 +439,75 @@ const ASSERT_EXPRESSION = `
         errors.push('Plate #' + idx + ' ratio ' + ratio.toFixed(4) + ' not within 1% of 16:9 (PLT-AC-77)');
       }
     });
+  }
+
+  // CR-21f / PLT-AC-79: dual portfolio limits + home projects subtitle ≤ block
+  {
+    const section = document.querySelector('.home-band[data-home-kind="portfolio"]');
+    if (section) {
+      const limM = (section.getAttribute('data-home-limit-mobile') || '').trim();
+      const limD = (section.getAttribute('data-home-limit-desktop') || '').trim().toLowerCase();
+      const mobileN = parseInt(limM, 10);
+      if (!(mobileN > 0)) {
+        errors.push('data-home-limit-mobile is "' + limM + '", expected positive int (default 6) (PLT-AC-79)');
+      }
+      if (!(limD === 'all' || limD === 'unlimited' || parseInt(limD, 10) > 0)) {
+        errors.push('data-home-limit-desktop is "' + limD + '", expected all|unlimited|positive int (PLT-AC-79)');
+      }
+
+      const rows = section.querySelectorAll('.home-project-inventory-row');
+      let totalProjects = 0;
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', '/data/writing_index.json', false);
+        xhr.send(null);
+        if (xhr.status >= 200 && xhr.status < 300) {
+          const index = JSON.parse(xhr.responseText);
+          const col = section.getAttribute('data-home-collection') || 'projects';
+          totalProjects = (Array.isArray(index) ? index : []).filter(function (e) {
+            return e && e.collection === col;
+          }).length;
+        }
+      } catch (e) { /* ignore — count asserts skipped if index missing */ }
+
+      if (totalProjects > 0 && rows.length > 0) {
+        if (window.innerWidth >= 900) {
+          const expectDesktop = (limD === 'all' || limD === 'unlimited')
+            ? totalProjects
+            : Math.min(totalProjects, parseInt(limD, 10));
+          if (rows.length !== expectDesktop) {
+            errors.push('Desktop inventory rows (' + rows.length + ') !== expected ' + expectDesktop + ' (PLT-AC-79)');
+          }
+        } else {
+          const cap = mobileN > 0 ? mobileN : 6;
+          if (rows.length > cap) {
+            errors.push('Mobile inventory rows (' + rows.length + ') > limit_mobile ' + cap + ' (PLT-AC-79)');
+          }
+        }
+      }
+
+      if (window.innerWidth >= 900) {
+        const note = section.querySelector('.home-section-note');
+        const wrap = section.querySelector('.home-projects-inventory-wrap');
+        const specimen = section.querySelector('.home-project-specimen')
+          || section.querySelector('[data-home-specimen] > *')
+          || section.querySelector('[data-home-specimen]');
+        if (note && wrap && specimen) {
+          const nR = note.getBoundingClientRect();
+          const wR = wrap.getBoundingClientRect();
+          const sR = specimen.getBoundingClientRect();
+          if (nR.width > 8 && sR.width > 8) {
+            const blockRight = Math.max(wR.right, sR.right);
+            if (nR.right > blockRight + 1) {
+              errors.push(
+                'Home projects subtitle right (' + nR.right.toFixed(1) +
+                ') past projects block right (' + blockRight.toFixed(1) + ') (PLT-AC-79)'
+              );
+            }
+          }
+        }
+      }
+    }
   }
 
   return { errors };

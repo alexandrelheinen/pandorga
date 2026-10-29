@@ -7,6 +7,8 @@
 {%- endcomment -%}
 {%- assign _accent = band.accent -%}
 {%- assign _limit = band.home.limit | default: 3 -%}
+{%- assign _limit_mobile = band.home.limit_mobile | default: 6 -%}
+{%- assign _limit_desktop = band.home.limit_desktop | default: "all" -%}
 {%- assign _featured = band.home.featured -%}
 {%- assign _lang = band.language | default: site.pandorga.identity.locale | default: "en" -%}
 {%- assign _path = band.path -%}
@@ -24,6 +26,8 @@
   data-home-collection="{{ band.collection }}"
   data-home-path="{{ _path }}"
   data-home-limit="{{ _limit }}"
+  data-home-limit-mobile="{{ _limit_mobile }}"
+  data-home-limit-desktop="{{ _limit_desktop }}"
   data-home-featured="{{ _featured }}"
   data-home-language="{{ _lang }}"
 >

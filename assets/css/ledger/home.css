@@ -1348,6 +1348,25 @@ button.home-project-inventory-row {
 
 @media (min-width: 900px) {
 
+  /* CR-21f: home Projects section note (subtitle under the title) must not
+     extend past the projects block (inventory column + gap + specimen card).
+     Tokens mirror the bench plate/card sizing; specimen card children unchanged. */
+  .home-band[data-home-kind="portfolio"] {
+    --home-icon-btn-size: 2.75rem;
+    --home-specimen-plate-height: 12.25rem;
+    --home-specimen-plate-width: calc(var(--home-specimen-plate-height) * 16 / 9);
+    --home-specimen-max-width: calc(var(--home-specimen-plate-width) + 2 * var(--space-md));
+    --home-projects-block-width: calc(
+      var(--home-icon-btn-size)
+      + calc(var(--space-xs) * 2)
+      + var(--home-specimen-max-width)
+    );
+  }
+
+  .home-band[data-home-kind="portfolio"] .home-section-note {
+    max-width: var(--home-projects-block-width);
+  }
+
   /* Inventory left of specimen, flush to card (gap ≤ 2× button gap);
      column width = button width; plate 16:9 at ~215.6×383.3 (+25% CR-21e);
      card hugs plate + padding; visible Explore label removed (CR-21d). */
