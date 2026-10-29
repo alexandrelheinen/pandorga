@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.2.3] — 2026-10-29
+
+### Changed
+
+- CR-21: Desktop Explore projects inventory (≥900px) updated to a shrink-to-fit vertical stack of logo-only square buttons using the exact mobile button chrome, borders, hover, and selected states without wide bands or contrast panel surrounds (PLT-AC-74).
+
 ## [2.2.2] — 2026-10-28
 
 ### Added
