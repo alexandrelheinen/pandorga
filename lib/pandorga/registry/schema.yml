@@ -49,6 +49,12 @@ home:
     hero_art:
       type: string
       notes: Include path for hero decoration (default `page/hero-default.html`)
+    hero_portrait:
+      type: string
+      notes: Optional stem or path fragment; when set, the home hydrator prefers that pool entry instead of a random draw (e.g. `DSC00571`)
+    hero_overlay:
+      type: map
+      notes: Optional `{ vignette, pool }` (0–1) emitted as `--home-hero-vignette` / `--home-hero-pool`
 
 fonts:
   title: "`pandorga.fonts`"
