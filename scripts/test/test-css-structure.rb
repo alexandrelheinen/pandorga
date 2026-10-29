@@ -302,8 +302,12 @@ end
 if home_sheet.match?(/Cinzel/i) || home_sheet.include?("5.55")
   errors << "assets/css/ledger/home.css must not contain Cinzel or obsolete 5.55 comments/divisors (PLT-AC-68)"
 end
-unless home_sheet.include?("calc(100cqi * 0.92 / 6.9)") && home_sheet.include?("var(--hero-name-fit, 6.9)")
-  errors << "assets/css/ledger/home.css: hero clamp divisors must use Ancizar longer-part factor (~6.9) (PLT-AC-68)"
+# Phone/base keep Ancizar 6.9; desktop CR-22.1 uses the approved B3 vw clamp.
+unless home_sheet.include?("calc(100cqi * 0.92 / 6.9)")
+  errors << "assets/css/ledger/home.css: phone/base hero clamp must use Ancizar ~6.9 (PLT-AC-68)"
+end
+unless home_sheet.include?("calc(clamp(1.85rem, 2.6vw, 2.55rem) + 2pt)")
+  errors << "assets/css/ledger/home.css: desktop B3 name clamp missing (CR-22.1 / PLT-AC-86)"
 end
 
 # PLT-AC-69. Inventory / project logo icon font-sizes +2pt.

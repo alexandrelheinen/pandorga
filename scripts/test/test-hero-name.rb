@@ -145,7 +145,11 @@ check!(hero.include?("@media (min-width: 640px) and (max-width: 767px)"),
        "missing 640-767 size query")
 check!(hero.include?("calc(clamp(var(--type-section-lg), calc(100cqi * 0.92 / 6.9), var(--type-page-lg)) + 3pt)"),
        "from 640px to 767px the name must be the section-lg clamp plus 3pt")
-check!(css.include?("var(--hero-name-fit, 6.9)"), "desktop hero-name-fit default must be 6.9")
+# CR-22.1 supersedes desktop --hero-name-fit 6.9 with the approved B3 clamp.
+check!(css.include?("calc(clamp(1.85rem, 2.6vw, 2.55rem) + 2pt)"),
+       "desktop B3 name clamp must be present (CR-22.1)")
+check!(css.include?("clamp(1.9rem, 7vw, 2.6rem)"),
+       "stack B3 name clamp must be present (CR-22.1)")
 
 plain = hero.index("@media (min-width: 640px) {")
 banded = hero.index("@media (min-width: 640px) and (max-width: 767px)")
