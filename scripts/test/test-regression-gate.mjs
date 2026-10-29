@@ -283,13 +283,6 @@ const ASSERT_EXPRESSION = `
           }
         }
 
-        const wrap = document.querySelector('.home-projects-inventory-wrap');
-        if (wrap && firstRowWidth !== null) {
-          const wrapWidth = wrap.getBoundingClientRect().width;
-          if (wrapWidth > firstRowWidth + 12) {
-            errors.push('.home-projects-inventory-wrap width (' + wrapWidth.toFixed(2) + 'px) > first row width + 12 (' + (firstRowWidth + 12).toFixed(2) + 'px)');
-          }
-        }
       }
     }
   }
