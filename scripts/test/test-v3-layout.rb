@@ -448,7 +448,7 @@ end
 item(10) do
   h = "ledger/home.css"
   expect(h, ".home-project-inventory-row", {
-    background: "var(--color-surface-card)", "border" => "1px solid var(--border-ink)"
+    background: "var(--color-surface-card)", "border" => "1px solid var(--border-gentle)"
   })
   no_contrast_surface(h, /home-project/)
   p = "ledger/projects.css"

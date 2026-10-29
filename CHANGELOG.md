@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.2.4] — 2026-10-29
+
+### Fixed
+
+- CR-21b: Desktop Explore projects inventory glyphs use the mobile CR-16 size (`calc(1.375rem + 2pt)` via the two-class selector at every breakpoint) so Material Symbols cannot inherit the body size; inventory buttons use a visible `--border-gentle` frame on every state; desktop specimen capped at 680px wide with plate `max-height: 45vh`, and the height-lock probe respects `--home-specimen-max-width` (PLT-AC-75).
+
 ## [2.2.3] — 2026-10-29
 
 ### Changed

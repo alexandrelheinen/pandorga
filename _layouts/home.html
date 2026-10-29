@@ -348,7 +348,25 @@ layout: shell
         async function measureTallestSpecimen() {
           var bench = specimenSlot.closest('.home-projects-bench');
           if (!bench) return 0;
-          var width = specimenSlot.getBoundingClientRect().width;
+          var slotWidth = specimenSlot.getBoundingClientRect().width;
+          if (slotWidth < 1) return 0;
+          var benchEl = specimenSlot.closest('.home-projects-bench');
+          var maxW = 680;
+          if (benchEl) {
+            var rawMax = getComputedStyle(benchEl).getPropertyValue('--home-specimen-max-width').trim();
+            if (rawMax) {
+              var parsed = parseFloat(rawMax);
+              if (rawMax.endsWith('rem')) {
+                var rootFs = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+                parsed = parsed * rootFs;
+              }
+              if (parsed > 0) maxW = parsed;
+            }
+          }
+          /* Below 900px the max-width token is unset; use the full slot. */
+          var width = benchEl && getComputedStyle(benchEl).getPropertyValue('--home-specimen-max-width').trim()
+            ? Math.min(slotWidth, maxW)
+            : slotWidth;
           if (width < 1) return 0;
 
           var probe = document.createElement('div');

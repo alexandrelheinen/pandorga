@@ -1173,16 +1173,20 @@ html[data-theme="light"] .home-hero-plate {
   .home-specimen-figure:has(> .ledger-poster)>.home-specimen-badge {
     font-size: calc(1.375rem + 2pt);
   }
+}
 
-  /* Two classes: the Material Symbols sheet loads after this one and resets
-     the glyph size on a single class. */
-  .home-project-inventory-row .home-project-inventory-glyph {
-    font-size: calc(1.375rem + 2pt);
-  }
+/* Two/three classes at every breakpoint: beat Material Symbols
+   `font-size: inherit` so desktop inventory glyphs match mobile CR-16 (~26.9px). */
+.home-project-inventory-row .home-project-inventory-glyph {
+  font-size: calc(1.375rem + 2pt);
+}
 
-  .home-project-inventory-row .home-project-inventory-glyph--initial {
-    font-size: var(--type-card);
-  }
+.home-project-inventory-row .home-project-inventory-glyph.material-symbols-outlined {
+  font-size: calc(1.375rem + 2pt);
+}
+
+.home-project-inventory-row .home-project-inventory-glyph--initial {
+  font-size: var(--type-card);
 }
 
 .home-project-specimen .home-specimen-title {
@@ -1289,7 +1293,7 @@ button.home-project-inventory-row {
   min-width: 0;
   height: var(--home-icon-btn-size);
   padding: 0;
-  border: 1px solid var(--border-ink);
+  border: 1px solid var(--border-gentle);
   background: var(--color-surface-card);
   cursor: pointer;
   transition: background-color var(--motion-duration-fast) var(--motion-ease-default),
@@ -1341,8 +1345,10 @@ button.home-project-inventory-row {
 
 @media (min-width: 900px) {
 
-  /* The inventory logo-button stack sits on the left (shrink-to-fit), and the specimen on the right. */
+  /* Inventory logo-button stack left (shrink-to-fit); specimen capped and
+     left-aligned so it stays proportionate beside the column (CR-21b). */
   .home-projects-bench {
+    --home-specimen-max-width: 680px;
     display: grid;
     grid-template-columns: max-content minmax(0, 1fr);
     column-gap: var(--space-xl);
@@ -1376,6 +1382,20 @@ button.home-project-inventory-row {
     width: var(--home-icon-btn-size);
     height: var(--home-icon-btn-size);
     flex: 0 0 auto;
+  }
+
+  .home-project-specimen {
+    max-width: var(--home-specimen-max-width);
+    width: 100%;
+    justify-self: start;
+  }
+
+  .home-specimen-figure > .ledger-poster,
+  .home-specimen-figure > .projects-plate {
+    max-height: 45vh;
+    width: min(100%, calc(45vh * 16 / 9));
+    height: auto;
+    aspect-ratio: 16 / 9;
   }
 }
 

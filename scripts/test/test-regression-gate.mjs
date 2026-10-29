@@ -247,17 +247,47 @@ const ASSERT_EXPRESSION = `
   }
 
   // 5. Desktop home projects inventory logo-button stack (PLT-AC-74)
-  if (window.innerWidth >= 900) {
+  // 6. CR-21b mobile-identical glyph/border + specimen cap (PLT-AC-75)
+  {
     const bench = document.querySelector('.home-projects-bench');
-    if (bench) {
+    const rows = document.querySelectorAll('.home-project-inventory-row');
+    const rootFs = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    // calc(1.375rem + 2pt) — 1pt = 96/72 px
+    const expectedGlyphPx = 1.375 * rootFs + 2 * (96 / 72);
+
+    if (rows.length > 0) {
+      const first = rows[0];
+      const glyph = first.querySelector('.home-project-inventory-glyph');
+      if (glyph) {
+        const gfs = parseFloat(getComputedStyle(glyph).fontSize);
+        const isInitial = glyph.classList.contains('home-project-inventory-glyph--initial');
+        let expectFs = expectedGlyphPx;
+        if (isInitial) {
+          const rawCard = getComputedStyle(document.documentElement).getPropertyValue('--type-card').trim();
+          expectFs = parseFloat(rawCard) || expectedGlyphPx;
+          if (rawCard.endsWith('rem')) expectFs = expectFs * rootFs;
+        }
+        if (Math.abs(gfs - expectFs) > 1.5) {
+          errors.push('Inventory glyph font-size (' + gfs.toFixed(2) + 'px) not within 1.5px of expected ' + expectFs.toFixed(2) + 'px (PLT-AC-75)');
+        }
+        // Desktop Material Symbols must not fall back to body inherit (~18px)
+        if (!isInitial && window.innerWidth >= 900 && gfs < 22) {
+          errors.push('Desktop inventory icon glyph too small (' + gfs.toFixed(2) + 'px); Material Symbols inherit must not win (PLT-AC-75)');
+        }
+      }
+      const rcs = getComputedStyle(first);
+      if (Math.abs(parseFloat(rcs.borderTopWidth) - 1) > 0.5 || rcs.borderTopStyle !== 'solid') {
+        errors.push('Inventory row border is ' + rcs.borderTopWidth + ' ' + rcs.borderTopStyle + ', expected 1px solid (PLT-AC-75)');
+      }
+    }
+
+    if (window.innerWidth >= 900 && bench) {
       const rawSize = getComputedStyle(bench).getPropertyValue('--home-icon-btn-size').trim();
       let iconSizePx = parseFloat(rawSize);
       if (rawSize.endsWith('rem')) {
-        const rootFs = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
         iconSizePx = iconSizePx * rootFs;
       }
 
-      const rows = document.querySelectorAll('.home-project-inventory-row');
       if (rows.length > 0) {
         let firstRowWidth = null;
         rows.forEach((row, idx) => {
@@ -282,7 +312,22 @@ const ASSERT_EXPRESSION = `
             errors.push('.home-project-inventory width (' + invWidth.toFixed(2) + 'px) > first row width + 12 (' + (firstRowWidth + 12).toFixed(2) + 'px)');
           }
         }
+      }
 
+      const specimen = document.querySelector('.home-project-specimen');
+      if (specimen) {
+        const sw = specimen.getBoundingClientRect().width;
+        if (sw > 682) {
+          errors.push('Specimen width (' + sw.toFixed(2) + 'px) exceeds 680px cap (PLT-AC-75)');
+        }
+        const plate = specimen.querySelector('.home-specimen-figure > .ledger-poster, .home-specimen-figure > .projects-plate, .home-specimen-figure img');
+        if (plate) {
+          const ph = plate.getBoundingClientRect().height;
+          const cap = 0.45 * window.innerHeight + 2;
+          if (ph > cap) {
+            errors.push('Specimen plate height (' + ph.toFixed(2) + 'px) exceeds 45vh cap (' + cap.toFixed(2) + 'px) (PLT-AC-75)');
+          }
+        }
       }
     }
   }
