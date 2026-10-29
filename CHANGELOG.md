@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [2.3.0] — 2026-10-29
+
+### Added
+
+- CR-22: Home hero B3 — portrait as centered spotlight background; desktop masthead places hero and Projects in two 50% content columns; stacked full-bleed hero below 1024px; config `pandorga.home.hero_overlay` (`vignette`, `pool`); gates PLT-AC-81…85. See [features/home-hero-b3.md](docs/features/home-hero-b3.md).
+
+### Changed
+
+- CR-21g (2.2.9): specimen card meta/copy/chips/CTAs restored to pre-2.2.7 sizes; inventory glyphs `calc(1.375rem + 6pt)`; title keeps −2pt (PLT-AC-80).
+
 ## [2.2.9] — 2026-10-29
 
 ### Changed

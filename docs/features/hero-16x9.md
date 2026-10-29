@@ -2,13 +2,11 @@
 
 ## Intent
 
-The home hero shows one 16:9 photograph at every width. With a short
-summary under the name, a 3:4 plate beside the copy is narrow and tall,
-and the phone needed a second, landscape file and a second draw. One
-frame shape removes the second file, the width switch and the picture
-source. On a wide page the name sets on two lines, so the photograph
-takes the width the one-line name used to hold, and the band is as tall
-as its text, like the featured article.
+The home hero plate keeps a 16:9 base rule and 16:9 export variants.
+CR-22 (see [home-hero-b3.md](home-hero-b3.md)) supersedes the desktop
+46%/two-line name layout: from 1024px the photograph is the hero panel
+background with centered `object-position`, and below 1024px it is a
+full-bleed photo background. Specimen plates elsewhere on home remain 16:9.
 
 ## Scope
 

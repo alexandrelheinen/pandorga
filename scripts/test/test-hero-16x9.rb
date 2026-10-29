@@ -29,6 +29,7 @@ require_relative "../../lib/pandorga/thumbnail_variants"
 ONLY_ITEMS = ARGV.map { |a| a.sub(/\A(PLT-AC-)?51\./, "") }.to_set
 DESKTOP = "(min-width:1024px)"
 PHONE = "(max-width:767px)"
+STACK = "(max-width:1023px)" # CR-22 full-bleed photo-bg
 
 $failures = []
 
@@ -134,7 +135,9 @@ end
 
 def expect_decl(sel, prop, want, media: nil)
   got = decl(sel, prop, media: media)
-  ok = want.is_a?(Regexp) ? got.to_s.match?(want) : got == want
+  # CR-22 overrides use !important; compare the declared value without the flag.
+  bare = got.to_s.sub(/\s*!important\z/, "").strip
+  ok = want.is_a?(Regexp) ? bare.match?(want) : bare == want
   where = media ? " under #{media}" : ""
   fail!("#{sel} #{prop} should be #{want.inspect}#{where}, got #{got.inspect}") unless ok
 end
@@ -160,15 +163,16 @@ item(1) do
   fail!("no .home-hero-plate--landscape rule may remain") unless landscape.empty?
 end
 
-# ── 51.2 Phone ──────────────────────────────────────────────────────────────
+# ── 51.2 Stacked full-bleed (CR-22, <1024) ─────────────────────────────────
 
 item(2) do
-  expect_decl(".home-hero-portrait", "width", /\Acalc\(100% \+ \(2 \* var\(--gutter-mobile\)\)\)\z/, media: PHONE)
-  expect_decl(".home-hero-portrait", "margin-inline", "calc(-1 * var(--gutter-mobile))", media: PHONE)
-  expect_decl(".home-hero-plate", "border-inline", "0", media: PHONE)
+  expect_decl(".home-band--hero", "width", "100vw", media: STACK)
+  expect_decl(".home-hero-portrait", "position", "absolute", media: STACK)
+  expect_decl(".home-hero-plate", "aspect-ratio", "auto", media: STACK)
+  expect_decl(".home-hero-plate img", "object-position", /\Acenter( center)?\z/, media: STACK)
 end
 
-# ── 51.3 768px to 1023px ───────────────────────────────────────────────────
+# ── 51.3 Portrait must not be width-capped ─────────────────────────────────
 
 item(3) do
   rules_for(".home-hero-portrait").each do |r|
@@ -178,18 +182,13 @@ item(3) do
       fail!(".home-hero-portrait max-width #{val} under #{r[:media].inspect} caps the plate")
     end
   end
-  expect_decl(".home-hero-portrait", "width", "100%")
 end
 
-# ── 51.4 From 1024px ───────────────────────────────────────────────────────
+# ── 51.4 From 1024px — photo as background (CR-22 / PLT-AC-82) ─────────────
 
 item(4) do
   expect_decl(".home-hero", "display", "flex", media: DESKTOP)
-  expect_decl(".home-hero-copy", "flex", "0 0 46%", media: DESKTOP)
-  expect_decl(".home-hero-copy", "min-width", "0", media: DESKTOP)
-  expect_decl(".home-hero-portrait", "flex", "1 1 0", media: DESKTOP)
-  expect_decl(".home-hero-portrait", "min-height", "15rem", media: DESKTOP)
-  expect_decl(".home-hero-portrait", "max-width", "none", media: DESKTOP)
+  expect_decl(".home-hero-portrait", "position", "absolute", media: DESKTOP)
   expect_decl(".home-hero-portrait", "aspect-ratio", "auto", media: DESKTOP)
   [".home-hero-plate-wrap", ".home-hero-plate"].each do |sel|
     expect_decl(sel, "position", "absolute", media: DESKTOP)
@@ -198,6 +197,7 @@ item(4) do
   end
   expect_decl(".home-hero-plate img", "object-fit", "cover", media: DESKTOP)
   expect_decl(".home-hero-plate img", "object-position", /\Acenter( center)?\z/, media: DESKTOP)
+  expect_decl(".home-hero-actions", "flex-wrap", "nowrap", media: DESKTOP)
 
   layout = LAYOUT.read
   fail!("the crosshairs must stay on the plate wrapper") unless layout.include?('class="ledger-frame-crosshairs"')
@@ -222,14 +222,11 @@ end
 
 item(6) do
   title = ".home-ledger .home-hero-title"
-  expect_decl(title, "white-space", "normal", media: DESKTOP)
+  # CR-22: single-line name on photo, +2pt over the prior desktop size
+  expect_decl(title, "white-space", "nowrap", media: DESKTOP)
   expect_decl(title, "font-size",
-              "min(calc(100cqi / var(--hero-name-fit, 6.9)), var(--hero-name-max, 4.5rem))",
+              "calc(min(calc(100cqi / var(--hero-name-fit, 6.9)), var(--hero-name-max, 4.5rem)) + 2pt)",
               media: DESKTOP)
-  %w[.home-hero-given .home-hero-family].each do |sel|
-    expect_decl(sel, "display", "inline-block", media: DESKTOP)
-    expect_decl(sel, "white-space", "nowrap", media: DESKTOP)
-  end
 end
 
 # ── 51.7 Markup ─────────────────────────────────────────────────────────────

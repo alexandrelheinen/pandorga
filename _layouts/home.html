@@ -20,6 +20,19 @@ layout: shell
 {%- assign _home_bands = site.data.pandorga_home_bands -%}
 
 <main class="home-ledger">
+{%- assign _hero_overlay = site.pandorga.home.hero_overlay -%}
+{%- if _hero_overlay -%}
+<style>
+  :root {
+    {%- if _hero_overlay.vignette -%}
+    --home-hero-vignette: {{ _hero_overlay.vignette }};
+    {%- endif -%}
+    {%- if _hero_overlay.pool -%}
+    --home-hero-pool: {{ _hero_overlay.pool }};
+    {%- endif -%}
+  }
+</style>
+{%- endif -%}
 
   <section class="home-band home-band--hero">
     <div class="home-hero-art home-hero-pandorga" aria-hidden="true">

@@ -1478,6 +1478,7 @@ a.ledger-chip:hover {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center; /* CR-22 / PLT-AC-85: centered crops on home (and shared cards) */
   display: block;
   filter: saturate(0.92) contrast(1.02);
   transition: filter var(--motion-duration-base) var(--motion-ease-default), transform var(--motion-duration-slow) var(--motion-ease-default);

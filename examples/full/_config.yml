@@ -18,6 +18,10 @@ pandorga:
     base_url: ""
   home:
     hero_art: page/hero-default.html
+    # CR-22: centered spotlight overlay strength (0–1). See docs/features/home-hero-b3.md
+    hero_overlay:
+      vignette: 0.60
+      pool: 0.94
   fonts:
     title: "Ancizar Serif"
     body:

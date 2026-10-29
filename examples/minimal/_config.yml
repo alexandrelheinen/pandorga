@@ -15,6 +15,9 @@ pandorga:
     base_url: ""
   home:
     hero_art: page/hero-default.html
+    hero_overlay:
+      vignette: 0.60
+      pool: 0.94
   taxonomies:
     articles:
       tags: [Writing, Design]
