@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.2.7] — 2026-10-29
+
+### Changed
+
+- CR-21e: Desktop Explore specimen (≥900px) plate +25% to ~383.3×215.6 (exact 16:9); card width follows plate + padding; specimen meta/title/copy/chips/footer type −2pt. Inventory glyphs and CR-21d column/label rules unchanged. Mobile unchanged (PLT-AC-78).
+
 ## [2.2.6] — 2026-10-29
 
 ### Changed

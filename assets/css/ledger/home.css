@@ -1349,10 +1349,10 @@ button.home-project-inventory-row {
 @media (min-width: 900px) {
 
   /* Inventory left of specimen, flush to card (gap ≤ 2× button gap);
-     column width = button width; plate 16:9 at ~172.5×306.7; card hugs
-     plate + padding; visible Explore label removed (CR-21d). */
+     column width = button width; plate 16:9 at ~215.6×383.3 (+25% CR-21e);
+     card hugs plate + padding; visible Explore label removed (CR-21d). */
   .home-projects-bench {
-    --home-specimen-plate-height: 9.8rem; /* ~172.5px at 17.6 root */
+    --home-specimen-plate-height: 12.25rem; /* ~215.6px at 17.6 root (+25% vs 2.2.6) */
     --home-specimen-plate-width: calc(var(--home-specimen-plate-height) * 16 / 9);
     --home-specimen-max-width: calc(var(--home-specimen-plate-width) + 2 * var(--space-md));
     display: grid;
@@ -1445,6 +1445,31 @@ button.home-project-inventory-row {
   .home-specimen-open {
     margin-left: auto;
     flex: 0 1 auto;
+  }
+
+  /* CR-21e: specimen card type −2pt (desktop only). Inventory glyphs untouched. */
+  .home-specimen-strip .ledger-meta,
+  .home-specimen-strip > .ledger-status {
+    font-size: calc(var(--type-label-lg) - 2pt);
+  }
+
+  .home-project-specimen .home-specimen-title,
+  .home-project-specimen .ledger-card-title {
+    font-size: calc(var(--type-card-lg) - 2pt);
+  }
+
+  .home-project-specimen .ledger-card-copy {
+    font-size: calc(var(--type-body) - 2pt);
+  }
+
+  .home-project-specimen .ledger-chip {
+    font-size: calc(var(--type-cta) - 2pt);
+  }
+
+  .home-specimen-foot .ledger-cta,
+  .home-specimen-foot .home-specimen-open,
+  .home-project-specimen .home-specimen-open {
+    font-size: calc(var(--type-cta) - 2pt);
   }
 }
 

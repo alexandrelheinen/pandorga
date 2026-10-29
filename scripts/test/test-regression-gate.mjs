@@ -323,22 +323,53 @@ const ASSERT_EXPRESSION = `
       const specimen = document.querySelector('.home-project-specimen');
       if (specimen) {
         const sw = specimen.getBoundingClientRect().width;
-        if (sw > 450) {
-          errors.push('Specimen width (' + sw.toFixed(2) + 'px) exceeds ~plate+padding cap (~450) (PLT-AC-77)');
+        if (sw > 460) {
+          errors.push('Specimen width (' + sw.toFixed(2) + 'px) exceeds ~plate+padding cap (~460) (PLT-AC-78)');
         }
         const plate = specimen.querySelector('.home-specimen-figure > .ledger-poster, .home-specimen-figure > .projects-plate');
         if (plate) {
           const pr = plate.getBoundingClientRect();
           const ph = pr.height;
           const pw = pr.width;
-          // CR-21d: ~172.5px height (9.8rem), 16:9 → ~306.7 wide (allow ±12px)
-          if (ph < 160 || ph > 185) {
-            errors.push('Specimen plate height (' + ph.toFixed(2) + 'px) not in 160–185px band (~172.5 target) (PLT-AC-77)');
+          // CR-21e: +25% vs 2.2.6 → ~215.6×383.3 (12.25rem), 16:9
+          if (ph < 200 || ph > 230) {
+            errors.push('Specimen plate height (' + ph.toFixed(2) + 'px) not in 200–230px band (~215.6 target) (PLT-AC-78)');
           }
           const expectW = ph * 16 / 9;
-          if (Math.abs(pw - expectW) > 12 && Math.abs(pw - 306.7) > 12) {
-            errors.push('Specimen plate width (' + pw.toFixed(2) + 'px) not ~16:9 of height (expect ~' + expectW.toFixed(1) + ') (PLT-AC-77)');
+          if (Math.abs(pw - expectW) > 12 && Math.abs(pw - 383.3) > 12) {
+            errors.push('Specimen plate width (' + pw.toFixed(2) + 'px) not ~16:9 of height (expect ~' + expectW.toFixed(1) + ') (PLT-AC-78)');
           }
+        }
+
+        // CR-21e: specimen card type −2pt vs token baseline
+        {
+          const pt = 2 * (96 / 72);
+          const parseToken = (raw) => {
+            raw = (raw || '').trim();
+            let v = parseFloat(raw);
+            if (!isFinite(v)) return null;
+            if (raw.endsWith('rem')) v *= rootFs;
+            return v;
+          };
+          const checks = [
+            { sel: '.home-specimen-strip .ledger-meta', token: '--type-label-lg', name: 'meta' },
+            { sel: '.home-project-specimen .home-specimen-title, .home-project-specimen .ledger-card-title', token: '--type-card-lg', name: 'title' },
+            { sel: '.home-project-specimen .ledger-card-copy', token: '--type-body', name: 'copy' },
+            { sel: '.home-project-specimen .ledger-chip', token: '--type-cta', name: 'chip' },
+            { sel: '.home-specimen-foot .ledger-cta, .home-project-specimen .home-specimen-open', token: '--type-cta', name: 'foot' }
+          ];
+          const root = document.documentElement;
+          checks.forEach((c) => {
+            const el = document.querySelector(c.sel);
+            if (!el) return;
+            const base = parseToken(getComputedStyle(root).getPropertyValue(c.token));
+            if (base == null) return;
+            const expect = base - pt;
+            const got = parseFloat(getComputedStyle(el).fontSize);
+            if (Math.abs(got - expect) > 1.5) {
+              errors.push('Specimen ' + c.name + ' font-size (' + got.toFixed(2) + 'px) not within 1.5px of token−2pt (' + expect.toFixed(2) + 'px) (PLT-AC-78)');
+            }
+          });
         }
 
         // CR-21d: column flush to card; wrap/inventory width == button width
