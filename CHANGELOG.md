@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.2.5] — 2026-10-29
+
+### Changed
+
+- CR-21c: Desktop Explore projects (≥900px) plate height ~60% of 2.2.4 (~217px) with `object-fit: cover`; inventory glyphs +6pt (`calc(1.375rem + 8pt)`, ≥70% of button height); inventory label and button stack right-aligned toward the specimen. Mobile unchanged (PLT-AC-76).
+
 ## [2.2.4] — 2026-10-29
 
 ### Fixed

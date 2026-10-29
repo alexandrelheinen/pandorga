@@ -247,32 +247,38 @@ const ASSERT_EXPRESSION = `
   }
 
   // 5. Desktop home projects inventory logo-button stack (PLT-AC-74)
-  // 6. CR-21b mobile-identical glyph/border + specimen cap (PLT-AC-75)
+  // 6. CR-21b/c glyph/border/specimen + desktop plate/align (PLT-AC-75/76)
   {
     const bench = document.querySelector('.home-projects-bench');
     const rows = document.querySelectorAll('.home-project-inventory-row');
     const rootFs = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
-    // calc(1.375rem + 2pt) — 1pt = 96/72 px
-    const expectedGlyphPx = 1.375 * rootFs + 2 * (96 / 72);
+    // Mobile / shared: calc(1.375rem + 2pt). Desktop (>=900): +8pt (CR-21c).
+    const expectedGlyphMobile = 1.375 * rootFs + 2 * (96 / 72);
+    const expectedGlyphDesktop = 1.375 * rootFs + 8 * (96 / 72);
 
     if (rows.length > 0) {
       const first = rows[0];
       const glyph = first.querySelector('.home-project-inventory-glyph');
       if (glyph) {
         const gfs = parseFloat(getComputedStyle(glyph).fontSize);
+        const gr = glyph.getBoundingClientRect();
+        const rowH = first.getBoundingClientRect().height;
         const isInitial = glyph.classList.contains('home-project-inventory-glyph--initial');
-        let expectFs = expectedGlyphPx;
+        let expectFs = window.innerWidth >= 900 && !isInitial ? expectedGlyphDesktop : expectedGlyphMobile;
         if (isInitial) {
           const rawCard = getComputedStyle(document.documentElement).getPropertyValue('--type-card').trim();
-          expectFs = parseFloat(rawCard) || expectedGlyphPx;
+          expectFs = parseFloat(rawCard) || expectedGlyphMobile;
           if (rawCard.endsWith('rem')) expectFs = expectFs * rootFs;
         }
         if (Math.abs(gfs - expectFs) > 1.5) {
-          errors.push('Inventory glyph font-size (' + gfs.toFixed(2) + 'px) not within 1.5px of expected ' + expectFs.toFixed(2) + 'px (PLT-AC-75)');
+          errors.push('Inventory glyph font-size (' + gfs.toFixed(2) + 'px) not within 1.5px of expected ' + expectFs.toFixed(2) + 'px (PLT-AC-75/76)');
         }
-        // Desktop Material Symbols must not fall back to body inherit (~18px)
         if (!isInitial && window.innerWidth >= 900 && gfs < 22) {
           errors.push('Desktop inventory icon glyph too small (' + gfs.toFixed(2) + 'px); Material Symbols inherit must not win (PLT-AC-75)');
+        }
+        // CR-21c: glyph fills most of the button (>= ~70% of row height)
+        if (window.innerWidth >= 900 && !isInitial && gr.height + 1.5 < 0.70 * rowH) {
+          errors.push('Desktop glyph height (' + gr.height.toFixed(2) + 'px) < 70% of button (' + rowH.toFixed(2) + 'px) (PLT-AC-76)');
         }
       }
       const rcs = getComputedStyle(first);
@@ -320,12 +326,30 @@ const ASSERT_EXPRESSION = `
         if (sw > 682) {
           errors.push('Specimen width (' + sw.toFixed(2) + 'px) exceeds 680px cap (PLT-AC-75)');
         }
-        const plate = specimen.querySelector('.home-specimen-figure > .ledger-poster, .home-specimen-figure > .projects-plate, .home-specimen-figure img');
+        const plate = specimen.querySelector('.home-specimen-figure > .ledger-poster, .home-specimen-figure > .projects-plate');
         if (plate) {
           const ph = plate.getBoundingClientRect().height;
-          const cap = 0.45 * window.innerHeight + 2;
-          if (ph > cap) {
-            errors.push('Specimen plate height (' + ph.toFixed(2) + 'px) exceeds 45vh cap (' + cap.toFixed(2) + 'px) (PLT-AC-75)');
+          // CR-21c: ~60% of prior ~361.6px → ~217px (allow 200–230)
+          if (ph < 200 || ph > 230) {
+            errors.push('Specimen plate height (' + ph.toFixed(2) + 'px) not in 200–230px band (~217 target) (PLT-AC-76)');
+          }
+        }
+
+        // CR-21c: inventory wrap contents right-aligned toward specimen
+        const wrap = document.querySelector('.home-projects-inventory-wrap');
+        const label = document.querySelector('.home-projects-inventory-label');
+        const firstRow = document.querySelector('.home-project-inventory-row');
+        if (wrap && firstRow) {
+          const wR = wrap.getBoundingClientRect().right;
+          const rR = firstRow.getBoundingClientRect().right;
+          if (Math.abs(wR - rR) > 2.5) {
+            errors.push('Inventory row right (' + rR.toFixed(2) + ') not aligned to wrap right (' + wR.toFixed(2) + ') (PLT-AC-76)');
+          }
+          if (label) {
+            const lR = label.getBoundingClientRect().right;
+            if (Math.abs(lR - wR) > 2.5) {
+              errors.push('Inventory label right (' + lR.toFixed(2) + ') not aligned to wrap right (' + wR.toFixed(2) + ') (PLT-AC-76)');
+            }
           }
         }
       }

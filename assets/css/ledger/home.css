@@ -1345,10 +1345,11 @@ button.home-project-inventory-row {
 
 @media (min-width: 900px) {
 
-  /* Inventory logo-button stack left (shrink-to-fit); specimen capped and
-     left-aligned so it stays proportionate beside the column (CR-21b). */
+  /* Inventory left of specimen, contents right-aligned toward the card;
+     specimen 680px; plate ~60% of 2.2.4 height with cover crop (CR-21c). */
   .home-projects-bench {
     --home-specimen-max-width: 680px;
+    --home-specimen-plate-height: 12.25rem; /* ~217px at 17.6 root */
     display: grid;
     grid-template-columns: max-content minmax(0, 1fr);
     column-gap: var(--space-xl);
@@ -1359,14 +1360,22 @@ button.home-project-inventory-row {
   .home-projects-inventory-wrap {
     display: flex;
     flex-direction: column;
+    align-items: flex-end;
     gap: var(--space-xs);
     width: max-content;
+    text-align: right;
+  }
+
+  .home-projects-inventory-label {
+    text-align: right;
+    width: 100%;
   }
 
   .home-project-inventory {
     order: 0;
     display: flex;
     flex-direction: column;
+    align-items: flex-end;
     gap: var(--space-xs);
     box-sizing: border-box;
     width: max-content;
@@ -1384,6 +1393,13 @@ button.home-project-inventory-row {
     flex: 0 0 auto;
   }
 
+  /* Desktop-only: +6pt over the shared CR-16 size (PLT-AC-76).
+     Leave --initial on --type-card (fixture + letter marks). */
+  .home-project-inventory-row .home-project-inventory-glyph:not(.home-project-inventory-glyph--initial),
+  .home-project-inventory-row .home-project-inventory-glyph.material-symbols-outlined {
+    font-size: calc(1.375rem + 8pt);
+  }
+
   .home-project-specimen {
     max-width: var(--home-specimen-max-width);
     width: 100%;
@@ -1392,10 +1408,20 @@ button.home-project-inventory-row {
 
   .home-specimen-figure > .ledger-poster,
   .home-specimen-figure > .projects-plate {
-    max-height: 45vh;
-    width: min(100%, calc(45vh * 16 / 9));
-    height: auto;
-    aspect-ratio: 16 / 9;
+    width: 100%;
+    height: var(--home-specimen-plate-height);
+    max-height: var(--home-specimen-plate-height);
+    aspect-ratio: auto;
+    overflow: hidden;
+  }
+
+  .home-specimen-figure > .ledger-poster img,
+  .home-specimen-figure > .ledger-poster video {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: center;
   }
 }
 
