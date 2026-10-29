@@ -1354,7 +1354,7 @@ button.home-project-inventory-row {
     display: flex;
     flex-direction: column;
     gap: var(--space-xs);
-    width: var(--home-icon-btn-size);
+    width: max-content;
   }
 
   .home-project-inventory {
