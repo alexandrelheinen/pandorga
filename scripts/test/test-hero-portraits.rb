@@ -154,8 +154,10 @@ finish = runtime.index("function hydratePageFragments")
 check!(start && finish && finish > start, "hero portrait functions must precede hydratePageFragments")
 body = runtime[start...finish]
 check!(body.include?("loadJson('pages/home/portraits.json')"), "the runtime must fetch the exported list")
-check!(body.include?("pickHeroPortrait(entries, Math.random)"),
+check!(body.include?("pickHeroPortrait(entries, Math.random"),
        "the draw must use Math.random once per load")
+check!(body.include?("data-hero-portrait-prefer"),
+       "optional prefer pin must be read from data-hero-portrait-prefer")
 check!(body.include?("return next();"),
        "a failed image load must try the next pool file")
 check!(body.include?("probe.onload = function ()"), "src must change from the image onload")
