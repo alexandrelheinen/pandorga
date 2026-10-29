@@ -359,74 +359,9 @@ html[data-theme="light"] .home-hero-plate {
 }
 
 /* ── Hero from 1024px ──
-   The copy takes 46% and the name sets on two lines, given name over family
-   name, so the photograph takes the rest of the row. The copy sets the band
-   height; the plate wrapper and the plate leave the flow and the photograph
-   covers that box, at least 15rem tall, like the featured article poster.
-   This block follows the base hero rules on purpose: before them, their
-   max-width, position and aspect-ratio won on source order (PLT-AC-51). */
-@media (min-width: 1024px) {
-  .home-hero {
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-    gap: var(--space-2xl);
-  }
-
-  .home-hero-copy {
-    flex: 0 0 46%;
-    min-width: 0;
-  }
-
-  .home-hero-portrait {
-    flex: 1 1 0;
-    align-self: stretch;
-    width: auto;
-    min-width: 0;
-    min-height: 15rem;
-    max-width: none;
-    aspect-ratio: auto;
-    overflow: hidden;
-  }
-
-  .home-hero-plate-wrap {
-    position: absolute;
-    inset: 0;
-    aspect-ratio: auto;
-  }
-
-  .home-hero-plate {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    aspect-ratio: auto;
-  }
-
-  .home-hero-plate img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    max-width: none;
-    object-fit: cover;
-    object-position: center;
-  }
-
-  /* --hero-name-fit is the longer name part in em at the title's tracking
-     (Ancizar stacked-line default ~6.9em); a site with a longer word raises it.
-     The selector outranks a site's one-line size written as .home-ledger .home-hero-title. */
-  .home-ledger .home-hero-title {
-    white-space: normal;
-    font-size: min(calc(100cqi / var(--hero-name-fit, 6.9)), var(--hero-name-max, 4.5rem));
-  }
-
-  .home-hero-given,
-  .home-hero-family {
-    display: inline-block;
-    white-space: nowrap;
-  }
-}
+   CR-22 supersedes the prior 46% copy | plate flex. Desktop photo-bg,
+   masthead 50/50, name +2pt, and CTA nowrap live in the CR-22 block
+   at the end of this file (PLT-AC-81…85 / docs/features/home-hero-b3.md). */
 
 /* ── Section banners ──
    Atelier plate edge: a denser hairline, a longer accent rule, and a short
@@ -1956,7 +1891,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
 /* ── Stacked / full-bleed (< 1024): photo edge-to-edge, height hugs copy ── */
 @media (max-width: 1023px) {
   .home-band--hero {
-    padding: 0 !important;
+    padding: 0;
     width: 100vw;
     max-width: 100vw;
     margin-left: calc(50% - 50vw);
@@ -1967,7 +1902,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
 
   .home-band--hero .home-hero-art,
   .home-band--hero .home-hero-pandorga {
-    display: none !important;
+    display: none;
   }
 
   .home-band--hero .home-band-inner {
@@ -1987,10 +1922,10 @@ html[data-theme="light"] .home-featured .ledger-poster {
   }
 
   .home-hero-portrait {
-    position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     min-height: 0;
     z-index: 0;
     margin: 0;
@@ -1999,16 +1934,16 @@ html[data-theme="light"] .home-featured .ledger-poster {
 
   .home-hero-plate-wrap,
   .home-hero-plate {
-    position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    max-width: none !important;
-    aspect-ratio: auto !important;
-    border: 0 !important;
-    border-radius: 0 !important;
-    margin: 0 !important;
-    box-shadow: none !important;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    aspect-ratio: auto;
+    border: 0;
+    border-radius: 0;
+    margin: 0;
+    box-shadow: none;
     background: #050505;
   }
 
@@ -2128,7 +2063,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
 
   .home-band--hero .home-hero-art,
   .home-band--hero .home-hero-pandorga {
-    display: none !important;
+    display: none;
   }
 
   .home-band--hero .home-band-inner {
@@ -2165,25 +2100,25 @@ html[data-theme="light"] .home-featured .ledger-poster {
 
   /* Override prior 1024 copy|portrait flex — photo is the panel background */
   .home-hero {
-    display: flex !important;
-    flex-direction: column !important;
+    display: flex;
+    flex-direction: column;
     position: relative;
     isolation: isolate;
     min-height: inherit;
     height: 100%;
-    gap: 0 !important;
+    gap: 0;
     align-items: stretch;
   }
 
   .home-hero-portrait {
-    position: absolute !important;
-    inset: 0 !important;
-    flex: none !important;
-    width: 100% !important;
-    height: 100% !important;
-    min-height: 0 !important;
-    max-width: none !important;
-    aspect-ratio: auto !important;
+    position: absolute;
+    inset: 0;
+    flex: none;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    max-width: none;
+    aspect-ratio: auto;
     z-index: 0;
     overflow: hidden;
     pointer-events: none;
@@ -2191,26 +2126,26 @@ html[data-theme="light"] .home-featured .ledger-poster {
 
   .home-hero-plate-wrap,
   .home-hero-plate {
-    position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    aspect-ratio: auto !important;
-    border: 0 !important;
-    border-radius: 0 !important;
-    margin: 0 !important;
-    box-shadow: none !important;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+    border: 0;
+    border-radius: 0;
+    margin: 0;
+    box-shadow: none;
     background: #050505;
   }
 
   .home-hero-plate img {
-    position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    max-width: none !important;
-    object-fit: cover !important;
-    object-position: center !important;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: center;
     filter: saturate(0.90) contrast(1.08) brightness(0.94);
   }
 
@@ -2230,10 +2165,10 @@ html[data-theme="light"] .home-featured .ledger-poster {
     width: 100%;
     max-width: 100%;
     min-width: 0;
-    flex-basis: auto !important;
+    flex-basis: auto;
     padding: 1.75rem 1.35rem 1.85rem 1.45rem;
     box-sizing: border-box;
-    background: transparent !important;
+    background: transparent;
   }
 
   /* Name: previous desktop size + 2pt (CR-22 / PLT-AC-82) */
@@ -2273,8 +2208,8 @@ html[data-theme="light"] .home-featured .ledger-poster {
   }
 
   .home-hero-actions {
-    display: flex !important;
-    flex-wrap: nowrap !important;
+    display: flex;
+    flex-wrap: nowrap;
     gap: 0.4rem 0.5rem;
     margin-top: 0.35rem;
     width: 100%;

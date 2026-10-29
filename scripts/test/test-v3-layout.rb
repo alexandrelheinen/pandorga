@@ -241,7 +241,10 @@ RETIRED_SHARDS = %w[
 
 item(3) do
   home = SHEETS["ledger/home.css"][:text]
-  fail!("home.css still draws a radial-gradient pool") if home.include?("radial-gradient(")
+  # CR-22 reintroduces a functional spotlight radial on .home-hero-portrait::after
+  # (text contrast). Ban any other radial-gradient / blur pool in home.css.
+  home_wo_spotlight = home.gsub(/\.home-hero-portrait::after\s*\{.*?\}/m, "")
+  fail!("home.css still draws a radial-gradient pool") if home_wo_spotlight.include?("radial-gradient(")
   fail!("home.css still blurs a pool (filter: blur)") if home.match?(/(?<![-\w])filter:\s*blur\(/)
   keep = %w[_includes/page/site-footer.html _includes/home/band-index.html]
   Dir[ROOT.join("{_layouts,_includes}/**/*.html").to_s].sort.each do |path|
