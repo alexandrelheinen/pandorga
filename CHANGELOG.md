@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.3.4] — 2026-10-29
+
+### Fixed
+
+- CR-22.3 follow-up: zero stack portfolio `padding-block` so Projects title sits just under the hero like B3 (~24px gap at 390, not ~57px from `--space-3xl` band padding).
+
 ## [2.3.3] — 2026-10-29
 
 ### Fixed

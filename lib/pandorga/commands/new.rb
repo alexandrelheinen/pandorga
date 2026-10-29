@@ -24,7 +24,7 @@ module Pandorga
 
         gem "pandorga", "~> 2.0"
         # Local checkout: gem "pandorga", path: "../pandorga"
-        # GitHub tag: gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v2.3.3"
+        # GitHub tag: gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v2.3.4"
         gem "csv"
         gem "base64"
       RUBY
