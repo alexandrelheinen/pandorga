@@ -247,7 +247,7 @@ const ASSERT_EXPRESSION = `
   }
 
   // 5. Desktop home projects inventory logo-button stack (PLT-AC-74)
-  // 6. CR-21b/c glyph/border/specimen + desktop plate/align (PLT-AC-75/76)
+  // 6. CR-21b/c/d glyph/border/specimen + 16:9/label/gap (PLT-AC-75/76/77)
   {
     const bench = document.querySelector('.home-projects-bench');
     const rows = document.querySelectorAll('.home-project-inventory-row');
@@ -323,37 +323,91 @@ const ASSERT_EXPRESSION = `
       const specimen = document.querySelector('.home-project-specimen');
       if (specimen) {
         const sw = specimen.getBoundingClientRect().width;
-        if (sw > 682) {
-          errors.push('Specimen width (' + sw.toFixed(2) + 'px) exceeds 680px cap (PLT-AC-75)');
+        if (sw > 450) {
+          errors.push('Specimen width (' + sw.toFixed(2) + 'px) exceeds ~plate+padding cap (~450) (PLT-AC-77)');
         }
         const plate = specimen.querySelector('.home-specimen-figure > .ledger-poster, .home-specimen-figure > .projects-plate');
         if (plate) {
-          const ph = plate.getBoundingClientRect().height;
-          // CR-21c: ~60% of prior ~361.6px → ~217px (allow 200–230)
-          if (ph < 200 || ph > 230) {
-            errors.push('Specimen plate height (' + ph.toFixed(2) + 'px) not in 200–230px band (~217 target) (PLT-AC-76)');
+          const pr = plate.getBoundingClientRect();
+          const ph = pr.height;
+          const pw = pr.width;
+          // CR-21d: ~172.5px height (9.8rem), 16:9 → ~306.7 wide (allow ±12px)
+          if (ph < 160 || ph > 185) {
+            errors.push('Specimen plate height (' + ph.toFixed(2) + 'px) not in 160–185px band (~172.5 target) (PLT-AC-77)');
+          }
+          const expectW = ph * 16 / 9;
+          if (Math.abs(pw - expectW) > 12 && Math.abs(pw - 306.7) > 12) {
+            errors.push('Specimen plate width (' + pw.toFixed(2) + 'px) not ~16:9 of height (expect ~' + expectW.toFixed(1) + ') (PLT-AC-77)');
           }
         }
 
-        // CR-21c: inventory wrap contents right-aligned toward specimen
+        // CR-21d: column flush to card; wrap/inventory width == button width
         const wrap = document.querySelector('.home-projects-inventory-wrap');
-        const label = document.querySelector('.home-projects-inventory-label');
+        const inv = document.querySelector('.home-project-inventory');
         const firstRow = document.querySelector('.home-project-inventory-row');
         if (wrap && firstRow) {
-          const wR = wrap.getBoundingClientRect().right;
-          const rR = firstRow.getBoundingClientRect().right;
-          if (Math.abs(wR - rR) > 2.5) {
-            errors.push('Inventory row right (' + rR.toFixed(2) + ') not aligned to wrap right (' + wR.toFixed(2) + ') (PLT-AC-76)');
+          const wR = wrap.getBoundingClientRect();
+          const rR = firstRow.getBoundingClientRect();
+          if (Math.abs(wR.right - rR.right) > 2.5) {
+            errors.push('Inventory row right (' + rR.right.toFixed(2) + ') not aligned to wrap right (' + wR.right.toFixed(2) + ') (PLT-AC-76)');
           }
-          if (label) {
-            const lR = label.getBoundingClientRect().right;
-            if (Math.abs(lR - wR) > 2.5) {
-              errors.push('Inventory label right (' + lR.toFixed(2) + ') not aligned to wrap right (' + wR.toFixed(2) + ') (PLT-AC-76)');
+          if (wR.width - rR.width > 0.5) {
+            errors.push('Inventory column width (' + wR.width.toFixed(2) + ') > button width (' + rR.width.toFixed(2) + ') by >0.5px (PLT-AC-77)');
+          }
+          if (inv) {
+            const iW = inv.getBoundingClientRect().width;
+            if (iW - rR.width > 0.5) {
+              errors.push('Inventory box width (' + iW.toFixed(2) + ') > button width (' + rR.width.toFixed(2) + ') by >0.5px (PLT-AC-77)');
             }
+          }
+          const gap = specimen.getBoundingClientRect().left - wR.right;
+          if (gap > 16.5 || gap < -0.5) {
+            errors.push('Column-to-card gap (' + gap.toFixed(2) + 'px) not in 0–16px (PLT-AC-77)');
           }
         }
       }
     }
+  }
+
+  // CR-21d: Explore projects label not visible at any width; aria-label on group
+  {
+    const label = document.querySelector('.home-projects-inventory-label');
+    if (label) {
+      const cs = getComputedStyle(label);
+      const r = label.getBoundingClientRect();
+      const hidden = cs.display === 'none' || cs.visibility === 'hidden' || cs.opacity === '0'
+        || (r.width <= 1 && r.height <= 1) || cs.clip === 'rect(0px, 0px, 0px, 0px)'
+        || (cs.position === 'absolute' && r.width <= 1);
+      if (!hidden) {
+        errors.push('Explore projects label still visible (' + r.width.toFixed(1) + 'x' + r.height.toFixed(1) + ') (PLT-AC-77)');
+      }
+    }
+    const inv = document.querySelector('.home-project-inventory');
+    if (inv) {
+      const aria = (inv.getAttribute('aria-label') || '').trim().toLowerCase();
+      if (aria !== 'explore projects') {
+        errors.push('Inventory aria-label is "' + (inv.getAttribute('aria-label') || '') + '", expected "Explore projects" (PLT-AC-77)');
+      }
+    }
+  }
+
+  // CR-21d / PLT-AC-77: every home specimen / project / card poster plate is 16:9 ±1%
+  {
+    const plates = document.querySelectorAll(
+      '.home-specimen-figure > .ledger-poster, .home-specimen-figure > .projects-plate, ' +
+      '.home-card-grid .ledger-poster, .home-card-grid .projects-plate, ' +
+      '.projects-page .ledger-system-card > .ledger-poster, .projects-page .ledger-system-card > .projects-plate, ' +
+      '.projects-page .projects-plate--mark'
+    );
+    plates.forEach((el, idx) => {
+      const r = el.getBoundingClientRect();
+      if (r.width < 8 || r.height < 8) return;
+      const ratio = r.width / r.height;
+      const target = 16 / 9;
+      if (Math.abs(ratio - target) / target > 0.01) {
+        errors.push('Plate #' + idx + ' ratio ' + ratio.toFixed(4) + ' not within 1% of 16:9 (PLT-AC-77)');
+      }
+    });
   }
 
   return { errors };

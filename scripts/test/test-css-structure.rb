@@ -225,12 +225,10 @@ sheets.each do |path|
   end
 end
 
-# PLT-AC-41. Home project inventory rows use the square icon mark, two-line
-# code + title body, and no tagline preview or attached-resource icons; on
-# desktop the specimen (35%, min 20rem) and rack (45%, min 21rem) start at the
-# band's left edge across one --space-xl gap, the specimen sets the bench
-# height, rack titles use --type-card, the specimen strip wraps instead of
-# clipping, and below 900px the rack tile glyphs are 1.375rem.
+# PLT-AC-41 / CR-21d. Home project inventory rows use the square icon mark;
+# desktop bench is a button-width track + specimen with column-gap ≤ 2×
+# button gap; specimen plate is 16:9; rack titles use --type-card; below
+# 900px the rack tile glyphs are calc(1.375rem + 2pt).
 home_sheet = strip_comments(File.read(CSS_ROOT.join("ledger/home.css")))
 %w[
   home-project-inventory-copy
@@ -247,7 +245,7 @@ require_declarations(
 )
 require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
-  ".home-projects-bench", ["grid-template-columns: max-content minmax(0, 1fr)", "column-gap: var(--space-xl)", "justify-content: start"]
+  ".home-projects-bench", ["grid-template-columns: var(--home-icon-btn-size) minmax(0, 1fr)", "column-gap: calc(var(--space-xs) * 2)", "justify-content: start"]
 )
 require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,

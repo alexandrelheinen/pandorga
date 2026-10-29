@@ -1004,13 +1004,16 @@ html[data-theme="light"] .home-hero-plate {
 }
 
 .home-projects-inventory-label {
-  display: block;
-  font-family: var(--font-label);
-  font-size: var(--type-label);
-  font-weight: var(--weight-label);
-  letter-spacing: 0.04em;
-  color: var(--color-on-surface-variant);
-  margin-bottom: var(--space-xs);
+  /* CR-21d: visible label removed; group uses aria-label="Explore projects". */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .home-project-inventory {
@@ -1345,14 +1348,16 @@ button.home-project-inventory-row {
 
 @media (min-width: 900px) {
 
-  /* Inventory left of specimen, contents right-aligned toward the card;
-     specimen 680px; plate ~60% of 2.2.4 height with cover crop (CR-21c). */
+  /* Inventory left of specimen, flush to card (gap ≤ 2× button gap);
+     column width = button width; plate 16:9 at ~172.5×306.7; card hugs
+     plate + padding; visible Explore label removed (CR-21d). */
   .home-projects-bench {
-    --home-specimen-max-width: 680px;
-    --home-specimen-plate-height: 12.25rem; /* ~217px at 17.6 root */
+    --home-specimen-plate-height: 9.8rem; /* ~172.5px at 17.6 root */
+    --home-specimen-plate-width: calc(var(--home-specimen-plate-height) * 16 / 9);
+    --home-specimen-max-width: calc(var(--home-specimen-plate-width) + 2 * var(--space-md));
     display: grid;
-    grid-template-columns: max-content minmax(0, 1fr);
-    column-gap: var(--space-xl);
+    grid-template-columns: var(--home-icon-btn-size) minmax(0, 1fr);
+    column-gap: calc(var(--space-xs) * 2); /* ≤ 2× stacked button gap (~8.8px) */
     justify-content: start;
     align-items: start;
   }
@@ -1360,29 +1365,30 @@ button.home-project-inventory-row {
   .home-projects-inventory-wrap {
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
-    gap: var(--space-xs);
-    width: max-content;
-    text-align: right;
-  }
-
-  .home-projects-inventory-label {
-    text-align: right;
-    width: 100%;
+    align-items: stretch;
+    gap: 0;
+    width: var(--home-icon-btn-size);
+    max-width: var(--home-icon-btn-size);
+    min-width: var(--home-icon-btn-size);
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
   }
 
   .home-project-inventory {
     order: 0;
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
+    align-items: stretch;
     gap: var(--space-xs);
     box-sizing: border-box;
-    width: max-content;
+    width: var(--home-icon-btn-size);
+    max-width: var(--home-icon-btn-size);
+    min-width: var(--home-icon-btn-size);
     min-height: 0;
-    min-width: 0;
     overflow: visible;
     padding: 0;
+    margin: 0;
     background: transparent;
   }
 
@@ -1408,10 +1414,11 @@ button.home-project-inventory-row {
 
   .home-specimen-figure > .ledger-poster,
   .home-specimen-figure > .projects-plate {
-    width: 100%;
+    width: var(--home-specimen-plate-width);
+    max-width: 100%;
     height: var(--home-specimen-plate-height);
     max-height: var(--home-specimen-plate-height);
-    aspect-ratio: auto;
+    aspect-ratio: 16 / 9;
     overflow: hidden;
   }
 
@@ -1422,6 +1429,22 @@ button.home-project-inventory-row {
     max-width: none;
     object-fit: cover;
     object-position: center;
+  }
+
+  /* Narrower card: footer actions may wrap to two lines cleanly. */
+  .home-specimen-foot {
+    flex-wrap: wrap;
+    row-gap: var(--space-sm);
+  }
+
+  .home-specimen-foot .ledger-card-links {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .home-specimen-open {
+    margin-left: auto;
+    flex: 0 1 auto;
   }
 }
 

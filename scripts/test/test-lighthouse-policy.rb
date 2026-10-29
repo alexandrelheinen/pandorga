@@ -98,7 +98,7 @@ fail!("content runtime still precedes the page") unless shell.index("{{ content 
 band = File.read(File.expand_path("../../_includes/home/band-listing.html", __dir__))
 fail!("band title is still painted by script") unless band.include?('data-content-section-title>{{ _title }}')
 fail!("band note is still painted by script") unless band.include?("page_headers")
-fail!("project inventory has a name and no role") unless band.include?('role="region"') && band.include?('aria-label="Project inventory"')
+fail!("project inventory has a name and no role") unless band.include?('role="region"') && band.include?('aria-label="Explore projects"')
 headers = File.read(File.expand_path("../../_plugins/content_headers.rb", __dir__))
 fail!("page headers are not loaded at build time") unless headers.include?('site.data["page_headers"]')
 page_header = File.read(File.expand_path("../../_includes/page/page-header.html", __dir__))

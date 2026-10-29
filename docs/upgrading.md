@@ -45,7 +45,7 @@ Pandorga 2.1.0 updates theme defaults and layout features:
       body: "Newsreader"
   ```
 - **Body weights:** Site-configurable via `pandorga.fonts.body_weight` (desktop default 300) and `pandorga.fonts.body_weight_mobile` (mobile default 350). On mobile viewports (`<768px`), `--weight-body` rebinds to `body_weight_mobile`.
-- **Home Projects sidebar (desktop >=900px):** The inventory column moves to the left of the specimen. Inventory buttons become logo-only with enlarged icon marks, displaying accessible titles on hover/focus. A static Marcellus SC label **“Explore projects”** sits above the inventory.
+- **Home Projects sidebar (desktop >=900px):** The inventory column moves to the left of the specimen. Inventory buttons become logo-only with enlarged icon marks, displaying accessible titles on hover/focus. Accessible name is `aria-label="Explore projects"` on the inventory group (visible label removed in CR-21d).
 
 ## Hero summary file (2.0.2)
 
@@ -346,7 +346,7 @@ Consumer sites should pin a release tag, not `main`:
 gem "pandorga", "~> 2.0"
 
 # Or pin a GitHub release tag
-gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v2.2.5"
+gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v2.2.6"
 ```
 
 After a bump, run `bundle update pandorga` and commit `Gemfile.lock`. Host
@@ -396,7 +396,7 @@ Manual publish (optional, local MFA may apply):
 
 ```bash
 mise exec -- gem build pandorga.gemspec
-mise exec -- gem push pandorga-2.2.5.gem
+mise exec -- gem push pandorga-2.2.6.gem
 ```
 
 ## Android shell (1.2+)

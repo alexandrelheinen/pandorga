@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.2.6] — 2026-10-29
+
+### Changed
+
+- CR-21d: Desktop Explore projects (≥900px) specimen plate is 16:9 at ~172.5×306.7; card hugs plate + padding with clean wrap; inventory column width equals button width; column-to-card gap ≤ 2× button gap; visible "Explore projects" label removed (aria-label on the inventory group) on desktop and mobile. CR-21c glyphs (+6pt, ≥70% fill) kept. Gate: 16:9 ±1% on plates, label hidden, column width/gap asserts (PLT-AC-77).
+
 ## [2.2.5] — 2026-10-29
 
 ### Changed
