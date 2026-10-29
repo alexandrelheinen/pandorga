@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.2.9] — 2026-10-29
+
+### Changed
+
+- CR-21g: Revert desktop home specimen card font-size -2pt reduction on meta line, description copy, chips/tags, and footer CTA buttons back to exact pre-2.2.7 token computed sizes (meta ~17.13px, copy ~18.93px, chips ~16.03px, foot CTAs ~16.03px) while keeping -2pt on the title (~24.64px). Reduce desktop (≥900px) inventory column icon glyph font-size by 2pt to `calc(1.375rem + 6pt)` (~32.2px). Mobile unchanged (PLT-AC-80).
+
 ## [2.2.8] — 2026-10-29
 
 ### Changed

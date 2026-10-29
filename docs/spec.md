@@ -567,6 +567,7 @@ Criteria are written in EARS format. Every criterion is referenced by at least o
 - `PLT-AC-71` Under `@media (max-width: 767px)`, article/post `.text-detail-sidebar .article-meta` stacks published/updated dates with vertical spacing; thin dividers separate the block from header and body; `.detail-actions` is a nowrap equal-size icon-only row (Back, Share, Cite, reading size) with visually hidden labels and aria-labels; actions fit at 320px; clear gap before first prose / drop cap. Desktop rules unchanged (`test-mobile-density-home-measure`, `test-css-structure`).
 - `PLT-AC-72` Detail reading-progress bar uses `position: fixed; top: 0` (not 4.25rem), remaining visible while the top bar hides on scroll, starting at scaleX(0) at scroll origin (`test-css-structure`, `test-regression-gate`).
 - `PLT-AC-73` Additive headless browser regression gate tests home, articles list, EN article detail, and PT post detail at 320, 390, 1440 viewports in light and dark themes for horizontal overflow, element overlaps, hero family bounding, and progress bar alignment (`test-regression-gate`).
+- `PLT-AC-80` On desktop (>=900px), home specimen card meta, copy, chips, and footer CTA font sizes revert to exact pre-2.2.7 computed sizes (meta ~17.13px, copy ~18.93px, chips ~16.03px, CTAs ~16.03px) while keeping the -2pt reduction on the specimen title (~24.64px); inventory column icon button glyph font sizes reduce by 2pt to `calc(1.375rem + 6pt)` (~32.2px) (`test-regression-gate`, `test-css-structure`).
 
 ## 13. Owner decisions
 

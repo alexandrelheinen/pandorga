@@ -1418,11 +1418,11 @@ button.home-project-inventory-row {
     flex: 0 0 auto;
   }
 
-  /* Desktop-only: +6pt over the shared CR-16 size (PLT-AC-76).
+  /* CR-21g: +6pt over the shared CR-16 size (PLT-AC-80).
      Leave --initial on --type-card (fixture + letter marks). */
   .home-project-inventory-row .home-project-inventory-glyph:not(.home-project-inventory-glyph--initial),
   .home-project-inventory-row .home-project-inventory-glyph.material-symbols-outlined {
-    font-size: calc(1.375rem + 8pt);
+    font-size: calc(1.375rem + 6pt);
   }
 
   .home-project-specimen {
@@ -1466,29 +1466,10 @@ button.home-project-inventory-row {
     flex: 0 1 auto;
   }
 
-  /* CR-21e: specimen card type −2pt (desktop only). Inventory glyphs untouched. */
-  .home-specimen-strip .ledger-meta,
-  .home-specimen-strip > .ledger-status {
-    font-size: calc(var(--type-label-lg) - 2pt);
-  }
-
+  /* CR-21g: specimen title keeps -2pt (desktop only). Meta, description, chips, and foot CTAs revert to base token sizes (PLT-AC-80). */
   .home-project-specimen .home-specimen-title,
   .home-project-specimen .ledger-card-title {
     font-size: calc(var(--type-card-lg) - 2pt);
-  }
-
-  .home-project-specimen .ledger-card-copy {
-    font-size: calc(var(--type-body) - 2pt);
-  }
-
-  .home-project-specimen .ledger-chip {
-    font-size: calc(var(--type-cta) - 2pt);
-  }
-
-  .home-specimen-foot .ledger-cta,
-  .home-specimen-foot .home-specimen-open,
-  .home-project-specimen .home-specimen-open {
-    font-size: calc(var(--type-cta) - 2pt);
   }
 }
 
