@@ -1,7 +1,7 @@
 # CR-22 — Home hero B3 (photo background, 50/50 masthead)
 
-Status: shipped in 2.3.1 (CR-22.1 size/contrast/ratio fix)  
-Version target: pandorga 2.3.1  
+Status: shipped in 2.3.2 (CR-22.2 B3 pixel parity)  
+Version target: pandorga 2.3.2  
 Prerequisite: CR-21g (2.2.9) merged.
 
 ## Intent

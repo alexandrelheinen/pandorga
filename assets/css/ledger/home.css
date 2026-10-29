@@ -1840,10 +1840,10 @@ html[data-theme="light"] .home-featured .ledger-poster {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   CR-22 / CR-22.1 — Home hero B3 (PLT-AC-81…87)
+   CR-22 / CR-22.2 — Home hero B3 pixel parity (PLT-AC-81…87)
    Photo as hero background + 50/50 masthead with Projects from 1024px.
-   Name sizes match approved B3 clamps; summary is light on the photo;
-   desktop hero panel uses B3 aspect ratios; crops centered; home plates 16:9.
+   Name/summary/actions/spacing match approved B3 measures within ~2px;
+   masthead width 1337.625px; crops centered; home plates 16:9.
    Config: --home-hero-vignette, --home-hero-pool (see pandorga.home.hero_overlay).
    ═══════════════════════════════════════════════════════════════════════════ */
 
@@ -1928,7 +1928,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
     gap: 0;
     justify-content: flex-end;
     align-items: stretch;
-    padding: clamp(1.35rem, 4.5vw, 2.1rem) clamp(1.15rem, 5vw, 2rem) clamp(1.5rem, 4.5vw, 2.1rem);
+    padding: clamp(1.35rem, 4.5vw, 2.1rem) clamp(1.15rem, 5vw, 2rem) calc(clamp(1.5rem, 4.5vw, 2.1rem) + 5px);
     box-sizing: border-box;
   }
 
@@ -1996,7 +1996,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
     max-width: 100%;
     color: #f4f4f4;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
-    margin-bottom: 0;
+    margin-bottom: 1rem;
   }
 
   .home-hero-given {
@@ -2035,7 +2035,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
   }
 
   .home-hero-actions {
-    margin-top: 0.35rem;
+    margin-top: 1.5rem;
     flex-wrap: wrap;
     gap: 0.4rem 0.55rem;
   }
@@ -2061,9 +2061,11 @@ html[data-theme="light"] .home-featured .ledger-poster {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     column-gap: 0;
     align-items: start;
-    width: min(80rem, calc(100% - 2 * var(--gutter, 2rem)));
-    max-width: 80rem;
+    /* B3 masthead content width (not rem — rem is fluid on this site) */
+    width: min(1337.625px, calc(100% - 2 * var(--gutter, 2rem)));
+    max-width: 1337.625px;
     margin-inline: auto;
+    padding-block: 1.25rem 1.75rem;
     box-sizing: border-box;
   }
 
@@ -2105,7 +2107,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
     justify-self: stretch;
     width: 100%;
     margin: 0;
-    padding-block: 1.25rem 1.75rem;
+    padding-block: 0;
     padding-inline: 0;
     border-bottom: 0;
     align-self: start;
@@ -2189,7 +2191,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
     width: 100%;
     max-width: 100%;
     min-width: 0;
-    padding: 1.75rem 1.35rem 1.85rem 1.45rem;
+    padding: 1.75rem 1.35rem calc(1.85rem + 2.25px) 1.45rem;
     box-sizing: border-box;
     background: transparent;
   }
@@ -2204,7 +2206,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
     overflow: hidden;
     color: #f4f4f4;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
-    margin-bottom: 0;
+    margin-bottom: 1rem;
   }
 
   .home-hero-given {
@@ -2241,7 +2243,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
     display: flex;
     flex-wrap: nowrap;
     gap: 0.4rem 0.5rem;
-    margin-top: 0.35rem;
+    margin-top: 1.5rem;
     width: 100%;
   }
 

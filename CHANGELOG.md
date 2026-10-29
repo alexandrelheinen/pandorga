@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.3.2] — 2026-10-29
+
+### Fixed
+
+- CR-22.2: Home hero B3 pixel parity — masthead content width `1337.625px` with stage `padding-block` so hero/projects top aligns with approved mocks; title `margin-bottom: 1rem` and actions `margin-top: 1.5rem` restore B3 name/summary/button positions; stack hero bottom padding +5px; desk copy bottom pad +2.25px. Key measures (hero x/y/w/h, nameFs, name/summary/actions tops, projects left, topSpace) within ~2px of `measures-b3.json` at 390/768/1024/1440.
+
 ## [2.3.1] — 2026-10-29
 
 ### Fixed
