@@ -76,7 +76,7 @@ Duplicate `key`, unknown `template`, or conflicting `path` fails the build.
 | `band: index` + `group` | Joins a shared index panel group |
 | `featured` | Lead card for writing bands |
 | `limit` | Max items in the band (non-portfolio) |
-| `limit_mobile` | Portfolio only: max icon buttons in the mobile strip (&lt;900px). Default `6` |
+| `limit_mobile` | Portfolio only: max icon buttons in the mobile strip (<900px). Default 6 |
 | `limit_desktop` | Portfolio only: max icon buttons in the desktop column (≥900px). Default `all` (unlimited) |
 | `cta` | Listing CTA label (default `View all`) |
 | `false` | Omit from the homepage |
