@@ -252,9 +252,9 @@ const ASSERT_EXPRESSION = `
     const bench = document.querySelector('.home-projects-bench');
     const rows = document.querySelectorAll('.home-project-inventory-row');
     const rootFs = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
-    // Mobile / shared: calc(1.375rem + 2pt). Desktop (>=900): +8pt (CR-21c).
+    // Mobile / shared: calc(1.375rem + 2pt). Desktop (>=900): +6pt (CR-21g / PLT-AC-80).
     const expectedGlyphMobile = 1.375 * rootFs + 2 * (96 / 72);
-    const expectedGlyphDesktop = 1.375 * rootFs + 8 * (96 / 72);
+    const expectedGlyphDesktop = 1.375 * rootFs + 6 * (96 / 72);
 
     if (rows.length > 0) {
       const first = rows[0];
@@ -270,8 +270,9 @@ const ASSERT_EXPRESSION = `
           expectFs = parseFloat(rawCard) || expectedGlyphMobile;
           if (rawCard.endsWith('rem')) expectFs = expectFs * rootFs;
         }
-        if (Math.abs(gfs - expectFs) > 1.5) {
-          errors.push('Inventory glyph font-size (' + gfs.toFixed(2) + 'px) not within 1.5px of expected ' + expectFs.toFixed(2) + 'px (PLT-AC-75/76)');
+        const tol = window.innerWidth >= 900 && !isInitial ? 1.0 : 1.5;
+        if (Math.abs(gfs - expectFs) > tol) {
+          errors.push('Inventory glyph font-size (' + gfs.toFixed(2) + 'px) not within ' + tol.toFixed(1) + 'px of expected ' + expectFs.toFixed(2) + 'px (PLT-AC-75/76/80)');
         }
         if (!isInitial && window.innerWidth >= 900 && gfs < 22) {
           errors.push('Desktop inventory icon glyph too small (' + gfs.toFixed(2) + 'px); Material Symbols inherit must not win (PLT-AC-75)');
@@ -341,7 +342,7 @@ const ASSERT_EXPRESSION = `
           }
         }
 
-        // CR-21e: specimen card type −2pt vs token baseline
+        // CR-21g / PLT-AC-80: specimen card meta, copy, chips, CTAs revert to base token size; title keeps -2pt
         {
           const pt = 2 * (96 / 72);
           const parseToken = (raw) => {
@@ -352,11 +353,11 @@ const ASSERT_EXPRESSION = `
             return v;
           };
           const checks = [
-            { sel: '.home-specimen-strip .ledger-meta', token: '--type-label-lg', name: 'meta' },
-            { sel: '.home-project-specimen .home-specimen-title, .home-project-specimen .ledger-card-title', token: '--type-card-lg', name: 'title' },
-            { sel: '.home-project-specimen .ledger-card-copy', token: '--type-body', name: 'copy' },
-            { sel: '.home-project-specimen .ledger-chip', token: '--type-cta', name: 'chip' },
-            { sel: '.home-specimen-foot .ledger-cta, .home-project-specimen .home-specimen-open', token: '--type-cta', name: 'foot' }
+            { sel: '.home-specimen-strip .ledger-meta', token: '--type-label-lg', name: 'meta', minusPt: false },
+            { sel: '.home-project-specimen .home-specimen-title, .home-project-specimen .ledger-card-title', token: '--type-card-lg', name: 'title', minusPt: true },
+            { sel: '.home-project-specimen .ledger-card-copy', token: '--type-body', name: 'copy', minusPt: false },
+            { sel: '.home-project-specimen .ledger-chip', token: '--type-cta', name: 'chip', minusPt: false },
+            { sel: '.home-specimen-foot .ledger-cta, .home-project-specimen .home-specimen-open', token: '--type-cta', name: 'foot', minusPt: false }
           ];
           const root = document.documentElement;
           checks.forEach((c) => {
@@ -364,10 +365,10 @@ const ASSERT_EXPRESSION = `
             if (!el) return;
             const base = parseToken(getComputedStyle(root).getPropertyValue(c.token));
             if (base == null) return;
-            const expect = base - pt;
+            const expect = c.minusPt ? base - pt : base;
             const got = parseFloat(getComputedStyle(el).fontSize);
             if (Math.abs(got - expect) > 1.5) {
-              errors.push('Specimen ' + c.name + ' font-size (' + got.toFixed(2) + 'px) not within 1.5px of token−2pt (' + expect.toFixed(2) + 'px) (PLT-AC-78)');
+              errors.push('Specimen ' + c.name + ' font-size (' + got.toFixed(2) + 'px) not within 1.5px of ' + (c.minusPt ? 'token−2pt' : 'token base') + ' (' + expect.toFixed(2) + 'px) (PLT-AC-80)');
             }
           });
         }
