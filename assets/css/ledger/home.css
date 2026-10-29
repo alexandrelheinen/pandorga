@@ -1921,10 +1921,10 @@ html[data-theme="light"] .home-featured .ledger-poster {
     background: #050505;
   }
 
-  /* B3 stack: no band padding above Projects title */
+  /* B3 stack: ~24px hero→projects gap (measures-b3 @390), not --space-3xl */
   .home-band[data-home-kind="portfolio"],
   #home-projects {
-    padding-block: 0;
+    padding-block: 1.35rem 0;
     margin-block: 0;
   }
   .home-band[data-home-kind="portfolio"] .home-band-inner,

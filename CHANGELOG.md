@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.3.5] — 2026-10-29
+
+### Fixed
+
+- CR-22.3: stack Projects band uses `padding-block: 1.35rem 0` (~24px @390) to match B3 hero→title gap (was flush at 4px after zeroing `--space-3xl`).
+
 ## [2.3.4] — 2026-10-29
 
 ### Fixed
