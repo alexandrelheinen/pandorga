@@ -221,11 +221,11 @@ end
 # ── 51.6 Name from 1024px ───────────────────────────────────────────────────
 
 item(6) do
-  title = ".home-ledger .home-hero-title"
-  # CR-22: single-line name on photo, +2pt over the prior desktop size
+  # CR-22.1: B3 desk name clamp (also declared on .home-hero-title)
+  title = ".home-hero-title"
   expect_decl(title, "white-space", "nowrap", media: DESKTOP)
   expect_decl(title, "font-size",
-              "calc(min(calc(100cqi / var(--hero-name-fit, 6.9)), var(--hero-name-max, 4.5rem)) + 2pt)",
+              "calc(clamp(1.85rem, 2.6vw, 2.55rem) + 2pt)",
               media: DESKTOP)
 end
 

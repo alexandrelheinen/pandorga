@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.3.1] — 2026-10-29
+
+### Fixed
+
+- CR-22.1: Home hero name uses approved B3 clamps (~35px@1024 / ~40px@1440 / stack clamp) and must fit inside the panel (PLT-AC-86); summary/tagline forced light on the photo (specificity over legend); desktop hero panel uses B3 aspect ratios 454/736 and 637/693 (PLT-AC-87); featured home posters keep 16:9 instead of stretching to content height; stronger bottom scrim for stack legibility.
+
 ## [2.3.0] — 2026-10-29
 
 ### Added

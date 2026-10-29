@@ -512,13 +512,28 @@ const ASSERT_EXPRESSION = `
   }
 
 
-  // CR-22 / PLT-AC-81…85: B3 masthead, photo-bg hero, centered crops
+  // CR-22 / CR-22.1 / PLT-AC-81…87: B3 masthead, photo-bg, name fit, contrast, 16:9 plates
   {
     const hero = document.querySelector('.home-band--hero');
     const proj = document.querySelector('.home-band[data-home-kind="portfolio"]');
     const title = document.querySelector('.home-hero-title');
     const actions = document.querySelector('.home-hero-actions');
     const plateImg = document.querySelector('.home-hero-plate img');
+    const summary = document.querySelector('.home-hero-summary') || document.querySelector('.home-hero-summary p');
+
+    function parseRgb(c) {
+      if (!c) return null;
+      const m = String(c).match(/rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/i);
+      if (!m) return null;
+      return { r: +m[1], g: +m[2], b: +m[3] };
+    }
+    function relLum({ r, g, b }) {
+      const f = (v) => {
+        v /= 255;
+        return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+      };
+      return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+    }
 
     if (hero && proj && window.innerWidth >= 1024) {
       const ledger = document.querySelector('.home-ledger');
@@ -530,26 +545,43 @@ const ASSERT_EXPRESSION = `
       if (delta > 1) {
         errors.push('Projects left (' + pb.left.toFixed(1) + ') not within 1px of content mid (' + mid.toFixed(1) + ') Δ=' + delta.toFixed(1) + ' (PLT-AC-81)');
       }
-      // Hero should occupy left half minus gutter (not wider than mid)
       if (hb.right > mid + 1) {
         errors.push('Hero right (' + hb.right.toFixed(1) + ') crosses content mid (' + mid.toFixed(1) + ') (PLT-AC-81)');
       }
-      // Buttons on one line
       if (actions) {
-        const tops = new Set([...actions.querySelectorAll('.ledger-cta, .home-hero-cta, a')].map(el => Math.round(el.getBoundingClientRect().top)));
-        // contacts slot may inject extra anchors — count visible CTA tops from direct actionable children
         const ctas = [...actions.querySelectorAll(':scope > .ledger-cta, :scope > .home-hero-cta, :scope > span > .ledger-cta, :scope > span > a')];
         const ctaTops = new Set(ctas.filter(el => el.getBoundingClientRect().width > 4).map(el => Math.round(el.getBoundingClientRect().top)));
         if (ctaTops.size > 1) {
           errors.push('Hero CTAs wrap to ' + ctaTops.size + ' rows at desktop; expected one line (PLT-AC-82)');
         }
       }
-      // Portrait is background (absolute covering hero)
       const portrait = document.querySelector('.home-hero-portrait');
       if (portrait) {
         const pcs = getComputedStyle(portrait);
         if (pcs.position !== 'absolute') {
           errors.push('Hero portrait position is ' + pcs.position + ', expected absolute background (PLT-AC-82)');
+        }
+      }
+
+      // PLT-AC-86: name fits in panel; size near B3 (±4px)
+      if (title && hb.width > 40) {
+        const tr = title.getBoundingClientRect();
+        if (tr.right > hb.right + 1) {
+          errors.push('Hero name right (' + tr.right.toFixed(1) + ') past panel right (' + hb.right.toFixed(1) + ') (PLT-AC-86)');
+        }
+        const fs = parseFloat(getComputedStyle(title).fontSize);
+        const expect = window.innerWidth >= 1280 ? 40.11 : 35.23;
+        if (Math.abs(fs - expect) > 4) {
+          errors.push('Hero name font-size ' + fs.toFixed(2) + 'px not within 4px of B3 ' + expect + 'px (PLT-AC-86)');
+        }
+      }
+
+      // PLT-AC-87: hero panel aspect near B3
+      if (hb.height > 40) {
+        const ratio = hb.width / hb.height;
+        const expectR = window.innerWidth >= 1280 ? (637 / 693) : (454 / 736);
+        if (Math.abs(ratio - expectR) / expectR > 0.08) {
+          errors.push('Hero panel ratio ' + ratio.toFixed(3) + ' not within 8% of B3 ' + expectR.toFixed(3) + ' (PLT-AC-87)');
         }
       }
     }
@@ -573,17 +605,41 @@ const ASSERT_EXPRESSION = `
       }
     }
 
+    // Summary must be light on the photo (PLT-AC-86)
+    if (hero && summary) {
+      const col = getComputedStyle(summary).color;
+      const rgb = parseRgb(col);
+      if (rgb) {
+        const L = relLum(rgb);
+        if (L < 0.45) {
+          errors.push('Hero summary color luminance ' + L.toFixed(3) + ' < 0.45 (got ' + col + '); need light text on photo (PLT-AC-86)');
+        }
+      }
+    }
+
     // Centered object-position on home crops (PLT-AC-85)
     const cropImgs = document.querySelectorAll(
       '.home-hero-plate img, .home-specimen-figure .ledger-poster img, .home-featured .ledger-poster img, .home-card-grid .ledger-poster img'
     );
     cropImgs.forEach((img, idx) => {
       const op = getComputedStyle(img).objectPosition || '';
-      // Computed is typically "50% 50%" for center
       const norm = op.trim().toLowerCase();
       const ok = norm === 'center' || norm === '50% 50%' || /^50%\s+50%$/.test(norm);
       if (!ok && img.getBoundingClientRect().width > 4) {
         errors.push('Home crop #' + idx + ' object-position is "' + op + '", expected 50% 50% (PLT-AC-85)');
+      }
+    });
+
+    // Home plates (not hero bg) must be 16:9 (PLT-AC-85 / plate rule)
+    const plates = document.querySelectorAll(
+      '.home-specimen-figure > .ledger-poster, .home-specimen-figure > .projects-plate, .home-featured .ledger-poster, .home-card-grid .ledger-poster'
+    );
+    plates.forEach((el, idx) => {
+      const r = el.getBoundingClientRect();
+      if (r.width < 8 || r.height < 8) return;
+      const ratio = r.width / r.height;
+      if (Math.abs(ratio - 16 / 9) / (16 / 9) > 0.03) {
+        errors.push('Home plate #' + idx + ' ratio ' + ratio.toFixed(3) + ' not 16:9 ±3% (PLT-AC-85)');
       }
     });
 
@@ -592,16 +648,11 @@ const ASSERT_EXPRESSION = `
       const portrait = document.querySelector('.home-hero-portrait');
       if (portrait) {
         const after = getComputedStyle(portrait, '::after');
-        if (!after || after.content === 'none' || after.content === '') {
-          // some engines report content as '""' for empty string content
-        }
         const bg = after && after.backgroundImage;
         if (bg && bg !== 'none') {
           if (!/radial-gradient/i.test(bg)) {
             errors.push('Hero spotlight ::after missing radial-gradient (PLT-AC-84)');
           } else {
-            // Chromium often omits the default center ("at 50% 50%") when serializing.
-            // Fail only on an explicit non-center position keyword.
             const atMatch = bg.match(/radial-gradient\([^)]*?\bat\s+([^,\)]+)/i);
             if (atMatch) {
               const pos = atMatch[1].trim().toLowerCase().replace(/\s+/g, ' ');
@@ -610,12 +661,12 @@ const ASSERT_EXPRESSION = `
                 errors.push('Hero spotlight radial at "' + atMatch[1].trim() + '", expected 50% 50% (PLT-AC-84)');
               }
             }
-            // No "at …" ⇒ engine default center — OK (source CSS has at 50% 50%).
           }
         }
       }
     }
   }
+
 
   return { errors };
 })()

@@ -573,7 +573,9 @@ Criteria are written in EARS format. Every criterion is referenced by at least o
 - `PLT-AC-82` From 1024px, the hero portrait fills the hero panel as a covered centered background; name (+2pt vs prior desktop size), summary, and three CTAs paint on the photo with no frosted panel; CTAs share one row; family highlighter stays visible (`test-regression-gate`, `test-css-structure`).
 - `PLT-AC-83` Below 1024px the hero photo is full viewport width; height hugs the copy with modest top breathing; Projects stacks below (`test-regression-gate`).
 - `PLT-AC-84` A centered spotlight overlay (radial pool at 50% 50% plus vignette) is driven by `pandorga.home.hero_overlay` (`vignette`, `pool`) documented in [features/home-hero-b3.md](features/home-hero-b3.md) (`test-css-structure`).
-- `PLT-AC-85` Cropped images on the home (hero plate, specimen/poster, featured posters) use computed `object-position` of `50% 50%` (`test-regression-gate`).
+- `PLT-AC-85` Cropped images on the home use computed `object-position` of `50% 50%`; specimen/featured/card plates stay 16:9 ±3% (hero background panel excepted) (`test-regression-gate`).
+- `PLT-AC-86` Hero name matches B3 size clamps and fits inside the panel; summary text on the photo has luminance ≥ 0.45 (`test-regression-gate`).
+- `PLT-AC-87` Desktop hero panel aspect matches B3 within 8% (`test-regression-gate`).
 
 ## 13. Owner decisions
 
