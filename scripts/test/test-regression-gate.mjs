@@ -246,6 +246,54 @@ const ASSERT_EXPRESSION = `
     }
   }
 
+  // 5. Desktop home projects inventory logo-button stack (PLT-AC-74)
+  if (window.innerWidth >= 900) {
+    const bench = document.querySelector('.home-projects-bench');
+    if (bench) {
+      const rawSize = getComputedStyle(bench).getPropertyValue('--home-icon-btn-size').trim();
+      let iconSizePx = parseFloat(rawSize);
+      if (rawSize.endsWith('rem')) {
+        const rootFs = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+        iconSizePx = iconSizePx * rootFs;
+      }
+
+      const rows = document.querySelectorAll('.home-project-inventory-row');
+      if (rows.length > 0) {
+        let firstRowWidth = null;
+        rows.forEach((row, idx) => {
+          const rect = row.getBoundingClientRect();
+          if (idx === 0) firstRowWidth = rect.width;
+
+          if (Math.abs(rect.width - iconSizePx) > 1.5) {
+            errors.push('Row ' + idx + ' width (' + rect.width.toFixed(2) + 'px) not within 1.5px of icon size (' + iconSizePx + 'px)');
+          }
+          if (Math.abs(rect.height - iconSizePx) > 1.5) {
+            errors.push('Row ' + idx + ' height (' + rect.height.toFixed(2) + 'px) not within 1.5px of icon size (' + iconSizePx + 'px)');
+          }
+          if (rect.width > iconSizePx + 8) {
+            errors.push('Row ' + idx + ' width (' + rect.width.toFixed(2) + 'px) exceeds icon size + 8 (' + (iconSizePx + 8) + 'px)');
+          }
+        });
+
+        const inventory = document.querySelector('.home-project-inventory');
+        if (inventory && firstRowWidth !== null) {
+          const invWidth = inventory.getBoundingClientRect().width;
+          if (invWidth > firstRowWidth + 12) {
+            errors.push('.home-project-inventory width (' + invWidth.toFixed(2) + 'px) > first row width + 12 (' + (firstRowWidth + 12).toFixed(2) + 'px)');
+          }
+        }
+
+        const wrap = document.querySelector('.home-projects-inventory-wrap');
+        if (wrap && firstRowWidth !== null) {
+          const wrapWidth = wrap.getBoundingClientRect().width;
+          if (wrapWidth > firstRowWidth + 12) {
+            errors.push('.home-projects-inventory-wrap width (' + wrapWidth.toFixed(2) + 'px) > first row width + 12 (' + (firstRowWidth + 12).toFixed(2) + 'px)');
+          }
+        }
+      }
+    }
+  }
+
   return { errors };
 })()
 `;

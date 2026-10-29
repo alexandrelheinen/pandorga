@@ -247,7 +247,7 @@ require_declarations(
 )
 require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
-  ".home-projects-bench", ["grid-template-columns: max(45%, 21rem) max(35%, 20rem)", "column-gap: var(--space-xl)", "justify-content: start", "--home-inventory-row-max: calc(1.6 * var(--home-inventory-row-min))"]
+  ".home-projects-bench", ["grid-template-columns: max-content minmax(0, 1fr)", "column-gap: var(--space-xl)", "justify-content: start"]
 )
 require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
@@ -313,7 +313,7 @@ require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
   ".home-project-inventory-glyph", ["font-size: calc(1.25rem + 2pt)"]
 )
-unless home_sheet.include?("calc(1.375rem + 2pt)") && home_sheet.include?("calc(1.75rem + 2pt)")
+unless home_sheet.include?("calc(1.375rem + 2pt)") && home_sheet.include?("calc(1.25rem + 2pt)")
   errors << "assets/css/ledger/home.css: inventory icon sizes must be +2pt larger than 2.2.1 rem values (PLT-AC-69)"
 end
 
