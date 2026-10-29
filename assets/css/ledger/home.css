@@ -400,6 +400,21 @@ html[data-theme="light"] .home-hero-plate {
   background: color-mix(in srgb, var(--color-primary) 55%, var(--color-outline));
 }
 
+/* CR-22.3 — B3: no ruled banner above Projects & Experiments */
+.home-band[data-home-kind="portfolio"] .ledger-section-banner,
+#home-projects .ledger-section-banner {
+  padding-top: 0;
+  border-top: none;
+  box-shadow: none;
+  margin-bottom: 0.85rem;
+}
+.home-band[data-home-kind="portfolio"] .ledger-section-banner::before,
+.home-band[data-home-kind="portfolio"] .ledger-section-banner::after,
+#home-projects .ledger-section-banner::before,
+#home-projects .ledger-section-banner::after {
+  display: none;
+}
+
 .home-band .ledger-section-lead {
   display: contents;
 }
@@ -1863,7 +1878,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
   object-position: center;
 }
 
-/* Spotlight overlay — centered radial pool + vignette (config-driven) */
+/* Spotlight overlay — centered radial pool + vignette (config-driven; B3 intensity) */
 .home-hero-portrait::after {
   content: "";
   position: absolute;
@@ -1872,25 +1887,25 @@ html[data-theme="light"] .home-featured .ledger-poster {
   pointer-events: none;
   background:
     radial-gradient(
-      ellipse 62% 70% at 50% 50%,
+      ellipse 60% 74% at 50% 50%,
       rgba(0, 0, 0, calc(1 - var(--home-hero-pool))) 0%,
-      rgba(0, 0, 0, calc(0.18 * var(--home-hero-vignette) / 0.6)) 34%,
-      rgba(0, 0, 0, calc(0.55 * var(--home-hero-vignette) / 0.6)) 66%,
-      rgba(0, 0, 0, calc(1 * var(--home-hero-vignette) / 0.6 * 0.92)) 100%
+      rgba(0, 0, 0, calc(0.06 * var(--home-hero-vignette) / 0.6)) 30%,
+      rgba(0, 0, 0, calc(0.34 * var(--home-hero-vignette) / 0.6)) 64%,
+      rgba(0, 0, 0, calc(1 * var(--home-hero-vignette) / 0.6)) 100%
     ),
     linear-gradient(
       90deg,
-      rgba(0, 0, 0, calc(0.55 * var(--home-hero-vignette) / 0.6)) 0%,
+      rgba(0, 0, 0, calc(0.52 * var(--home-hero-vignette) / 0.6)) 0%,
       rgba(0, 0, 0, calc(0.28 * var(--home-hero-vignette) / 0.6)) 28%,
-      rgba(0, 0, 0, calc(0.10 * var(--home-hero-vignette) / 0.6)) 55%,
-      transparent 76%
+      rgba(0, 0, 0, calc(0.10 * var(--home-hero-vignette) / 0.6)) 50%,
+      transparent 74%
     ),
     linear-gradient(
       180deg,
-      rgba(0, 0, 0, calc(0.18 * var(--home-hero-vignette) / 0.6)) 0%,
-      transparent 22%,
-      transparent 48%,
-      rgba(0, 0, 0, calc(0.62 * var(--home-hero-vignette) / 0.6)) 100%
+      rgba(0, 0, 0, calc(0.14 * var(--home-hero-vignette) / 0.6)) 0%,
+      transparent 20%,
+      transparent 55%,
+      rgba(0, 0, 0, calc(0.42 * var(--home-hero-vignette) / 0.6)) 100%
     );
 }
 
@@ -1968,6 +1983,32 @@ html[data-theme="light"] .home-featured .ledger-poster {
     filter: saturate(0.90) contrast(1.08) brightness(0.94);
   }
 
+  /* B3 stack vignette intensity (still centered pool for PLT-AC-84) */
+  .home-hero-portrait::after {
+    background:
+      radial-gradient(
+        ellipse 70% 78% at 50% 50%,
+        rgba(0, 0, 0, calc(1 - var(--home-hero-pool))) 0%,
+        rgba(0, 0, 0, calc(0.10 * var(--home-hero-vignette) / 0.6)) 34%,
+        rgba(0, 0, 0, calc(0.45 * var(--home-hero-vignette) / 0.6)) 66%,
+        rgba(0, 0, 0, calc(0.70 * var(--home-hero-vignette) / 0.6)) 100%
+      ),
+      linear-gradient(
+        90deg,
+        rgba(0, 0, 0, calc(0.62 * var(--home-hero-vignette) / 0.6)) 0%,
+        rgba(0, 0, 0, calc(0.38 * var(--home-hero-vignette) / 0.6)) 28%,
+        rgba(0, 0, 0, calc(0.12 * var(--home-hero-vignette) / 0.6)) 55%,
+        transparent 78%
+      ),
+      linear-gradient(
+        180deg,
+        rgba(0, 0, 0, calc(0.22 * var(--home-hero-vignette) / 0.6)) 0%,
+        rgba(0, 0, 0, calc(0.08 * var(--home-hero-vignette) / 0.6)) 18%,
+        rgba(0, 0, 0, calc(0.28 * var(--home-hero-vignette) / 0.6)) 55%,
+        rgba(0, 0, 0, calc(0.65 * var(--home-hero-vignette) / 0.6)) 100%
+      );
+  }
+
   .home-hero-plate .ledger-frame-corners,
   .home-hero-plate-wrap .ledger-frame-crosshairs {
     display: none;
@@ -2012,6 +2053,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
     --mark-1: 42%;
     --mark-2: 32%;
     --mark-3: 14%;
+    --mk-h: 0.72em;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   }
 
@@ -2222,6 +2264,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
     --mark-1: 42%;
     --mark-2: 32%;
     --mark-3: 14%;
+    --mk-h: 0.72em;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   }
 

@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.3.3] — 2026-10-29
+
+### Fixed
+
+- CR-22.3: B3 visual parity — pin optional `pandorga.home.hero_portrait` (website: DSC00571 seated full-figure) so live matches the approved mock image; hide the Projects `.ledger-section-banner` rule/blue segment so title top and hero→projects gap match B3; highlighter mark height `0.72em`; spotlight stop intensities aligned with B3 while keeping the centered pool (PLT-AC-84). Home crops stay `object-position: center` (PLT-AC-85); B3 mock used desk `58% 16%` / stack `72% 12%` — center framing differs numerically and is intentional.
+
 ## [2.3.2] — 2026-10-29
 
 ### Fixed

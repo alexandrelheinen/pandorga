@@ -647,8 +647,16 @@
       else img.removeAttribute('sizes');
     }
 
-    function pickHeroPortrait(entries, random) {
+    function pickHeroPortrait(entries, random, prefer) {
       if (!entries || !entries.length) return null;
+      var needle = typeof prefer === 'string' ? prefer.trim().toLowerCase() : '';
+      if (needle) {
+        var i;
+        for (i = 0; i < entries.length; i++) {
+          var src = String(entries[i].src || '').toLowerCase();
+          if (src.indexOf(needle) !== -1) return entries[i];
+        }
+      }
       var roll = typeof random === 'function' ? random() : Math.random();
       if (typeof roll !== 'number' || !(roll >= 0) || roll >= 1) return entries[0];
       return entries[Math.floor(roll * entries.length)];
@@ -684,7 +692,8 @@
     }
 
     function showHeroPortrait(img, entries) {
-      var chosen = pickHeroPortrait(entries, Math.random);
+      var prefer = img.getAttribute('data-hero-portrait-prefer') || '';
+      var chosen = pickHeroPortrait(entries, Math.random, prefer);
       if (!chosen) return Promise.resolve();
       var start = entries.indexOf(chosen);
       var ordered = entries.slice(start).concat(entries.slice(0, start));

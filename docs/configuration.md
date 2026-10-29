@@ -29,6 +29,8 @@ When `backend` is omitted, a non-empty `base_url` or `content_api_base_url` sele
 | Key | Type | Notes |
 |---|---|---|
 | `hero_art` | string | Include path for hero decoration (default `page/hero-default.html`) |
+| `hero_portrait` | string | Optional stem or path fragment; when set, the home hydrator prefers that pool entry instead of a random draw (e.g. `DSC00571`) |
+| `hero_overlay` | map | Optional `{ vignette, pool }` (0–1) emitted as `--home-hero-vignette` / `--home-hero-pool` |
 
 ## `pandorga.fonts`
 

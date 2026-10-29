@@ -112,6 +112,10 @@ same(pickHeroPortrait(two, () => Number.NaN), two[0], 'NaN roll');
 same(pickHeroPortrait(two, () => '0'), two[0], 'non-number roll');
 same(pickHeroPortrait([two[0]], () => 0.999), two[0], 'single entry');
 
+same(pickHeroPortrait(two, () => 0.5, 'b.JPG'), two[1], 'prefer stem wins over roll');
+same(pickHeroPortrait(two, () => 0, 'missing'), two[0], 'prefer miss falls back to roll');
+same(pickHeroPortrait(two, () => 0.5, '  B.JPG  '), two[1], 'prefer trim + case');
+
 const three = two.concat([{ src: '/media/images/hero/c.JPG', alt: '' }]);
 same(pickHeroPortrait(three, () => 0.4), three[1], 'roll 0.4 of three');
 
