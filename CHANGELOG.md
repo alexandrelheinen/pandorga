@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.3.12] — 2026-10-30
+
+### Fixed
+
+- CR-24: deepen desk left/mid overlay further so pool title contrast clears ≥7:1 at 1440 while keeping the figure clearly readable (PLT-AC-100).
+
 ## [2.3.11] — 2026-10-30
 
 ### Fixed
