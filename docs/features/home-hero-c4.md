@@ -1,7 +1,7 @@
 # CR-22.4 — Home hero C4 (pandorga 2.3.6)
 
-Status: in progress  
-Version target: pandorga 2.3.6  
+Status: shipped 2.3.6; contrast follow-up 2.3.7  
+Version target: pandorga 2.3.6 (contrast follow-up 2.3.7)  
 Prerequisite: CR-22.3 (2.3.5) shipped.
 
 ## Intent

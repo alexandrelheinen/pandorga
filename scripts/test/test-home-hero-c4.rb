@@ -50,7 +50,7 @@ unless HOME.include?("0.84") || HOME.include?("0.88") || HOME.include?("rgba(0, 
 end
 
 # PLT-AC-90 — light title/summary + text-shadow for ≥7:1 (structure)
-unless HOME.match?(/\.home-hero-title[\s\S]{0,200}?color:\s*#f[0-9a-fA-F]{3,5}/)
+unless HOME.match?(/\.home-hero-title[\s\S]{0,200}?color:\s*#(?:f{3}|f{6}|ffffff|f4f4f4)/i)
   failed = 1 if fail!("PLT-AC-90: .home-hero-title must use light ink (#f…)")
 end
 unless HOME.match?(/\.home-hero-summary[\s\S]{0,200}?text-shadow:/)

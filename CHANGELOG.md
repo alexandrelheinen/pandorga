@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.3.7] — 2026-10-30
+
+### Fixed
+
+- CR-22.4 follow-up: deepen desk soft overlay and use `#ffffff` hero title/summary ink so worst-case title contrast clears 7:1 on every pool photo at 1024/1440.
+
 ## [2.3.6] — 2026-10-30
 
 ### Changed
