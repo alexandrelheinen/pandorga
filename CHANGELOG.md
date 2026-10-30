@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.17
+
+- CR-24 overlay: strength (`::after`) now paints **true black** `rgba(0,0,0,…)` so it darkens photo areas monotonically (2.3.16 charcoal shade brightened dark regions and made strength effectively dead / slightly inverted) (PLT-AC-103).
+- Stronger linear strength scale (peak ≈ 0.55 × strength, `--home-hero-strength-cap: 0.55`); pool mid-ramp slightly raised for perceptible 0.05–0.1 steps; pool stays charcoal (PLT-AC-102/103).
+- Rendered monotonicity gate at 390/1440: face/upper brightness falls across strength 0.2/0.4/0.6/0.8; text band across pool; independence; 0% pure-black behind text (`test-home-hero-overlay-monotonic`).
+
 ## 2.3.16
 
 - CR-24 overlay split: `strength` (`--home-hero-vignette`) darkens the photo area via `::after` (masked off the text band); `pool` (`--home-hero-pool`) is an **absolute** text-band alpha on `::before` (not scaled by strength) (PLT-AC-102).
