@@ -1,7 +1,7 @@
 # CR-24 — Hero name vs band titles + lighter overlay (pandorga 2.3.10)
 
 Status: shipping  
-Version target: pandorga 2.3.10  
+Version target: pandorga 2.3.11 (scale in 2.3.10; overlay tune 2.3.11)  
 Prerequisite: 2.3.9 shipped.
 
 ## Intent

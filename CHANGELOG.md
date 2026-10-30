@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.3.11] — 2026-10-30
+
+### Fixed
+
+- CR-24 follow-up: deepen desk soft overlay slightly so title/summary stay ≥7:1 after the 2.3.10 lighten (still well below 2.3.7; photo remains readable) (PLT-AC-100).
+
 ## [2.3.10] — 2026-10-30
 
 ### Changed
