@@ -30,7 +30,7 @@ When `backend` is omitted, a non-empty `base_url` or `content_api_base_url` sele
 |---|---|---|
 | `hero_art` | string | Include path for hero decoration (default `page/hero-default.html`) |
 | `hero_portrait` | string | Optional stem or path fragment; when set, the home hydrator prefers that pool entry instead of a random draw (e.g. `DSC00571`). Omit for random selection each load. |
-| `hero_overlay` | map | Optional `{ strength, vignette, pool }` (0–1). `strength` (preferred) or legacy `vignette` → `--home-hero-vignette` (photo-area; default 0.60). `pool` → `--home-hero-pool` absolute text-band alpha (default 0.70). Independent; alphas capped &lt; 1 (PLT-AC-102). |
+| `hero_overlay` | map | Optional `{ strength, vignette, pool }` (0–1). `strength` (preferred) or legacy `vignette` → `--home-hero-vignette` (photo-area darkness, default 0.60). `pool` → `--home-hero-pool` absolute text-band alpha (default 0.70). Independent; CSS caps alphas &lt; 1 (PLT-AC-102). |
 
 ## `pandorga.fonts`
 
