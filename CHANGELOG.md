@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.3.15] — 2026-10-30
+
+### Fixed
+
+- PLT-AC-101 strength emit test runs under CI `bundle exec` (no mise) so the gem publish validate can pass.
+
 ## [2.3.14] — 2026-10-30
 
 ### Added
