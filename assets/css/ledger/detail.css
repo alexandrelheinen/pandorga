@@ -149,7 +149,8 @@ a.back-link .material-symbols-outlined {
 }
 
 .detail-action .material-symbols-outlined {
-  font-size: 1rem;
+  /* PLT-AC-95: glyph only +2pt; button box unchanged */
+  font-size: calc(1rem + 2pt);
   line-height: 1;
   color: var(--color-primary);
   transition: color var(--motion-duration-fast) var(--motion-ease-default);
@@ -204,7 +205,13 @@ a.back-link .material-symbols-outlined {
   outline-offset: 2px;
 }
 
-.detail-type-size-trigger .material-symbols-outlined {
+.detail-type-size-trigger .material-symbols-outlined:not(.detail-type-size-caret) {
+  /* PLT-AC-95: glyph only +2pt; button box unchanged */
+  font-size: calc(1rem + 2pt);
+  line-height: 1;
+  color: var(--color-primary);
+}
+.detail-type-size-trigger .material-symbols-outlined.detail-type-size-caret {
   font-size: 1rem;
   line-height: 1;
   color: var(--color-primary);
@@ -686,15 +693,17 @@ aside:has(> .text-detail-sidebar) {
     font-size: var(--type-prose);
   }
 
+  /* PLT-AC-97: keep meta border-bottom clear of the action pills.
+     0.75rem = space-sm + space-xs — clear separation without a full space-md. */
   .text-detail-sidebar:has(.article-toc--disclosure) .article-meta,
   .projects-dossier:has(.article-toc--disclosure) .article-meta,
   .projects-page .projects-dossier:has(.article-toc--disclosure) .projects-dossier-rows {
-    padding-bottom: 0;
+    padding-bottom: calc(var(--space-sm) + var(--space-xs));
   }
 
   .text-detail-sidebar .article-toc--disclosure,
   .projects-dossier .article-toc--disclosure {
-    margin-top: var(--space-xs);
+    margin-top: 0;
     margin-bottom: var(--space-xs);
   }
 }

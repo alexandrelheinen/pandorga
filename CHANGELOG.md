@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.3.8] — 2026-10-30
+
+### Changed
+
+- CR-23: Detail action glyphs +2pt (`calc(1rem + 2pt)`) without changing marker button box size (PLT-AC-95); mobile icon centering (PLT-AC-96); `padding-bottom: calc(var(--space-sm) + var(--space-xs))` (~12px) between action row and the “IN THIS TEXT” rule (PLT-AC-97). See [features/detail-action-icons.md](docs/features/detail-action-icons.md).
+
 ## [2.3.7] — 2026-10-30
 
 ### Fixed
