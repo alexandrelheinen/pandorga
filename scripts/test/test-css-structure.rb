@@ -245,7 +245,7 @@ require_declarations(
 )
 require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
-  ".home-projects-bench", ["grid-template-columns: var(--home-icon-btn-size) minmax(0, 1fr)", "column-gap: calc(var(--space-xs) * 2)", "justify-content: start"]
+  ".home-projects-bench", ["grid-template-columns: var(--home-icon-btn-size) max-content", "column-gap: calc(var(--space-xs) * 2)", "width: max-content", "margin-inline: auto"]
 )
 require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,

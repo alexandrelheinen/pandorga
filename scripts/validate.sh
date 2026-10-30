@@ -79,6 +79,7 @@ TESTS=(
   scripts/test/test-v3-layout.rb
   scripts/test/test-studio-section-texts.rb
   scripts/test/test-home-article-cards.rb
+  scripts/test/test-home-hero-c4.rb
   scripts/test/test-parallel-content-publish.rb
   scripts/test/test-mobile-density-home-measure.rb
   scripts/test/test-regression-gate.rb

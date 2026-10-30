@@ -55,12 +55,12 @@ layout: shell
           {% pandorga_hero_summary %}
           <div class="home-hero-actions">
             {%- if _cv_page -%}
-            <a class="ledger-cta ledger-cta--emphasis home-hero-cta" href="{{ _cv_page.url }}">
+            <a class="ledger-cta ledger-cta--emphasis home-hero-cta home-hero-cta--cv" href="{{ _cv_page.url }}">
               <span>{{ _cv_page.title | default: "Curriculum Vitæ" }}</span>
               <span class="material-symbols-outlined ledger-cta-arrow" aria-hidden="true">chevron_right</span>
             </a>
             {%- endif -%}
-            <span data-content-hero-contacts></span>
+            <span class="home-hero-actions-contacts" data-content-hero-contacts></span>
           </div>
         </div>
         <div class="home-hero-portrait">

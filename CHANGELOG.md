@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.3.6] — 2026-10-30
+
+### Changed
+
+- CR-22.4: Home hero C4 — center Projects island in the desktop column (PLT-AC-88); soft edgeless full-bleed photo overlay with no panel behind copy (PLT-AC-89); denser stops for ≥7:1 title/summary contrast across the random pool (PLT-AC-90); family highlighter `--mk-h: 1.02em` / `padding-inline: 0.14em` (PLT-AC-91); default random hero draw when `hero_portrait` is unset, crops at `object-position: center` (PLT-AC-92); hero CTAs use marker wash with white ink allowed (PLT-AC-93); when actions wrap, CV alone on line 1 and contacts grouped on line 2 (PLT-AC-94). See [features/home-hero-c4.md](docs/features/home-hero-c4.md).
+
 ## [2.3.5] — 2026-10-29
 
 ### Fixed

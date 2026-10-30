@@ -597,7 +597,8 @@
           el.innerHTML = contacts.map(renderFooterContact).join('');
         });
         heroSlots.forEach(function (el) {
-          el.outerHTML = contacts.map(renderHeroContact).join('');
+          /* Keep .home-hero-actions-contacts wrapper so wrap groups stay intact (PLT-AC-94). */
+          el.innerHTML = contacts.map(renderHeroContact).join('');
         });
       });
     }

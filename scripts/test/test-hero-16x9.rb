@@ -197,7 +197,7 @@ item(4) do
   end
   expect_decl(".home-hero-plate img", "object-fit", "cover", media: DESKTOP)
   expect_decl(".home-hero-plate img", "object-position", /\Acenter( center)?\z/, media: DESKTOP)
-  expect_decl(".home-hero-actions", "flex-wrap", "nowrap", media: DESKTOP)
+  expect_decl(".home-hero-actions", "flex-wrap", "wrap", media: DESKTOP)
 
   layout = LAYOUT.read
   fail!("the crosshairs must stay on the plate wrapper") unless layout.include?('class="ledger-frame-crosshairs"')

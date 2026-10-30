@@ -1,6 +1,6 @@
 # CR-22 — Home hero B3 (photo background, 50/50 masthead)
 
-Status: shipped in 2.3.5 (CR-22.3 B3 visual parity)  
+Status: shipped in 2.3.5 (CR-22.3 B3 visual parity); C4 follow-ups in 2.3.6 — see home-hero-c4.md  
 Version target: pandorga 2.3.5  
 Prerequisite: CR-21g (2.2.9) merged.
 
@@ -25,7 +25,7 @@ Replace the home hero “copy | plate” desktop split with the approved B3 trea
 pandorga:
   home:
     # Optional: pin one pool entry (stem or path fragment) instead of random.
-    hero_portrait: DSC00571
+    # hero_portrait: DSC00571  # optional pin; omit for random
     hero_overlay:
       # Vignette darkness at the edges (0–1). Default 0.60.
       vignette: 0.60

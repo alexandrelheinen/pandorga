@@ -1320,15 +1320,42 @@ button.home-project-inventory-row {
   /* Inventory left of specimen, flush to card (gap ≤ 2× button gap);
      column width = button width; plate 16:9 at ~215.6×383.3 (+25% CR-21e);
      card hugs plate + padding; visible Explore label removed (CR-21d). */
+  /* PLT-AC-88: center inventory+specimen island in the projects column. */
+  .home-band[data-home-kind="portfolio"] .home-band-inner,
+  #home-projects .home-band-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 0;
+    box-sizing: border-box;
+  }
+
+  .home-band[data-home-kind="portfolio"] .ledger-section-banner,
+  #home-projects .ledger-section-banner {
+    width: max-content;
+    max-width: 100%;
+    align-self: center;
+    margin-inline: auto;
+    flex: 0 0 auto;
+  }
+
+  .home-band[data-home-kind="portfolio"] .home-section-note {
+    align-self: center;
+  }
+
   .home-projects-bench {
     --home-specimen-plate-height: 12.25rem; /* ~215.6px at 17.6 root (+25% vs 2.2.6) */
     --home-specimen-plate-width: calc(var(--home-specimen-plate-height) * 16 / 9);
     --home-specimen-max-width: calc(var(--home-specimen-plate-width) + 2 * var(--space-md));
     display: grid;
-    grid-template-columns: var(--home-icon-btn-size) minmax(0, 1fr);
+    grid-template-columns: var(--home-icon-btn-size) max-content;
     column-gap: calc(var(--space-xs) * 2); /* ≤ 2× stacked button gap (~8.8px) */
     justify-content: start;
     align-items: start;
+    width: max-content;
+    max-width: 100%;
+    margin-inline: auto;
   }
 
   .home-projects-inventory-wrap {
@@ -1855,7 +1882,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   CR-22 / CR-22.2 — Home hero B3 pixel parity (PLT-AC-81…87)
+   CR-22…22.4 — Home hero B3 + C4 (PLT-AC-81…94)
    Photo as hero background + 50/50 masthead with Projects from 1024px.
    Name/summary/actions/spacing match approved B3 measures within ~2px;
    masthead width 1337.625px; crops centered; home plates 16:9.
@@ -1878,34 +1905,38 @@ html[data-theme="light"] .home-featured .ledger-poster {
   object-position: center;
 }
 
-/* Spotlight overlay — centered radial pool + vignette (config-driven; B3 intensity) */
+/* Soft edgeless photo overlay (C4 / PLT-AC-89) — full-bleed darkening, no panel.
+   Stops tuned for ≥7:1 title+summary on every pool photo; vignette/pool still scale. */
 .home-hero-portrait::after {
   content: "";
   position: absolute;
   inset: 0;
   z-index: 2;
   pointer-events: none;
+  border-radius: 0;
   background:
     radial-gradient(
-      ellipse 60% 74% at 50% 50%,
-      rgba(0, 0, 0, calc(1 - var(--home-hero-pool))) 0%,
-      rgba(0, 0, 0, calc(0.06 * var(--home-hero-vignette) / 0.6)) 30%,
-      rgba(0, 0, 0, calc(0.34 * var(--home-hero-vignette) / 0.6)) 64%,
-      rgba(0, 0, 0, calc(1 * var(--home-hero-vignette) / 0.6)) 100%
+      ellipse 75% 60% at 55% 32%,
+      rgba(0, 0, 0, calc(0.04 * var(--home-hero-vignette) / 0.6)) 0%,
+      rgba(0, 0, 0, calc(0.22 * var(--home-hero-vignette) / 0.6)) 50%,
+      rgba(0, 0, 0, calc(0.52 * var(--home-hero-vignette) / 0.6)) 100%
     ),
     linear-gradient(
       90deg,
-      rgba(0, 0, 0, calc(0.52 * var(--home-hero-vignette) / 0.6)) 0%,
-      rgba(0, 0, 0, calc(0.28 * var(--home-hero-vignette) / 0.6)) 28%,
-      rgba(0, 0, 0, calc(0.10 * var(--home-hero-vignette) / 0.6)) 50%,
-      transparent 74%
+      rgba(0, 0, 0, calc(0.62 * var(--home-hero-vignette) / 0.6)) 0%,
+      rgba(0, 0, 0, calc(0.55 * var(--home-hero-vignette) / 0.6)) 14%,
+      rgba(0, 0, 0, calc(0.38 * var(--home-hero-vignette) / 0.6)) 34%,
+      rgba(0, 0, 0, calc(0.18 * var(--home-hero-vignette) / 0.6)) 54%,
+      transparent 76%
     ),
     linear-gradient(
       180deg,
-      rgba(0, 0, 0, calc(0.14 * var(--home-hero-vignette) / 0.6)) 0%,
-      transparent 20%,
-      transparent 55%,
-      rgba(0, 0, 0, calc(0.42 * var(--home-hero-vignette) / 0.6)) 100%
+      rgba(0, 0, 0, calc(0.22 * var(--home-hero-vignette) / 0.6)) 0%,
+      rgba(0, 0, 0, calc(0.10 * var(--home-hero-vignette) / 0.6)) 14%,
+      rgba(0, 0, 0, calc(0.10 * var(--home-hero-vignette) / 0.6)) 28%,
+      rgba(0, 0, 0, calc(0.48 * var(--home-hero-vignette) / 0.6)) 52%,
+      rgba(0, 0, 0, calc(0.74 * var(--home-hero-vignette) / 0.6)) 72%,
+      rgba(0, 0, 0, calc(0.84 * var(--home-hero-vignette) / 0.6)) 100%
     );
 }
 
@@ -1994,29 +2025,27 @@ html[data-theme="light"] .home-featured .ledger-poster {
     filter: saturate(0.90) contrast(1.08) brightness(0.94);
   }
 
-  /* B3 stack vignette intensity (still centered pool for PLT-AC-84) */
+  /* C4 stack soft overlay — denser under title+summary for ≥7:1 (PLT-AC-89/90) */
   .home-hero-portrait::after {
+    border-radius: 0;
     background:
       radial-gradient(
-        ellipse 70% 78% at 50% 50%,
-        rgba(0, 0, 0, calc(1 - var(--home-hero-pool))) 0%,
-        rgba(0, 0, 0, calc(0.10 * var(--home-hero-vignette) / 0.6)) 34%,
-        rgba(0, 0, 0, calc(0.45 * var(--home-hero-vignette) / 0.6)) 66%,
-        rgba(0, 0, 0, calc(0.70 * var(--home-hero-vignette) / 0.6)) 100%
-      ),
-      linear-gradient(
-        90deg,
-        rgba(0, 0, 0, calc(0.62 * var(--home-hero-vignette) / 0.6)) 0%,
-        rgba(0, 0, 0, calc(0.38 * var(--home-hero-vignette) / 0.6)) 28%,
-        rgba(0, 0, 0, calc(0.12 * var(--home-hero-vignette) / 0.6)) 55%,
-        transparent 78%
+        ellipse 85% 50% at 50% 14%,
+        rgba(0, 0, 0, calc(0.08 * var(--home-hero-vignette) / 0.6)) 0%,
+        rgba(0, 0, 0, calc(0.28 * var(--home-hero-vignette) / 0.6)) 50%,
+        rgba(0, 0, 0, calc(0.55 * var(--home-hero-vignette) / 0.6)) 100%
       ),
       linear-gradient(
         180deg,
-        rgba(0, 0, 0, calc(0.22 * var(--home-hero-vignette) / 0.6)) 0%,
-        rgba(0, 0, 0, calc(0.08 * var(--home-hero-vignette) / 0.6)) 18%,
-        rgba(0, 0, 0, calc(0.28 * var(--home-hero-vignette) / 0.6)) 55%,
-        rgba(0, 0, 0, calc(0.65 * var(--home-hero-vignette) / 0.6)) 100%
+        rgba(0, 0, 0, calc(0.28 * var(--home-hero-vignette) / 0.6)) 0%,
+        rgba(0, 0, 0, calc(0.22 * var(--home-hero-vignette) / 0.6)) 6%,
+        rgba(0, 0, 0, calc(0.42 * var(--home-hero-vignette) / 0.6)) 16%,
+        rgba(0, 0, 0, calc(0.68 * var(--home-hero-vignette) / 0.6)) 26%,
+        rgba(0, 0, 0, calc(0.82 * var(--home-hero-vignette) / 0.6)) 36%,
+        rgba(0, 0, 0, calc(0.88 * var(--home-hero-vignette) / 0.6)) 48%,
+        rgba(0, 0, 0, calc(0.84 * var(--home-hero-vignette) / 0.6)) 62%,
+        rgba(0, 0, 0, calc(0.62 * var(--home-hero-vignette) / 0.6)) 80%,
+        rgba(0, 0, 0, calc(0.42 * var(--home-hero-vignette) / 0.6)) 100%
       );
   }
 
@@ -2047,7 +2076,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
     line-height: 1.08;
     max-width: 100%;
     color: #f4f4f4;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75), 0 0 18px rgba(0, 0, 0, 0.45), 0 0 40px rgba(0, 0, 0, 0.25);
     margin-bottom: 1rem;
   }
 
@@ -2064,7 +2093,8 @@ html[data-theme="light"] .home-featured .ledger-poster {
     --mark-1: 42%;
     --mark-2: 32%;
     --mark-3: 14%;
-    --mk-h: 0.72em;
+    --mk-h: 1.02em;
+    padding-inline: 0.14em;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   }
 
@@ -2073,7 +2103,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
   .home-hero .home-hero-summary p,
   .home-hero .home-hero-tagline {
     color: #f0f0f0;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75), 0 0 18px rgba(0, 0, 0, 0.45), 0 0 40px rgba(0, 0, 0, 0.25);
     max-width: min(34rem, 100%);
     font-size: clamp(0.95rem, 3.6vw, 1.05rem);
     line-height: 1.45;
@@ -2088,22 +2118,49 @@ html[data-theme="light"] .home-featured .ledger-poster {
   }
 
   .home-hero-actions {
+    display: flex;
     margin-top: 1.5rem;
     flex-wrap: wrap;
+    align-items: center;
     gap: 0.4rem 0.55rem;
   }
 
+  /* PLT-AC-94: contacts stay one unit when actions wrap (CV alone on line 1). */
+  .home-hero-actions-contacts {
+    display: inline-flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.4rem 0.55rem;
+    max-width: 100%;
+  }
+
+  /* PLT-AC-93: marker wash (white ink OK on photo), no solid filled box. */
   .home-hero-actions .ledger-cta,
   .home-hero-actions .home-hero-cta {
-    background: rgba(245, 245, 245, 0.94);
-    color: #111;
-    border-color: rgba(255, 255, 255, 0.55);
+    --mark-ink: #ffffff;
+    --mark-1: var(--mark-strong-a);
+    --mark-2: var(--mark-strong-b);
+    --mark-3: var(--mark-strong-c);
+    color: #ffffff;
+    border-color: transparent;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+  }
+
+  .home-hero-actions .ledger-cta--emphasis-alt {
+    --mark-ink: #c8e4f5;
   }
 
   .home-hero-actions .ledger-cta span,
   .home-hero-actions .home-hero-cta span,
   .home-hero-actions .material-symbols-outlined {
+    color: inherit;
+  }
+
+  .home-hero-actions .ledger-cta--emphasis:hover,
+  .home-hero-actions .ledger-cta--emphasis-alt:hover {
     color: #111;
+    text-shadow: none;
+    background: rgba(255, 255, 255, 0.92);
   }
 }
 
@@ -2163,14 +2220,29 @@ html[data-theme="light"] .home-featured .ledger-poster {
     padding-block: 0;
     padding-inline: 0;
     border-bottom: 0;
-    align-self: start;
+    align-self: stretch;
+    height: 100%;
+    min-height: 0;
   }
 
   .home-band[data-home-kind="portfolio"] .home-band-inner {
     max-width: none;
     width: 100%;
+    height: 100%;
     margin: 0;
     padding-inline: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 0;
+    box-sizing: border-box;
+  }
+
+  .home-band[data-home-kind="portfolio"] .home-projects-bench {
+    margin-top: auto;
+    flex: 1 1 auto;
+    min-height: 0;
   }
 
   .home-band:not(.home-band--hero):not([data-home-kind="portfolio"]) {
@@ -2258,7 +2330,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
     max-width: 100%;
     overflow: hidden;
     color: #f4f4f4;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75), 0 0 18px rgba(0, 0, 0, 0.45), 0 0 40px rgba(0, 0, 0, 0.25);
     margin-bottom: 1rem;
   }
 
@@ -2275,7 +2347,8 @@ html[data-theme="light"] .home-featured .ledger-poster {
     --mark-1: 42%;
     --mark-2: 32%;
     --mark-3: 14%;
-    --mk-h: 0.72em;
+    --mk-h: 1.02em;
+    padding-inline: 0.14em;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   }
 
@@ -2283,7 +2356,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
   .home-hero .home-hero-summary p,
   .home-hero .home-hero-tagline {
     color: #f0f0f0;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75), 0 0 18px rgba(0, 0, 0, 0.45), 0 0 40px rgba(0, 0, 0, 0.25);
     max-width: 100%;
     font-size: clamp(0.95rem, 1.15vw, 1.05rem);
     line-height: 1.45;
@@ -2295,10 +2368,19 @@ html[data-theme="light"] .home-featured .ledger-poster {
 
   .home-hero-actions {
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
+    align-items: center;
     gap: 0.4rem 0.5rem;
     margin-top: 1.5rem;
     width: 100%;
+  }
+
+  .home-hero-actions-contacts {
+    display: inline-flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.4rem 0.5rem;
+    max-width: 100%;
   }
 
   .home-hero-actions .ledger-cta,
@@ -2306,15 +2388,30 @@ html[data-theme="light"] .home-featured .ledger-poster {
     flex: 0 1 auto;
     white-space: nowrap;
     min-width: 0;
-    background: rgba(245, 245, 245, 0.94);
-    color: #111;
-    border-color: rgba(255, 255, 255, 0.55);
+    --mark-ink: #ffffff;
+    --mark-1: var(--mark-strong-a);
+    --mark-2: var(--mark-strong-b);
+    --mark-3: var(--mark-strong-c);
+    color: #ffffff;
+    border-color: transparent;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+  }
+
+  .home-hero-actions .ledger-cta--emphasis-alt {
+    --mark-ink: #c8e4f5;
   }
 
   .home-hero-actions .ledger-cta span,
   .home-hero-actions .home-hero-cta span,
   .home-hero-actions .material-symbols-outlined {
+    color: inherit;
+  }
+
+  .home-hero-actions .ledger-cta--emphasis:hover,
+  .home-hero-actions .ledger-cta--emphasis-alt:hover {
     color: #111;
+    text-shadow: none;
+    background: rgba(255, 255, 255, 0.92);
   }
 }
 
