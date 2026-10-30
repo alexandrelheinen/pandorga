@@ -221,12 +221,12 @@ end
 # ── 51.6 Name from 1024px ───────────────────────────────────────────────────
 
 item(6) do
-  # CR-22.1: B3 desk name clamp (also declared on .home-hero-title)
+  # PLT-AC-98: desk name is type-section-lg + 2pt (set at ≥768, not vw)
   title = ".home-hero-title"
   expect_decl(title, "white-space", "nowrap", media: DESKTOP)
   expect_decl(title, "font-size",
-              "calc(clamp(1.85rem, 2.6vw, 2.55rem) + 2pt)",
-              media: DESKTOP)
+              "calc(var(--type-section-lg) + 2pt)",
+              media: "(min-width:768px)")
 end
 
 # ── 51.7 Markup ─────────────────────────────────────────────────────────────

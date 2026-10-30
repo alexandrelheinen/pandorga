@@ -151,14 +151,12 @@
   min-height: calc(var(--type-body) * 1.35);
 }
 
-/* Name spans the copy column (container query on .home-hero-copy). Divisor
-   is calculated for Ancizar Serif at -0.02em tracking (~6.9em phone
-   family-line width). From 640px the floor follows `.section-title` up to
-   `--type-section-lg`. Wider columns still grow toward `--type-page-lg`. */
+/* PLT-AC-98: hero name tracks home band titles (+2pt), not photo/cqi width.
+   Band `.section-title` uses --type-section, then --type-section-lg from 768px. */
 .home-hero-title {
   font-family: var(--font-title);
   font-weight: 400;
-  font-size: clamp(var(--type-section), calc(100cqi * 0.92 / 6.9), var(--type-page-lg));
+  font-size: calc(var(--type-section) + 2pt);
   line-height: 1.05;
   letter-spacing: -0.02em;
   color: var(--color-on-surface);
@@ -185,44 +183,23 @@
   padding: 0 0.1em;
 }
 
-@media (min-width: 640px) {
-  .home-hero-title {
-    font-size: clamp(var(--type-section-lg), calc(100cqi * 0.92 / 6.9), var(--type-page-lg));
-  }
-}
-
-/* Below 768px the name is 3pt larger than the clamp above, and the only
-   wrap point is the gap between the given name and the family name. */
-@media (max-width: 639px) {
-  .home-hero-title {
-    white-space: normal;
-    font-size: calc(clamp(var(--type-section), calc(100cqi * 0.92 / 6.9), var(--type-page-lg)) + 3pt);
-  }
-}
-
-@media (min-width: 640px) and (max-width: 767px) {
-  .home-hero-title {
-    white-space: normal;
-    font-size: calc(clamp(var(--type-section-lg), calc(100cqi * 0.92 / 6.9), var(--type-page-lg)) + 3pt);
-  }
-}
-
 @media (max-width: 767px) {
+  /* Only wrap between given and family name. */
   .home-hero-given,
   .home-hero-family {
     display: inline-block;
     white-space: nowrap;
   }
-}
 
-@media (min-width: 768px) and (max-width: 1023px) {
   .home-hero-title {
-    font-size: clamp(var(--type-section-lg), calc(100cqi * 0.92 / 10.81), var(--type-page-lg));
+    white-space: normal;
   }
 }
 
 @media (min-width: 768px) {
   .home-hero-title {
+    /* Same token step as .home-band .ledger-section-banner .section-title */
+    font-size: calc(var(--type-section-lg) + 2pt);
     white-space: nowrap;
   }
 }
@@ -1905,8 +1882,8 @@ html[data-theme="light"] .home-featured .ledger-poster {
   object-position: center;
 }
 
-/* Soft edgeless photo overlay (C4 / PLT-AC-89) — full-bleed darkening, no panel.
-   Stops tuned for ≥7:1 title+summary on every pool photo; vignette/pool still scale. */
+/* Soft edgeless photo overlay (C4 / PLT-AC-89 / PLT-AC-100) — full-bleed darkening, no panel.
+   Stops lightened vs 2.3.7 so the figure reads; vignette/pool still scale; target ~9–11:1. */
 .home-hero-portrait::after {
   content: "";
   position: absolute;
@@ -1917,26 +1894,26 @@ html[data-theme="light"] .home-featured .ledger-poster {
   background:
     radial-gradient(
       ellipse 75% 60% at 55% 32%,
-      rgba(0, 0, 0, calc(0.04 * var(--home-hero-vignette) / 0.6)) 0%,
-      rgba(0, 0, 0, calc(0.22 * var(--home-hero-vignette) / 0.6)) 50%,
-      rgba(0, 0, 0, calc(0.52 * var(--home-hero-vignette) / 0.6)) 100%
+      rgba(0, 0, 0, calc(0.02 * var(--home-hero-vignette) / 0.6)) 0%,
+      rgba(0, 0, 0, calc(0.14 * var(--home-hero-vignette) / 0.6)) 50%,
+      rgba(0, 0, 0, calc(0.36 * var(--home-hero-vignette) / 0.6)) 100%
     ),
     linear-gradient(
       90deg,
-      rgba(0, 0, 0, calc(0.72 * var(--home-hero-vignette) / 0.6)) 0%,
-      rgba(0, 0, 0, calc(0.62 * var(--home-hero-vignette) / 0.6)) 14%,
-      rgba(0, 0, 0, calc(0.45 * var(--home-hero-vignette) / 0.6)) 34%,
-      rgba(0, 0, 0, calc(0.22 * var(--home-hero-vignette) / 0.6)) 54%,
+      rgba(0, 0, 0, calc(0.48 * var(--home-hero-vignette) / 0.6)) 0%,
+      rgba(0, 0, 0, calc(0.38 * var(--home-hero-vignette) / 0.6)) 14%,
+      rgba(0, 0, 0, calc(0.24 * var(--home-hero-vignette) / 0.6)) 34%,
+      rgba(0, 0, 0, calc(0.10 * var(--home-hero-vignette) / 0.6)) 54%,
       transparent 76%
     ),
     linear-gradient(
       180deg,
-      rgba(0, 0, 0, calc(0.24 * var(--home-hero-vignette) / 0.6)) 0%,
-      rgba(0, 0, 0, calc(0.12 * var(--home-hero-vignette) / 0.6)) 14%,
-      rgba(0, 0, 0, calc(0.18 * var(--home-hero-vignette) / 0.6)) 28%,
-      rgba(0, 0, 0, calc(0.58 * var(--home-hero-vignette) / 0.6)) 48%,
-      rgba(0, 0, 0, calc(0.82 * var(--home-hero-vignette) / 0.6)) 68%,
-      rgba(0, 0, 0, calc(0.92 * var(--home-hero-vignette) / 0.6)) 100%
+      rgba(0, 0, 0, calc(0.14 * var(--home-hero-vignette) / 0.6)) 0%,
+      rgba(0, 0, 0, calc(0.06 * var(--home-hero-vignette) / 0.6)) 14%,
+      rgba(0, 0, 0, calc(0.10 * var(--home-hero-vignette) / 0.6)) 28%,
+      rgba(0, 0, 0, calc(0.38 * var(--home-hero-vignette) / 0.6)) 52%,
+      rgba(0, 0, 0, calc(0.58 * var(--home-hero-vignette) / 0.6)) 72%,
+      rgba(0, 0, 0, calc(0.68 * var(--home-hero-vignette) / 0.6)) 100%
     );
 }
 
@@ -2022,30 +1999,30 @@ html[data-theme="light"] .home-featured .ledger-poster {
     height: 100%;
     object-fit: cover;
     object-position: center;
-    filter: saturate(0.90) contrast(1.08) brightness(0.94);
+    filter: saturate(0.95) contrast(1.06) brightness(1.05);
   }
 
-  /* C4 stack soft overlay — denser under title+summary for ≥7:1 (PLT-AC-89/90) */
+  /* PLT-AC-100: stack overlay lightened — figure visible, text still ≥7:1 */
   .home-hero-portrait::after {
     border-radius: 0;
     background:
       radial-gradient(
         ellipse 85% 50% at 50% 14%,
-        rgba(0, 0, 0, calc(0.08 * var(--home-hero-vignette) / 0.6)) 0%,
-        rgba(0, 0, 0, calc(0.28 * var(--home-hero-vignette) / 0.6)) 50%,
-        rgba(0, 0, 0, calc(0.55 * var(--home-hero-vignette) / 0.6)) 100%
+        rgba(0, 0, 0, calc(0.04 * var(--home-hero-vignette) / 0.6)) 0%,
+        rgba(0, 0, 0, calc(0.16 * var(--home-hero-vignette) / 0.6)) 50%,
+        rgba(0, 0, 0, calc(0.36 * var(--home-hero-vignette) / 0.6)) 100%
       ),
       linear-gradient(
         180deg,
-        rgba(0, 0, 0, calc(0.28 * var(--home-hero-vignette) / 0.6)) 0%,
-        rgba(0, 0, 0, calc(0.22 * var(--home-hero-vignette) / 0.6)) 6%,
-        rgba(0, 0, 0, calc(0.42 * var(--home-hero-vignette) / 0.6)) 16%,
-        rgba(0, 0, 0, calc(0.68 * var(--home-hero-vignette) / 0.6)) 26%,
-        rgba(0, 0, 0, calc(0.82 * var(--home-hero-vignette) / 0.6)) 36%,
-        rgba(0, 0, 0, calc(0.88 * var(--home-hero-vignette) / 0.6)) 48%,
-        rgba(0, 0, 0, calc(0.84 * var(--home-hero-vignette) / 0.6)) 62%,
-        rgba(0, 0, 0, calc(0.62 * var(--home-hero-vignette) / 0.6)) 80%,
-        rgba(0, 0, 0, calc(0.42 * var(--home-hero-vignette) / 0.6)) 100%
+        rgba(0, 0, 0, calc(0.16 * var(--home-hero-vignette) / 0.6)) 0%,
+        rgba(0, 0, 0, calc(0.12 * var(--home-hero-vignette) / 0.6)) 6%,
+        rgba(0, 0, 0, calc(0.28 * var(--home-hero-vignette) / 0.6)) 16%,
+        rgba(0, 0, 0, calc(0.48 * var(--home-hero-vignette) / 0.6)) 28%,
+        rgba(0, 0, 0, calc(0.58 * var(--home-hero-vignette) / 0.6)) 40%,
+        rgba(0, 0, 0, calc(0.62 * var(--home-hero-vignette) / 0.6)) 52%,
+        rgba(0, 0, 0, calc(0.58 * var(--home-hero-vignette) / 0.6)) 66%,
+        rgba(0, 0, 0, calc(0.42 * var(--home-hero-vignette) / 0.6)) 82%,
+        rgba(0, 0, 0, calc(0.28 * var(--home-hero-vignette) / 0.6)) 100%
       );
   }
 
@@ -2068,11 +2045,9 @@ html[data-theme="light"] .home-featured .ledger-poster {
     background: transparent;
   }
 
-  /* B3 stack name (~33.4px @390, ~45.8px @768) */
+  /* PLT-AC-98: stack inherits token+2pt; keep photo ink/shadow */
   .home-ledger .home-hero-title,
   .home-hero-title {
-    white-space: normal;
-    font-size: clamp(1.9rem, 7vw, 2.6rem);
     line-height: 1.08;
     max-width: 100%;
     color: #ffffff;
@@ -2297,7 +2272,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
     max-width: none;
     object-fit: cover;
     object-position: center;
-    filter: saturate(0.90) contrast(1.08) brightness(0.94);
+    filter: saturate(0.95) contrast(1.06) brightness(1.05);
   }
 
   .home-hero-plate .ledger-frame-corners,
@@ -2321,11 +2296,10 @@ html[data-theme="light"] .home-featured .ledger-poster {
     background: transparent;
   }
 
-  /* B3 desk name (~35.2px @1024, ~40.1px @1440) */
+  /* PLT-AC-98: desk uses type-section-lg + 2pt (set ≥768); keep photo ink */
   .home-ledger .home-hero-title,
   .home-hero-title {
     white-space: nowrap;
-    font-size: calc(clamp(1.85rem, 2.6vw, 2.55rem) + 2pt);
     line-height: 1.08;
     max-width: 100%;
     overflow: hidden;

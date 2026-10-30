@@ -563,16 +563,20 @@ const ASSERT_EXPRESSION = `
         }
       }
 
-      // PLT-AC-86: name fits in panel; size near B3 (±4px)
+      // PLT-AC-86 / PLT-AC-99: name fits; h1 − band h2 in [2.4, 3.0] px
       if (title && hb.width > 40) {
         const tr = title.getBoundingClientRect();
         if (tr.right > hb.right + 1) {
           errors.push('Hero name right (' + tr.right.toFixed(1) + ') past panel right (' + hb.right.toFixed(1) + ') (PLT-AC-86)');
         }
-        const fs = parseFloat(getComputedStyle(title).fontSize);
-        const expect = window.innerWidth >= 1280 ? 40.11 : 35.23;
-        if (Math.abs(fs - expect) > 4) {
-          errors.push('Hero name font-size ' + fs.toFixed(2) + 'px not within 4px of B3 ' + expect + 'px (PLT-AC-86)');
+        const band = document.querySelector('.home-band .ledger-section-banner .section-title');
+        if (band) {
+          const h1 = parseFloat(getComputedStyle(title).fontSize);
+          const h2 = parseFloat(getComputedStyle(band).fontSize);
+          const delta = h1 - h2;
+          if (delta < 2.4 || delta > 3.0) {
+            errors.push('Hero h1−band h2 delta ' + delta.toFixed(2) + 'px not in [2.4, 3.0] (PLT-AC-99)');
+          }
         }
       }
 

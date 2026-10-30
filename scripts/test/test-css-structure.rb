@@ -298,16 +298,19 @@ if declaration_bodies(home_sheet, ".home-hero-summary").any? { |body| declaratio
   errors << "assets/css/ledger/home.css: .home-hero-summary must use --color-legend (PLT-AC-23)"
 end
 
-# PLT-AC-62 / PLT-AC-68. Hero cqi clamp divisors calculated for Ancizar (~6.9 / ~10.81). Cinzel and 5.55 comments removed.
+# PLT-AC-62 / PLT-AC-68. Cinzel and obsolete 5.55 divisors stay gone.
 if home_sheet.match?(/Cinzel/i) || home_sheet.include?("5.55")
   errors << "assets/css/ledger/home.css must not contain Cinzel or obsolete 5.55 comments/divisors (PLT-AC-68)"
 end
-# Phone/base keep Ancizar 6.9; desktop CR-22.1 uses the approved B3 vw clamp.
-unless home_sheet.include?("calc(100cqi * 0.92 / 6.9)")
-  errors << "assets/css/ledger/home.css: phone/base hero clamp must use Ancizar ~6.9 (PLT-AC-68)"
+# PLT-AC-98 / PLT-AC-86 supersession: hero name = band title token + 2pt (not cqi/vw).
+unless home_sheet.include?("font-size: calc(var(--type-section) + 2pt)")
+  errors << "assets/css/ledger/home.css: hero title must be type-section + 2pt (PLT-AC-98)"
 end
-unless home_sheet.include?("calc(clamp(1.85rem, 2.6vw, 2.55rem) + 2pt)")
-  errors << "assets/css/ledger/home.css: desktop B3 name clamp missing (CR-22.1 / PLT-AC-86)"
+unless home_sheet.include?("font-size: calc(var(--type-section-lg) + 2pt)")
+  errors << "assets/css/ledger/home.css: hero title ≥768 must be type-section-lg + 2pt (PLT-AC-98)"
+end
+if home_sheet.include?("100cqi") || home_sheet.include?("1.85rem, 2.6vw") || home_sheet.include?("1.9rem, 7vw")
+  errors << "assets/css/ledger/home.css: hero title must not use cqi/vw clamps (PLT-AC-98)"
 end
 
 # PLT-AC-69. Inventory / project logo icon font-sizes +2pt.

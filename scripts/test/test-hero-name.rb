@@ -132,39 +132,30 @@ check!(long["family"] == (1..8).map { |index| "Tok#{index}" }.join(" "),
 symbols = Pandorga::IdentityName.resolve({ first_name: "Ada", last_name: "Rivera Santos" })
 check!(symbols["family"] == "Rivera Santos", "symbol keys work, got #{symbols.inspect}")
 
-# ── PLT-AC-15 / PLT-AC-68 ───────────────────────────────────────────────────
+# ── PLT-AC-15 / PLT-AC-98 ───────────────────────────────────────────────────
 
 hero = css[/\.home-hero-title \{.*?(?=\.home-hero-summary)/m]
 check!(hero, "missing hero title block")
-check!(hero.include?("font-size: clamp(var(--type-section), calc(100cqi * 0.92 / 6.9), var(--type-page-lg));"),
-       "base name size uses Ancizar 6.9 clamp")
-check!(hero.include?("@media (max-width: 639px)"), "missing phone size query")
-check!(hero.include?("calc(clamp(var(--type-section), calc(100cqi * 0.92 / 6.9), var(--type-page-lg)) + 3pt)"),
-       "below 640px the name must be the current clamp plus 3pt")
-check!(hero.include?("@media (min-width: 640px) and (max-width: 767px)"),
-       "missing 640-767 size query")
-check!(hero.include?("calc(clamp(var(--type-section-lg), calc(100cqi * 0.92 / 6.9), var(--type-page-lg)) + 3pt)"),
-       "from 640px to 767px the name must be the section-lg clamp plus 3pt")
-# CR-22.1 supersedes desktop --hero-name-fit 6.9 with the approved B3 clamp.
-check!(css.include?("calc(clamp(1.85rem, 2.6vw, 2.55rem) + 2pt)"),
-       "desktop B3 name clamp must be present (CR-22.1)")
-check!(css.include?("clamp(1.9rem, 7vw, 2.6rem)"),
-       "stack B3 name clamp must be present (CR-22.1)")
-
-plain = hero.index("@media (min-width: 640px) {")
-banded = hero.index("@media (min-width: 640px) and (max-width: 767px)")
-check!(plain && banded && banded > plain,
-       "the +3pt band must follow the plain 640px clamp so it wins")
+check!(hero.include?("font-size: calc(var(--type-section) + 2pt);"),
+       "base name size is type-section + 2pt (PLT-AC-98)")
+check!(hero.include?("font-size: calc(var(--type-section-lg) + 2pt);"),
+       "from 768px name is type-section-lg + 2pt (PLT-AC-98)")
+check!(!hero.include?("100cqi") && !css.include?("1.85rem, 2.6vw") && !css.include?("1.9rem, 7vw"),
+       "hero name must not use cqi/vw clamps (PLT-AC-98)")
 
 phone = hero[/@media \(max-width: 767px\) \{.*?\n\}/m]
-check!(phone && phone.include?("inline-block") && phone.include?("white-space: nowrap"),
-       "on a phone each name is an unbreakable unit, got:\n#{phone}")
-check!(phone.include?(".home-hero-given") && phone.include?(".home-hero-family"),
-       "both name parts are unbreakable")
+# Nested rules: match from the media opener through the last name part selectors.
+check!(hero.include?("@media (max-width: 767px)") &&
+         hero.include?(".home-hero-given") &&
+         hero.include?(".home-hero-family") &&
+         hero.include?("inline-block") &&
+         hero.include?("white-space: nowrap"),
+       "on a phone each name is an unbreakable unit")
 
-desktop = hero[/@media \(min-width: 768px\) \{.*?\n\}/m]
+desktop = hero[/@media \(min-width: 768px\)[\s\S]*?(?=\.home-hero-summary|\z)/]
 check!(desktop && desktop.include?("white-space: nowrap"),
        "from 768px the name stays on one line")
-check!(!desktop.include?("3pt"), "the +3pt bump is phone-only")
+check!(desktop && desktop.include?("var(--type-section-lg) + 2pt"),
+       "768px media must set type-section-lg + 2pt")
 
 puts "PASS test-hero-name"

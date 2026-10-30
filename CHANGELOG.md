@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.3.10] — 2026-10-30
+
+### Changed
+
+- CR-24: Hero name always band title + 2pt from `--type-section` / `--type-section-lg` (PLT-AC-98/99); soft overlay lightened so the figure reads while title/summary stay ≥7:1, target ~9–11:1 (PLT-AC-100). See [features/home-hero-scale-overlay.md](docs/features/home-hero-scale-overlay.md).
+
 ## [2.3.9] — 2026-10-30
 
 ### Fixed
