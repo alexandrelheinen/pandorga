@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.3.13] — 2026-10-30
+
+### Changed
+
+- CR-24 overlay tune: soft edgeless hero overlay set to local recipe C (between the too-light 2.3.10 first pass and 2.3.7) so pool photos stay readable while worst-case title/summary contrast stays ≥7:1, measured ~7.7–8+ across all 4 pool photos @390/1440 light/dark (PLT-AC-100). Hero name = band title + 2pt remains from 2.3.10 (PLT-AC-98/99).
+
 ## [2.3.12] — 2026-10-30
 
 ### Fixed
