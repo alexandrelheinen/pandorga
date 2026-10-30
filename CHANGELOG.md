@@ -2,11 +2,21 @@
 
 ## [Unreleased]
 
+## [2.3.14] — 2026-10-30
+
+### Added
+
+- `pandorga.home.hero_overlay.strength` (0–1) preferred overlay-darkness key; falls back to legacy `vignette`; emitted as `--home-hero-vignette` (PLT-AC-101).
+
+### Changed
+
+- CR-24: soft edgeless hero overlay base stops set to local recipe D; sites darken further via `hero_overlay.strength` (PLT-AC-100). Hero name = band title + 2pt unchanged (PLT-AC-98/99).
+
 ## [2.3.13] — 2026-10-30
 
 ### Changed
 
-- CR-24 overlay tune: soft edgeless hero overlay set to local recipe C (between the too-light 2.3.10 first pass and 2.3.7) so pool photos stay readable while worst-case title/summary contrast stays ≥7:1, measured ~7.7–8+ across all 4 pool photos @390/1440 light/dark (PLT-AC-100). Hero name = band title + 2pt remains from 2.3.10 (PLT-AC-98/99).
+- Superseded before RubyGems publish by 2.3.14 (strength config + darker recipe D base).
 
 ## [2.3.12] — 2026-10-30
 

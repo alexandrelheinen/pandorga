@@ -16,7 +16,8 @@ pandorga:
   home:
     hero_art: page/hero-default.html
     hero_overlay:
-      vignette: 0.60
+      # Overlay darkness (0–1); preferred key. Alias: vignette. Emitted as --home-hero-vignette.
+      strength: 0.60
       pool: 0.94
   taxonomies:
     articles:

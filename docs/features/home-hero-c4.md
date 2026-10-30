@@ -27,7 +27,7 @@ pandorga:
     # Optional pin (stem or path fragment). Omit for random draw each load.
     # hero_portrait: DSC00571
     hero_overlay:
-      vignette: 0.60
+      strength: 0.60   # preferred; alias vignette
       pool: 0.94
 ```
 

@@ -33,7 +33,7 @@ pandorga:
       pool: 0.94
 ```
 
-Emitted as `--home-hero-vignette` and `--home-hero-pool` on `:root`.
+Emitted as `--home-hero-vignette` (from `strength` or legacy `vignette`) and `--home-hero-pool` on `:root`.
 
 ## Non-goals
 

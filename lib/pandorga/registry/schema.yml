@@ -54,7 +54,7 @@ home:
       notes: Optional stem or path fragment; when set, the home hydrator prefers that pool entry instead of a random draw (e.g. `DSC00571`). Omit for random selection each load.
     hero_overlay:
       type: map
-      notes: Optional `{ vignette, pool }` (0–1) emitted as `--home-hero-vignette` / `--home-hero-pool`
+      notes: Optional `{ strength, vignette, pool }` (0–1). `strength` (preferred) or legacy `vignette` sets overlay darkness via `--home-hero-vignette` (default 0.60); `pool` sets `--home-hero-pool` (default 0.94). Higher strength = darker soft overlay.
 
 fonts:
   title: "`pandorga.fonts`"
