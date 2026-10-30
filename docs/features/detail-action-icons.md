@@ -1,7 +1,7 @@
 # CR-23 — Detail action icons + TOC gap (pandorga 2.3.8)
 
-Status: shipping in 2.3.8  
-Version target: pandorga 2.3.8  
+Status: 2.3.8 shipped; desktop box fix in 2.3.9  
+Version target: pandorga 2.3.9 (2.3.8 scoped glyphs to mobile)  
 Prerequisite: CR-22.4 (2.3.6/2.3.7) shipped.
 
 ## Intent
@@ -10,7 +10,7 @@ On article/post detail pages, the four meta action controls (Back, Share, Cite, 
 
 ## Acceptance criteria (EARS)
 
-- `PLT-AC-95` The Material Symbol glyphs inside `.detail-action` and `.detail-type-size-trigger` (excluding the expand caret) use `font-size: calc(1rem + 2pt)`; width, height, padding, and margin declarations on `.detail-action` / `.detail-type-size-trigger` (including the mobile `height: 2.5rem; padding: 0` rules) remain identical to 2.3.5 (`test-detail-action-icons`).
+- `PLT-AC-95` On the mobile icon-only action row (`max-width: 767px`), Material Symbol glyphs inside `.detail-action` and `.detail-type-size-trigger` (excluding the expand caret) use `font-size: calc(1rem + 2pt)`; desktop labeled pills keep `1rem`. Width, height, padding, and margin declarations on the buttons (including mobile `height: 2.5rem; padding: 0`) remain identical to 2.3.5 (`test-detail-action-icons`).
 - `PLT-AC-96` On the mobile icon-only action row (`max-width: 767px`, labels clipped), each visible action glyph’s rendered bounding-box center (via `Range.getBoundingClientRect` on the icon’s text contents) lies within ±0.5px of its button’s center on both X and Y; buttons keep `display: inline-flex; justify-content: center; align-items: center` (`test-detail-action-icons`; live verify at 390). Desktop keeps labeled pills — glyph centering is not required when the label is visible.
 - `PLT-AC-97` When the stacked contents disclosure is present below `.article-meta`, the gap from the bottom of `.detail-actions` to the horizontal rule above “IN THIS TEXT” is at least `calc(var(--space-sm) + var(--space-xs))` (0.75rem ≈ 12px at a 16px root): composed from the spacing scale as `space-sm + space-xs`, the smallest step that reads as clear separation without jumping a full `--space-md` (`test-detail-action-icons`).
 

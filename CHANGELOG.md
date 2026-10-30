@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.3.9] — 2026-10-30
+
+### Fixed
+
+- CR-23 follow-up: scope action glyph `+2pt` to the mobile icon-only row so desktop labeled pill boxes stay identical to 2.3.5 (PLT-AC-95).
+
 ## [2.3.8] — 2026-10-30
 
 ### Changed

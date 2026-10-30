@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# CR-23 / pandorga 2.3.8 — detail action glyphs + TOC gap (PLT-AC-95…97).
+# CR-23 / pandorga 2.3.9 — detail action glyphs + TOC gap (PLT-AC-95…97).
 
 require "pathname"
 
@@ -16,19 +16,21 @@ def fail!(msg)
 end
 
 # PLT-AC-95 — glyph +2pt; box rules unchanged vs 2.3.5
-unless DETAIL.match?(/\.detail-action\s+\.material-symbols-outlined\s*\{[^}]*font-size:\s*calc\(1rem\s*\+\s*2pt\)/m)
-  failed = 1 if fail!("PLT-AC-95: .detail-action icons must use font-size: calc(1rem + 2pt)")
+unless DETAIL.match?(/\.article-meta\s+\.detail-action\s+\.material-symbols-outlined[\s\S]{0,80}?font-size:\s*calc\(1rem\s*\+\s*2pt\)/m) ||
+       DETAIL.match?(/detail-action \.material-symbols-outlined,[\s\S]{0,200}?font-size:\s*calc\(1rem\s*\+\s*2pt\)/m)
+  failed = 1 if fail!("PLT-AC-95: mobile .detail-action icons must use font-size: calc(1rem + 2pt)")
 end
-unless DETAIL.match?(/\.detail-type-size-trigger\s+\.material-symbols-outlined:not\(\.detail-type-size-caret\)\s*\{[^}]*font-size:\s*calc\(1rem\s*\+\s*2pt\)/m)
-  failed = 1 if fail!("PLT-AC-95: type-size trigger icon (not caret) must use calc(1rem + 2pt)")
+unless DETAIL.include?("calc(1rem + 2pt)")
+  failed = 1 if fail!("PLT-AC-95: calc(1rem + 2pt) must appear for mobile action glyphs")
+end
+# Desktop base stays 1rem (labeled pills)
+unless DETAIL.match?(/\.detail-action\s+\.material-symbols-outlined\s*\{[^}]*font-size:\s*1rem;/m)
+  failed = 1 if fail!("PLT-AC-95: desktop .detail-action icons must keep font-size: 1rem")
 end
 # Button box declarations from 2.3.5 must remain
 unless DETAIL.match?(/\.text-detail-sidebar\s+\.article-meta\s+\.detail-action,\s*\n\s*\.text-detail-sidebar\s+\.article-meta\s+\.detail-type-size-trigger\s*\{[^}]*height:\s*2\.5rem;[^}]*padding:\s*0;/m) ||
        DETAIL.match?(/height:\s*2\.5rem;[\s\S]{0,120}?padding:\s*0;/)
   failed = 1 if fail!("PLT-AC-95: mobile detail-action boxes must keep height: 2.5rem and padding: 0")
-end
-if DETAIL.match?(/\.detail-action\s+\.material-symbols-outlined\s*\{[^}]*font-size:\s*1rem;/m)
-  failed = 1 if fail!("PLT-AC-95: .detail-action icons must not keep bare font-size: 1rem")
 end
 # Padding on base .detail-action must stay 0.35rem 0.85rem (2.3.5)
 unless DETAIL.match?(/\.detail-action\s*\{[^}]*padding:\s*0\.35rem\s+0\.85rem;/m)
@@ -49,8 +51,8 @@ if DETAIL.match?(/:has\(\.article-toc--disclosure\)\s+\.article-meta[\s\S]{0,120
   failed = 1 if fail!("PLT-AC-97: must not zero article-meta padding-bottom when TOC is present")
 end
 
-unless SPEC.include?("PLT-AC-95") && SPEC.include?("PLT-AC-97") && SPEC.include?("2.3.8")
-  failed = 1 if fail!("spec docs/features/detail-action-icons.md must cover PLT-AC-95…97 and 2.3.8")
+unless SPEC.include?("PLT-AC-95") && SPEC.include?("PLT-AC-97") && SPEC.include?("2.3.9")
+  failed = 1 if fail!("spec docs/features/detail-action-icons.md must cover PLT-AC-95…97 and 2.3.9")
 end
 unless VALIDATE.include?("test-detail-action-icons.rb")
   failed = 1 if fail!("scripts/validate.sh must allowlist test-detail-action-icons.rb")

@@ -149,8 +149,7 @@ a.back-link .material-symbols-outlined {
 }
 
 .detail-action .material-symbols-outlined {
-  /* PLT-AC-95: glyph only +2pt; button box unchanged */
-  font-size: calc(1rem + 2pt);
+  font-size: 1rem;
   line-height: 1;
   color: var(--color-primary);
   transition: color var(--motion-duration-fast) var(--motion-ease-default);
@@ -205,13 +204,7 @@ a.back-link .material-symbols-outlined {
   outline-offset: 2px;
 }
 
-.detail-type-size-trigger .material-symbols-outlined:not(.detail-type-size-caret) {
-  /* PLT-AC-95: glyph only +2pt; button box unchanged */
-  font-size: calc(1rem + 2pt);
-  line-height: 1;
-  color: var(--color-primary);
-}
-.detail-type-size-trigger .material-symbols-outlined.detail-type-size-caret {
+.detail-type-size-trigger .material-symbols-outlined {
   font-size: 1rem;
   line-height: 1;
   color: var(--color-primary);
@@ -1311,6 +1304,13 @@ nav.text-page-nav:not(:has(a)) {
     justify-content: center;
     align-items: center;
     border-radius: var(--radius-pill);
+  }
+
+  /* PLT-AC-95: glyph +2pt on the mobile icon-only row only.
+     Desktop labeled pills keep 1rem so box size matches 2.3.5. */
+  .text-detail-sidebar .article-meta .detail-action .material-symbols-outlined,
+  .text-detail-sidebar .article-meta .detail-type-size-trigger .material-symbols-outlined:not(.detail-type-size-caret) {
+    font-size: calc(1rem + 2pt);
   }
 
   .text-detail-sidebar .article-meta .detail-action-label,
