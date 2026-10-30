@@ -1859,16 +1859,25 @@ html[data-theme="light"] .home-featured .ledger-poster {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   CR-22…22.4 — Home hero B3 + C4 (PLT-AC-81…94)
+   CR-22…22.4 — Home hero B3 + C4 (PLT-AC-81…94) + overlay strength/pool (PLT-AC-100…102)
    Photo as hero background + 50/50 masthead with Projects from 1024px.
-   Name/summary/actions/spacing match approved B3 measures within ~2px;
-   masthead width 1337.625px; crops centered; home plates 16:9.
-   Config: --home-hero-vignette, --home-hero-pool (see pandorga.home.hero_overlay).
+   Config (pandorga.home.hero_overlay):
+     strength | vignette → --home-hero-vignette (0–1): photo-area darkness
+       (radial, left falloff, upper vertical). Linear in [0,1]; at 1.0 every
+       photo-area stop is capped ≤ --home-hero-strength-cap (~0.42) so the
+       figure stays recognizable.
+     pool → --home-hero-pool (0–1): absolute black alpha of the text band
+       (lower vertical stops / stacked copy band). Not a multiplier.
+   Every alpha is min(cap, …); caps < 1; shade is charcoal (not #000) so composites never hit pure-black RGB.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 :root {
   --home-hero-vignette: 0.60;
-  --home-hero-pool: 0.94;
+  --home-hero-pool: 0.70;
+  --home-hero-strength-cap: 0.42;
+  --home-hero-pool-cap: 0.90;
+  /* Deep charcoal (not #000): even over black clothing, composites stay RGB sum ≥ 3. */
+  --home-hero-shade: 18, 20, 26;
   --home-masthead-gutter: clamp(1.25rem, 2.2vw, 2rem);
 }
 
@@ -1882,8 +1891,10 @@ html[data-theme="light"] .home-featured .ledger-poster {
   object-position: center;
 }
 
-/* Soft edgeless photo overlay (C4 / PLT-AC-89 / PLT-AC-100) — full-bleed darkening, no panel.
-   Stops lightened vs 2.3.7 so the figure reads; vignette/pool still scale; target ~9–11:1. */
+/* Soft edgeless photo overlay (C4 / PLT-AC-89 / PLT-AC-100…102).
+   ::after = strength (photo area). ::before = pool (text-band absolute alpha).
+   Independent; every stop min(cap, …); charcoal shade + caps < 1 → no pure-black pixels from the overlay. */
+.home-hero-portrait::before,
 .home-hero-portrait::after {
   content: "";
   position: absolute;
@@ -1891,29 +1902,47 @@ html[data-theme="light"] .home-featured .ledger-poster {
   z-index: 2;
   pointer-events: none;
   border-radius: 0;
+}
+
+/* Text band: absolute pool alpha only (not scaled by strength).
+   Ramp starts high enough that title + summary sit fully in the opaque band. */
+.home-hero-portrait::before {
+  background: linear-gradient(
+    180deg,
+    transparent 34%,
+    rgba(var(--home-hero-shade), min(var(--home-hero-pool-cap), calc(var(--home-hero-pool) * 0.45))) 46%,
+    rgba(var(--home-hero-shade), min(var(--home-hero-pool-cap), calc(var(--home-hero-pool) * 0.78))) 56%,
+    rgba(var(--home-hero-shade), min(var(--home-hero-pool-cap), var(--home-hero-pool))) 66%,
+    rgba(var(--home-hero-shade), min(var(--home-hero-pool-cap), var(--home-hero-pool))) 100%
+  );
+}
+
+/* Photo area: strength only; masked off the text band so pool stays independent. */
+.home-hero-portrait::after {
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 32%, transparent 46%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 32%, transparent 46%);
   background:
     radial-gradient(
-      ellipse 75% 60% at 55% 32%,
-      rgba(0, 0, 0, calc(0.04 * var(--home-hero-vignette) / 0.6)) 0%,
-      rgba(0, 0, 0, calc(0.20 * var(--home-hero-vignette) / 0.6)) 50%,
-      rgba(0, 0, 0, calc(0.48 * var(--home-hero-vignette) / 0.6)) 100%
+      ellipse 80% 50% at 55% 26%,
+      rgba(var(--home-hero-shade), min(var(--home-hero-strength-cap), calc(0.05 * var(--home-hero-vignette)))) 0%,
+      rgba(var(--home-hero-shade), min(var(--home-hero-strength-cap), calc(0.16 * var(--home-hero-vignette)))) 50%,
+      rgba(var(--home-hero-shade), min(var(--home-hero-strength-cap), calc(0.28 * var(--home-hero-vignette)))) 78%,
+      transparent 100%
     ),
     linear-gradient(
       90deg,
-      rgba(0, 0, 0, calc(0.68 * var(--home-hero-vignette) / 0.6)) 0%,
-      rgba(0, 0, 0, calc(0.58 * var(--home-hero-vignette) / 0.6)) 14%,
-      rgba(0, 0, 0, calc(0.42 * var(--home-hero-vignette) / 0.6)) 34%,
-      rgba(0, 0, 0, calc(0.20 * var(--home-hero-vignette) / 0.6)) 54%,
-      transparent 76%
+      rgba(var(--home-hero-shade), min(var(--home-hero-strength-cap), calc(0.30 * var(--home-hero-vignette)))) 0%,
+      rgba(var(--home-hero-shade), min(var(--home-hero-strength-cap), calc(0.22 * var(--home-hero-vignette)))) 14%,
+      rgba(var(--home-hero-shade), min(var(--home-hero-strength-cap), calc(0.12 * var(--home-hero-vignette)))) 34%,
+      rgba(var(--home-hero-shade), min(var(--home-hero-strength-cap), calc(0.04 * var(--home-hero-vignette)))) 52%,
+      transparent 70%
     ),
     linear-gradient(
       180deg,
-      rgba(0, 0, 0, calc(0.24 * var(--home-hero-vignette) / 0.6)) 0%,
-      rgba(0, 0, 0, calc(0.12 * var(--home-hero-vignette) / 0.6)) 14%,
-      rgba(0, 0, 0, calc(0.16 * var(--home-hero-vignette) / 0.6)) 28%,
-      rgba(0, 0, 0, calc(0.54 * var(--home-hero-vignette) / 0.6)) 48%,
-      rgba(0, 0, 0, calc(0.78 * var(--home-hero-vignette) / 0.6)) 68%,
-      rgba(0, 0, 0, calc(0.86 * var(--home-hero-vignette) / 0.6)) 100%
+      rgba(var(--home-hero-shade), min(var(--home-hero-strength-cap), calc(0.16 * var(--home-hero-vignette)))) 0%,
+      rgba(var(--home-hero-shade), min(var(--home-hero-strength-cap), calc(0.07 * var(--home-hero-vignette)))) 12%,
+      rgba(var(--home-hero-shade), min(var(--home-hero-strength-cap), calc(0.08 * var(--home-hero-vignette)))) 24%,
+      transparent 48%
     );
 }
 
@@ -2002,27 +2031,36 @@ html[data-theme="light"] .home-featured .ledger-poster {
     filter: saturate(0.95) contrast(1.06) brightness(0.98);
   }
 
-  /* PLT-AC-100: stack overlay — recipe D base; site scales via hero_overlay.strength / vignette */
+  /* PLT-AC-100…102: stack — ::after strength (upper); ::before pool (copy band) */
+  .home-hero-portrait::before {
+    background: linear-gradient(
+      180deg,
+      transparent 22%,
+      rgba(var(--home-hero-shade), min(var(--home-hero-pool-cap), calc(var(--home-hero-pool) * 0.45))) 34%,
+      rgba(var(--home-hero-shade), min(var(--home-hero-pool-cap), calc(var(--home-hero-pool) * 0.78))) 46%,
+      rgba(var(--home-hero-shade), min(var(--home-hero-pool-cap), var(--home-hero-pool))) 56%,
+      rgba(var(--home-hero-shade), min(var(--home-hero-pool-cap), var(--home-hero-pool))) 78%,
+      rgba(var(--home-hero-shade), min(var(--home-hero-pool-cap), calc(var(--home-hero-pool) * 0.92))) 100%
+    );
+  }
   .home-hero-portrait::after {
     border-radius: 0;
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 28%, transparent 40%);
+    mask-image: linear-gradient(180deg, #000 0%, #000 28%, transparent 40%);
     background:
       radial-gradient(
-        ellipse 85% 50% at 50% 14%,
-        rgba(0, 0, 0, calc(0.07 * var(--home-hero-vignette) / 0.6)) 0%,
-        rgba(0, 0, 0, calc(0.24 * var(--home-hero-vignette) / 0.6)) 50%,
-        rgba(0, 0, 0, calc(0.52 * var(--home-hero-vignette) / 0.6)) 100%
+        ellipse 90% 42% at 50% 12%,
+        rgba(var(--home-hero-shade), min(var(--home-hero-strength-cap), calc(0.06 * var(--home-hero-vignette)))) 0%,
+        rgba(var(--home-hero-shade), min(var(--home-hero-strength-cap), calc(0.18 * var(--home-hero-vignette)))) 55%,
+        rgba(var(--home-hero-shade), min(var(--home-hero-strength-cap), calc(0.28 * var(--home-hero-vignette)))) 80%,
+        transparent 100%
       ),
       linear-gradient(
         180deg,
-        rgba(0, 0, 0, calc(0.26 * var(--home-hero-vignette) / 0.6)) 0%,
-        rgba(0, 0, 0, calc(0.20 * var(--home-hero-vignette) / 0.6)) 6%,
-        rgba(0, 0, 0, calc(0.40 * var(--home-hero-vignette) / 0.6)) 16%,
-        rgba(0, 0, 0, calc(0.64 * var(--home-hero-vignette) / 0.6)) 26%,
-        rgba(0, 0, 0, calc(0.76 * var(--home-hero-vignette) / 0.6)) 36%,
-        rgba(0, 0, 0, calc(0.82 * var(--home-hero-vignette) / 0.6)) 48%,
-        rgba(0, 0, 0, calc(0.78 * var(--home-hero-vignette) / 0.6)) 62%,
-        rgba(0, 0, 0, calc(0.58 * var(--home-hero-vignette) / 0.6)) 80%,
-        rgba(0, 0, 0, calc(0.40 * var(--home-hero-vignette) / 0.6)) 100%
+        rgba(var(--home-hero-shade), min(var(--home-hero-strength-cap), calc(0.14 * var(--home-hero-vignette)))) 0%,
+        rgba(var(--home-hero-shade), min(var(--home-hero-strength-cap), calc(0.10 * var(--home-hero-vignette)))) 8%,
+        rgba(var(--home-hero-shade), min(var(--home-hero-strength-cap), calc(0.16 * var(--home-hero-vignette)))) 18%,
+        transparent 34%
       );
   }
 

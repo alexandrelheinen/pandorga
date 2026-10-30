@@ -16,9 +16,9 @@ pandorga:
   home:
     hero_art: page/hero-default.html
     hero_overlay:
-      # Overlay darkness (0–1); preferred key. Alias: vignette. Emitted as --home-hero-vignette.
+      # strength = photo-area (alias vignette); pool = absolute text-band alpha. Independent (PLT-AC-102).
       strength: 0.60
-      pool: 0.94
+      pool: 0.70
   taxonomies:
     articles:
       tags: [Writing, Design]

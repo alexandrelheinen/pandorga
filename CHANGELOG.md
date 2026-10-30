@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.16
+
+- CR-24 overlay split: `strength` (`--home-hero-vignette`) darkens the photo area via `::after` (masked off the text band); `pool` (`--home-hero-pool`) is an **absolute** text-band alpha on `::before` (not scaled by strength) (PLT-AC-102).
+- Every overlay stop uses `min(cap, …)` with `--home-hero-strength-cap` (~0.42) and `--home-hero-pool-cap` (0.90), both &lt; 1; shade is charcoal (`--home-hero-shade`) so composites never hit pure-black RGB (PLT-AC-102).
+- Removed the historic `… * vignette / 0.6` overscale that pushed alphas past 1 at strength ≥ 0.6.
+
 ## [Unreleased]
 
 ## [2.3.15] — 2026-10-30
