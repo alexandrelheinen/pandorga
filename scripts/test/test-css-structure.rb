@@ -247,6 +247,19 @@ require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
   ".home-projects-bench", ["grid-template-columns: var(--home-icon-btn-size) max-content", "column-gap: calc(var(--space-xs) * 2)", "width: max-content", "margin-inline: auto"]
 )
+# PLT-AC-88 (2.3.18): desktop ≥1024 fills the column with list + +25% plate.
+require_declarations(
+  errors, "assets/css/ledger/home.css", home_sheet,
+  ".home-projects-bench", ["grid-template-columns: minmax(0, 1fr) max-content", "width: 100%", "margin-inline: 0", "--home-specimen-plate-height: 15.3125rem"]
+)
+require_declarations(
+  errors, "assets/css/ledger/home.css", home_sheet,
+  ".home-project-inventory-body", ["display: flex"]
+)
+require_declarations(
+  errors, "assets/css/ledger/home.css", home_sheet,
+  ".home-project-inventory-title", ["text-overflow: ellipsis", "white-space: nowrap"]
+)
 require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
   ".home-specimen-strip .ledger-meta", ["display: block", "white-space: normal"]
@@ -302,12 +315,12 @@ end
 if home_sheet.match?(/Cinzel/i) || home_sheet.include?("5.55")
   errors << "assets/css/ledger/home.css must not contain Cinzel or obsolete 5.55 comments/divisors (PLT-AC-68)"
 end
-# PLT-AC-98 / PLT-AC-86 supersession: hero name = band title token + 2pt (not cqi/vw).
-unless home_sheet.include?("font-size: calc(var(--type-section) + 2pt)")
-  errors << "assets/css/ledger/home.css: hero title must be type-section + 2pt (PLT-AC-98)"
+# PLT-AC-98 / PLT-AC-86 supersession: hero name = band title token + 4pt (not cqi/vw).
+unless home_sheet.include?("font-size: calc(var(--type-section) + 4pt)")
+  errors << "assets/css/ledger/home.css: hero title must be type-section + 4pt (PLT-AC-98)"
 end
-unless home_sheet.include?("font-size: calc(var(--type-section-lg) + 2pt)")
-  errors << "assets/css/ledger/home.css: hero title ≥768 must be type-section-lg + 2pt (PLT-AC-98)"
+unless home_sheet.include?("font-size: calc(var(--type-section-lg) + 4pt)")
+  errors << "assets/css/ledger/home.css: hero title ≥768 must be type-section-lg + 4pt (PLT-AC-98)"
 end
 if home_sheet.include?("100cqi") || home_sheet.include?("1.85rem, 2.6vw") || home_sheet.include?("1.9rem, 7vw")
   errors << "assets/css/ledger/home.css: hero title must not use cqi/vw clamps (PLT-AC-98)"

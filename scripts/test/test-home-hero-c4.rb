@@ -18,12 +18,28 @@ def fail!(msg)
   true
 end
 
-# PLT-AC-88 — Projects island centered in desktop column
-unless HOME.match?(/\.home-projects-bench[\s\S]{0,800}?margin-inline:\s*auto/)
-  failed = 1 if fail!("PLT-AC-88: .home-projects-bench must use margin-inline: auto")
+# PLT-AC-88 — From 1024px, projects bench fills the column (list + specimen +25%)
+unless HOME.include?("PLT-AC-88 (2.3.18)") || HOME.include?("desktop projects fill the column")
+  failed = 1 if fail!("PLT-AC-88: home.css must document the 2.3.18 desktop fill rewrite")
 end
-unless HOME.match?(/\.home-projects-bench[\s\S]{0,800}?width:\s*max-content/)
-  failed = 1 if fail!("PLT-AC-88: .home-projects-bench must use width: max-content")
+unless HOME.match?(/grid-template-columns:\s*minmax\(0,\s*1fr\)\s+max-content/)
+  failed = 1 if fail!("PLT-AC-88: desktop bench must use minmax(0, 1fr) max-content")
+end
+unless HOME.match?(/--home-specimen-plate-height:\s*15\.3125rem/)
+  failed = 1 if fail!("PLT-AC-88: specimen plate height must be 15.3125rem (+25%)")
+end
+unless HOME.match?(/\.home-project-inventory-body\s*\{[\s\S]*?display:\s*flex/)
+  failed = 1 if fail!("PLT-AC-88: inventory body must display as flex list text on desktop")
+end
+unless HOME.match?(/text-overflow:\s*ellipsis/) && HOME.match?(/\.home-project-inventory-title/)
+  failed = 1 if fail!("PLT-AC-88: inventory titles must ellipsis on desktop")
+end
+unless HOME.match?(/minmax\(8\.5rem,\s*1fr\)/)
+  failed = 1 if fail!("PLT-AC-88: narrow desktop MQ must keep list ≥8.5rem")
+end
+# Tablet 900–1023 still keeps the prior centered icon island.
+unless HOME.match?(/\.home-projects-bench[\s\S]{0,800}?margin-inline:\s*auto/)
+  failed = 1 if fail!("PLT-AC-88: tablet island must keep margin-inline: auto")
 end
 unless HOME.include?("PLT-AC-88") || SPEC.include?("PLT-AC-88")
   failed = 1 if fail!("PLT-AC-88: spec must name PLT-AC-88")

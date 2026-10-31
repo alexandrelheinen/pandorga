@@ -221,11 +221,11 @@ end
 # ── 51.6 Name from 1024px ───────────────────────────────────────────────────
 
 item(6) do
-  # PLT-AC-98: desk name is type-section-lg + 2pt (set at ≥768, not vw)
+  # PLT-AC-98: desk name is type-section-lg + 4pt (set at ≥768, not vw)
   title = ".home-hero-title"
   expect_decl(title, "white-space", "nowrap", media: DESKTOP)
   expect_decl(title, "font-size",
-              "calc(var(--type-section-lg) + 2pt)",
+              "calc(var(--type-section-lg) + 4pt)",
               media: "(min-width:768px)")
 end
 

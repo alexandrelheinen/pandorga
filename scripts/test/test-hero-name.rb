@@ -136,10 +136,10 @@ check!(symbols["family"] == "Rivera Santos", "symbol keys work, got #{symbols.in
 
 hero = css[/\.home-hero-title \{.*?(?=\.home-hero-summary)/m]
 check!(hero, "missing hero title block")
-check!(hero.include?("font-size: calc(var(--type-section) + 2pt);"),
-       "base name size is type-section + 2pt (PLT-AC-98)")
-check!(hero.include?("font-size: calc(var(--type-section-lg) + 2pt);"),
-       "from 768px name is type-section-lg + 2pt (PLT-AC-98)")
+check!(hero.include?("font-size: calc(var(--type-section) + 4pt);"),
+       "base name size is type-section + 4pt (PLT-AC-98)")
+check!(hero.include?("font-size: calc(var(--type-section-lg) + 4pt);"),
+       "from 768px name is type-section-lg + 4pt (PLT-AC-98)")
 check!(!hero.include?("100cqi") && !css.include?("1.85rem, 2.6vw") && !css.include?("1.9rem, 7vw"),
        "hero name must not use cqi/vw clamps (PLT-AC-98)")
 
@@ -155,7 +155,7 @@ check!(hero.include?("@media (max-width: 767px)") &&
 desktop = hero[/@media \(min-width: 768px\)[\s\S]*?(?=\.home-hero-summary|\z)/]
 check!(desktop && desktop.include?("white-space: nowrap"),
        "from 768px the name stays on one line")
-check!(desktop && desktop.include?("var(--type-section-lg) + 2pt"),
-       "768px media must set type-section-lg + 2pt")
+check!(desktop && desktop.include?("var(--type-section-lg) + 4pt"),
+       "768px media must set type-section-lg + 4pt")
 
 puts "PASS test-hero-name"

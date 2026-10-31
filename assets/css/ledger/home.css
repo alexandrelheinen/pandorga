@@ -151,12 +151,12 @@
   min-height: calc(var(--type-body) * 1.35);
 }
 
-/* PLT-AC-98: hero name tracks home band titles (+2pt), not photo/cqi width.
+/* PLT-AC-98: hero name tracks home band titles (+4pt), not photo/cqi width.
    Band `.section-title` uses --type-section, then --type-section-lg from 768px. */
 .home-hero-title {
   font-family: var(--font-title);
   font-weight: 400;
-  font-size: calc(var(--type-section) + 2pt);
+  font-size: calc(var(--type-section) + 4pt);
   line-height: 1.05;
   letter-spacing: -0.02em;
   color: var(--color-on-surface);
@@ -199,7 +199,7 @@
 @media (min-width: 768px) {
   .home-hero-title {
     /* Same token step as .home-band .ledger-section-banner .section-title */
-    font-size: calc(var(--type-section-lg) + 2pt);
+    font-size: calc(var(--type-section-lg) + 4pt);
     white-space: nowrap;
   }
 }
@@ -528,6 +528,30 @@ html[data-theme="light"] .home-hero-plate {
   .home-featured.home-featured--illustrated {
     grid-template-columns: minmax(0, 1fr) 13.5rem;
     gap: var(--space-xl);
+  }
+}
+
+
+/* Narrow desktop: keep list ≥8.5rem; plate scales inside remaining space (PLT-AC-88). */
+@media (min-width: 1024px) and (max-width: 1359px) {
+  .home-projects-bench {
+    grid-template-columns: minmax(8.5rem, 1fr) minmax(0, var(--home-specimen-max-width));
+  }
+
+  .home-project-specimen {
+    width: 100%;
+    max-width: var(--home-specimen-max-width);
+    justify-self: stretch;
+    min-width: 0;
+  }
+
+  .home-specimen-figure > .ledger-poster,
+  .home-specimen-figure > .projects-plate {
+    width: 100%;
+    max-width: var(--home-specimen-plate-width);
+    height: auto;
+    max-height: none;
+    aspect-ratio: 16 / 9;
   }
 }
 
@@ -1297,7 +1321,7 @@ button.home-project-inventory-row {
   /* Inventory left of specimen, flush to card (gap ≤ 2× button gap);
      column width = button width; plate 16:9 at ~215.6×383.3 (+25% CR-21e);
      card hugs plate + padding; visible Explore label removed (CR-21d). */
-  /* PLT-AC-88: center inventory+specimen island in the projects column. */
+  /* Tablet 900–1023: keep icon-column island centered (desktop ≥1024 is PLT-AC-88). */
   .home-band[data-home-kind="portfolio"] .home-band-inner,
   #home-projects .home-band-inner {
     display: flex;
@@ -2085,7 +2109,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
     background: transparent;
   }
 
-  /* PLT-AC-98: stack inherits token+2pt; keep photo ink/shadow */
+  /* PLT-AC-98: stack inherits token+4pt; keep photo ink/shadow */
   .home-ledger .home-hero-title,
   .home-hero-title {
     line-height: 1.08;
@@ -2177,6 +2201,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
     text-shadow: none;
     background: rgba(255, 255, 255, 0.92);
   }
+
 }
 
 /* ── Desktop masthead (>= 1024): 50/50 hero | projects ── */
@@ -2248,7 +2273,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
     padding-inline: 0;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
     justify-content: flex-start;
     min-height: 0;
     box-sizing: border-box;
@@ -2336,7 +2361,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
     background: transparent;
   }
 
-  /* PLT-AC-98: desk uses type-section-lg + 2pt (set ≥768); keep photo ink */
+  /* PLT-AC-98: desk uses type-section-lg + 4pt (set ≥768); keep photo ink */
   .home-ledger .home-hero-title,
   .home-hero-title {
     white-space: nowrap;
@@ -2426,6 +2451,125 @@ html[data-theme="light"] .home-featured .ledger-poster {
     color: #111;
     text-shadow: none;
     background: rgba(255, 255, 255, 0.92);
+  }
+
+  /* PLT-AC-88 (2.3.18): desktop projects fill the column — list rows + specimen +25%. */
+  .home-band[data-home-kind="portfolio"] {
+    --home-specimen-plate-height: 15.3125rem; /* 12.25rem × 1.25; keep 16:9 */
+    --home-specimen-plate-width: calc(var(--home-specimen-plate-height) * 16 / 9);
+    --home-specimen-max-width: calc(var(--home-specimen-plate-width) + 2 * var(--space-md));
+    --home-projects-block-width: 100%;
+  }
+
+  .home-band[data-home-kind="portfolio"] .home-section-note {
+    max-width: 100%;
+    align-self: stretch;
+  }
+
+  .home-band[data-home-kind="portfolio"] .ledger-section-banner,
+  #home-projects .ledger-section-banner {
+    width: 100%;
+    max-width: 100%;
+    align-self: stretch;
+    margin-inline: 0;
+  }
+
+  .home-projects-bench {
+    --home-specimen-plate-height: 15.3125rem;
+    --home-specimen-plate-width: calc(var(--home-specimen-plate-height) * 16 / 9);
+    --home-specimen-max-width: calc(var(--home-specimen-plate-width) + 2 * var(--space-md));
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) max-content;
+    column-gap: calc(var(--space-xs) * 2);
+    align-items: start;
+    width: 100%;
+    max-width: 100%;
+    margin-inline: 0;
+    min-width: 0;
+  }
+
+  .home-projects-inventory-wrap {
+    width: auto;
+    max-width: none;
+    min-width: 0;
+    align-self: stretch;
+  }
+
+  .home-project-inventory {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+  }
+
+  button.home-project-inventory-row,
+  .home-project-inventory-row {
+    width: 100%;
+    height: var(--home-icon-btn-size);
+    flex: 0 0 auto;
+    justify-content: flex-start;
+    align-items: center;
+    gap: var(--space-sm);
+    padding-inline: var(--space-sm);
+    box-sizing: border-box;
+  }
+
+  .home-project-inventory-media {
+    display: none;
+  }
+
+  .home-project-inventory-body {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    min-width: 0;
+    order: 2;
+  }
+
+  .home-project-inventory-code {
+    display: none;
+  }
+
+  .home-project-inventory-glyph {
+    flex: 0 0 auto;
+    order: 1;
+  }
+
+  .home-project-inventory-title {
+    display: block;
+    margin: 0;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--font-label);
+    font-size: var(--type-label);
+    font-weight: var(--weight-title, 600);
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    color: var(--color-on-surface);
+  }
+
+  .home-project-inventory-row.is-selected .home-project-inventory-title,
+  .home-project-inventory-row:hover .home-project-inventory-title,
+  .home-project-inventory-row:focus-visible .home-project-inventory-title {
+    color: var(--color-primary);
+  }
+
+  .home-project-specimen {
+    width: var(--home-specimen-max-width);
+    max-width: var(--home-specimen-max-width);
+    justify-self: end;
+    box-sizing: border-box;
+  }
+
+  .home-specimen-figure > .ledger-poster,
+  .home-specimen-figure > .projects-plate {
+    width: var(--home-specimen-plate-width);
+    max-width: 100%;
+    height: var(--home-specimen-plate-height);
+    max-height: var(--home-specimen-plate-height);
+    aspect-ratio: 16 / 9;
   }
 }
 

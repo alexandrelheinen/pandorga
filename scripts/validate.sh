@@ -84,6 +84,7 @@ TESTS=(
   scripts/test/test-home-hero-overlay-strength.rb
   scripts/test/test-home-hero-overlay-split.rb
   scripts/test/test-home-hero-overlay-monotonic.rb
+  scripts/test/test-home-desk-layout.rb
   scripts/test/test-detail-action-icons.rb
   scripts/test/test-parallel-content-publish.rb
   scripts/test/test-mobile-density-home-measure.rb

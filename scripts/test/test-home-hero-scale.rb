@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
-# PLT-AC-98…100 — hero name = band title + 2pt; overlay lighter than 2.3.7.
+# PLT-AC-98…100 — hero name = band title + 4pt; overlay lighter than 2.3.7.
 
 
 errors = []
 home = File.read(File.expand_path("../../assets/css/ledger/home.css", __dir__))
 
-unless home.include?("font-size: calc(var(--type-section) + 2pt)")
-  errors << "home.css: base .home-hero-title must be calc(var(--type-section) + 2pt) (PLT-AC-98)"
+unless home.include?("font-size: calc(var(--type-section) + 4pt)")
+  errors << "home.css: base .home-hero-title must be calc(var(--type-section) + 4pt) (PLT-AC-98)"
 end
-unless home.include?("font-size: calc(var(--type-section-lg) + 2pt)")
-  errors << "home.css: ≥768 .home-hero-title must be calc(var(--type-section-lg) + 2pt) (PLT-AC-98)"
+unless home.include?("font-size: calc(var(--type-section-lg) + 4pt)")
+  errors << "home.css: ≥768 .home-hero-title must be calc(var(--type-section-lg) + 4pt) (PLT-AC-98)"
 end
 if home.match?(/\.home-hero-title[^{]*\{[^}]*100cqi/) || home.include?("1.85rem, 2.6vw") || home.include?("1.9rem, 7vw")
   errors << "home.css: .home-hero-title must not size from cqi/vw (PLT-AC-98)"

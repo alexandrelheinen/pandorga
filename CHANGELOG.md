@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.3.18
+
+- Desktop Projects (≥1024): inventory becomes a full-column list (icon + name, ellipsis, row height = `--home-icon-btn-size`); bench and banner fill the column (~0 side gaps) (PLT-AC-88 rewrite).
+- Specimen plate **+25%** at ≥1440 (`15.3125rem` tall, 16:9); narrow desktop 1024–1359 keeps list ≥8.5rem and scales the plate (PLT-AC-88).
+- Hero name = band title **+4pt** at every viewport (was +2pt) (PLT-AC-98/99 rewrite); rendered gate at 390/1280/1440/1920 (`test-home-desk-layout`).
+- Tablet 900–1023 keeps the prior centered icon-column island.
+
 ## 2.3.17
 
 - CR-24 overlay: strength (`::after`) now paints **true black** `rgba(0,0,0,…)` so it darkens photo areas monotonically (2.3.16 charcoal shade brightened dark regions and made strength effectively dead / slightly inverted) (PLT-AC-103).
