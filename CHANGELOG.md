@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.20
+
+- Desktop Projects (≥1024): inventory row names use the theme dropdown face (`--font-body` / `.theme-choice`: body size, weight, 0.01em tracking) instead of `--font-title` (PLT-AC-88). No-truncation list-first layout from 2.3.19 unchanged.
+
 ## 2.3.19
 
 - Desktop Projects (≥1024): inventory row names use `--font-title` (serif, same face as band `.section-title`) instead of `--font-label`; drop label letter-spacing (PLT-AC-88).

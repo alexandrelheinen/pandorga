@@ -2438,7 +2438,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
     background: rgba(255, 255, 255, 0.92);
   }
 
-  /* PLT-AC-88 (2.3.18): desktop projects fill the column — list rows (serif --font-title, no truncation) + specimen ≤+25% (2.3.19). */
+  /* PLT-AC-88 (2.3.18): desktop projects fill the column — list rows (theme dropdown / --font-body face, no truncation) + specimen ≤+25% (2.3.19/2.3.20). */
   .home-band[data-home-kind="portfolio"] {
     --home-specimen-plate-height: 15.3125rem; /* 12.25rem × 1.25; keep 16:9 */
     --home-specimen-plate-width: calc(var(--home-specimen-plate-height) * 16 / 9);
@@ -2530,11 +2530,12 @@ html[data-theme="light"] .home-featured .ledger-poster {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    /* 2.3.19: title/serif face (band .section-title), not label small-caps */
-    font-family: var(--font-title);
-    font-size: var(--type-label);
-    font-weight: var(--weight-title, 600);
-    letter-spacing: normal;
+    /* 2.3.20: same face as theme dropdown .theme-choice (font-body / body) */
+    font-family: var(--font-body);
+    font-size: var(--type-body);
+    font-weight: var(--weight-body);
+    letter-spacing: 0.01em;
+    text-transform: none;
     line-height: 1.2;
     color: var(--color-on-surface);
   }

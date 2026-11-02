@@ -34,12 +34,15 @@ end
 unless HOME.match?(/text-overflow:\s*ellipsis/) && HOME.match?(/\.home-project-inventory-title/)
   failed = 1 if fail!("PLT-AC-88: inventory titles must ellipsis on desktop")
 end
-unless HOME.match?(/\.home-project-inventory-title\s*\{[\s\S]{0,400}?font-family:\s*var\(--font-title\)/)
-  failed = 1 if fail!("PLT-AC-88: desktop inventory titles must use --font-title (serif), not --font-label")
+unless HOME.match?(/\.home-project-inventory-title\s*\{[\s\S]{0,400}?font-family:\s*var\(--font-body\)/)
+  failed = 1 if fail!("PLT-AC-88: desktop inventory titles must use --font-body (theme dropdown .theme-choice)")
 end
-# Desktop list title block must not set --font-label (ignore unrelated label rules elsewhere).
-if HOME.match?(/\.home-project-inventory-title\s*\{[^}]*font-family:\s*var\(--font-label\)/)
-  failed = 1 if fail!("PLT-AC-88: desktop inventory titles must not use --font-label")
+unless HOME.match?(/\.home-project-inventory-title\s*\{[\s\S]{0,500}?font-size:\s*var\(--type-body\)/)
+  failed = 1 if fail!("PLT-AC-88: desktop inventory titles must use --type-body (dropdown item size)")
+end
+# Desktop list title block must not set title/label faces (dropdown is body).
+if HOME.match?(/\.home-project-inventory-title\s*\{[^}]*font-family:\s*var\(--font-(?:title|label)\)/)
+  failed = 1 if fail!("PLT-AC-88: desktop inventory titles must not use --font-title/--font-label")
 end
 unless HOME.match?(/grid-template-columns:\s*max-content\s+minmax\(0,\s*1fr\)/)
   failed = 1 if fail!("PLT-AC-88: list column must stay max-content (no name truncation)")

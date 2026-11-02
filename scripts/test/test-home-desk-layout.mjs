@@ -122,20 +122,32 @@ function buildHtml() {
     --font-title: "TitleSerifFixture", Georgia, serif;
     --font-label: "LabelCapsFixture", Arial, sans-serif;
     --font-content-title: var(--font-title);
-    --font-body: Georgia, serif;
+    --font-body: "BodySansFixture", Helvetica, sans-serif;
     --type-label: 0.8125rem;
+    --type-body: 1.075rem;
     --type-section: 1.5rem;
     --type-section-lg: 1.75rem;
     --weight-title: 600;
+    --weight-body: 300;
     --weight-display: 400;
     --color-on-surface: #111;
     --color-primary: #1c5a7a;
   }
   html { font-size: 17.6px; }
   body { margin: 0; background: #f5f5f5; color: #111; }
+  /* Mirror live .theme-choice (font-body utility) for PLT-AC-88 equality gate. */
+  .theme-choice {
+    font-family: var(--font-body);
+    font-size: var(--type-body);
+    font-weight: var(--weight-body);
+    letter-spacing: 0.01em;
+    text-transform: none;
+    line-height: 1;
+  }
 </style>
 </head>
 <body>
+<button type="button" class="theme-choice" id="fixture-theme-choice">Light</button>
 <main class="home-ledger">
   <section class="home-band home-band--hero">
     <div class="home-band-inner">
@@ -203,9 +215,16 @@ async function measure(cdp, sessionId) {
       const rowHeights = rows.map((r) => r.getBoundingClientRect().height);
       const titleCs = body ? getComputedStyle(body).display : null;
       const invTitle = q('.home-project-inventory-title');
-      const invTitleFf = invTitle ? getComputedStyle(invTitle).fontFamily : null;
+      const drop = q('.theme-choice');
+      const invCs = invTitle ? getComputedStyle(invTitle) : null;
+      const dropCs = drop ? getComputedStyle(drop) : null;
+      const invTitleFf = invCs ? invCs.fontFamily : null;
+      const invTitleFs = invCs ? invCs.fontSize : null;
+      const invTitleFw = invCs ? invCs.fontWeight : null;
+      const dropFf = dropCs ? dropCs.fontFamily : null;
+      const dropFs = dropCs ? dropCs.fontSize : null;
+      const dropFw = dropCs ? dropCs.fontWeight : null;
       const bandFf = band ? getComputedStyle(band).fontFamily : null;
-      const invTitleFs = invTitle ? getComputedStyle(invTitle).fontSize : null;
       const titles = qa('.home-project-inventory-title');
       const titleTrunc = titles.map((t) => ({
         text: (t.textContent || '').trim(),
@@ -226,8 +245,12 @@ async function measure(cdp, sessionId) {
         bandFs: fs(band),
         deltaPx: (hero && band) ? fs(hero) - fs(band) : null,
         invTitleFf,
-        bandFf,
         invTitleFs,
+        invTitleFw,
+        dropFf,
+        dropFs,
+        dropFw,
+        bandFf,
         titleTrunc,
         list: listR,
         bench: benchR,
@@ -317,12 +340,18 @@ async function main() {
         if (m.bodyDisplay !== 'flex') {
           errors.push(`${vp.name}: inventory body display=${m.bodyDisplay} want flex`);
         }
-        // PLT-AC-88 (2.3.19): row name face = title/serif (band .section-title), not label
-        if (!m.invTitleFf || !m.bandFf || m.invTitleFf !== m.bandFf) {
-          errors.push(`${vp.name}: inventory title font-family="${m.invTitleFf}" ≠ band title "${m.bandFf}"`);
+        // PLT-AC-88 (2.3.20): row name face/size/weight = theme dropdown .theme-choice
+        if (!m.invTitleFf || !m.dropFf || m.invTitleFf !== m.dropFf) {
+          errors.push(`${vp.name}: inventory title font-family="${m.invTitleFf}" ≠ dropdown "${m.dropFf}"`);
         }
-        if (m.invTitleFf && /LabelCapsFixture/i.test(m.invTitleFf)) {
-          errors.push(`${vp.name}: inventory title still on label face (${m.invTitleFf})`);
+        if (!m.invTitleFs || !m.dropFs || m.invTitleFs !== m.dropFs) {
+          errors.push(`${vp.name}: inventory title font-size="${m.invTitleFs}" ≠ dropdown "${m.dropFs}"`);
+        }
+        if (!m.invTitleFw || !m.dropFw || String(m.invTitleFw) !== String(m.dropFw)) {
+          errors.push(`${vp.name}: inventory title font-weight="${m.invTitleFw}" ≠ dropdown "${m.dropFw}"`);
+        }
+        if (m.invTitleFf && /TitleSerifFixture|LabelCapsFixture/i.test(m.invTitleFf)) {
+          errors.push(`${vp.name}: inventory title not on body face (${m.invTitleFf})`);
         }
         if (!m.rowHeights.length) {
           errors.push(`${vp.name}: no inventory rows`);

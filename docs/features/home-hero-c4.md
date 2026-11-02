@@ -1,6 +1,6 @@
 # CR-22.4 — Home hero C4 (pandorga 2.3.6)
 
-Status: shipped 2.3.6; contrast follow-up 2.3.7; desktop list rewrite 2.3.18; list title face 2.3.19  
+Status: shipped 2.3.6; contrast follow-up 2.3.7; desktop list rewrite 2.3.18; list title face 2.3.19; list body/dropdown face 2.3.20  
 Version target: pandorga 2.3.6 (contrast follow-up 2.3.7)  
 Prerequisite: CR-22.3 (2.3.5) shipped.
 
@@ -10,7 +10,7 @@ Ship the approved C4 mockups on top of B3: center the Projects island in the des
 
 ## Acceptance criteria (EARS)
 
-- `PLT-AC-88` From **1024px**, the Projects band’s inventory+specimen group (`.home-projects-bench`) and section banner **fill the projects column** (bench `width: 100%`, `margin-inline: 0`; banner stretch). Inventory rows are list buttons (icon + name, height = `--home-icon-btn-size`); **row names use `--font-title`** (same serif face as band `.section-title`, not `--font-label`) and **must not truncate** at any desktop width — list column is `max-content` (longest name + icon + padding); specimen track is `minmax(0, 1fr)` and the plate **caps at +25%** (`15.3125rem` tall, 16:9) but **shrinks** to give the list room (prefer ≥ pre-2.3.18 `12.25rem` / ~383×216 when it still fits). Ellipsis remains only as a last-resort overflow guard. Tablet 900–1023 keeps the prior centered icon-column island (`test-home-hero-c4`, `test-home-desk-layout`).
+- `PLT-AC-88` From **1024px**, the Projects band’s inventory+specimen group (`.home-projects-bench`) and section banner **fill the projects column** (bench `width: 100%`, `margin-inline: 0`; banner stretch). Inventory rows are list buttons (icon + name, height = `--home-icon-btn-size`); **row names match the theme dropdown menu items** (`.theme-choice` / `--font-body`, `--type-body`, `--weight-body`, `letter-spacing: 0.01em`, no transform — same as `html body`) and **must not truncate** at any desktop width — list column is `max-content` (longest name + icon + padding); specimen track is `minmax(0, 1fr)` and the plate **caps at +25%** (`15.3125rem` tall, 16:9) but **shrinks** to give the list room (prefer ≥ pre-2.3.18 `12.25rem` / ~383×216 when it still fits). Ellipsis remains only as a last-resort overflow guard. Tablet 900–1023 keeps the prior centered icon-column island (`test-home-hero-c4`, `test-home-desk-layout`).
 - `PLT-AC-89` The hero portrait overlay (`.home-hero-portrait::after`) is a soft edgeless full-bleed darkening (no border-radius panel); `.home-hero-copy` stays `background: transparent` with no box/scrim pseudo-elements behind the text (`test-home-hero-c4`).
 - `PLT-AC-90` Hero title and summary use light ink plus text-shadow on the soft overlay so worst-case contrast against every pool photo is at least 7:1 at all gated viewports and both themes (live verify; structure gated in `test-home-hero-c4`).
 - `PLT-AC-91` `.home-hero-family` highlighter uses `--mk-h: 1.02em` and `padding-inline: 0.14em` (`test-home-hero-c4`).
