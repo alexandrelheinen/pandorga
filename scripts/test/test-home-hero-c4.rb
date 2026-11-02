@@ -159,21 +159,24 @@ unless HOME.match?(/\.home-hero-actions-contacts[\s\S]{0,120}?flex-wrap:\s*nowra
   failed = 1 if fail!("PLT-AC-94: .home-hero-actions-contacts must keep flex-wrap: nowrap")
 end
 
-# PLT-AC-104 / PLT-AC-105 — icon/name center + selection variants
+# PLT-AC-104 / PLT-AC-105 / PLT-AC-106 — icon/name center + gray wash + pad balance
 unless HOME.include?("PLT-AC-104")
   failed = 1 if fail!("PLT-AC-104: home.css must document icon/name vertical center")
 end
-unless HOME.include?("data-contents-select")
-  failed = 1 if fail!("PLT-AC-105: home.css must switch selection via data-contents-select")
+if HOME.include?("data-contents-select")
+  failed = 1 if fail!("PLT-AC-105: home.css must not keep data-contents-select selection switch")
 end
 if HOME.match?(/--mk-h:\s*0\.42em/)
   failed = 1 if fail!("PLT-AC-105: selected title must not keep the thin 0.42em mark bar")
 end
-unless HOME.include?("PLT-AC-105")
-  failed = 1 if fail!("PLT-AC-105: home.css must document selection highlight variants")
+unless HOME.include?("PLT-AC-105") && HOME.include?("color-surface-high")
+  failed = 1 if fail!("PLT-AC-105: home.css must document gray --color-surface-high selection wash")
 end
-unless SPEC.include?("PLT-AC-104") && SPEC.include?("PLT-AC-105")
-  failed = 1 if fail!("spec docs/features/home-hero-c4.md must cover PLT-AC-104/105")
+unless HOME.include?("PLT-AC-106")
+  failed = 1 if fail!("PLT-AC-106: home.css must document selected-row padding balance")
+end
+unless SPEC.include?("PLT-AC-104") && SPEC.include?("PLT-AC-105") && SPEC.include?("PLT-AC-106")
+  failed = 1 if fail!("spec docs/features/home-hero-c4.md must cover PLT-AC-104/105/106")
 end
 
 # Spec + validate wiring
@@ -185,7 +188,7 @@ unless VALIDATE.include?("test-home-hero-c4.rb")
 end
 
 if failed.zero?
-  puts "PASS test-home-hero-c4 (PLT-AC-88…94, 104/105)"
+  puts "PASS test-home-hero-c4 (PLT-AC-88…94, 104/105/106)"
 else
   exit 1
 end
