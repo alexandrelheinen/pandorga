@@ -277,18 +277,51 @@ const ASSERT_EXPRESSION = `
         if (!isInitial && window.innerWidth >= 900 && gfs < 22) {
           errors.push('Desktop inventory icon glyph too small (' + gfs.toFixed(2) + 'px); Material Symbols inherit must not win (PLT-AC-75)');
         }
-        // CR-21c: glyph fills most of the button (>= ~70% of row height)
-        if (window.innerWidth >= 900 && !isInitial && gr.height + 1.5 < 0.70 * rowH) {
+        // Icon-button proportion applies only while rows are icon buttons (<1024).
+        if (window.innerWidth >= 900 && window.innerWidth < 1024 && !isInitial && gr.height + 1.5 < 0.70 * rowH) {
           errors.push('Desktop glyph height (' + gr.height.toFixed(2) + 'px) < 70% of button (' + rowH.toFixed(2) + 'px) (PLT-AC-76)');
         }
       }
       const rcs = getComputedStyle(first);
-      if (Math.abs(parseFloat(rcs.borderTopWidth) - 1) > 0.5 || rcs.borderTopStyle !== 'solid') {
-        errors.push('Inventory row border is ' + rcs.borderTopWidth + ' ' + rcs.borderTopStyle + ', expected 1px solid (PLT-AC-75)');
+      if (window.innerWidth < 1024) {
+        if (Math.abs(parseFloat(rcs.borderTopWidth) - 1) > 0.5 || rcs.borderTopStyle !== 'solid') {
+          errors.push('Inventory row border is ' + rcs.borderTopWidth + ' ' + rcs.borderTopStyle + ', expected 1px solid (PLT-AC-75)');
+        }
+      } else if (parseFloat(rcs.borderTopWidth) > 0.5) {
+        errors.push('Exhibition index row keeps a menu border-top of ' + rcs.borderTopWidth + ' (PLT-AC-88)');
+      }
+      if (window.innerWidth >= 1024) {
+        document.querySelectorAll('.home-project-inventory-title').forEach(function (title, idx) {
+          if (title.scrollWidth > title.clientWidth + 1) {
+            errors.push('Index name ' + idx + ' is truncated (PLT-AC-88)');
+          }
+          const tcs = getComputedStyle(title);
+          if (tcs.whiteSpace === 'nowrap' || tcs.textOverflow === 'ellipsis') {
+            errors.push('Index name ' + idx + ' ellipsizes (PLT-AC-88)');
+          }
+        });
       }
     }
 
-    if (window.innerWidth >= 900 && bench) {
+    if (window.innerWidth >= 1024 && bench) {
+      const specimen = document.querySelector('.home-project-specimen');
+      const plate = specimen && specimen.querySelector('.home-specimen-figure > .ledger-poster, .home-specimen-figure > .projects-plate');
+      if (plate && plate.getBoundingClientRect().width > 8) {
+        const pr = plate.getBoundingClientRect();
+        const want = 14.5 * rootFs;
+        if (Math.abs(pr.width - want) > 3) {
+          errors.push('Exhibition plate width ' + pr.width.toFixed(1) + 'px want ~' + want.toFixed(1) + ' (PLT-AC-88)');
+        }
+        const ratio = pr.width / pr.height;
+        if (Math.abs(ratio - (16 / 9)) / (16 / 9) > 0.02) {
+          errors.push('Exhibition plate ratio ' + ratio.toFixed(3) + ' not 16:9 (PLT-AC-88)');
+        }
+      }
+      const copy = specimen && specimen.querySelector('.ledger-card-copy');
+      if (copy && getComputedStyle(copy).display !== 'none') {
+        errors.push('Specimen description is still shown on the exhibition index (PLT-AC-88)');
+      }
+    } else if (window.innerWidth >= 900 && bench) {
       const rawSize = getComputedStyle(bench).getPropertyValue('--home-icon-btn-size').trim();
       let iconSizePx = parseFloat(rawSize);
       if (rawSize.endsWith('rem')) {

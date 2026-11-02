@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Desktop Projects (≥1024): exhibition index. A project is a name in the body face; one 16:9 plate (14.5rem wide) floats in the text and changes when a name is pointed at. The specimen card's strip, title, description, chips, and footer are not shown (PLT-AC-88).
+
 ## 2.3.20
 
 - Desktop Projects (≥1024): inventory row names use the theme dropdown face (`--font-body` / `.theme-choice`: body size, weight, 0.01em tracking) instead of `--font-title` (PLT-AC-88). No-truncation list-first layout from 2.3.19 unchanged.

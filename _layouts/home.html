@@ -482,6 +482,10 @@ layout: shell
             row.addEventListener('click', function () {
               select(entry.slug);
             });
+            row.addEventListener('mouseenter', function () {
+              if (!window.matchMedia('(min-width: 1024px)').matches) return;
+              select(entry.slug);
+            });
             row.addEventListener('keydown', function (event) {
               if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
