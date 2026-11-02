@@ -283,6 +283,19 @@ require_declarations(
 if home_sheet.match?(/\.home-project-inventory-title[^{]*\{[^}]*text-overflow:\s*ellipsis/)
   errors << "assets/css/ledger/home.css: .home-project-inventory-title must not ellipsize (PLT-AC-88)"
 end
+if home_sheet.match?(/--mk-h:\s*0\.42em/)
+  errors << "assets/css/ledger/home.css: thin 0.42em selected mark bar must be gone (PLT-AC-105)"
+end
+unless home_sheet.include?("data-contents-select")
+  errors << "assets/css/ledger/home.css: missing data-contents-select selection switch (PLT-AC-105)"
+end
+# PLT-AC-104 survives strip_comments via the name-row-only grid hole.
+unless home_sheet.match?(/grid-template-areas:[^;]*"\. plate"/m) || home_sheet.match?(/grid-template-areas:[^;]*"\. plate excerpt"/m)
+  errors << "assets/css/ledger/home.css: icon must share only the name row (PLT-AC-104)"
+end
+unless home_sheet.match?(/\.home-project-inventory-glyph[^{]*\{[^}]*align-self:\s*center/m) || home_sheet.include?("align-self: center")
+  errors << "assets/css/ledger/home.css: glyph/title must center on the name row (PLT-AC-104)"
+end
 if home_sheet.match?(/--home-specimen-plate-height:\s*15\.3125rem/)
   errors << "assets/css/ledger/home.css: desktop must not keep 15.3125rem (PLT-AC-88)"
 end

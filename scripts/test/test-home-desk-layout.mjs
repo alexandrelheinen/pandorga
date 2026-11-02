@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// PLT-AC-88 / PLT-AC-98/99 — rendered desk projects list + hero name +4pt.
+// PLT-AC-88 / PLT-AC-98/99 / PLT-AC-104/105 — desk contents list, hero +4pt, icon/name center.
 // Fixture links live base.css + home.css; no Jekyll build required.
 
 import { spawn } from 'node:child_process';
@@ -271,6 +271,28 @@ async function measure(cdp, sessionId) {
         const lh = parseFloat(excerptCs.lineHeight) || parseFloat(excerptCs.fontSize) || 16;
         excerptLines = excerptR.height / lh;
       }
+        const rowAlign = rows.map((row) => {
+          const g = row.querySelector('.home-project-inventory-glyph');
+          const t = row.querySelector('.home-project-inventory-title');
+          if (!g || !t) return null;
+          const gr = g.getBoundingClientRect();
+          const tr = t.getBoundingClientRect();
+          const gCy = gr.top + gr.height / 2;
+          const tCy = tr.top + tr.height / 2;
+          return {
+            selected: row.classList.contains('is-selected'),
+            name: (t.textContent || '').trim(),
+            glyphCy: gCy,
+            titleCy: tCy,
+            delta: Math.abs(gCy - tCy),
+          };
+        }).filter(Boolean);
+        const maxAlignDelta = rowAlign.reduce((m, r) => Math.max(m, r.delta), 0);
+        const selTitle = q('.home-project-inventory-row.is-selected .home-project-inventory-title');
+        const selTitleCs = selTitle ? getComputedStyle(selTitle) : null;
+        const selTitleBg = selTitleCs ? selTitleCs.backgroundImage : null;
+        const wrap = q('.home-projects-inventory-wrap');
+        const selectMode = wrap ? (wrap.getAttribute('data-contents-select') || 'marker') : null;
       return {
         gapLeft, gapRight,
         plate: plateR,
@@ -305,6 +327,10 @@ async function measure(cdp, sessionId) {
         excerptVisible: !!(excerptR && excerptR.width > 0 && excerptR.height > 0 && excerptCs && excerptCs.display !== 'none'),
         excerptLines,
         excerptClamp: excerptCs ? excerptCs.webkitLineClamp : null,
+        rowAlign,
+        maxAlignDelta,
+        selTitleBg,
+        selectMode,
       };
     })()`,
     returnByValue: true,
@@ -434,6 +460,17 @@ async function main() {
         if (m.tagsVisible) {
           errors.push(`${vp.name}: tags are visible on contents row (PLT-AC-88)`);
         }
+        // PLT-AC-104: icon and name vertical centers within 1px on every row
+        if (typeof m.maxAlignDelta !== 'number' || !m.rowAlign || !m.rowAlign.length) {
+          errors.push(`${vp.name}: missing icon/name align metrics (PLT-AC-104)`);
+        } else if (m.maxAlignDelta > 1) {
+          const bad = m.rowAlign.filter((r) => r.delta > 1).map((r) => `${r.name}(Δ=${r.delta.toFixed(2)})`).join(', ');
+          errors.push(`${vp.name}: icon/name center Δ max=${m.maxAlignDelta.toFixed(2)} > 1px (PLT-AC-104): ${bad}`);
+        }
+        // PLT-AC-105: default marker uses full highlighter wash, not the thin 0.42em bar
+        if (m.selTitleBg && /0\.42em/.test(m.selTitleBg)) {
+          errors.push(`${vp.name}: selected title still uses thin 0.42em mark bar (PLT-AC-105)`);
+        }
         const frameW = 11 * 17.6;
         const frameH = frameW * 9 / 16;
         if (!m.frame || m.frame.w < 8) {
@@ -448,7 +485,8 @@ async function main() {
         }
         console.log(
           `  ${vp.name}: listW=${m.list?.w?.toFixed?.(1)} rowH=${m.rowHeights?.[0]?.toFixed?.(1)} frame=${m.frame?.w?.toFixed?.(1)}×${m.frame?.h?.toFixed?.(1)} ` +
-          `fs=${m.invTitleFs} truncated=${truncated.length} excerpt=${m.excerptVisible} lines=${m.excerptLines?.toFixed?.(2)}`
+          `fs=${m.invTitleFs} truncated=${truncated.length} excerpt=${m.excerptVisible} lines=${m.excerptLines?.toFixed?.(2)} ` +
+          `alignΔ=${m.maxAlignDelta?.toFixed?.(2)} mode=${m.selectMode}`
         );
       } else {
         // Mobile: body stays hidden (icon strip), plate not +25% desk rule
@@ -471,7 +509,7 @@ async function main() {
     console.error('FAIL test-home-desk-layout:\n' + errors.map((e) => ' - ' + e).join('\n'));
     process.exit(1);
   }
-  console.log('PASS test-home-desk-layout (PLT-AC-88/98/99 rendered)');
+  console.log('PASS test-home-desk-layout (PLT-AC-88/98/99/104/105 rendered)');
 }
 
 main().catch((err) => {
