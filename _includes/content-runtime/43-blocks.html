@@ -388,7 +388,11 @@
           escapeHtml(initial) + '</div>';
       }
 
-      var html = '<div class="home-project-inventory-media">' + media + '</div>';
+      var poster = renderPosterMedia(fm.thumbnail, name, {
+        srcset: fm.thumbnail_srcset,
+        sizes: '12.5rem'
+      });
+      var html = '<div class="home-project-inventory-media">' + poster + media + '</div>';
       html += '<div class="home-project-inventory-body">';
 
       var code = renderMetaStrip([

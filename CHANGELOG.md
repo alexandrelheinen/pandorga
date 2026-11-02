@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Desktop Projects (≥1024): filmstrip. Each project is a 12.5rem 16:9 frame with its name in the body face underneath. The row scrolls horizontally. The specimen card is not shown (PLT-AC-88).
+
 ## 2.3.20
 
 - Desktop Projects (≥1024): inventory row names use the theme dropdown face (`--font-body` / `.theme-choice`: body size, weight, 0.01em tracking) instead of `--font-title` (PLT-AC-88). No-truncation list-first layout from 2.3.19 unchanged.
