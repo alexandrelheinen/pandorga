@@ -2432,7 +2432,8 @@ html[data-theme="light"] .home-featured .ledger-poster {
     background: rgba(255, 255, 255, 0.92);
   }
 
-  /* PLT-AC-88 contents: each project is a line of type. The picture opens under the chosen line. */
+  /* PLT-AC-88 contents: icon + name; the selected row opens a small picture
+     and, when width allows, a clamped presentation blurb beside it. */
   .home-band[data-home-kind="portfolio"] {
     --home-projects-block-width: 100%;
   }
@@ -2474,22 +2475,27 @@ html[data-theme="light"] .home-featured .ledger-poster {
     gap: 0;
   }
 
+  .home-projects-inventory-wrap {
+    container-type: inline-size;
+    container-name: projects-inventory;
+  }
+
   button.home-project-inventory-row,
   .home-project-inventory-row {
     display: grid;
-    grid-template-columns: 2.75rem minmax(0, 1fr) auto;
+    grid-template-columns: 2.5rem minmax(0, 1fr);
     grid-template-areas:
-      "folio name year"
-      "folio tags tags"
-      "folio plate plate";
+      "icon name"
+      "icon plate"
+      "icon excerpt";
     column-gap: var(--space-md);
-    row-gap: 0.15rem;
-    align-items: baseline;
+    row-gap: 0.2rem;
+    align-items: center;
     width: 100%;
     height: auto;
     min-height: 0;
     justify-content: stretch;
-    padding: 0.85rem 0 0.7rem;
+    padding: 0.7rem 0 0.55rem;
     border: 0;
     border-bottom: 1px solid var(--border-gentle);
     border-radius: 0;
@@ -2514,40 +2520,45 @@ html[data-theme="light"] .home-featured .ledger-poster {
     display: contents;
   }
 
-  .home-project-inventory-code {
-    display: block;
-    grid-area: folio;
-    font-family: var(--font-body);
-    font-size: var(--type-label);
-    font-weight: var(--weight-body);
-    color: var(--color-on-surface-variant);
-  }
-
-  .home-project-inventory-year {
-    grid-area: year;
-    font-family: var(--font-body);
-    font-size: var(--type-body);
-    font-weight: var(--weight-body);
-    color: var(--color-on-surface-variant);
-    font-variant-numeric: tabular-nums;
-  }
-
+  .home-project-inventory-code,
+  .home-project-inventory-year,
   .home-project-inventory-tags {
-    grid-area: tags;
-    font-family: var(--font-label);
-    font-size: var(--type-label);
-    letter-spacing: 0.04em;
+    display: none;
+  }
+
+  .home-project-inventory-row > .home-project-inventory-glyph,
+  .home-project-inventory-glyph {
+    grid-area: icon;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: start;
+    justify-self: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-top: 0.15rem;
+    overflow: hidden;
+    font-size: calc(1.375rem + 2pt);
+    line-height: 1;
     color: var(--color-on-surface-variant);
   }
 
-  .home-project-inventory-row > .home-project-inventory-glyph {
-    display: none;
+  .home-project-inventory-row > .home-project-inventory-glyph.material-symbols-outlined,
+  .home-project-inventory-row .home-project-inventory-glyph.material-symbols-outlined {
+    font-size: calc(1.375rem + 2pt);
+  }
+
+  .home-project-inventory-row.is-selected > .home-project-inventory-glyph,
+  .home-project-inventory-row:hover > .home-project-inventory-glyph,
+  .home-project-inventory-row:focus-visible > .home-project-inventory-glyph {
+    color: var(--color-primary);
   }
 
   .home-project-inventory-media {
     display: none;
     grid-area: plate;
     width: 11rem;
+    max-width: 11rem;
     aspect-ratio: 16 / 9;
     overflow: hidden;
     margin-top: var(--space-xs);
@@ -2567,6 +2578,46 @@ html[data-theme="light"] .home-featured .ledger-poster {
 
   .home-project-inventory-media:has(.ledger-poster) .home-project-inventory-mark {
     display: none;
+  }
+
+  .home-project-inventory-excerpt {
+    display: none;
+    grid-area: excerpt;
+    margin: var(--space-xs) 0 0;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    font-family: var(--font-body);
+    font-size: var(--type-body);
+    font-weight: var(--weight-body);
+    line-height: var(--leading-body);
+    color: var(--color-on-surface-variant);
+    text-align: start;
+    overflow-wrap: break-word;
+    word-break: normal;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    text-overflow: ellipsis;
+  }
+
+  /* Beside the picture when the inventory can hold plate + blurb; otherwise picture only. */
+  @container projects-inventory (min-width: 28rem) {
+    .home-project-inventory-row.is-selected {
+      grid-template-columns: 2.5rem 11rem minmax(0, 1fr);
+      grid-template-areas:
+        "icon name name"
+        "icon plate excerpt";
+      align-items: start;
+    }
+
+    .home-project-inventory-row.is-selected .home-project-inventory-title {
+      align-self: center;
+    }
+
+    .home-project-inventory-row.is-selected .home-project-inventory-excerpt {
+      display: -webkit-box;
+      margin-top: var(--space-xs);
+    }
   }
 
   .home-project-inventory-title {

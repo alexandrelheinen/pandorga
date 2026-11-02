@@ -58,6 +58,28 @@ end
 unless SPEC.include?("Contents") && SPEC.include?("11rem")
   failed = 1 if fail!("PLT-AC-88: spec must describe the contents page and the 11rem picture")
 end
+unless HOME.match?(/\.home-project-inventory-row\s*>\s*\.home-project-inventory-glyph[^{]*\{[^}]*grid-area:\s*icon/) ||
+       HOME.match?(/\.home-project-inventory-glyph[^{]*\{[^}]*grid-area:\s*icon/)
+  failed = 1 if fail!("PLT-AC-88: the project icon glyph must occupy the icon cell")
+end
+unless HOME.match?(/\.home-project-inventory-code[^{]*\{[^}]*display:\s*none/)
+  failed = 1 if fail!("PLT-AC-88: folio/meta code must be hidden on the contents page")
+end
+unless HOME.match?(/\.home-project-inventory-year[^{]*\{[^}]*display:\s*none/)
+  failed = 1 if fail!("PLT-AC-88: year must be hidden on collapsed contents rows")
+end
+unless HOME.match?(/\.home-project-inventory-tags[^{]*\{[^}]*display:\s*none/)
+  failed = 1 if fail!("PLT-AC-88: tags must be hidden on collapsed contents rows")
+end
+unless HOME.match?(/home-project-inventory-excerpt/)
+  failed = 1 if fail!("PLT-AC-88: home.css must style the presentation excerpt")
+end
+unless HOME.match?(/-webkit-line-clamp:\s*[2-6]/)
+  failed = 1 if fail!("PLT-AC-88: the excerpt must clamp to a few lines")
+end
+unless SPEC.include?("icon glyph") || SPEC.include?("project icon")
+  failed = 1 if fail!("PLT-AC-88: spec must describe the icon-plus-name collapsed row")
+end
 
 # PLT-AC-89 — soft edgeless overlay, no panel behind copy
 unless HOME.match?(/\.home-hero-portrait::after[\s\S]{0,800}?border-radius:\s*0/) ||

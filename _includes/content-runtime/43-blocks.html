@@ -350,9 +350,10 @@
     }
 
     /* Rack card for the home portfolio bench.
-     * Desktop: square icon mark (or initial) beside a code line and title.
+     * Desktop contents (PLT-AC-88): icon glyph + name; the selected row opens
+     * the 16:9 plate and, when width allows, a clamped presentation blurb.
      * The mobile strip shows the project glyph only. Selectable rows update
-     * the specimen. */
+     * the specimen below 1024px. */
     function renderProjectInventoryRow(item, options) {
       options = options || {};
       var f = blockFields(item);
@@ -362,7 +363,6 @@
       var selectable = !!options.selectable;
       var selected = !!options.selected;
       var slug = item.slug || f.slug || '';
-      var index = options.index;
 
       // A selectable row is a real button. role=button on an article is
       // what the audit flags, and the button already handles Enter and Space.
@@ -395,16 +395,6 @@
       var html = '<div class="home-project-inventory-media">' + poster + media + '</div>';
       html += '<div class="home-project-inventory-body">';
 
-      var code = renderMetaStrip([
-        index != null && index !== ''
-          ? '<span class="code-technical home-project-inventory-index">' + escapeHtml(twoDigits(index)) + '</span>'
-          : '',
-        fm.label ? escapeHtml(fm.label) : ''
-      ]);
-      if (code) {
-        html += '<div class="home-project-inventory-code">' + code + '</div>';
-      }
-
       if (selectable) {
         html += '<h3 class="home-project-inventory-title card-title">' +
           escapeHtml(name) + '</h3>';
@@ -413,17 +403,9 @@
           '<a class="ledger-card-stretch" href="' + escapeAttr(href) + '">' +
           escapeHtml(name) + '</a></h3>';
       }
-      var yearMatch = String(fm.start_date || '').match(/^\d{4}/);
-      if (yearMatch) {
-        html += '<span class="home-project-inventory-year">' + escapeHtml(yearMatch[0]) + '</span>';
-      }
-      var tagNames = (Array.isArray(f.tags) ? f.tags : [])
-        .map(function (tag) { return String(tag || '').trim(); })
-        .filter(function (tag) { return tag !== ''; });
-      if (tagNames.length) {
-        html += '<span class="home-project-inventory-tags">' +
-          tagNames.map(function (tag) { return escapeHtml(tag); }).join(' · ') +
-          '</span>';
+      var blurb = String(fm.tagline || f.preview || '').trim();
+      if (blurb) {
+        html += '<p class="home-project-inventory-excerpt">' + escapeHtml(blurb) + '</p>';
       }
       html += '</div>';
       if (fm.icon) {
