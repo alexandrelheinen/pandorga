@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# PLT-AC-88 / PLT-AC-98/99 / PLT-AC-104/105 — desk contents + icon/name center + selection.
+# PLT-AC-88 / PLT-AC-98/99 / PLT-AC-104/105/106 — desk contents + icon/name center + gray wash + pad balance.
 require "pathname"
 require "open3"
 

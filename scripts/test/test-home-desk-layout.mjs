@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// PLT-AC-88 / PLT-AC-98/99 / PLT-AC-104/105 — desk contents list, hero +4pt, icon/name center.
+// PLT-AC-88 / PLT-AC-98/99 / PLT-AC-104/105/106 — desk contents, hero +4pt, icon/name center, pad balance.
 // Fixture links live base.css + home.css; no Jekyll build required.
 
 import { spawn } from 'node:child_process';
@@ -139,6 +139,11 @@ function buildHtml() {
     --weight-display: 400;
     --color-on-surface: #111;
     --color-primary: #1c5a7a;
+    --color-surface-high: rgba(0, 0, 0, 0.08);
+    --color-on-surface-variant: #444;
+    --border-gentle: rgba(0, 0, 0, 0.08);
+    --space-xs: 0.25rem;
+    --space-md: 1rem;
   }
   html { font-size: 17.6px; }
   body { margin: 0; background: #f5f5f5; color: #111; }
@@ -291,8 +296,35 @@ async function measure(cdp, sessionId) {
         const selTitle = q('.home-project-inventory-row.is-selected .home-project-inventory-title');
         const selTitleCs = selTitle ? getComputedStyle(selTitle) : null;
         const selTitleBg = selTitleCs ? selTitleCs.backgroundImage : null;
-        const wrap = q('.home-projects-inventory-wrap');
-        const selectMode = wrap ? (wrap.getAttribute('data-contents-select') || 'marker') : null;
+        const selRow = q('.home-project-inventory-row.is-selected');
+        const selRowCs = selRow ? getComputedStyle(selRow) : null;
+        const selRowBg = selRowCs ? selRowCs.backgroundColor : null;
+        let padTop = null;
+        let padBottom = null;
+        let padDelta = null;
+        let excerptPlateTopDelta = null;
+        if (selRow && selTitle) {
+          const rr = selRow.getBoundingClientRect();
+          const glyph = selRow.querySelector('.home-project-inventory-glyph');
+          const tr = selTitle.getBoundingClientRect();
+          const gr = glyph ? glyph.getBoundingClientRect() : tr;
+          const contentTop = Math.min(tr.top, gr.top);
+          const media = selRow.querySelector('.home-project-inventory-media');
+          const mediaCs = media ? getComputedStyle(media) : null;
+          const mediaShown = !!(media && mediaCs && mediaCs.display !== 'none' && media.getBoundingClientRect().height > 8);
+          const excerpt = selRow.querySelector('.home-project-inventory-excerpt');
+          const excerptCs = excerpt ? getComputedStyle(excerpt) : null;
+          const excerptShown = !!(excerpt && excerptCs && excerptCs.display !== 'none' && excerpt.getBoundingClientRect().height > 4);
+          let contentBottom = Math.max(tr.bottom, gr.bottom);
+          if (mediaShown) contentBottom = Math.max(contentBottom, media.getBoundingClientRect().bottom);
+          if (excerptShown) contentBottom = Math.max(contentBottom, excerpt.getBoundingClientRect().bottom);
+          padTop = contentTop - rr.top;
+          padBottom = rr.bottom - contentBottom;
+          padDelta = Math.abs(padTop - padBottom);
+          if (mediaShown && excerptShown) {
+            excerptPlateTopDelta = Math.abs(excerpt.getBoundingClientRect().top - media.getBoundingClientRect().top);
+          }
+        }
       return {
         gapLeft, gapRight,
         plate: plateR,
@@ -330,7 +362,11 @@ async function measure(cdp, sessionId) {
         rowAlign,
         maxAlignDelta,
         selTitleBg,
-        selectMode,
+        selRowBg,
+        padTop,
+        padBottom,
+        padDelta,
+        excerptPlateTopDelta,
       };
     })()`,
     returnByValue: true,
@@ -467,9 +503,23 @@ async function main() {
           const bad = m.rowAlign.filter((r) => r.delta > 1).map((r) => `${r.name}(Δ=${r.delta.toFixed(2)})`).join(', ');
           errors.push(`${vp.name}: icon/name center Δ max=${m.maxAlignDelta.toFixed(2)} > 1px (PLT-AC-104): ${bad}`);
         }
-        // PLT-AC-105: default marker uses full highlighter wash, not the thin 0.42em bar
-        if (m.selTitleBg && /0\.42em/.test(m.selTitleBg)) {
-          errors.push(`${vp.name}: selected title still uses thin 0.42em mark bar (PLT-AC-105)`);
+        // PLT-AC-105: gray wash on selected row; title has no mark gradient
+        if (m.selTitleBg && m.selTitleBg !== 'none') {
+          errors.push(`${vp.name}: selected title still has background mark (${m.selTitleBg}) (PLT-AC-105)`);
+        }
+        const bg = (m.selRowBg || '').replace(/\s+/g, '');
+        const transparent = !bg || bg === 'transparent' || bg === 'rgba(0,0,0,0)' || bg === 'rgba(0,0,0,0.0)';
+        if (transparent) {
+          errors.push(`${vp.name}: selected row missing gray wash bg=${m.selRowBg} (PLT-AC-105)`);
+        }
+        // PLT-AC-106: top/bottom pad within 1px
+        if (typeof m.padDelta !== 'number') {
+          errors.push(`${vp.name}: missing selected-row pad metrics (PLT-AC-106)`);
+        } else if (m.padDelta > 1) {
+          errors.push(`${vp.name}: selected pad top=${m.padTop?.toFixed?.(2)} bottom=${m.padBottom?.toFixed?.(2)} Δ=${m.padDelta.toFixed(2)} > 1px (PLT-AC-106)`);
+        }
+        if (m.excerptVisible && typeof m.excerptPlateTopDelta === 'number' && m.excerptPlateTopDelta > 1) {
+          errors.push(`${vp.name}: excerpt/plate top Δ=${m.excerptPlateTopDelta.toFixed(2)} > 1px (PLT-AC-106)`);
         }
         const frameW = 11 * 17.6;
         const frameH = frameW * 9 / 16;
@@ -486,7 +536,7 @@ async function main() {
         console.log(
           `  ${vp.name}: listW=${m.list?.w?.toFixed?.(1)} rowH=${m.rowHeights?.[0]?.toFixed?.(1)} frame=${m.frame?.w?.toFixed?.(1)}×${m.frame?.h?.toFixed?.(1)} ` +
           `fs=${m.invTitleFs} truncated=${truncated.length} excerpt=${m.excerptVisible} lines=${m.excerptLines?.toFixed?.(2)} ` +
-          `alignΔ=${m.maxAlignDelta?.toFixed?.(2)} mode=${m.selectMode}`
+          `alignΔ=${m.maxAlignDelta?.toFixed?.(2)} padΔ=${m.padDelta?.toFixed?.(2)}`
         );
       } else {
         // Mobile: body stays hidden (icon strip), plate not +25% desk rule
@@ -509,7 +559,7 @@ async function main() {
     console.error('FAIL test-home-desk-layout:\n' + errors.map((e) => ' - ' + e).join('\n'));
     process.exit(1);
   }
-  console.log('PASS test-home-desk-layout (PLT-AC-88/98/99/104/105 rendered)');
+  console.log('PASS test-home-desk-layout (PLT-AC-88/98/99/104/105/106 rendered)');
 }
 
 main().catch((err) => {

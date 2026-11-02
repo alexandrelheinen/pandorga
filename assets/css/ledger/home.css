@@ -2480,23 +2480,24 @@ html[data-theme="light"] .home-featured .ledger-poster {
     container-name: projects-inventory;
   }
 
-  /* PLT-AC-88 / PLT-AC-104: icon shares only the name row so centers align. */
+  /* PLT-AC-88 / PLT-AC-104: icon shares only the name row so centers align.
+     PLT-AC-105/106: selected row = --color-surface-high wash; equal top/bottom pad. */
   button.home-project-inventory-row,
   .home-project-inventory-row {
     display: grid;
     grid-template-columns: 2.5rem minmax(0, 1fr);
     grid-template-areas:
       "icon name"
-      ". plate"
-      ". excerpt";
+      ". plate";
     column-gap: var(--space-md);
-    row-gap: 0.2rem;
+    row-gap: var(--space-xs);
     align-items: center;
     width: 100%;
     height: auto;
     min-height: 0;
     justify-content: stretch;
-    padding: 0.7rem 0.35rem 0.55rem;
+    /* Equal outer pad: wash top→name == picture bottom→wash bottom (PLT-AC-106). */
+    padding: 0.65rem 0.5rem;
     border: 0;
     border-bottom: 1px solid var(--border-gentle);
     border-radius: 0;
@@ -2507,9 +2508,13 @@ html[data-theme="light"] .home-featured .ledger-poster {
   }
 
   .home-project-inventory-row:hover,
-  .home-project-inventory-row:focus-visible,
-  .home-project-inventory-row.is-selected {
+  .home-project-inventory-row:focus-visible {
     background: transparent;
+    outline: none;
+  }
+
+  .home-project-inventory-row.is-selected {
+    background: var(--color-surface-high);
     outline: none;
   }
 
@@ -2568,7 +2573,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
     max-width: 11rem;
     aspect-ratio: 16 / 9;
     overflow: hidden;
-    margin-top: var(--space-xs);
+    margin: 0;
     justify-self: start;
     align-self: start;
   }
@@ -2591,7 +2596,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
   .home-project-inventory-excerpt {
     display: none;
     grid-area: excerpt;
-    margin: var(--space-xs) 0 0;
+    margin: 0;
     min-width: 0;
     max-width: 100%;
     overflow: hidden;
@@ -2610,7 +2615,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
   }
 
   /* Beside the picture when the inventory can hold plate + blurb; otherwise picture only.
-     Icon stays on the name row only (PLT-AC-104). */
+     Icon stays on the name row only (PLT-AC-104). Excerpt top-aligns with the plate. */
   @container projects-inventory (min-width: 28rem) {
     .home-project-inventory-row.is-selected {
       grid-template-columns: 2.5rem 11rem minmax(0, 1fr);
@@ -2627,7 +2632,8 @@ html[data-theme="light"] .home-featured .ledger-poster {
 
     .home-project-inventory-row.is-selected .home-project-inventory-excerpt {
       display: -webkit-box;
-      margin-top: var(--space-xs);
+      margin: 0;
+      align-self: start;
     }
   }
 
@@ -2651,68 +2657,6 @@ html[data-theme="light"] .home-featured .ledger-poster {
     align-self: center;
   }
 
-  /* PLT-AC-105: selection variants via data-contents-select on the wrap.
-     Default (absent or marker) = CTA/hero highlighter on the name. */
-  .home-projects-inventory-wrap:not([data-contents-select]) .home-project-inventory-row.is-selected .home-project-inventory-title,
-  .home-projects-inventory-wrap[data-contents-select="marker"] .home-project-inventory-row.is-selected .home-project-inventory-title,
-  .home-projects-inventory-wrap[data-contents-select="marker-icon"] .home-project-inventory-row.is-selected .home-project-inventory-title {
-    color: var(--color-on-surface);
-    --mark-ink: var(--color-primary);
-    --mark-1: var(--mark-strong-a);
-    --mark-2: var(--mark-strong-b);
-    --mark-3: var(--mark-strong-c);
-    --mk-h: 100%;
-    --mk-y: 50%;
-    padding-inline: 0.14em;
-    background: linear-gradient(var(--mk-angle), transparent var(--mk-s0), color-mix(in srgb, var(--mark-ink) var(--mark-1), transparent) var(--mk-s1), color-mix(in srgb, var(--mark-ink) var(--mark-2), transparent) var(--mk-mid), color-mix(in srgb, var(--mark-ink) var(--mark-3), transparent) var(--mk-end), transparent 100%) 0 var(--mk-y) / 100% var(--mk-h) no-repeat;
-    box-decoration-break: clone;
-    -webkit-box-decoration-break: clone;
-  }
-
-  /* viewfinder: drafting corners frame the whole expanded selected row */
-  .home-projects-inventory-wrap[data-contents-select="viewfinder"] .home-project-inventory-row.is-selected {
-    padding: 0.85rem 0.55rem 0.7rem;
-  }
-
-  .home-projects-inventory-wrap[data-contents-select="viewfinder"] .home-project-inventory-row.is-selected::after {
-    content: "";
-    position: absolute;
-    inset: 0.2rem 0;
-    pointer-events: none;
-    z-index: 2;
-    --frame-corner-size: 0.7rem;
-    --frame-corner-thickness: 1px;
-    background:
-      linear-gradient(var(--color-primary), var(--color-primary)) top left / var(--frame-corner-size) var(--frame-corner-thickness) no-repeat,
-      linear-gradient(var(--color-primary), var(--color-primary)) top left / var(--frame-corner-thickness) var(--frame-corner-size) no-repeat,
-      linear-gradient(var(--color-primary), var(--color-primary)) top right / var(--frame-corner-size) var(--frame-corner-thickness) no-repeat,
-      linear-gradient(var(--color-primary), var(--color-primary)) top right / var(--frame-corner-thickness) var(--frame-corner-size) no-repeat,
-      linear-gradient(var(--color-primary), var(--color-primary)) bottom left / var(--frame-corner-size) var(--frame-corner-thickness) no-repeat,
-      linear-gradient(var(--color-primary), var(--color-primary)) bottom left / var(--frame-corner-thickness) var(--frame-corner-size) no-repeat,
-      linear-gradient(var(--color-primary), var(--color-primary)) bottom right / var(--frame-corner-size) var(--frame-corner-thickness) no-repeat,
-      linear-gradient(var(--color-primary), var(--color-primary)) bottom right / var(--frame-corner-thickness) var(--frame-corner-size) no-repeat;
-  }
-
-  /* icon-btn / marker-icon: selected glyph as pressed chrome square */
-  .home-projects-inventory-wrap[data-contents-select="icon-btn"] .home-project-inventory-row.is-selected > .home-project-inventory-glyph,
-  .home-projects-inventory-wrap[data-contents-select="marker-icon"] .home-project-inventory-row.is-selected > .home-project-inventory-glyph {
-    border: 1px solid var(--color-outline);
-    background-color: var(--color-surface-card);
-    border-radius: var(--radius-card);
-    color: var(--color-primary);
-  }
-
-  /* tint: gray surface wash only (same hover surface used on mobile inventory) */
-  .home-projects-inventory-wrap[data-contents-select="tint"] .home-project-inventory-row.is-selected {
-    background: var(--color-surface-high);
-  }
-
-  .home-projects-inventory-wrap[data-contents-select="tint"] .home-project-inventory-row.is-selected .home-project-inventory-title,
-  .home-projects-inventory-wrap[data-contents-select="viewfinder"] .home-project-inventory-row.is-selected .home-project-inventory-title,
-  .home-projects-inventory-wrap[data-contents-select="icon-btn"] .home-project-inventory-row.is-selected .home-project-inventory-title {
-    background: none;
-    padding-inline: 0;
-  }
 
 }
 

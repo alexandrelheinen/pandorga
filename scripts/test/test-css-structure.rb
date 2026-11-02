@@ -286,8 +286,14 @@ end
 if home_sheet.match?(/--mk-h:\s*0\.42em/)
   errors << "assets/css/ledger/home.css: thin 0.42em selected mark bar must be gone (PLT-AC-105)"
 end
-unless home_sheet.include?("data-contents-select")
-  errors << "assets/css/ledger/home.css: missing data-contents-select selection switch (PLT-AC-105)"
+if home_sheet.include?("data-contents-select")
+  errors << "assets/css/ledger/home.css: data-contents-select switch must be removed (PLT-AC-105)"
+end
+unless home_sheet.match?(/\.home-project-inventory-row\.is-selected[^{]*\{[^}]*background:\s*var\(--color-surface-high\)/m)
+  errors << "assets/css/ledger/home.css: selected row must use --color-surface-high (PLT-AC-105)"
+end
+unless home_sheet.match?(/padding:\s*0\.65rem\s+0\.5rem/)
+  errors << "assets/css/ledger/home.css: selected row must use equal outer padding (PLT-AC-106)"
 end
 # PLT-AC-104 survives strip_comments via the name-row-only grid hole.
 unless home_sheet.match?(/grid-template-areas:[^;]*"\. plate"/m) || home_sheet.match?(/grid-template-areas:[^;]*"\. plate excerpt"/m)
