@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# PLT-AC-88 / PLT-AC-98/99 — rendered desktop projects list + hero +4pt.
+# PLT-AC-88 / PLT-AC-98/99 / PLT-AC-104/105 — desk contents + icon/name center + selection.
 require "pathname"
 require "open3"
 

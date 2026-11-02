@@ -159,6 +159,23 @@ unless HOME.match?(/\.home-hero-actions-contacts[\s\S]{0,120}?flex-wrap:\s*nowra
   failed = 1 if fail!("PLT-AC-94: .home-hero-actions-contacts must keep flex-wrap: nowrap")
 end
 
+# PLT-AC-104 / PLT-AC-105 — icon/name center + selection variants
+unless HOME.include?("PLT-AC-104")
+  failed = 1 if fail!("PLT-AC-104: home.css must document icon/name vertical center")
+end
+unless HOME.include?("data-contents-select")
+  failed = 1 if fail!("PLT-AC-105: home.css must switch selection via data-contents-select")
+end
+if HOME.match?(/--mk-h:\s*0\.42em/)
+  failed = 1 if fail!("PLT-AC-105: selected title must not keep the thin 0.42em mark bar")
+end
+unless HOME.include?("PLT-AC-105")
+  failed = 1 if fail!("PLT-AC-105: home.css must document selection highlight variants")
+end
+unless SPEC.include?("PLT-AC-104") && SPEC.include?("PLT-AC-105")
+  failed = 1 if fail!("spec docs/features/home-hero-c4.md must cover PLT-AC-104/105")
+end
+
 # Spec + validate wiring
 unless SPEC.include?("PLT-AC-94") && SPEC.include?("2.3.6")
   failed = 1 if fail!("spec docs/features/home-hero-c4.md must cover PLT-AC-88…94 and 2.3.6")
@@ -168,7 +185,7 @@ unless VALIDATE.include?("test-home-hero-c4.rb")
 end
 
 if failed.zero?
-  puts "PASS test-home-hero-c4 (PLT-AC-88…94)"
+  puts "PASS test-home-hero-c4 (PLT-AC-88…94, 104/105)"
 else
   exit 1
 end
