@@ -18,41 +18,66 @@ def fail!(msg)
   true
 end
 
-# PLT-AC-88 — From 1024px, projects bench fills the column (list + specimen +25%)
-unless HOME.include?("PLT-AC-88 (2.3.18)") || HOME.include?("desktop projects fill the column")
-  failed = 1 if fail!("PLT-AC-88: home.css must document the 2.3.18 desktop fill rewrite")
+# PLT-AC-88 — From 1024px, catalogue spread (specimen above a full-name index)
+unless HOME.include?("PLT-AC-88 catalogue spread")
+  failed = 1 if fail!("PLT-AC-88: home.css must document the catalogue spread")
 end
-unless HOME.match?(/grid-template-columns:\s*max-content\s+minmax\(0,\s*1fr\)/)
-  failed = 1 if fail!("PLT-AC-88: desktop bench must use max-content minmax(0, 1fr) (list-first)")
+unless HOME.match?(/--home-specimen-plate-width:\s*clamp\(14\.5rem,\s*46%,\s*17\.5rem\)/)
+  failed = 1 if fail!("PLT-AC-88: plate width must be clamp(14.5rem, 46%, 17.5rem)")
 end
-unless HOME.match?(/--home-specimen-plate-height:\s*15\.3125rem/)
-  failed = 1 if fail!("PLT-AC-88: specimen plate height must be 15.3125rem (+25%)")
+if HOME.match?(/--home-specimen-plate-height:\s*15\.3125rem/)
+  failed = 1 if fail!("PLT-AC-88: desktop plate must not keep the +25% 15.3125rem cap")
+end
+unless HOME.match?(/\.home-projects-bench\s*\{[^}]*flex-direction:\s*column/)
+  failed = 1 if fail!("PLT-AC-88: desktop bench must be a column (specimen, then index)")
 end
 unless HOME.match?(/\.home-project-inventory-body\s*\{[\s\S]*?display:\s*flex/)
   failed = 1 if fail!("PLT-AC-88: inventory body must display as flex list text on desktop")
 end
-unless HOME.match?(/text-overflow:\s*ellipsis/) && HOME.match?(/\.home-project-inventory-title/)
-  failed = 1 if fail!("PLT-AC-88: inventory titles must ellipsis on desktop")
+unless HOME.match?(/\.home-project-inventory-title\s*\{[^}]*font-family:\s*var\(--font-title\)/)
+  failed = 1 if fail!("PLT-AC-88: desktop inventory titles must use --font-title")
 end
-unless HOME.match?(/\.home-project-inventory-title\s*\{[\s\S]{0,400}?font-family:\s*var\(--font-body\)/)
-  failed = 1 if fail!("PLT-AC-88: desktop inventory titles must use --font-body (theme dropdown .theme-choice)")
+unless HOME.match?(/\.home-project-inventory-title\s*\{[^}]*font-size:\s*1\.02rem/)
+  failed = 1 if fail!("PLT-AC-88: desktop inventory titles must use 1.02rem")
 end
-unless HOME.match?(/\.home-project-inventory-title\s*\{[\s\S]{0,500}?font-size:\s*var\(--type-body\)/)
-  failed = 1 if fail!("PLT-AC-88: desktop inventory titles must use --type-body (dropdown item size)")
+unless HOME.match?(/\.home-project-inventory-title\s*\{[^}]*white-space:\s*normal/)
+  failed = 1 if fail!("PLT-AC-88: desktop inventory titles must wrap (white-space: normal), not ellipsis")
 end
-# Desktop list title block must not set title/label faces (dropdown is body).
-if HOME.match?(/\.home-project-inventory-title\s*\{[^}]*font-family:\s*var\(--font-(?:title|label)\)/)
-  failed = 1 if fail!("PLT-AC-88: desktop inventory titles must not use --font-title/--font-label")
+if HOME.match?(/\.home-project-inventory-title\s*\{[^}]*font-family:\s*var\(--font-body\)/)
+  failed = 1 if fail!("PLT-AC-88: desktop inventory titles must not use the dropdown body face")
 end
-unless HOME.match?(/grid-template-columns:\s*max-content\s+minmax\(0,\s*1fr\)/)
-  failed = 1 if fail!("PLT-AC-88: list column must stay max-content (no name truncation)")
+if HOME.match?(/\.home-project-inventory-title\s*\{[^}]*text-overflow:\s*ellipsis/)
+  failed = 1 if fail!("PLT-AC-88: desktop inventory titles must not ellipsis")
+end
+# Description: 3-line clamp, not the height:0 flex clip.
+unless HOME.match?(/\.home-project-specimen \.ledger-card-copy\s*\{[^}]*-webkit-line-clamp:\s*3/)
+  failed = 1 if fail!("PLT-AC-88: specimen description must clamp to 3 lines")
+end
+unless HOME.match?(/\.home-project-specimen \.ledger-card-copy\s*\{[^}]*line-clamp:\s*3/)
+  failed = 1 if fail!("PLT-AC-88: specimen description must set line-clamp: 3")
+end
+copy_rule = HOME.match(/\.home-project-specimen \.ledger-card-copy\s*\{([^}]*)\}/m)
+if copy_rule && copy_rule[1].match?(/(?<![\w-])height:\s*0\b/)
+  failed = 1 if fail!("PLT-AC-88: specimen description must not use height: 0 (clips without an ellipsis)")
+end
+unless LAYOUT.include?("function ellipsizeSpecimenCopy")
+  failed = 1 if fail!("PLT-AC-88: home layout must define ellipsizeSpecimenCopy")
+end
+unless LAYOUT.include?("\\u2026") || LAYOUT.include?("…")
+  failed = 1 if fail!("PLT-AC-88: ellipsizeSpecimenCopy must append an ellipsis character")
+end
+unless LAYOUT.match?(/lastIndexOf\(\s*['"] ['"]\s*\)/)
+  failed = 1 if fail!("PLT-AC-88: ellipsizeSpecimenCopy must break on a word boundary")
 end
 # Tablet 900–1023 still keeps the prior centered icon island.
 unless HOME.match?(/\.home-projects-bench[\s\S]{0,800}?margin-inline:\s*auto/)
   failed = 1 if fail!("PLT-AC-88: tablet island must keep margin-inline: auto")
 end
-unless HOME.include?("PLT-AC-88") || SPEC.include?("PLT-AC-88")
+unless HOME.include?("PLT-AC-88") && SPEC.include?("PLT-AC-88")
   failed = 1 if fail!("PLT-AC-88: spec must name PLT-AC-88")
+end
+unless SPEC.include?("clamp(14.5rem, 46%, 17.5rem)")
+  failed = 1 if fail!("PLT-AC-88: spec must name the modest plate clamp")
 end
 
 # PLT-AC-89 — soft edgeless overlay, no panel behind copy

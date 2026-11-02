@@ -4,6 +4,7 @@
 
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { mkdtemp, writeFile, rm, mkdir, copyFile, readFile } from 'node:fs/promises';
 import { createServer as createNetServer } from 'node:net';
 import { createServer as createHttpServer } from 'node:http';
@@ -175,11 +176,15 @@ function buildHtml() {
           </div>
         </div>
         <aside class="home-project-specimen ledger-system-card">
-          <figure class="home-specimen-figure">
+          <div class="home-specimen-figure">
             <div class="ledger-poster projects-plate">
               <img alt="" width="1600" height="900" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="/>
             </div>
-          </figure>
+          </div>
+          <div class="home-specimen-copy">
+            <h3 class="card-title ledger-card-title home-specimen-title">Catalogue</h3>
+            <p class="ledger-card-copy font-body" id="specimen-copy">A robotics library for autonomous navigation, covering spatial mapping, motion planning and trajectory tracking, with a second sentence that should not remain visible once the caption is clamped to three lines on the specimen card and a third sentence kept only to force the overflow.</p>
+          </div>
         </aside>
       </div>
     </div>
@@ -234,6 +239,10 @@ async function measure(cdp, sessionId) {
       }));
       const listWrap = q('.home-projects-inventory-wrap');
       const listR = rect(listWrap);
+      const specimen = q('.home-project-specimen');
+      const specR = rect(specimen);
+      const copy = q('#specimen-copy');
+      const copyClamp = copy ? getComputedStyle(copy).webkitLineClamp : null;
       return {
         gapLeft, gapRight,
         plate: plateR,
@@ -254,6 +263,8 @@ async function measure(cdp, sessionId) {
         titleTrunc,
         list: listR,
         bench: benchR,
+        specimen: specR,
+        copyClamp,
         vw: window.innerWidth,
       };
     })()`,
@@ -316,7 +327,13 @@ async function main() {
     await cdp.send('Runtime.enable', {}, sessionId);
     await cdp.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: 'light' }] }, sessionId);
 
-    const baselinePlateH = 12.25 * 17.6; // rem × root
+    const homeSrc = readFileSync(join(ROOT, '_layouts/home.html'), 'utf8');
+    const fnStart = homeSrc.indexOf('function ellipsizeSpecimenCopy');
+    const fnEnd = homeSrc.indexOf('/* END ellipsizeSpecimenCopy */');
+    if (fnStart < 0 || fnEnd < fnStart) {
+      throw new Error('home.html is missing ellipsizeSpecimenCopy markers');
+    }
+    const ellipsizeFn = homeSrc.slice(fnStart, fnEnd);
 
     for (const vp of VIEWPORTS) {
       await cdp.send('Emulation.setDeviceMetricsOverride', {
@@ -340,70 +357,94 @@ async function main() {
         if (m.bodyDisplay !== 'flex') {
           errors.push(`${vp.name}: inventory body display=${m.bodyDisplay} want flex`);
         }
-        // PLT-AC-88 (2.3.20): row name face/size/weight = theme dropdown .theme-choice
-        if (!m.invTitleFf || !m.dropFf || m.invTitleFf !== m.dropFf) {
-          errors.push(`${vp.name}: inventory title font-family="${m.invTitleFf}" ≠ dropdown "${m.dropFf}"`);
+        // PLT-AC-88: index names use the serif title face, not the dropdown body face.
+        if (!m.invTitleFf || !m.bandFf || m.invTitleFf !== m.bandFf) {
+          errors.push(`${vp.name}: inventory title font-family="${m.invTitleFf}" ≠ band title "${m.bandFf}"`);
         }
-        if (!m.invTitleFs || !m.dropFs || m.invTitleFs !== m.dropFs) {
-          errors.push(`${vp.name}: inventory title font-size="${m.invTitleFs}" ≠ dropdown "${m.dropFs}"`);
+        if (m.dropFf && m.invTitleFf === m.dropFf) {
+          errors.push(`${vp.name}: inventory title still uses the dropdown face (${m.invTitleFf})`);
         }
-        if (!m.invTitleFw || !m.dropFw || String(m.invTitleFw) !== String(m.dropFw)) {
-          errors.push(`${vp.name}: inventory title font-weight="${m.invTitleFw}" ≠ dropdown "${m.dropFw}"`);
-        }
-        if (m.invTitleFf && /TitleSerifFixture|LabelCapsFixture/i.test(m.invTitleFf)) {
-          errors.push(`${vp.name}: inventory title not on body face (${m.invTitleFf})`);
+        const wantFs = 1.02 * 17.6;
+        const gotFs = parseFloat(m.invTitleFs);
+        if (!Number.isFinite(gotFs) || Math.abs(gotFs - wantFs) > 0.6) {
+          errors.push(`${vp.name}: inventory title font-size=${m.invTitleFs} want ~${wantFs.toFixed(2)}px`);
         }
         if (!m.rowHeights.length) {
           errors.push(`${vp.name}: no inventory rows`);
         } else {
           const h0 = m.rowHeights[0];
           for (const h of m.rowHeights) {
-            if (Math.abs(h - h0) > 0.75) {
-              errors.push(`${vp.name}: unequal row heights ${m.rowHeights}`);
+            if (Math.abs(h - h0) > 1.25) {
+              errors.push(`${vp.name}: unequal row heights ${m.rowHeights.map((n) => n.toFixed(1)).join(',')}`);
               break;
             }
           }
-          const iconPx = 2.75 * 17.6;
-          if (Math.abs(h0 - iconPx) > 1.5) {
-            errors.push(`${vp.name}: row H ${h0} ≠ icon-btn ${iconPx}`);
+          if (h0 < 32) {
+            errors.push(`${vp.name}: row H ${h0} too short for an icon and a name`);
           }
         }
-        // No truncation: every name scrollWidth <= clientWidth
+        // No truncation: wrapping text reports scrollWidth ≈ clientWidth.
         const truncated = (m.titleTrunc || []).filter((t) => t.truncated);
         if (truncated.length) {
           errors.push(`${vp.name}: truncated names ${truncated.map((t) => t.text + '(' + t.scroll + '>' + t.client + ')').join(', ')}`);
         }
+        if (m.specimen && m.list && m.specimen.y > m.list.y + 1) {
+          errors.push(`${vp.name}: specimen top ${m.specimen.y.toFixed(1)} is below the index ${m.list.y.toFixed(1)}`);
+        }
+        if (m.list && m.bench && m.list.w + 8 < m.bench.w * 0.9) {
+          errors.push(`${vp.name}: index width ${m.list.w.toFixed(1)} is not the full bench ${m.bench.w.toFixed(1)}`);
+        }
+        if (String(m.copyClamp) !== '3') {
+          errors.push(`${vp.name}: specimen copy line-clamp=${m.copyClamp} want 3`);
+        }
         console.log(
-          `  ${vp.name}: listW=${m.list?.w?.toFixed?.(1)} plate=${m.plate?.w?.toFixed?.(1)}×${m.plate?.h?.toFixed?.(1)} ` +
-          `fs=${m.invTitleFs} truncated=${truncated.length}`
+          `  ${vp.name}: listW=${m.list?.w?.toFixed?.(1)} rowH=${m.rowHeights?.[0]?.toFixed?.(1)} ` +
+          `plate=${m.plate?.w?.toFixed?.(1)}×${m.plate?.h?.toFixed?.(1)} fs=${m.invTitleFs} truncated=${truncated.length}`
         );
 
-        // Plate caps at +25%; when leftover room after list fits +25%, expect full +25%.
-        const capH = 15.3125 * 17.6;
-        const capW = capH * 16 / 9;
-        const floorH = baselinePlateH; // 12.25rem pre-2.3.18
+        // Modest 16:9 plate: floor 14.5rem, cap 17.5rem. Never the old +25% billboard.
+        const floorW = 14.5 * 17.6;
+        const capW = 17.5 * 17.6;
         if (!m.plate) {
           errors.push(`${vp.name}: missing specimen plate`);
         } else {
-          if (m.plate.h > capH + 2 || m.plate.w > capW + 3) {
-            errors.push(`${vp.name}: plate ${m.plate.w}×${m.plate.h} exceeds +25% cap ${capW}×${capH}`);
+          if (m.plate.w < floorW - 2 || m.plate.w > capW + 2) {
+            errors.push(`${vp.name}: plate W ${m.plate.w.toFixed(1)} outside ${floorW.toFixed(1)}–${capW.toFixed(1)}`);
           }
-          const gap = 0.5 * 17.6; // approx column-gap (space-xs * 2)
-          const pad = 2 * 17.6; // specimen padding (space-md × 2)
-          const leftover = (m.bench?.w || 0) - (m.list?.w || 0) - gap - pad;
-          const roomForCap = leftover >= capW - 2;
-          if (roomForCap) {
-            if (Math.abs(m.plate.h - capH) > 3 || Math.abs(m.plate.w - capW) > 4) {
-              errors.push(`${vp.name}: room for +25% plate but got ${m.plate.w}×${m.plate.h} want ~${capW}×${capH}`);
-            }
-          } else {
-            // Shrunk case: still 16:9-ish; report if below pre-2.3.18 floor
-            const ratio = m.plate.w / m.plate.h;
-            if (Math.abs(ratio - 16 / 9) > 0.05) {
-              errors.push(`${vp.name}: plate aspect ${ratio.toFixed(3)} not ~16:9`);
-            }
-            if (m.plate.h + 0.5 < floorH) {
-              console.log(`  ${vp.name}: NOTE plate below pre-2.3.18 floor (${m.plate.h.toFixed(1)} < ${floorH})`);
+          const ratio = m.plate.w / m.plate.h;
+          if (Math.abs(ratio - 16 / 9) > 0.04) {
+            errors.push(`${vp.name}: plate aspect ${ratio.toFixed(3)} not ~16:9`);
+          }
+          const oldCapH = 15.3125 * 17.6;
+          if (m.plate.h > oldCapH - 8) {
+            errors.push(`${vp.name}: plate H ${m.plate.h.toFixed(1)} still near the +25% cap ${oldCapH.toFixed(1)}`);
+          }
+        }
+
+        const ellip = await cdp.send('Runtime.evaluate', {
+          expression: `(() => {
+            ${ellipsizeFn}
+            var copy = document.querySelector('#specimen-copy');
+            if (!copy) return { error: 'missing copy' };
+            var full = (copy.textContent || '').replace(/\\s+/g, ' ').trim();
+            ellipsizeSpecimenCopy(copy.parentElement);
+            return { full: full, text: copy.textContent || '' };
+          })()`,
+          returnByValue: true,
+        }, sessionId);
+        const fitted = ellip.result && ellip.result.value;
+        if (!fitted || fitted.error) {
+          errors.push(`${vp.name}: ellipsis probe failed (${fitted && fitted.error})`);
+        } else if (!fitted.text.endsWith('…')) {
+          errors.push(`${vp.name}: description does not end with an ellipsis: ${fitted.text.slice(-40)}`);
+        } else {
+          const stem = fitted.text.slice(0, -1);
+          if (!fitted.full.startsWith(stem)) {
+            errors.push(`${vp.name}: ellipsis stem is not a prefix of the description`);
+          } else if (stem.length < fitted.full.length) {
+            const next = fitted.full.charAt(stem.length);
+            if (next && !/\s/.test(next) && !/[.,;:]/.test(next)) {
+              errors.push(`${vp.name}: ellipsis cuts mid-word before "${next}"`);
             }
           }
         }

@@ -337,42 +337,72 @@ layout: shell
         /* Lock height to the tallest project so swapping never moves the
            inventory. Remeasure on resize when the specimen column width
            changes (chip wrap / plate width). */
-        /* `-webkit-line-clamp` fails on the specimen card (mid-glyph crop,
-           no ellipsis). Copy flexes into spare card height; fit text here. */
+        /* BEGIN ellipsizeSpecimenCopy */
         function ellipsizeSpecimenCopy(root) {
           var copy = root.querySelector('.ledger-card-copy');
           if (!copy) return;
-          var full = copy.getAttribute('data-full-text') || copy.textContent;
-          copy.setAttribute('data-full-text', full);
-          copy.textContent = full;
-          if (copy.scrollHeight <= copy.clientHeight + 1) return;
-
-          function fitted(n) {
-            if (n >= full.length) {
-              copy.textContent = full;
-              return copy.scrollHeight <= copy.clientHeight + 1;
-            }
-            var slice = full.slice(0, n);
-            var sp = slice.lastIndexOf(' ');
-            if (sp > Math.floor(n * 0.5)) slice = slice.slice(0, sp);
-            copy.textContent = slice.replace(/[.,;:\s]+$/u, '') + '…';
-            return copy.scrollHeight <= copy.clientHeight + 1;
+          var full = copy.getAttribute('data-full-text');
+          if (!full) {
+            full = (copy.textContent || '').replace(/\s+/g, ' ').trim();
+            copy.setAttribute('data-full-text', full);
           }
-
+          var lines = 3;
+          var prevDisplay = copy.style.display;
+          var prevClamp = copy.style.webkitLineClamp;
+          var prevLineClamp = copy.style.lineClamp;
+          var prevMax = copy.style.maxHeight;
+          var prevHeight = copy.style.height;
+          var prevOverflow = copy.style.overflow;
+          copy.style.display = 'block';
+          copy.style.webkitLineClamp = 'unset';
+          copy.style.lineClamp = 'unset';
+          copy.style.maxHeight = 'none';
+          copy.style.height = 'auto';
+          copy.style.overflow = 'visible';
+          copy.textContent = full;
+          var cs = window.getComputedStyle(copy);
+          var lineHeight = parseFloat(cs.lineHeight);
+          if (!isFinite(lineHeight)) {
+            lineHeight = (parseFloat(cs.fontSize) || 16) * 1.5;
+          }
+          var maxH = lineHeight * lines + 1;
+          function restore() {
+            copy.style.display = prevDisplay;
+            copy.style.webkitLineClamp = prevClamp;
+            copy.style.lineClamp = prevLineClamp;
+            copy.style.maxHeight = prevMax;
+            copy.style.height = prevHeight;
+            copy.style.overflow = prevOverflow;
+          }
+          if (copy.scrollHeight <= maxH) {
+            restore();
+            return;
+          }
+          function apply(n) {
+            var slice = full.slice(0, Math.max(0, n));
+            var sp = slice.lastIndexOf(' ');
+            if (sp > Math.floor(n * 0.4)) slice = slice.slice(0, sp);
+            var text = slice.replace(/[\s.,;:]+$/u, '');
+            if (!text) text = full.slice(0, Math.max(1, n)).trim();
+            copy.textContent = text + '\u2026';
+            return copy.scrollHeight <= maxH;
+          }
           var lo = 0;
           var hi = full.length;
           var best = 0;
           while (lo <= hi) {
             var mid = (lo + hi) >> 1;
-            if (fitted(mid)) {
+            if (apply(mid)) {
               best = mid;
               lo = mid + 1;
             } else {
               hi = mid - 1;
             }
           }
-          fitted(best);
+          apply(best);
+          restore();
         }
+        /* END ellipsizeSpecimenCopy */
 
         async function paintSpecimen(entry) {
           specimenSlot.innerHTML = '';

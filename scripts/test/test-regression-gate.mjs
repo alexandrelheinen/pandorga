@@ -277,18 +277,103 @@ const ASSERT_EXPRESSION = `
         if (!isInitial && window.innerWidth >= 900 && gfs < 22) {
           errors.push('Desktop inventory icon glyph too small (' + gfs.toFixed(2) + 'px); Material Symbols inherit must not win (PLT-AC-75)');
         }
-        // CR-21c: glyph fills most of the button (>= ~70% of row height)
-        if (window.innerWidth >= 900 && !isInitial && gr.height + 1.5 < 0.70 * rowH) {
+        // CR-21c: glyph fills most of the icon button (>= ~70% of row height).
+        // From 1024px rows are an index, not icon buttons (PLT-AC-88).
+        if (window.innerWidth >= 900 && window.innerWidth < 1024 && !isInitial && gr.height + 1.5 < 0.70 * rowH) {
           errors.push('Desktop glyph height (' + gr.height.toFixed(2) + 'px) < 70% of button (' + rowH.toFixed(2) + 'px) (PLT-AC-76)');
         }
       }
       const rcs = getComputedStyle(first);
-      if (Math.abs(parseFloat(rcs.borderTopWidth) - 1) > 0.5 || rcs.borderTopStyle !== 'solid') {
-        errors.push('Inventory row border is ' + rcs.borderTopWidth + ' ' + rcs.borderTopStyle + ', expected 1px solid (PLT-AC-75)');
+      if (window.innerWidth < 1024) {
+        if (Math.abs(parseFloat(rcs.borderTopWidth) - 1) > 0.5 || rcs.borderTopStyle !== 'solid') {
+          errors.push('Inventory row border is ' + rcs.borderTopWidth + ' ' + rcs.borderTopStyle + ', expected 1px solid (PLT-AC-75)');
+        }
+      } else if (parseFloat(rcs.borderTopWidth) > 0.5) {
+        errors.push('Desktop index row keeps a menu border-top of ' + rcs.borderTopWidth + ' (PLT-AC-88)');
       }
     }
 
-    if (window.innerWidth >= 900 && bench) {
+    if (window.innerWidth >= 1024 && bench) {
+      // PLT-AC-88 catalogue spread: modest 16:9 plate, index under the specimen, full names.
+      const floorW = 14.5 * rootFs;
+      const capW = 17.5 * rootFs;
+      const specimen = document.querySelector('.home-project-specimen');
+      const plate = specimen && specimen.querySelector('.home-specimen-figure > .ledger-poster, .home-specimen-figure > .projects-plate');
+      if (plate) {
+        const pr = plate.getBoundingClientRect();
+        if (pr.width > 8) {
+          if (pr.width < floorW - 2 || pr.width > capW + 3) {
+            errors.push('Specimen plate width (' + pr.width.toFixed(1) + 'px) outside ' + floorW.toFixed(1) + '–' + capW.toFixed(1) + ' (PLT-AC-88)');
+          }
+          const ratio = pr.width / pr.height;
+          if (Math.abs(ratio - (16 / 9)) / (16 / 9) > 0.02) {
+            errors.push('Specimen plate ratio ' + ratio.toFixed(3) + ' not within 2% of 16:9 (PLT-AC-88)');
+          }
+        }
+      }
+      const wrap = document.querySelector('.home-projects-inventory-wrap');
+      if (wrap && specimen) {
+        const wR = wrap.getBoundingClientRect();
+        const sR = specimen.getBoundingClientRect();
+        const bR = bench.getBoundingClientRect();
+        if (sR.top > wR.top + 2) {
+          errors.push('Specimen top (' + sR.top.toFixed(1) + ') is below the index (' + wR.top.toFixed(1) + ') (PLT-AC-88)');
+        }
+        const padL = parseFloat(getComputedStyle(bench).paddingLeft) || 0;
+        const padR = parseFloat(getComputedStyle(bench).paddingRight) || 0;
+        const innerW = bR.width - padL - padR;
+        if (innerW > 8 && Math.abs(wR.width - innerW) > 6) {
+          errors.push('Index width (' + wR.width.toFixed(1) + ') is not the bench inner width (' + innerW.toFixed(1) + ') (PLT-AC-88)');
+        }
+      }
+      const titles = document.querySelectorAll('.home-project-inventory-title');
+      titles.forEach(function (title, idx) {
+        if (title.scrollWidth > title.clientWidth + 1) {
+          errors.push('Index name ' + idx + ' is truncated (' + title.scrollWidth.toFixed(0) + '>' + title.clientWidth.toFixed(0) + ') (PLT-AC-88)');
+        }
+        const tcs = getComputedStyle(title);
+        if (tcs.textOverflow === 'ellipsis' && tcs.whiteSpace === 'nowrap') {
+          errors.push('Index name ' + idx + ' still ellipsizes (PLT-AC-88)');
+        }
+      });
+      if (specimen) {
+        const copy = specimen.querySelector('.ledger-card-copy');
+        if (copy) {
+          const ccs = getComputedStyle(copy);
+          if (ccs.webkitLineClamp !== '3' && ccs.lineClamp !== '3') {
+            errors.push('Specimen description line-clamp is ' + (ccs.webkitLineClamp || ccs.lineClamp) + ', expected 3 (PLT-AC-88)');
+          }
+        }
+        // PLT-AC-80 still applies at ≥1024: specimen type sizes are unchanged by the spread.
+        const pt = 2 * (96 / 72);
+        const parseToken = (raw) => {
+          raw = (raw || '').trim();
+          let v = parseFloat(raw);
+          if (!isFinite(v)) return null;
+          if (raw.endsWith('rem')) v *= rootFs;
+          return v;
+        };
+        const checks = [
+          { sel: '.home-specimen-strip .ledger-meta', token: '--type-label-lg', name: 'meta', minusPt: false },
+          { sel: '.home-project-specimen .home-specimen-title, .home-project-specimen .ledger-card-title', token: '--type-card-lg', name: 'title', minusPt: true },
+          { sel: '.home-project-specimen .ledger-card-copy', token: '--type-body', name: 'copy', minusPt: false },
+          { sel: '.home-project-specimen .ledger-chip', token: '--type-cta', name: 'chip', minusPt: false },
+          { sel: '.home-specimen-foot .ledger-cta, .home-project-specimen .home-specimen-open', token: '--type-cta', name: 'foot', minusPt: false }
+        ];
+        const root = document.documentElement;
+        checks.forEach((c) => {
+          const el = document.querySelector(c.sel);
+          if (!el) return;
+          const base = parseToken(getComputedStyle(root).getPropertyValue(c.token));
+          if (base == null) return;
+          const expect = c.minusPt ? base - pt : base;
+          const got = parseFloat(getComputedStyle(el).fontSize);
+          if (Math.abs(got - expect) > 1.5) {
+            errors.push('Specimen ' + c.name + ' font-size (' + got.toFixed(2) + 'px) not within 1.5px of ' + (c.minusPt ? 'token−2pt' : 'token base') + ' (' + expect.toFixed(2) + 'px) (PLT-AC-80)');
+          }
+        });
+      }
+    } else if (window.innerWidth >= 900 && bench) {
       const rawSize = getComputedStyle(bench).getPropertyValue('--home-icon-btn-size').trim();
       let iconSizePx = parseFloat(rawSize);
       if (rawSize.endsWith('rem')) {

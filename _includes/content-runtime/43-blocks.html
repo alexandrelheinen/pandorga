@@ -534,14 +534,16 @@
         html += '<div class="projects-plate projects-plate--mark" aria-hidden="true">' +
           '<span class="' + mark.cls + ' projects-plate-glyph">' + escapeHtml(mark.text) + '</span></div>';
       }
-      html += '<h3 class="card-title ledger-card-title home-specimen-title"><a class="ledger-card-stretch" href="' +
-        escapeAttr(href) + '">' + escapeHtml(name) + '</a></h3>';
       html += '</div>';
 
       var summary = fm.tagline || f.preview;
+      html += '<div class="home-specimen-copy">';
+      html += '<h3 class="card-title ledger-card-title home-specimen-title"><a class="ledger-card-stretch" href="' +
+        escapeAttr(href) + '">' + escapeHtml(name) + '</a></h3>';
       if (summary) {
         html += '<p class="ledger-card-copy font-body">' + escapeHtml(summary) + '</p>';
       }
+      html += '</div>';
 
       html += renderTagChips(f.tags, { hrefFor: options.tagHref });
 

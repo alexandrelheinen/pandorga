@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Desktop Projects (≥1024): the side-by-side menu and shrinking specimen become one catalogue panel. A modest 16:9 plate (`clamp(14.5rem, 46%, 17.5rem)`) sits with the project title; the description, chips, and actions run the full column under it; every project is an index row beneath (serif title face, icon, full name, marker on the selected name). Tablet and mobile are unchanged (PLT-AC-88).
+- Specimen descriptions clamp to three lines and, when they overflow, end on a word boundary with an ellipsis.
+
 ## 2.3.20
 
 - Desktop Projects (≥1024): inventory row names use the theme dropdown face (`--font-body` / `.theme-choice`: body size, weight, 0.01em tracking) instead of `--font-title` (PLT-AC-88). No-truncation list-first layout from 2.3.19 unchanged.
