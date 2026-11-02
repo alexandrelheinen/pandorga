@@ -248,6 +248,9 @@ omits(
   [
     'home-project-inventory-code',
     'home-project-inventory-index',
+    'home-project-inventory-year',
+    'home-project-inventory-tags',
+    'home-project-inventory-excerpt',
     'ledger-status',
     'home-project-inventory-copy',
     'ledger-poster',

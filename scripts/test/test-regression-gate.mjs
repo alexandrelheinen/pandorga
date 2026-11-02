@@ -297,6 +297,30 @@ const ASSERT_EXPRESSION = `
             errors.push('Contents name ' + idx + ' ellipsizes (PLT-AC-88)');
           }
         });
+        document.querySelectorAll('.home-project-inventory-row').forEach(function (row, idx) {
+          const glyph = row.querySelector('.home-project-inventory-glyph');
+          if (!glyph || getComputedStyle(glyph).display === 'none' || glyph.getBoundingClientRect().width < 1) {
+            errors.push('Contents row ' + idx + ' missing visible icon glyph (PLT-AC-88)');
+          } else {
+            const gcs = getComputedStyle(glyph);
+            const ox = gcs.overflowX || gcs.overflow;
+            if (ox !== 'hidden' && ox !== 'clip') {
+              errors.push('Contents icon cell ' + idx + ' must clip overflow (PLT-AC-88)');
+            }
+            if (/\d{2}\s*\//.test((glyph.textContent || '').trim())) {
+              errors.push('Contents icon cell ' + idx + ' leaks folio text (PLT-AC-88)');
+            }
+          }
+          ['home-project-inventory-code', 'home-project-inventory-year', 'home-project-inventory-tags'].forEach(function (cls) {
+            const el = row.querySelector('.' + cls);
+            if (!el) return;
+            const cs = getComputedStyle(el);
+            const r = el.getBoundingClientRect();
+            if (cs.display !== 'none' && cs.visibility !== 'hidden' && r.width > 0.5 && r.height > 0.5) {
+              errors.push('Contents row ' + idx + ' still shows .' + cls + ' (PLT-AC-88)');
+            }
+          });
+        });
         const opened = document.querySelector('.home-project-inventory-row.is-selected .home-project-inventory-media');
         if (opened && opened.getBoundingClientRect().width > 8) {
           const fr = opened.getBoundingClientRect();

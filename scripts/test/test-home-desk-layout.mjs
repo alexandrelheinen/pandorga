@@ -98,10 +98,17 @@ async function waitForDevtools(port, chrome) {
 
 function rowHtml(name, selected) {
   const initial = name.charAt(0).toUpperCase();
+  const blurb = 'A short presentation blurb that should clamp beside the picture when the row is wide enough for both.';
   return `<button type="button" class="home-project-inventory-row group${selected ? ' is-selected' : ''}" aria-pressed="${selected ? 'true' : 'false'}" aria-label="${name}" title="${name}">
-  <div class="home-project-inventory-media"><div class="home-project-inventory-mark home-project-inventory-mark--initial">${initial}</div></div>
-  <div class="home-project-inventory-body"><h3 class="home-project-inventory-title card-title">${name}</h3></div>
-  <span class="home-project-inventory-glyph home-project-inventory-glyph--initial" aria-hidden="true">${initial}</span>
+  <div class="home-project-inventory-media"><div class="ledger-poster projects-plate"><img alt="" width="1600" height="900" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="/></div><div class="home-project-inventory-mark home-project-inventory-mark--initial">${initial}</div></div>
+  <div class="home-project-inventory-body">
+    <div class="home-project-inventory-code"><div class="ledger-meta"><span class="code-technical home-project-inventory-index">01</span><span class="ledger-meta-sep" aria-hidden="true">/</span>Label that must not show</div></div>
+    <h3 class="home-project-inventory-title card-title">${name}</h3>
+    <span class="home-project-inventory-year">2026</span>
+    <span class="home-project-inventory-tags">Robotics · Python</span>
+    <p class="home-project-inventory-excerpt">${blurb}</p>
+  </div>
+  <span class="home-project-inventory-glyph material-symbols-outlined" aria-hidden="true">recycling</span>
 </button>`;
 }
 
@@ -238,6 +245,32 @@ async function measure(cdp, sessionId) {
       }));
       const listWrap = q('.home-projects-inventory-wrap');
       const listR = rect(listWrap);
+      const glyph = q('.home-project-inventory-row .home-project-inventory-glyph');
+      const code = q('.home-project-inventory-row .home-project-inventory-code');
+      const year = q('.home-project-inventory-row .home-project-inventory-year');
+      const tags = q('.home-project-inventory-row .home-project-inventory-tags');
+      const excerpt = q('.home-project-inventory-row.is-selected .home-project-inventory-excerpt');
+      const glyphCs = glyph ? getComputedStyle(glyph) : null;
+      const glyphR = glyph ? glyph.getBoundingClientRect() : null;
+      const codeCs = code ? getComputedStyle(code) : null;
+      const yearCs = year ? getComputedStyle(year) : null;
+      const tagsCs = tags ? getComputedStyle(tags) : null;
+      const excerptCs = excerpt ? getComputedStyle(excerpt) : null;
+      const excerptR = excerpt ? excerpt.getBoundingClientRect() : null;
+      const glyphOverflowCss = glyphCs ? (glyphCs.overflowX || glyphCs.overflow) : null;
+      const glyphText = glyph ? (glyph.textContent || '').trim() : '';
+      const codeLeaks = !!(code && codeCs && codeCs.display !== 'none' && codeCs.visibility !== 'hidden' && code.getBoundingClientRect().width > 0.5);
+      const iconHasMetaText = /\\d{2}\\s*\\//.test(glyphText) || glyphText.indexOf('/') !== -1;
+      const iconOverflow = codeLeaks || iconHasMetaText ||
+        (glyphOverflowCss !== 'hidden' && glyphOverflowCss !== 'clip');
+      const codeVisible = !!(code && codeCs && codeCs.display !== 'none' && codeCs.visibility !== 'hidden' && code.getBoundingClientRect().width > 0.5);
+      const yearVisible = !!(year && yearCs && yearCs.display !== 'none' && yearCs.visibility !== 'hidden' && year.getBoundingClientRect().width > 0.5);
+      const tagsVisible = !!(tags && tagsCs && tagsCs.display !== 'none' && tagsCs.visibility !== 'hidden' && tags.getBoundingClientRect().width > 0.5);
+      let excerptLines = null;
+      if (excerpt && excerptR && excerptR.height > 0 && excerptCs) {
+        const lh = parseFloat(excerptCs.lineHeight) || parseFloat(excerptCs.fontSize) || 16;
+        excerptLines = excerptR.height / lh;
+      }
       return {
         gapLeft, gapRight,
         plate: plateR,
@@ -262,6 +295,16 @@ async function measure(cdp, sessionId) {
         list: listR,
         bench: benchR,
         vw: window.innerWidth,
+        glyphDisplay: glyphCs ? glyphCs.display : null,
+        glyphVisible: !!(glyphR && glyphR.width > 0 && glyphCs && glyphCs.display !== 'none'),
+        iconOverflow,
+        codeVisible,
+        yearVisible,
+        tagsVisible,
+        excerptDisplay: excerptCs ? excerptCs.display : null,
+        excerptVisible: !!(excerptR && excerptR.width > 0 && excerptR.height > 0 && excerptCs && excerptCs.display !== 'none'),
+        excerptLines,
+        excerptClamp: excerptCs ? excerptCs.webkitLineClamp : null,
       };
     })()`,
     returnByValue: true,
@@ -376,6 +419,21 @@ async function main() {
         if (truncated.length) {
           errors.push(`${vp.name}: truncated names ${truncated.map((t) => t.text + '(' + t.scroll + '>' + t.client + ')').join(', ')}`);
         }
+        if (!m.glyphVisible) {
+          errors.push(`${vp.name}: project icon glyph is not visible (PLT-AC-88)`);
+        }
+        if (m.iconOverflow) {
+          errors.push(`${vp.name}: icon cell overflows text (PLT-AC-88)`);
+        }
+        if (m.codeVisible) {
+          errors.push(`${vp.name}: folio/meta code is still visible (PLT-AC-88)`);
+        }
+        if (m.yearVisible) {
+          errors.push(`${vp.name}: year is visible on contents row (PLT-AC-88)`);
+        }
+        if (m.tagsVisible) {
+          errors.push(`${vp.name}: tags are visible on contents row (PLT-AC-88)`);
+        }
         const frameW = 11 * 17.6;
         const frameH = frameW * 9 / 16;
         if (!m.frame || m.frame.w < 8) {
@@ -390,7 +448,7 @@ async function main() {
         }
         console.log(
           `  ${vp.name}: listW=${m.list?.w?.toFixed?.(1)} rowH=${m.rowHeights?.[0]?.toFixed?.(1)} frame=${m.frame?.w?.toFixed?.(1)}×${m.frame?.h?.toFixed?.(1)} ` +
-          `fs=${m.invTitleFs} truncated=${truncated.length}`
+          `fs=${m.invTitleFs} truncated=${truncated.length} excerpt=${m.excerptVisible} lines=${m.excerptLines?.toFixed?.(2)}`
         );
       } else {
         // Mobile: body stays hidden (icon strip), plate not +25% desk rule

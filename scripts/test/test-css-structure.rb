@@ -260,6 +260,26 @@ require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
   ".home-project-inventory-title", ["white-space: normal", "font-family: var(--font-body)", "font-weight: var(--weight-body)", "font-size: clamp(1.45rem, 2.2vw, 2.05rem)"]
 )
+require_declarations(
+  errors, "assets/css/ledger/home.css", home_sheet,
+  ".home-project-inventory-code", ["display: none"]
+)
+require_declarations(
+  errors, "assets/css/ledger/home.css", home_sheet,
+  ".home-project-inventory-year", ["display: none"]
+)
+require_declarations(
+  errors, "assets/css/ledger/home.css", home_sheet,
+  ".home-project-inventory-tags", ["display: none"]
+)
+require_declarations(
+  errors, "assets/css/ledger/home.css", home_sheet,
+  ".home-project-inventory-excerpt", ["-webkit-line-clamp: 4", "overflow: hidden"]
+)
+require_declarations(
+  errors, "assets/css/ledger/home.css", home_sheet,
+  ".home-project-inventory-glyph", ["overflow: hidden", "grid-area: icon"]
+)
 if home_sheet.match?(/\.home-project-inventory-title[^{]*\{[^}]*text-overflow:\s*ellipsis/)
   errors << "assets/css/ledger/home.css: .home-project-inventory-title must not ellipsize (PLT-AC-88)"
 end
