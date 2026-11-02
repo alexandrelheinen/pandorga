@@ -18,41 +18,45 @@ def fail!(msg)
   true
 end
 
-# PLT-AC-88 — From 1024px, projects bench fills the column (list + specimen +25%)
-unless HOME.include?("PLT-AC-88 (2.3.18)") || HOME.include?("desktop projects fill the column")
-  failed = 1 if fail!("PLT-AC-88: home.css must document the 2.3.18 desktop fill rewrite")
+# PLT-AC-88 — Contents page from 1024px
+unless HOME.include?("PLT-AC-88 contents")
+  failed = 1 if fail!("PLT-AC-88: home.css must document the contents page")
 end
-unless HOME.match?(/grid-template-columns:\s*max-content\s+minmax\(0,\s*1fr\)/)
-  failed = 1 if fail!("PLT-AC-88: desktop bench must use max-content minmax(0, 1fr) (list-first)")
+unless HOME.match?(/\.home-project-inventory-body\s*\{[^}]*display:\s*contents/)
+  failed = 1 if fail!("PLT-AC-88: the row body must participate in the line")
 end
-unless HOME.match?(/--home-specimen-plate-height:\s*15\.3125rem/)
-  failed = 1 if fail!("PLT-AC-88: specimen plate height must be 15.3125rem (+25%)")
+unless HOME.match?(/width:\s*11rem/)
+  failed = 1 if fail!("PLT-AC-88: the opened picture must be 11rem wide")
 end
-unless HOME.match?(/\.home-project-inventory-body\s*\{[\s\S]*?display:\s*flex/)
-  failed = 1 if fail!("PLT-AC-88: inventory body must display as flex list text on desktop")
+if HOME.match?(/--home-specimen-plate-height:\s*15\.3125rem/)
+  failed = 1 if fail!("PLT-AC-88: desktop must not keep the 15.3125rem specimen cap")
 end
-unless HOME.match?(/text-overflow:\s*ellipsis/) && HOME.match?(/\.home-project-inventory-title/)
-  failed = 1 if fail!("PLT-AC-88: inventory titles must ellipsis on desktop")
+if HOME.match?(/\.home-project-inventory-title\s*\{[^}]*text-overflow:\s*ellipsis/)
+  failed = 1 if fail!("PLT-AC-88: inventory titles must not ellipsize")
 end
-unless HOME.match?(/\.home-project-inventory-title\s*\{[\s\S]{0,400}?font-family:\s*var\(--font-body\)/)
-  failed = 1 if fail!("PLT-AC-88: desktop inventory titles must use --font-body (theme dropdown .theme-choice)")
+unless HOME.match?(/\.home-project-inventory-title\s*\{[^}]*white-space:\s*normal/)
+  failed = 1 if fail!("PLT-AC-88: inventory titles must wrap")
 end
-unless HOME.match?(/\.home-project-inventory-title\s*\{[\s\S]{0,500}?font-size:\s*var\(--type-body\)/)
-  failed = 1 if fail!("PLT-AC-88: desktop inventory titles must use --type-body (dropdown item size)")
+unless HOME.match?(/\.home-project-inventory-title\s*\{[^}]*font-family:\s*var\(--font-body\)/)
+  failed = 1 if fail!("PLT-AC-88: inventory titles must use --font-body")
 end
-# Desktop list title block must not set title/label faces (dropdown is body).
+unless HOME.match?(/\.home-project-inventory-title\s*\{[^}]*font-weight:\s*var\(--weight-body\)/)
+  failed = 1 if fail!("PLT-AC-88: inventory titles must use --weight-body")
+end
+unless HOME.match?(/font-size:\s*clamp\(1\.45rem,\s*2\.2vw,\s*2\.05rem\)/)
+  failed = 1 if fail!("PLT-AC-88: names must use the contents size clamp")
+end
 if HOME.match?(/\.home-project-inventory-title\s*\{[^}]*font-family:\s*var\(--font-(?:title|label)\)/)
-  failed = 1 if fail!("PLT-AC-88: desktop inventory titles must not use --font-title/--font-label")
+  failed = 1 if fail!("PLT-AC-88: inventory titles must not use the serif title or label face")
 end
-unless HOME.match?(/grid-template-columns:\s*max-content\s+minmax\(0,\s*1fr\)/)
-  failed = 1 if fail!("PLT-AC-88: list column must stay max-content (no name truncation)")
+unless HOME.match?(/\.home-project-specimen[^{]*\{[^}]*display:\s*none/)
+  failed = 1 if fail!("PLT-AC-88: the specimen card must be hidden")
 end
-# Tablet 900–1023 still keeps the prior centered icon island.
 unless HOME.match?(/\.home-projects-bench[\s\S]{0,800}?margin-inline:\s*auto/)
   failed = 1 if fail!("PLT-AC-88: tablet island must keep margin-inline: auto")
 end
-unless HOME.include?("PLT-AC-88") || SPEC.include?("PLT-AC-88")
-  failed = 1 if fail!("PLT-AC-88: spec must name PLT-AC-88")
+unless SPEC.include?("Contents") && SPEC.include?("11rem")
+  failed = 1 if fail!("PLT-AC-88: spec must describe the contents page and the 11rem picture")
 end
 
 # PLT-AC-89 — soft edgeless overlay, no panel behind copy

@@ -388,7 +388,11 @@
           escapeHtml(initial) + '</div>';
       }
 
-      var html = '<div class="home-project-inventory-media">' + media + '</div>';
+      var poster = renderPosterMedia(fm.thumbnail, name, {
+        srcset: fm.thumbnail_srcset,
+        sizes: '11rem'
+      });
+      var html = '<div class="home-project-inventory-media">' + poster + media + '</div>';
       html += '<div class="home-project-inventory-body">';
 
       var code = renderMetaStrip([
@@ -408,6 +412,18 @@
         html += '<h3 class="home-project-inventory-title card-title">' +
           '<a class="ledger-card-stretch" href="' + escapeAttr(href) + '">' +
           escapeHtml(name) + '</a></h3>';
+      }
+      var yearMatch = String(fm.start_date || '').match(/^\d{4}/);
+      if (yearMatch) {
+        html += '<span class="home-project-inventory-year">' + escapeHtml(yearMatch[0]) + '</span>';
+      }
+      var tagNames = (Array.isArray(f.tags) ? f.tags : [])
+        .map(function (tag) { return String(tag || '').trim(); })
+        .filter(function (tag) { return tag !== ''; });
+      if (tagNames.length) {
+        html += '<span class="home-project-inventory-tags">' +
+          tagNames.map(function (tag) { return escapeHtml(tag); }).join(' · ') +
+          '</span>';
       }
       html += '</div>';
       if (fm.icon) {

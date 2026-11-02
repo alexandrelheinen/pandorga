@@ -247,19 +247,25 @@ require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
   ".home-projects-bench", ["grid-template-columns: var(--home-icon-btn-size) max-content", "column-gap: calc(var(--space-xs) * 2)", "width: max-content", "margin-inline: auto"]
 )
-# PLT-AC-88 (2.3.18/2.3.19/2.3.20): desktop ≥1024 list-first (max-content) + plate ≤+25%; titles = dropdown body face.
+# PLT-AC-88 contents: large body-face lines, no ellipsis, small opened picture.
 require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
-  ".home-projects-bench", ["grid-template-columns: max-content minmax(0, 1fr)", "width: 100%", "margin-inline: 0", "--home-specimen-plate-height: 15.3125rem"]
+  ".home-projects-bench", ["width: 100%", "margin-inline: 0"]
 )
 require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
-  ".home-project-inventory-body", ["display: flex"]
+  ".home-project-inventory-body", ["display: contents"]
 )
 require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
-  ".home-project-inventory-title", ["text-overflow: ellipsis", "white-space: nowrap", "font-family: var(--font-body)", "font-size: var(--type-body)", "font-weight: var(--weight-body)"]
+  ".home-project-inventory-title", ["white-space: normal", "font-family: var(--font-body)", "font-weight: var(--weight-body)", "font-size: clamp(1.45rem, 2.2vw, 2.05rem)"]
 )
+if home_sheet.match?(/\.home-project-inventory-title[^{]*\{[^}]*text-overflow:\s*ellipsis/)
+  errors << "assets/css/ledger/home.css: .home-project-inventory-title must not ellipsize (PLT-AC-88)"
+end
+if home_sheet.match?(/--home-specimen-plate-height:\s*15\.3125rem/)
+  errors << "assets/css/ledger/home.css: desktop must not keep 15.3125rem (PLT-AC-88)"
+end
 require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
   ".home-specimen-strip .ledger-meta", ["display: block", "white-space: normal"]

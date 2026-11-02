@@ -25,6 +25,7 @@
   "selectors": [
     "button.home-project-inventory-row",
     "div.home-project-inventory-media",
+    "div.ledger-poster",
     "div.home-project-inventory-mark",
     "div.home-project-inventory-code",
     "span.home-project-inventory-index",
@@ -34,7 +35,6 @@
   "forbidden": [
     "ledger-card-stretch",
     "role=\"button\"",
-    "ledger-poster",
     "home-project-inventory-copy",
     "home-project-inventory-resources",
     "home-project-inventory-resource"
