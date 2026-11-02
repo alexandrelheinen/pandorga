@@ -22,8 +22,8 @@ end
 unless HOME.include?("PLT-AC-88 (2.3.18)") || HOME.include?("desktop projects fill the column")
   failed = 1 if fail!("PLT-AC-88: home.css must document the 2.3.18 desktop fill rewrite")
 end
-unless HOME.match?(/grid-template-columns:\s*minmax\(0,\s*1fr\)\s+max-content/)
-  failed = 1 if fail!("PLT-AC-88: desktop bench must use minmax(0, 1fr) max-content")
+unless HOME.match?(/grid-template-columns:\s*max-content\s+minmax\(0,\s*1fr\)/)
+  failed = 1 if fail!("PLT-AC-88: desktop bench must use max-content minmax(0, 1fr) (list-first)")
 end
 unless HOME.match?(/--home-specimen-plate-height:\s*15\.3125rem/)
   failed = 1 if fail!("PLT-AC-88: specimen plate height must be 15.3125rem (+25%)")
@@ -34,8 +34,15 @@ end
 unless HOME.match?(/text-overflow:\s*ellipsis/) && HOME.match?(/\.home-project-inventory-title/)
   failed = 1 if fail!("PLT-AC-88: inventory titles must ellipsis on desktop")
 end
-unless HOME.match?(/minmax\(8\.5rem,\s*1fr\)/)
-  failed = 1 if fail!("PLT-AC-88: narrow desktop MQ must keep list ≥8.5rem")
+unless HOME.match?(/\.home-project-inventory-title\s*\{[\s\S]{0,400}?font-family:\s*var\(--font-title\)/)
+  failed = 1 if fail!("PLT-AC-88: desktop inventory titles must use --font-title (serif), not --font-label")
+end
+# Desktop list title block must not set --font-label (ignore unrelated label rules elsewhere).
+if HOME.match?(/\.home-project-inventory-title\s*\{[^}]*font-family:\s*var\(--font-label\)/)
+  failed = 1 if fail!("PLT-AC-88: desktop inventory titles must not use --font-label")
+end
+unless HOME.match?(/grid-template-columns:\s*max-content\s+minmax\(0,\s*1fr\)/)
+  failed = 1 if fail!("PLT-AC-88: list column must stay max-content (no name truncation)")
 end
 # Tablet 900–1023 still keeps the prior centered icon island.
 unless HOME.match?(/\.home-projects-bench[\s\S]{0,800}?margin-inline:\s*auto/)

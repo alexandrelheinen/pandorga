@@ -1,7 +1,7 @@
 # CR-24 — Hero name vs band titles + strength/pool overlay (pandorga 2.3.17)
 
 Status: shipping  
-Version target: pandorga 2.3.18  
+Version target: pandorga 2.3.19  
 Prerequisite: 2.3.16 shipped.
 
 ## Intent

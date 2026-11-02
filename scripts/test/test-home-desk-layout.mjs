@@ -18,6 +18,7 @@ const ASSETS = join(ROOT, 'assets/css');
 
 const VIEWPORTS = [
   { name: '390', width: 390, height: 844 },
+  { name: '1024', width: 1024, height: 768 },
   { name: '1280', width: 1280, height: 800 },
   { name: '1440', width: 1440, height: 900 },
   { name: '1920', width: 1920, height: 1080 },
@@ -105,7 +106,7 @@ function rowHtml(name, selected) {
 }
 
 function buildHtml() {
-  const names = ['Alpha', 'Bravo', 'Fond de Terrasse', 'Delta'];
+  const names = ['Fond de Terrasse', 'Guidelines', 'Full-stack Robotic Effector Trajectories', 'Coleta de Lixo Auxiliada por Visão Embarcada', 'Base Operating System for Sensors and Actuators'];
   const rows = names.map((n, i) => rowHtml(n, i === 0)).join('\n');
   return `<!doctype html>
 <html lang="en" data-theme="light">
@@ -115,7 +116,21 @@ function buildHtml() {
 <link rel="stylesheet" href="/css/base.css"/>
 <link rel="stylesheet" href="/css/ledger/home.css"/>
 <style>
-  /* Fixture shell: match live rem (~17.6px) used in desktop sim */
+  /* Fixture shell: match live rem (~17.6px) used in desktop sim.
+     Distinct title vs label stacks so the rendered gate can assert equality. */
+  :root {
+    --font-title: "TitleSerifFixture", Georgia, serif;
+    --font-label: "LabelCapsFixture", Arial, sans-serif;
+    --font-content-title: var(--font-title);
+    --font-body: Georgia, serif;
+    --type-label: 0.8125rem;
+    --type-section: 1.5rem;
+    --type-section-lg: 1.75rem;
+    --weight-title: 600;
+    --weight-display: 400;
+    --color-on-surface: #111;
+    --color-primary: #1c5a7a;
+  }
   html { font-size: 17.6px; }
   body { margin: 0; background: #f5f5f5; color: #111; }
 </style>
@@ -187,6 +202,19 @@ async function measure(cdp, sessionId) {
       const gapRight = benchR && innerR ? (innerR.x + innerR.w) - (benchR.x + benchR.w) : null;
       const rowHeights = rows.map((r) => r.getBoundingClientRect().height);
       const titleCs = body ? getComputedStyle(body).display : null;
+      const invTitle = q('.home-project-inventory-title');
+      const invTitleFf = invTitle ? getComputedStyle(invTitle).fontFamily : null;
+      const bandFf = band ? getComputedStyle(band).fontFamily : null;
+      const invTitleFs = invTitle ? getComputedStyle(invTitle).fontSize : null;
+      const titles = qa('.home-project-inventory-title');
+      const titleTrunc = titles.map((t) => ({
+        text: (t.textContent || '').trim(),
+        scroll: t.scrollWidth,
+        client: t.clientWidth,
+        truncated: t.scrollWidth > t.clientWidth + 1,
+      }));
+      const listWrap = q('.home-projects-inventory-wrap');
+      const listR = rect(listWrap);
       return {
         gapLeft, gapRight,
         plate: plateR,
@@ -197,6 +225,12 @@ async function measure(cdp, sessionId) {
         heroFs: fs(hero),
         bandFs: fs(band),
         deltaPx: (hero && band) ? fs(hero) - fs(band) : null,
+        invTitleFf,
+        bandFf,
+        invTitleFs,
+        titleTrunc,
+        list: listR,
+        bench: benchR,
         vw: window.innerWidth,
       };
     })()`,
@@ -267,7 +301,7 @@ async function main() {
       }, sessionId);
       await cdp.send('Page.navigate', { url: `http://127.0.0.1:${port}/` }, sessionId);
       await cdp.send('Page.loadEventFired', {}, sessionId).catch(() => {});
-      await delay(250);
+      await delay(350);
       const m = await measure(cdp, sessionId);
       if (!m) { errors.push(`${vp.name}: no metrics`); continue; }
 
@@ -282,6 +316,13 @@ async function main() {
         }
         if (m.bodyDisplay !== 'flex') {
           errors.push(`${vp.name}: inventory body display=${m.bodyDisplay} want flex`);
+        }
+        // PLT-AC-88 (2.3.19): row name face = title/serif (band .section-title), not label
+        if (!m.invTitleFf || !m.bandFf || m.invTitleFf !== m.bandFf) {
+          errors.push(`${vp.name}: inventory title font-family="${m.invTitleFf}" ≠ band title "${m.bandFf}"`);
+        }
+        if (m.invTitleFf && /LabelCapsFixture/i.test(m.invTitleFf)) {
+          errors.push(`${vp.name}: inventory title still on label face (${m.invTitleFf})`);
         }
         if (!m.rowHeights.length) {
           errors.push(`${vp.name}: no inventory rows`);
@@ -298,19 +339,43 @@ async function main() {
             errors.push(`${vp.name}: row H ${h0} ≠ icon-btn ${iconPx}`);
           }
         }
+        // No truncation: every name scrollWidth <= clientWidth
+        const truncated = (m.titleTrunc || []).filter((t) => t.truncated);
+        if (truncated.length) {
+          errors.push(`${vp.name}: truncated names ${truncated.map((t) => t.text + '(' + t.scroll + '>' + t.client + ')').join(', ')}`);
+        }
+        console.log(
+          `  ${vp.name}: listW=${m.list?.w?.toFixed?.(1)} plate=${m.plate?.w?.toFixed?.(1)}×${m.plate?.h?.toFixed?.(1)} ` +
+          `fs=${m.invTitleFs} truncated=${truncated.length}`
+        );
 
-        if (vp.width >= 1440) {
-          const expectedH = 15.3125 * 17.6;
-          const expectedW = expectedH * 16 / 9;
-          if (!m.plate || Math.abs(m.plate.h - expectedH) > 2) {
-            errors.push(`${vp.name}: plate H ${m.plate?.h} want ~${expectedH} (1.25×)`);
+        // Plate caps at +25%; when leftover room after list fits +25%, expect full +25%.
+        const capH = 15.3125 * 17.6;
+        const capW = capH * 16 / 9;
+        const floorH = baselinePlateH; // 12.25rem pre-2.3.18
+        if (!m.plate) {
+          errors.push(`${vp.name}: missing specimen plate`);
+        } else {
+          if (m.plate.h > capH + 2 || m.plate.w > capW + 3) {
+            errors.push(`${vp.name}: plate ${m.plate.w}×${m.plate.h} exceeds +25% cap ${capW}×${capH}`);
           }
-          if (!m.plate || Math.abs(m.plate.w - expectedW) > 3) {
-            errors.push(`${vp.name}: plate W ${m.plate?.w} want ~${expectedW}`);
-          }
-          const scale = m.plate ? m.plate.h / baselinePlateH : 0;
-          if (Math.abs(scale - 1.25) > 0.02) {
-            errors.push(`${vp.name}: plate scale ${scale.toFixed(3)} want 1.25`);
+          const gap = 0.5 * 17.6; // approx column-gap (space-xs * 2)
+          const pad = 2 * 17.6; // specimen padding (space-md × 2)
+          const leftover = (m.bench?.w || 0) - (m.list?.w || 0) - gap - pad;
+          const roomForCap = leftover >= capW - 2;
+          if (roomForCap) {
+            if (Math.abs(m.plate.h - capH) > 3 || Math.abs(m.plate.w - capW) > 4) {
+              errors.push(`${vp.name}: room for +25% plate but got ${m.plate.w}×${m.plate.h} want ~${capW}×${capH}`);
+            }
+          } else {
+            // Shrunk case: still 16:9-ish; report if below pre-2.3.18 floor
+            const ratio = m.plate.w / m.plate.h;
+            if (Math.abs(ratio - 16 / 9) > 0.05) {
+              errors.push(`${vp.name}: plate aspect ${ratio.toFixed(3)} not ~16:9`);
+            }
+            if (m.plate.h + 0.5 < floorH) {
+              console.log(`  ${vp.name}: NOTE plate below pre-2.3.18 floor (${m.plate.h.toFixed(1)} < ${floorH})`);
+            }
           }
         }
       } else {

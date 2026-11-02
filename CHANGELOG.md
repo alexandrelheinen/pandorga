@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.3.19
+
+- Desktop Projects (≥1024): inventory row names use `--font-title` (serif, same face as band `.section-title`) instead of `--font-label`; drop label letter-spacing (PLT-AC-88).
+- List column is `max-content` so names never truncate; specimen track `minmax(0, 1fr)` and the plate caps at +25% but shrinks to give the list room (PLT-AC-88). Ellipsis kept only as a last-resort overflow guard.
+
 ## 2.3.18
 
 - Desktop Projects (≥1024): inventory becomes a full-column list (icon + name, ellipsis, row height = `--home-icon-btn-size`); bench and banner fill the column (~0 side gaps) (PLT-AC-88 rewrite).

@@ -532,26 +532,11 @@ html[data-theme="light"] .home-hero-plate {
 }
 
 
-/* Narrow desktop: keep list ≥8.5rem; plate scales inside remaining space (PLT-AC-88). */
+/* Narrow desktop: same list-first rule as ≥1024 (PLT-AC-88 / 2.3.19).
+   Kept as a no-op marker MQ so older notes stay findable; sizing is in the ≥1024 block. */
 @media (min-width: 1024px) and (max-width: 1359px) {
   .home-projects-bench {
-    grid-template-columns: minmax(8.5rem, 1fr) minmax(0, var(--home-specimen-max-width));
-  }
-
-  .home-project-specimen {
-    width: 100%;
-    max-width: var(--home-specimen-max-width);
-    justify-self: stretch;
-    min-width: 0;
-  }
-
-  .home-specimen-figure > .ledger-poster,
-  .home-specimen-figure > .projects-plate {
-    width: 100%;
-    max-width: var(--home-specimen-plate-width);
-    height: auto;
-    max-height: none;
-    aspect-ratio: 16 / 9;
+    grid-template-columns: max-content minmax(0, 1fr);
   }
 }
 
@@ -2453,7 +2438,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
     background: rgba(255, 255, 255, 0.92);
   }
 
-  /* PLT-AC-88 (2.3.18): desktop projects fill the column — list rows + specimen +25%. */
+  /* PLT-AC-88 (2.3.18): desktop projects fill the column — list rows (serif --font-title, no truncation) + specimen ≤+25% (2.3.19). */
   .home-band[data-home-kind="portfolio"] {
     --home-specimen-plate-height: 15.3125rem; /* 12.25rem × 1.25; keep 16:9 */
     --home-specimen-plate-width: calc(var(--home-specimen-plate-height) * 16 / 9);
@@ -2479,7 +2464,8 @@ html[data-theme="light"] .home-featured .ledger-poster {
     --home-specimen-plate-width: calc(var(--home-specimen-plate-height) * 16 / 9);
     --home-specimen-max-width: calc(var(--home-specimen-plate-width) + 2 * var(--space-md));
     display: grid;
-    grid-template-columns: minmax(0, 1fr) max-content;
+    /* List column = longest name (+ icon + pad); plate takes leftover and scales down. */
+    grid-template-columns: max-content minmax(0, 1fr);
     column-gap: calc(var(--space-xs) * 2);
     align-items: start;
     width: 100%;
@@ -2489,16 +2475,17 @@ html[data-theme="light"] .home-featured .ledger-poster {
   }
 
   .home-projects-inventory-wrap {
-    width: auto;
-    max-width: none;
-    min-width: 0;
+    width: max-content;
+    max-width: max-content;
+    min-width: max-content;
     align-self: stretch;
+    box-sizing: border-box;
   }
 
   .home-project-inventory {
-    width: 100%;
+    width: max-content;
     max-width: none;
-    min-width: 0;
+    min-width: max-content;
   }
 
   button.home-project-inventory-row,
@@ -2521,7 +2508,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
     display: flex;
     flex: 1 1 auto;
     align-items: center;
-    min-width: 0;
+    min-width: min-content;
     order: 2;
   }
 
@@ -2537,15 +2524,17 @@ html[data-theme="light"] .home-featured .ledger-poster {
   .home-project-inventory-title {
     display: block;
     margin: 0;
-    min-width: 0;
-    max-width: 100%;
+    /* Prefer full name; ellipsis only if a future constraint clips the column. */
+    min-width: max-content;
+    max-width: none;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-family: var(--font-label);
+    /* 2.3.19: title/serif face (band .section-title), not label small-caps */
+    font-family: var(--font-title);
     font-size: var(--type-label);
     font-weight: var(--weight-title, 600);
-    letter-spacing: 0.02em;
+    letter-spacing: normal;
     line-height: 1.2;
     color: var(--color-on-surface);
   }
@@ -2557,18 +2546,30 @@ html[data-theme="light"] .home-featured .ledger-poster {
   }
 
   .home-project-specimen {
-    width: var(--home-specimen-max-width);
-    max-width: var(--home-specimen-max-width);
-    justify-self: end;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    justify-self: stretch;
+    box-sizing: border-box;
+    /* Hug the scaled plate; keep a floor so swaps don't jump the band. */
+    height: auto;
+    min-height: 0;
+  }
+
+  .home-specimen-figure {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
     box-sizing: border-box;
   }
 
+  /* Cap at +25% plate; fill the specimen track so names never truncate. */
   .home-specimen-figure > .ledger-poster,
   .home-specimen-figure > .projects-plate {
-    width: var(--home-specimen-plate-width);
-    max-width: 100%;
-    height: var(--home-specimen-plate-height);
-    max-height: var(--home-specimen-plate-height);
+    width: 100%;
+    max-width: min(100%, var(--home-specimen-plate-width));
+    height: auto;
+    max-height: none;
     aspect-ratio: 16 / 9;
   }
 }

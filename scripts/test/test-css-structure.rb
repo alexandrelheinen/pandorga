@@ -247,10 +247,10 @@ require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
   ".home-projects-bench", ["grid-template-columns: var(--home-icon-btn-size) max-content", "column-gap: calc(var(--space-xs) * 2)", "width: max-content", "margin-inline: auto"]
 )
-# PLT-AC-88 (2.3.18): desktop ≥1024 fills the column with list + +25% plate.
+# PLT-AC-88 (2.3.18/2.3.19): desktop ≥1024 list-first (max-content) + plate ≤+25%.
 require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
-  ".home-projects-bench", ["grid-template-columns: minmax(0, 1fr) max-content", "width: 100%", "margin-inline: 0", "--home-specimen-plate-height: 15.3125rem"]
+  ".home-projects-bench", ["grid-template-columns: max-content minmax(0, 1fr)", "width: 100%", "margin-inline: 0", "--home-specimen-plate-height: 15.3125rem"]
 )
 require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
@@ -258,7 +258,7 @@ require_declarations(
 )
 require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
-  ".home-project-inventory-title", ["text-overflow: ellipsis", "white-space: nowrap"]
+  ".home-project-inventory-title", ["text-overflow: ellipsis", "white-space: nowrap", "font-family: var(--font-title)"]
 )
 require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
