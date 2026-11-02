@@ -203,6 +203,7 @@ async function measure(cdp, sessionId) {
       const bench = q('.home-projects-bench');
       const inner = q('.home-band[data-home-kind="portfolio"] .home-band-inner');
       const plate = q('.home-specimen-figure > .ledger-poster, .home-specimen-figure > .projects-plate');
+      const frame = q('.home-project-inventory-row.is-selected .home-project-inventory-media');
       const rows = qa('.home-project-inventory-row');
       const hero = q('.home-hero-title');
       const band = q('.home-band[data-home-kind="portfolio"] .section-title');
@@ -210,6 +211,7 @@ async function measure(cdp, sessionId) {
       const benchR = rect(bench);
       const innerR = rect(inner);
       const plateR = rect(plate);
+      const frameR = rect(frame);
       const gapLeft = benchR && innerR ? benchR.x - innerR.x : null;
       const gapRight = benchR && innerR ? (innerR.x + innerR.w) - (benchR.x + benchR.w) : null;
       const rowHeights = rows.map((r) => r.getBoundingClientRect().height);
@@ -221,6 +223,8 @@ async function measure(cdp, sessionId) {
       const invTitleFf = invCs ? invCs.fontFamily : null;
       const invTitleFs = invCs ? invCs.fontSize : null;
       const invTitleFw = invCs ? invCs.fontWeight : null;
+      const titleWhiteSpace = invCs ? invCs.whiteSpace : null;
+      const titleOverflow = invCs ? invCs.textOverflow : null;
       const dropFf = dropCs ? dropCs.fontFamily : null;
       const dropFs = dropCs ? dropCs.fontSize : null;
       const dropFw = dropCs ? dropCs.fontWeight : null;
@@ -237,6 +241,7 @@ async function measure(cdp, sessionId) {
       return {
         gapLeft, gapRight,
         plate: plateR,
+        frame: frameR,
         plateVarH: bench ? getComputedStyle(bench).getPropertyValue('--home-specimen-plate-height').trim() : null,
         rowHeights,
         iconBtn: bench ? getComputedStyle(bench).getPropertyValue('--home-icon-btn-size').trim() : null,
@@ -247,6 +252,8 @@ async function measure(cdp, sessionId) {
         invTitleFf,
         invTitleFs,
         invTitleFw,
+        titleWhiteSpace,
+        titleOverflow,
         dropFf,
         dropFs,
         dropFw,
@@ -337,76 +344,54 @@ async function main() {
         if (Math.abs(m.gapLeft) > 2 || Math.abs(m.gapRight) > 2) {
           errors.push(`${vp.name}: gaps L/R=${m.gapLeft?.toFixed?.(1)}/${m.gapRight?.toFixed?.(1)} not ~0 (PLT-AC-88)`);
         }
-        if (m.bodyDisplay !== 'flex') {
-          errors.push(`${vp.name}: inventory body display=${m.bodyDisplay} want flex`);
+        if (m.bodyDisplay !== 'contents') {
+          errors.push(`${vp.name}: inventory body display=${m.bodyDisplay} want contents`);
         }
         // PLT-AC-88 (2.3.20): row name face/size/weight = theme dropdown .theme-choice
         if (!m.invTitleFf || !m.dropFf || m.invTitleFf !== m.dropFf) {
           errors.push(`${vp.name}: inventory title font-family="${m.invTitleFf}" ≠ dropdown "${m.dropFf}"`);
         }
-        if (!m.invTitleFs || !m.dropFs || m.invTitleFs !== m.dropFs) {
-          errors.push(`${vp.name}: inventory title font-size="${m.invTitleFs}" ≠ dropdown "${m.dropFs}"`);
-        }
         if (!m.invTitleFw || !m.dropFw || String(m.invTitleFw) !== String(m.dropFw)) {
           errors.push(`${vp.name}: inventory title font-weight="${m.invTitleFw}" ≠ dropdown "${m.dropFw}"`);
         }
         if (m.invTitleFf && /TitleSerifFixture|LabelCapsFixture/i.test(m.invTitleFf)) {
-          errors.push(`${vp.name}: inventory title not on body face (${m.invTitleFf})`);
+          errors.push(`${vp.name}: inventory title is not the body face (${m.invTitleFf})`);
+        }
+        const fluid = vp.width * 0.022;
+        const nameFs = Math.min(2.05 * 17.6, Math.max(1.45 * 17.6, fluid));
+        const gotFs = parseFloat(m.invTitleFs);
+        if (!Number.isFinite(gotFs) || Math.abs(gotFs - nameFs) > 1.5) {
+          errors.push(`${vp.name}: name size ${m.invTitleFs} want ~${nameFs.toFixed(2)}`);
+        }
+        if (m.titleWhiteSpace && m.titleWhiteSpace !== 'normal') {
+          errors.push(`${vp.name}: name white-space=${m.titleWhiteSpace} want normal`);
+        }
+        if (m.titleOverflow === 'ellipsis') {
+          errors.push(`${vp.name}: name text-overflow is ellipsis`);
         }
         if (!m.rowHeights.length) {
           errors.push(`${vp.name}: no inventory rows`);
-        } else {
-          const h0 = m.rowHeights[0];
-          for (const h of m.rowHeights) {
-            if (Math.abs(h - h0) > 0.75) {
-              errors.push(`${vp.name}: unequal row heights ${m.rowHeights}`);
-              break;
-            }
-          }
-          const iconPx = 2.75 * 17.6;
-          if (Math.abs(h0 - iconPx) > 1.5) {
-            errors.push(`${vp.name}: row H ${h0} ≠ icon-btn ${iconPx}`);
-          }
         }
-        // No truncation: every name scrollWidth <= clientWidth
         const truncated = (m.titleTrunc || []).filter((t) => t.truncated);
         if (truncated.length) {
           errors.push(`${vp.name}: truncated names ${truncated.map((t) => t.text + '(' + t.scroll + '>' + t.client + ')').join(', ')}`);
         }
-        console.log(
-          `  ${vp.name}: listW=${m.list?.w?.toFixed?.(1)} plate=${m.plate?.w?.toFixed?.(1)}×${m.plate?.h?.toFixed?.(1)} ` +
-          `fs=${m.invTitleFs} truncated=${truncated.length}`
-        );
-
-        // Plate caps at +25%; when leftover room after list fits +25%, expect full +25%.
-        const capH = 15.3125 * 17.6;
-        const capW = capH * 16 / 9;
-        const floorH = baselinePlateH; // 12.25rem pre-2.3.18
-        if (!m.plate) {
-          errors.push(`${vp.name}: missing specimen plate`);
+        const frameW = 11 * 17.6;
+        const frameH = frameW * 9 / 16;
+        if (!m.frame || m.frame.w < 8) {
+          errors.push(`${vp.name}: selected line did not open its picture`);
         } else {
-          if (m.plate.h > capH + 2 || m.plate.w > capW + 3) {
-            errors.push(`${vp.name}: plate ${m.plate.w}×${m.plate.h} exceeds +25% cap ${capW}×${capH}`);
+          if (Math.abs(m.frame.w - frameW) > 2) {
+            errors.push(`${vp.name}: picture W ${m.frame.w.toFixed(1)} want ${frameW.toFixed(1)}`);
           }
-          const gap = 0.5 * 17.6; // approx column-gap (space-xs * 2)
-          const pad = 2 * 17.6; // specimen padding (space-md × 2)
-          const leftover = (m.bench?.w || 0) - (m.list?.w || 0) - gap - pad;
-          const roomForCap = leftover >= capW - 2;
-          if (roomForCap) {
-            if (Math.abs(m.plate.h - capH) > 3 || Math.abs(m.plate.w - capW) > 4) {
-              errors.push(`${vp.name}: room for +25% plate but got ${m.plate.w}×${m.plate.h} want ~${capW}×${capH}`);
-            }
-          } else {
-            // Shrunk case: still 16:9-ish; report if below pre-2.3.18 floor
-            const ratio = m.plate.w / m.plate.h;
-            if (Math.abs(ratio - 16 / 9) > 0.05) {
-              errors.push(`${vp.name}: plate aspect ${ratio.toFixed(3)} not ~16:9`);
-            }
-            if (m.plate.h + 0.5 < floorH) {
-              console.log(`  ${vp.name}: NOTE plate below pre-2.3.18 floor (${m.plate.h.toFixed(1)} < ${floorH})`);
-            }
+          if (Math.abs(m.frame.h - frameH) > 3) {
+            errors.push(`${vp.name}: picture H ${m.frame.h.toFixed(1)} want ${frameH.toFixed(1)}`);
           }
         }
+        console.log(
+          `  ${vp.name}: listW=${m.list?.w?.toFixed?.(1)} rowH=${m.rowHeights?.[0]?.toFixed?.(1)} frame=${m.frame?.w?.toFixed?.(1)}×${m.frame?.h?.toFixed?.(1)} ` +
+          `fs=${m.invTitleFs} truncated=${truncated.length}`
+        );
       } else {
         // Mobile: body stays hidden (icon strip), plate not +25% desk rule
         if (m.bodyDisplay && m.bodyDisplay !== 'none') {

@@ -277,18 +277,47 @@ const ASSERT_EXPRESSION = `
         if (!isInitial && window.innerWidth >= 900 && gfs < 22) {
           errors.push('Desktop inventory icon glyph too small (' + gfs.toFixed(2) + 'px); Material Symbols inherit must not win (PLT-AC-75)');
         }
-        // CR-21c: glyph fills most of the button (>= ~70% of row height)
-        if (window.innerWidth >= 900 && !isInitial && gr.height + 1.5 < 0.70 * rowH) {
+        if (window.innerWidth >= 900 && window.innerWidth < 1024 && !isInitial && gr.height + 1.5 < 0.70 * rowH) {
           errors.push('Desktop glyph height (' + gr.height.toFixed(2) + 'px) < 70% of button (' + rowH.toFixed(2) + 'px) (PLT-AC-76)');
         }
       }
       const rcs = getComputedStyle(first);
-      if (Math.abs(parseFloat(rcs.borderTopWidth) - 1) > 0.5 || rcs.borderTopStyle !== 'solid') {
-        errors.push('Inventory row border is ' + rcs.borderTopWidth + ' ' + rcs.borderTopStyle + ', expected 1px solid (PLT-AC-75)');
+      if (window.innerWidth < 1024) {
+        if (Math.abs(parseFloat(rcs.borderTopWidth) - 1) > 0.5 || rcs.borderTopStyle !== 'solid') {
+          errors.push('Inventory row border is ' + rcs.borderTopWidth + ' ' + rcs.borderTopStyle + ', expected 1px solid (PLT-AC-75)');
+        }
+      }
+      if (window.innerWidth >= 1024) {
+        document.querySelectorAll('.home-project-inventory-title').forEach(function (title, idx) {
+          if (title.scrollWidth > title.clientWidth + 1) {
+            errors.push('Contents name ' + idx + ' is truncated (PLT-AC-88)');
+          }
+          const tcs = getComputedStyle(title);
+          if (tcs.whiteSpace === 'nowrap' || tcs.textOverflow === 'ellipsis') {
+            errors.push('Contents name ' + idx + ' ellipsizes (PLT-AC-88)');
+          }
+        });
+        const opened = document.querySelector('.home-project-inventory-row.is-selected .home-project-inventory-media');
+        if (opened && opened.getBoundingClientRect().width > 8) {
+          const fr = opened.getBoundingClientRect();
+          const want = 11 * rootFs;
+          if (Math.abs(fr.width - want) > 3) {
+            errors.push('Opened picture width ' + fr.width.toFixed(1) + ' want ~' + want.toFixed(1) + ' (PLT-AC-88)');
+          }
+          const ratio = fr.width / fr.height;
+          if (Math.abs(ratio - (16 / 9)) / (16 / 9) > 0.02) {
+            errors.push('Opened picture ratio ' + ratio.toFixed(3) + ' not 16:9 (PLT-AC-88)');
+          }
+        }
       }
     }
 
-    if (window.innerWidth >= 900 && bench) {
+    if (window.innerWidth >= 1024 && bench) {
+      const specimen = document.querySelector('.home-project-specimen');
+      if (specimen && getComputedStyle(specimen).display !== 'none') {
+        errors.push('Specimen card is still shown on the contents page (PLT-AC-88)');
+      }
+    } else if (window.innerWidth >= 900 && bench) {
       const rawSize = getComputedStyle(bench).getPropertyValue('--home-icon-btn-size').trim();
       let iconSizePx = parseFloat(rawSize);
       if (rawSize.endsWith('rem')) {
