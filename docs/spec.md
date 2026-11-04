@@ -581,6 +581,7 @@ Criteria are written in EARS format. Every criterion is referenced by at least o
 - `PLT-AC-104` From 1024px, inventory icon and name vertical centers differ by ≤1px on every row at 1024/1280/1440/1920 ([features/home-hero-c4.md](features/home-hero-c4.md); `test-home-desk-layout`).
 - `PLT-AC-105` Selected contents row uses only `--color-surface-high` gray wash; no mark, brackets, icon box, or `data-contents-select` ([features/home-hero-c4.md](features/home-hero-c4.md); `test-home-desk-layout`, `test-css-structure`).
 - `PLT-AC-106` Selected contents row top and bottom padding (wash edge to content) differ by ≤1px at 1024/1280/1440/1920; excerpt top-aligns with the picture ([features/home-hero-c4.md](features/home-hero-c4.md); `test-home-desk-layout`).
+- `PLT-AC-107` Markdown paint waits for the deferred `marked` library. `ensureMarked()` resolves after `window.marked.parse` exists; detail bodies, page fragments, home early paint, and CV job markdown await it before `renderMarkdown`. When `marked` is missing, `renderMarkdown` fails closed instead of escaping raw source into `<p>` tags. The library itself stays on `<script defer>` ([features/marked-ready.md](features/marked-ready.md); `test-marked-ready`, `test-lighthouse-policy`).
 
 ## 13. Owner decisions
 

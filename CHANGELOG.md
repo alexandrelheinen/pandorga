@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Wait for deferred `marked` before painting markdown HTML; fail closed instead of escaping raw source (PLT-AC-107).
+
 ## 2.3.21
 
 - Desktop Projects (≥1024): contents page — icon + body-face name; selected row opens an 11rem 16:9 picture (and a clamped presentation blurb beside it when width allows). Selected row uses `--color-surface-high` gray wash with equal top/bottom padding; icon and name stay vertically centered. No mark bar, folio, year, or tags on the row. Specimen card hidden (PLT-AC-88/104/105/106).

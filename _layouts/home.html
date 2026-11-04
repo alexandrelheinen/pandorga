@@ -88,7 +88,9 @@ layout: shell
         var el = document.getElementById(id);
         var pending = pre[path];
         if (!el || el.hasAttribute('data-content-static') || !pending || !runtime || !runtime.renderMarkdown) return;
-        pending.then(function (fragment) {
+        var markedReady = runtime.ensureMarked ? runtime.ensureMarked() : Promise.resolve();
+        Promise.all([markedReady, pending]).then(function (parts) {
+          var fragment = parts[1];
           if (!fragment || el.getAttribute('data-content-painted') === '1') return;
           var html = runtime.renderMarkdown(fragment.body_markdown || '');
           if (!html) return;

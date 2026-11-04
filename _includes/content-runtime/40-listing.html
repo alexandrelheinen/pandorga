@@ -97,6 +97,16 @@
     }
 
     function textExcerpt(markdown) {
+      /* Listing previews are plain text. When marked is not ready yet, strip
+         markup without painting escaped source into the DOM. */
+      if (!(window.marked && typeof window.marked.parse === 'function')) {
+        var plain = String(markdown || '')
+          .replace(/\{%-?[\s\S]*?-?%\}/g, ' ')
+          .replace(/[#>*_`\[\]()]/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+        return plain.length > 220 ? plain.slice(0, 217).trim() + '...' : plain;
+      }
       var html = renderMarkdown(markdown);
       var el = document.createElement('div');
       el.innerHTML = html;

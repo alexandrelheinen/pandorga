@@ -918,6 +918,9 @@
 
     async function renderRichContent(markdown, frontMatter) {
       var fm = frontMatter || {};
+      /* Marked is deferred; wait before paint so a fast JSON response cannot
+         escape raw markdown into the article body (PLT-AC-107). */
+      var markedPromise = ensureMarked();
       /* Kick index fetches immediately so they overlap with front-matter strip. */
       var indexPromise = ensureXciteIndex();
       var bibPromise = ensureBibliographyIndex();
@@ -942,6 +945,7 @@
         return '%%CONTENT_RUNTIME_REPLACEMENT_' + replacementIndex + '%%';
       });
       var citationPrep = preprocessScholarCites(prepared, bibIndex);
+      await markedPromise;
       var html = renderMarkdown(citationPrep.text, {
         xciteIndex: index,
         bibIndex: bibIndex,

@@ -341,12 +341,13 @@ layout: shell
             if (experienceList) {
                 runtime.Listing.showLoadingState(experienceList, 'Loading experience...');
                 Promise.all([
+                    runtime.ensureMarked ? runtime.ensureMarked() : Promise.resolve(),
                     runtime.loadCollection('collections/jobs', 'jobs'),
                     runtime.loadCollection('collections/products', 'products')
                 ]).then(function (results) {
-                    var jobs = results[0];
+                    var jobs = results[1];
                     var productMap = {};
-                    results[1].forEach(function (product) {
+                    results[2].forEach(function (product) {
                         var key = product.key || (product.front_matter && product.front_matter.key) || product.slug;
                         productMap[key] = product;
                         productMap[product.slug] = product;
