@@ -228,7 +228,9 @@
       if (loadingText) {
         el.innerHTML = '<p class="font-body text-on-surface-variant italic">' + escapeHtml(loadingText) + '</p>';
       }
-      return loadJson(pageFragmentPath(relativePath)).then(function (fragment) {
+      return ensureMarked().then(function () {
+        return loadJson(pageFragmentPath(relativePath));
+      }).then(function (fragment) {
         var html = renderMarkdown(fragment.body_markdown || '');
         if (el.getAttribute('data-content-painted') === '1' && el.innerHTML === html) {
           el.removeAttribute('data-content-painted');
@@ -273,7 +275,7 @@
         root.querySelectorAll('[data-content-header-text]')
       );
       if (!elements.length) return Promise.resolve();
-      return loadPageHeaders().then(function (headers) {
+      return ensureMarked().then(function () { return loadPageHeaders(); }).then(function (headers) {
         elements.forEach(function (el) {
           var attr = el.getAttribute('data-content-header-text') || '';
           var dot = attr.indexOf('.');
@@ -311,7 +313,7 @@
         root.querySelectorAll('[data-content-panel-note]')
       );
       if (!elements.length) return Promise.resolve();
-      return loadPageHeaders().then(function (headers) {
+      return ensureMarked().then(function () { return loadPageHeaders(); }).then(function (headers) {
         elements.forEach(function (el) {
           var key = el.getAttribute('data-content-panel-note') || '';
           var text = headerText(headers, key, 'note', '');
@@ -342,7 +344,7 @@
       var eyebrowEl = root.querySelector('[data-content-header-eyebrow]');
       var tagsEl = root.querySelector('[data-content-header-tags]');
       var standfirstEl = root.querySelector('[data-content-header-standfirst]');
-      return loadPageHeaders().then(function (headers) {
+      return ensureMarked().then(function () { return loadPageHeaders(); }).then(function (headers) {
         var data = headers[pageKey];
         if (titleEl && !titleEl.hasAttribute('data-content-static')) {
           var title = data && data.title;
@@ -455,7 +457,7 @@
         document.querySelectorAll('[data-content-home-section]')
       );
       if (!roots.length) return Promise.resolve();
-      return loadPageHeaders().then(function (sections) {
+      return ensureMarked().then(function () { return loadPageHeaders(); }).then(function (sections) {
         var chain = Promise.resolve();
         roots.forEach(function (root) {
           chain = chain.then(function () {

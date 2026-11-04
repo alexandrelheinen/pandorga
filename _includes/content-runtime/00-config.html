@@ -1,5 +1,24 @@
 <script defer src="https://cdn.jsdelivr.net/npm/marked@15.0.7/marked.min.js"></script>
 <script>
+  window.__pandorgaMarked = (function () {
+    var settled = false;
+    var resolveFn = function () {};
+    var promise = new Promise(function (resolve) {
+      resolveFn = function () {
+        if (settled) return;
+        settled = true;
+        resolve();
+      };
+    });
+    if (window.marked && typeof window.marked.parse === 'function') resolveFn();
+    return {
+      promise: promise,
+      resolve: resolveFn,
+      isReady: function () {
+        return !!(window.marked && typeof window.marked.parse === 'function');
+      }
+    };
+  })();
   window.ContentRuntimeConfig = {
     contentBase: '{{ site.content_api_base_url | default: "" }}',
     includeUnpublished: {{ site.content_include_unpublished | default: false | jsonify }},
@@ -19,4 +38,11 @@
     },
     get: function (name) { return this._map[name] || null; }
   };
+</script>
+<script defer>
+  /* Document-order defer: runs after marked.min.js, so window.marked exists. */
+  (function () {
+    var gate = window.__pandorgaMarked;
+    if (gate && typeof gate.resolve === 'function') gate.resolve();
+  })();
 </script>
