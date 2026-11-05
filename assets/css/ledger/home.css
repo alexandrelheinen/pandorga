@@ -1109,13 +1109,13 @@ html[data-theme="light"] .home-hero-plate {
 }
 
 /* Two/three classes at every breakpoint: beat Material Symbols
-   `font-size: inherit` so desktop inventory glyphs match mobile CR-16 (~26.9px). */
+   `font-size: inherit`. Sized to the denser contents-row icon cell. */
 .home-project-inventory-row .home-project-inventory-glyph {
-  font-size: calc(1.375rem + 2pt);
+  font-size: calc(1.125rem + 2pt);
 }
 
 .home-project-inventory-row .home-project-inventory-glyph.material-symbols-outlined {
-  font-size: calc(1.375rem + 2pt);
+  font-size: calc(1.125rem + 2pt);
 }
 
 .home-project-inventory-row .home-project-inventory-glyph--initial {
@@ -2485,19 +2485,19 @@ html[data-theme="light"] .home-featured .ledger-poster {
   button.home-project-inventory-row,
   .home-project-inventory-row {
     display: grid;
-    grid-template-columns: 2.5rem minmax(0, 1fr);
+    grid-template-columns: 2rem minmax(0, 1fr);
     grid-template-areas:
       "icon name"
       ". plate";
-    column-gap: var(--space-md);
-    row-gap: var(--space-xs);
+    column-gap: var(--space-sm);
+    row-gap: 0.2rem;
     align-items: center;
     width: 100%;
     height: auto;
     min-height: 0;
     justify-content: stretch;
     /* Equal outer pad: wash top→name == picture bottom→wash bottom (PLT-AC-106). */
-    padding: 0.65rem 0.5rem;
+    padding: 0.3rem 0.35rem;
     border: 0;
     border-bottom: 1px solid var(--border-gentle);
     border-radius: 0;
@@ -2541,8 +2541,8 @@ html[data-theme="light"] .home-featured .ledger-poster {
     justify-content: center;
     align-self: center;
     justify-self: center;
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 2rem;
+    height: 2rem;
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -2550,14 +2550,14 @@ html[data-theme="light"] .home-featured .ledger-poster {
     border-radius: 0;
     background: transparent;
     box-sizing: border-box;
-    font-size: calc(1.375rem + 2pt);
+    font-size: calc(1.125rem + 2pt);
     line-height: 1;
     color: var(--color-on-surface-variant);
   }
 
   .home-project-inventory-row > .home-project-inventory-glyph.material-symbols-outlined,
   .home-project-inventory-row .home-project-inventory-glyph.material-symbols-outlined {
-    font-size: calc(1.375rem + 2pt);
+    font-size: calc(1.125rem + 2pt);
   }
 
   .home-project-inventory-row.is-selected > .home-project-inventory-glyph,
@@ -2618,7 +2618,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
      Icon stays on the name row only (PLT-AC-104). Excerpt top-aligns with the plate. */
   @container projects-inventory (min-width: 28rem) {
     .home-project-inventory-row.is-selected {
-      grid-template-columns: 2.5rem 11rem minmax(0, 1fr);
+      grid-template-columns: 2rem 11rem minmax(0, 1fr);
       grid-template-areas:
         "icon name name"
         ". plate excerpt";

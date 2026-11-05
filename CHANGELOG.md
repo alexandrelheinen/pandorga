@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 2.3.23
+
+- Desktop Projects (≥1024): tighten contents-row padding, icon cell, and column gap so the list reads denser (PLT-AC-106 still balanced).
+
 ## 2.3.22
 
 - Desktop Projects (≥1024): inventory row names use `calc(var(--type-body) + 2pt)` instead of the responsive `clamp(1.45rem, 2.2vw, 2.05rem)` that read oversized beside body copy (PLT-AC-88).

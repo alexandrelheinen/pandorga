@@ -292,7 +292,7 @@ end
 unless home_sheet.match?(/\.home-project-inventory-row\.is-selected[^{]*\{[^}]*background:\s*var\(--color-surface-high\)/m)
   errors << "assets/css/ledger/home.css: selected row must use --color-surface-high (PLT-AC-105)"
 end
-unless home_sheet.match?(/padding:\s*0\.65rem\s+0\.5rem/)
+unless home_sheet.match?(/padding:\s*0\.3rem\s+0\.35rem/)
   errors << "assets/css/ledger/home.css: selected row must use equal outer padding (PLT-AC-106)"
 end
 # PLT-AC-104 survives strip_comments via the name-row-only grid hole.
@@ -315,7 +315,7 @@ require_declarations(
 )
 require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
-  ".home-project-inventory-row .home-project-inventory-glyph", ["font-size: calc(1.375rem + 2pt)"]
+  ".home-project-inventory-row .home-project-inventory-glyph", ["font-size: calc(1.125rem + 2pt)"]
 )
 [
   "45.6%",
