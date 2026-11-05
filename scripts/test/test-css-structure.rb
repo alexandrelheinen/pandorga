@@ -258,7 +258,7 @@ require_declarations(
 )
 require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
-  ".home-project-inventory-title", ["white-space: normal", "font-family: var(--font-body)", "font-weight: var(--weight-body)", "font-size: clamp(1.45rem, 2.2vw, 2.05rem)"]
+  ".home-project-inventory-title", ["white-space: normal", "font-family: var(--font-body)", "font-weight: var(--weight-body)", "font-size: calc(var(--type-body)+2pt)"]
 )
 require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,

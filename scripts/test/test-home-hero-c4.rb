@@ -43,8 +43,8 @@ end
 unless HOME.match?(/\.home-project-inventory-title\s*\{[^}]*font-weight:\s*var\(--weight-body\)/)
   failed = 1 if fail!("PLT-AC-88: inventory titles must use --weight-body")
 end
-unless HOME.match?(/font-size:\s*clamp\(1\.45rem,\s*2\.2vw,\s*2\.05rem\)/)
-  failed = 1 if fail!("PLT-AC-88: names must use the contents size clamp")
+unless HOME.match?(/font-size:\s*calc\(var\(--type-body\)\s*\+\s*2pt\)/)
+  failed = 1 if fail!("PLT-AC-88: names must be two points over body size")
 end
 if HOME.match?(/\.home-project-inventory-title\s*\{[^}]*font-family:\s*var\(--font-(?:title|label)\)/)
   failed = 1 if fail!("PLT-AC-88: inventory titles must not use the serif title or label face")

@@ -2647,7 +2647,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
     text-overflow: clip;
     white-space: normal;
     font-family: var(--font-body);
-    font-size: clamp(1.45rem, 2.2vw, 2.05rem);
+    font-size: calc(var(--type-body) + 2pt);
     font-weight: var(--weight-body);
     letter-spacing: 0;
     text-transform: none;
