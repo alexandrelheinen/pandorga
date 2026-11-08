@@ -4,15 +4,20 @@ require "jekyll"
 require_relative "../../hero_summary"
 
 module Pandorga
-  # Emits the hero summary element. HTML is raw so the paragraph is in the
-  # first response when the markdown file exists. A blank hero file
-  # renders nothing (PLT-AC-54).
+  # Emits the hero summary element. Content-coupled builds bake HTML when
+  # the markdown file exists (PLT-AC-23). Content-agnostic shells emit a
+  # quiet fragment hydrated from R2 (PLT-AC-54). A blank hero file
+  # renders nothing.
   class HeroSummaryTag < Liquid::Tag
     def render(context)
       site = context.registers[:site]
       return "" if HeroSummary.hidden?(site.source)
 
-      HeroSummary.element(HeroSummary.html_for(site))
+      if site.config["shell_content_agnostic"]
+        HeroSummary.agnostic_element(site.source)
+      else
+        HeroSummary.element(HeroSummary.html_for(site))
+      end
     end
   end
 end

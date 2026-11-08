@@ -26,7 +26,8 @@ writing_css = ROOT.join("assets/css/ledger/writing.css").read
 cv_css = ROOT.join("assets/css/ledger/cv.css").read
 
 fail!("shell does not preload critical JSON") unless shell.include?("theme/critical-preload.html")
-fail!("home preload misses the hero summary") unless preload.include?("pages/cv/summary.json")
+fail!("home preload misses the hero summary") unless preload.include?("pages/home/summary.json")
+fail!("home preload misses the CV summary fallback") unless preload.include?("pages/cv/summary.json")
 fail!("home preload misses the subtitle") unless preload.include?("pages/home/subtitle.json")
 fail!("articles preload misses the writing index") unless preload.include?("data/writing_index.json")
 fail!("preload must run before stylesheets") unless shell.index("critical-preload.html") < shell.index('href="/assets/css/base.css"')

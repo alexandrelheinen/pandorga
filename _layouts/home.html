@@ -86,8 +86,17 @@ layout: shell
       var pre = window.__pandorgaPreload || {};
       function paint(id, path) {
         var el = document.getElementById(id);
-        var pending = pre[path];
-        if (!el || el.hasAttribute('data-content-static') || !pending || !runtime || !runtime.renderMarkdown) return;
+        if (!el || el.hasAttribute('data-content-static') || !runtime || !runtime.renderMarkdown) return;
+        var jsonPath = path;
+        if (!jsonPath) {
+          var frag = el.getAttribute('data-content-fragment');
+          if (!frag) return;
+          jsonPath = String(frag).replace(/^\/+/, '').replace(/^pages\//, '');
+          if (!/\.json$/i.test(jsonPath)) jsonPath += '.json';
+          jsonPath = 'pages/' + jsonPath;
+        }
+        var pending = pre[jsonPath];
+        if (!pending) return;
         pending.then(function (fragment) {
           if (!fragment || el.getAttribute('data-content-painted') === '1') return;
           var html = runtime.renderMarkdown(fragment.body_markdown || '');
@@ -97,7 +106,7 @@ layout: shell
         }).catch(function () {});
       }
       paint('home-subtitle-content', 'pages/home/subtitle.json');
-      paint('home-cv-summary', 'pages/cv/summary.json');
+      paint('home-cv-summary');
     })();
   </script>
 

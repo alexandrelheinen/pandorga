@@ -26,21 +26,28 @@ Out:
 ## Acceptance criteria
 
 - `PLT-AC-54` Hero summary field.
-  1. **Own file.** When `content/pages/home/summary.md` exists and has a
-     non-blank body, the hero renders that body as static HTML
-     (`data-content-static`), and `cv/summary.md` does not reach the hero.
-  2. **Absent falls back.** When `home/summary.md` is absent, the hero
-     renders `cv/summary.md` exactly as before, so a site that never adds
-     the file sees no change.
-  3. **Empty hides.** When `home/summary.md` exists with a blank body (front
+  1. **Own file (content-coupled).** When `shell_content_agnostic` is off and
+     `content/pages/home/summary.md` exists with a non-blank body, the hero
+     renders that body as static HTML (`data-content-static`), and
+     `cv/summary.md` does not reach the hero (PLT-AC-23 / Lighthouse example).
+  2. **Own file (content-agnostic).** When `shell_content_agnostic` is on and
+     `home/summary.md` exists (blank aside), the hero is a quiet
+     `home/summary` fragment hydrated from `pages/home/summary.json` on R2.
+     Studio edits publish through the content pipeline; the shell does not
+     need a redeploy.
+  3. **Absent falls back.** When `home/summary.md` is absent, the hero
+     renders `cv/summary` (static when content-coupled and the CV file has
+     text; quiet fragment otherwise).
+  4. **Empty hides.** When `home/summary.md` exists with a blank body (front
      matter aside), the hero renders no summary element at all.
-  4. **CV unchanged.** The CV page Summary section still reads the
+  5. **CV unchanged.** The CV page Summary section still reads the
      `cv/summary` fragment; the hero file never feeds it.
-  5. **Studio.** The Presentation group has a "Hero summary" file entry for
+  6. **Studio.** The Presentation group has a "Hero summary" file entry for
      `content/pages/home/summary.md` (`format: raw`, `markdown_body`), next
      to the catch phrase. The public CV entry is labelled "CV page".
 
 ## Verification
 
-`scripts/test/test-hero-summary.rb` covers the four file states (home
-present, home absent, home blank, neither) and the Studio entry.
+`scripts/test/test-hero-summary.rb` covers the file states (home present,
+home absent, home blank, neither), the agnostic quiet slot, and the Studio
+entry.

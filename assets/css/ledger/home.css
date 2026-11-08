@@ -217,9 +217,9 @@
 }
 
 /* No empty min-height. A guessed line count shifts the call to action
-   when the summary is shorter or taller than the reserve. The paragraph
-   is in the HTML when content/pages/home/summary.md or
-   content/pages/cv/summary.md exists. */
+   when the summary is shorter or taller than the reserve. Content-coupled
+   builds bake the paragraph; content-agnostic shells hydrate a quiet
+   fragment from pages/home/summary.json (or cv/summary). */
 
 .home-hero-summary p {
   margin: 0 0 var(--space-md);

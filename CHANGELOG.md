@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+## 2.3.24
+
+- Content-agnostic shells hydrate the home hero summary from
+  `pages/home/summary.json` (quiet `home/summary` fragment) instead of
+  baking it into the deploy HTML, so Studio edits publish through R2
+  without a shell redeploy. Content-coupled builds keep the static LCP
+  path (PLT-AC-23/54).
+
 ## 2.3.23
 
 - Desktop Projects (≥1024): tighten contents-row padding, icon cell, and column gap so the list reads denser (PLT-AC-106 still balanced).

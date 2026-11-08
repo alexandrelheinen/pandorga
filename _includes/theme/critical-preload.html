@@ -4,7 +4,7 @@
 {%- endcomment -%}
 {%- case page.layout -%}
 {%- when "home" -%}
-  {%- assign _preload_paths = "pages/cv/summary.json|pages/home/subtitle.json|pages/home/portraits.json|pages/headers.json|data/writing_index.json" -%}
+  {%- assign _preload_paths = "pages/home/summary.json|pages/cv/summary.json|pages/home/subtitle.json|pages/home/portraits.json|pages/headers.json|data/writing_index.json" -%}
 {%- when "articles" -%}
   {%- assign _preload_paths = "data/writing_index.json|pages/headers.json|manifest.json" -%}
 {%- when "blog" -%}

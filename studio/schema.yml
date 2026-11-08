@@ -867,7 +867,7 @@ content:
         type: file
         path: content/pages/home/summary.md
         format: raw
-        description: "Home hero paragraph. Without this file the hero shows the CV page summary; saved empty, the hero shows none."
+        description: "Home hero paragraph (R2 on content-agnostic shells). Without this file the hero shows the CV page summary; saved empty, the hero shows none."
         fields:
           - name: body
             component: markdown_body

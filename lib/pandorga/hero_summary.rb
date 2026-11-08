@@ -2,16 +2,18 @@
 
 # Home hero summary from content/pages/home/summary.md, falling back to
 # content/pages/cv/summary.md when the hero file is absent (PLT-AC-54).
-# That paragraph is the LCP element. Leaving it empty until JSON arrives
-# makes most of LCP render delay, and a guessed empty box shifts the
-# call to action when the real text replaces it.
-# Refs: PLT-AC-23
+#
+# Content-coupled builds (examples/full) bake the paragraph as static HTML
+# for LCP (PLT-AC-23). Content-agnostic shells emit a quiet fragment so
+# Studio edits reach the hero from R2 without a shell redeploy.
 module Pandorga
   module HeroSummary
     HOME_RELATIVE = "content/pages/home/summary.md"
     RELATIVE = "content/pages/cv/summary.md"
     FALLBACK = '<div id="home-cv-summary" class="home-hero-summary font-body" ' \
                'data-content-fragment="cv/summary" data-content-quiet></div>'
+    HOME_FRAGMENT = '<div id="home-cv-summary" class="home-hero-summary font-body" ' \
+                    'data-content-fragment="home/summary" data-content-quiet></div>'
 
     module_function
 
@@ -61,6 +63,15 @@ module Pandorga
       return FALLBACK if body.empty?
 
       %(<div id="home-cv-summary" class="home-hero-summary font-body" data-content-static>#{body}</div>)
+    end
+
+    # Quiet R2 slot for content-agnostic shells. Home file present →
+    # home/summary; absent → cv/summary fallback. Blank home hides.
+    def agnostic_element(source_root)
+      return "" if hidden?(source_root)
+
+      home = read_body(source_root, HOME_RELATIVE)
+      home.nil? ? FALLBACK : HOME_FRAGMENT
     end
   end
 end

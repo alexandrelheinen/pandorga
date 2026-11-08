@@ -59,6 +59,7 @@ end
 
 tag = ROOT.join("lib/pandorga/jekyll/plugins/hero_summary.rb").read
 fail!("hero tag ignores a blank hero file") unless tag.include?("HeroSummary.hidden?")
+fail!("agnostic shells must not bake the summary") unless tag.include?("shell_content_agnostic") && tag.include?("agnostic_element")
 
 cv_layout = ROOT.join("_layouts/cv.html").read
 fail!("CV page Summary must keep the cv/summary fragment") unless cv_layout.include?('data-content-fragment="cv/summary"')
@@ -83,15 +84,39 @@ fail!("static summary dropped the sentence") unless static.include?("Ada Example
 fail!("static summary is not marked static") unless static.include?("data-content-static")
 fail!("static summary still hydrates") if static.include?("data-content-fragment")
 
+Dir.mktmpdir("hero-summary-agnostic") do |dir|
+  cv = File.join(dir, "content/pages/cv")
+  home = File.join(dir, "content/pages/home")
+  FileUtils.mkdir_p([cv, home])
+  File.write(File.join(cv, "summary.md"), "Professional summary.\n")
+
+  absent = Pandorga::HeroSummary.agnostic_element(dir)
+  fail!("agnostic absent home must fall back to cv/summary") unless absent.include?('data-content-fragment="cv/summary"')
+  fail!("agnostic absent home must stay quiet") unless absent.include?("data-content-quiet")
+  fail!("agnostic must not bake when the home file is absent") if absent.include?("data-content-static")
+
+  File.write(File.join(home, "summary.md"), "What the site holds.\n")
+  own = Pandorga::HeroSummary.agnostic_element(dir)
+  fail!("agnostic home file must hydrate home/summary") unless own.include?('data-content-fragment="home/summary"')
+  fail!("agnostic home file must stay quiet") unless own.include?("data-content-quiet")
+  fail!("agnostic must not bake home/summary into the shell") if own.include?("What the site holds") || own.include?("data-content-static")
+
+  File.write(File.join(home, "summary.md"), "---\ntitle: Hero\n---\n  \n")
+  fail!("agnostic blank home must hide") unless Pandorga::HeroSummary.agnostic_element(dir) == ""
+end
+
 home = ROOT.join("_layouts/home.html").read
 home_css = ROOT.join("assets/css/ledger/home.css").read
 shell = ROOT.join("_layouts/shell.html").read
 fonts = ROOT.join("_includes/theme/font-loader.html").read
 shared = ROOT.join("_data/themes/shared.yml").read
 fragments = ROOT.join("_includes/content-runtime/60-fragments.html").read
+preload = ROOT.join("_includes/theme/critical-preload.html").read
 
 fail!("home does not render the summary tag") unless home.include?("pandorga_hero_summary")
 fail!("early paint replaces a static summary") unless home.include?("el.hasAttribute('data-content-static')")
+fail!("early paint ignores the fragment key") unless home.include?("data-content-fragment")
+fail!("home preload misses pages/home/summary.json") unless preload.include?("pages/home/summary.json")
 fail!("summary keeps a guessed empty box") if home_css.include?(".home-hero-summary:empty")
 fail!("a static summary can still be rewritten") unless fragments.include?("data-content-static")
 fail!("font stylesheet dropped display=swap") unless fonts.include?("&display=swap")
