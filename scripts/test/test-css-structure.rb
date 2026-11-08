@@ -252,6 +252,12 @@ require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
   ".home-projects-bench", ["width: 100%", "margin-inline: 0"]
 )
+unless home_sheet.include?("padding-inline: var(--home-masthead-gutter)")
+  errors << "assets/css/ledger/home.css: portfolio inner must pad with --home-masthead-gutter (PLT-AC-88)"
+end
+if home_sheet.match?(/\.home-band--hero\s*\{[^}]*width:\s*calc\(100%\s*-\s*var\(--home-masthead-gutter\)\)/m)
+  errors << "assets/css/ledger/home.css: hero must stay full column width (PLT-AC-88)"
+end
 require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
   ".home-project-inventory-body", ["display: contents"]

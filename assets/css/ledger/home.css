@@ -2201,8 +2201,8 @@ html[data-theme="light"] .home-featured .ledger-poster {
   .home-band--hero {
     grid-column: 1;
     grid-row: 1;
-    justify-self: start;
-    width: calc(100% - var(--home-masthead-gutter));
+    justify-self: stretch;
+    width: 100%;
     max-width: 100%;
     margin: 0;
     padding: 0;
@@ -2249,7 +2249,9 @@ html[data-theme="light"] .home-featured .ledger-poster {
     width: 100%;
     height: 100%;
     margin: 0;
-    padding-inline: 0;
+    /* Equal L/R inset so the list does not flush the seam or the outer
+       ledger edge; matches the masthead gutter (large-screen only). */
+    padding-inline: var(--home-masthead-gutter);
     display: flex;
     flex-direction: column;
     align-items: stretch;

@@ -446,8 +446,14 @@ async function main() {
       }
 
       if (vp.width >= 1024) {
-        if (Math.abs(m.gapLeft) > 2 || Math.abs(m.gapRight) > 2) {
-          errors.push(`${vp.name}: gaps L/R=${m.gapLeft?.toFixed?.(1)}/${m.gapRight?.toFixed?.(1)} not ~0 (PLT-AC-88)`);
+        // Equal L/R inset = --home-masthead-gutter (clamp 1.25rem..2rem).
+        const rootFs = 17.6;
+        const wantGutter = Math.min(2 * rootFs, Math.max(1.25 * rootFs, vp.width * 0.022));
+        if (m.gapLeft == null || m.gapRight == null ||
+            Math.abs(m.gapLeft - wantGutter) > 3 ||
+            Math.abs(m.gapRight - wantGutter) > 3 ||
+            Math.abs(m.gapLeft - m.gapRight) > 2) {
+          errors.push(`${vp.name}: gaps L/R=${m.gapLeft?.toFixed?.(1)}/${m.gapRight?.toFixed?.(1)} want ~${wantGutter.toFixed(1)} equal (PLT-AC-88)`);
         }
         if (m.bodyDisplay !== 'contents') {
           errors.push(`${vp.name}: inventory body display=${m.bodyDisplay} want contents`);

@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 2.3.25
+
+- Desktop home (≥1024): Projects column uses equal `--home-masthead-gutter`
+  left/right padding, and the hero plate stays full column width, so the
+  list no longer sits flush against the seam on large screens (PLT-AC-88).
+
 ## 2.3.24
 
 - Content-agnostic shells hydrate the home hero summary from
