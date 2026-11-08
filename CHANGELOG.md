@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 2.3.26
+
+- Desktop home (≥1024): vertically center the Projects banner+list, drop the
+  empty second grid track under collapsed names, and give each row even
+  padding around the title so spacing before and after the text stays calm
+  (PLT-AC-88).
+
 ## 2.3.25
 
 - Desktop home (≥1024): Projects column uses equal `--home-masthead-gutter`

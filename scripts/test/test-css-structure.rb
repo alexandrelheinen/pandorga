@@ -255,6 +255,15 @@ require_declarations(
 unless home_sheet.include?("padding-inline: var(--home-masthead-gutter)")
   errors << "assets/css/ledger/home.css: portfolio inner must pad with --home-masthead-gutter (PLT-AC-88)"
 end
+unless home_sheet.include?("padding-block: var(--home-masthead-gutter)")
+  errors << "assets/css/ledger/home.css: portfolio inner must pad-block with --home-masthead-gutter (PLT-AC-88)"
+end
+unless home_sheet.match?(/\.home-band\[data-home-kind="portfolio"\] \.home-band-inner[\s\S]{0,400}?justify-content:\s*center/)
+  errors << "assets/css/ledger/home.css: portfolio inner must vertically center the list (PLT-AC-88)"
+end
+unless home_sheet.match?(/grid-template-areas:\s*"icon name"/)
+  errors << "assets/css/ledger/home.css: collapsed contents rows must be a single icon+name track (PLT-AC-88)"
+end
 if home_sheet.match?(/\.home-band--hero\s*\{[^}]*width:\s*calc\(100%\s*-\s*var\(--home-masthead-gutter\)\)/m)
   errors << "assets/css/ledger/home.css: hero must stay full column width (PLT-AC-88)"
 end
@@ -298,7 +307,7 @@ end
 unless home_sheet.match?(/\.home-project-inventory-row\.is-selected[^{]*\{[^}]*background:\s*var\(--color-surface-high\)/m)
   errors << "assets/css/ledger/home.css: selected row must use --color-surface-high (PLT-AC-105)"
 end
-unless home_sheet.match?(/padding:\s*0\.3rem\s+0\.35rem/)
+unless home_sheet.match?(/padding:\s*0\.55rem\s+0\.65rem/)
   errors << "assets/css/ledger/home.css: selected row must use equal outer padding (PLT-AC-106)"
 end
 # PLT-AC-104 survives strip_comments via the name-row-only grid hole.
