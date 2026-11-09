@@ -633,12 +633,20 @@ const ASSERT_EXPRESSION = `
         }
       }
 
-      // PLT-AC-87: hero panel aspect near B3
-      if (hb.height > 40) {
-        const ratio = hb.width / hb.height;
-        const expectR = window.innerWidth >= 1280 ? (637 / 693) : (454 / 736);
-        if (Math.abs(ratio - expectR) / expectR > 0.08) {
-          errors.push('Hero panel ratio ' + ratio.toFixed(3) + ' not within 8% of B3 ' + expectR.toFixed(3) + ' (PLT-AC-87)');
+      // PLT-AC-87: hero height follows the Projects column; width is the column.
+      if (hb.height > 40 && pb.height > 40) {
+        const heightDelta = Math.abs(hb.height - pb.height);
+        if (heightDelta > 2) {
+          errors.push('Hero height (' + hb.height.toFixed(1) + ') ≠ Projects height (' + pb.height.toFixed(1) + ') Δ=' + heightDelta.toFixed(1) + ' (PLT-AC-87)');
+        }
+        if (Math.abs(hb.width - pb.width) > 2) {
+          errors.push('Hero width (' + hb.width.toFixed(1) + ') ≠ Projects column width (' + pb.width.toFixed(1) + ') (PLT-AC-87)');
+        }
+        if (plateImg) {
+          const fit = getComputedStyle(plateImg).objectFit;
+          if (fit !== 'cover') {
+            errors.push('Hero plate object-fit is ' + fit + ', expected cover (PLT-AC-87)');
+          }
         }
       }
     }

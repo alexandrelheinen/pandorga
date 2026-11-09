@@ -267,6 +267,15 @@ end
 if home_sheet.match?(/\.home-band--hero\s*\{[^}]*width:\s*calc\(100%\s*-\s*var\(--home-masthead-gutter\)\)/m)
   errors << "assets/css/ledger/home.css: hero must stay full column width (PLT-AC-88)"
 end
+if home_sheet.match?(/aspect-ratio:\s*454\s*\/\s*736/) || home_sheet.match?(/aspect-ratio:\s*637\s*\/\s*693/)
+  errors << "assets/css/ledger/home.css: desktop hero must not use a fixed B3 aspect ratio (PLT-AC-87)"
+end
+unless home_sheet.match?(/\.home-band--hero[\s\S]{0,500}?align-self:\s*stretch/)
+  errors << "assets/css/ledger/home.css: desktop hero must stretch to the Projects row height (PLT-AC-87)"
+end
+unless home_sheet.match?(/\.home-band\[data-home-kind="portfolio"\][\s\S]{0,400}?align-self:\s*start/)
+  errors << "assets/css/ledger/home.css: desktop Projects must size the masthead row (PLT-AC-87)"
+end
 require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
   ".home-project-inventory-body", ["display: contents"]

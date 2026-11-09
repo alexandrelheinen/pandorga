@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 2.3.27
+
+- Desktop home (≥1024): hero panel height follows the Projects column
+  (full column width, `object-fit: cover`); the fixed B3 aspect ratios are
+  gone so the photo fits the space the list defines (PLT-AC-87).
+
 ## 2.3.26
 
 - Desktop home (≥1024): vertically center the Projects banner+list, drop the

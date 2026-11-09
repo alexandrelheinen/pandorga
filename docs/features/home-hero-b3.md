@@ -16,8 +16,8 @@ Replace the home hero “copy | plate” desktop split with the approved B3 trea
 - `PLT-AC-84` A centered spotlight overlay (radial light pool at 50% 50% plus vignette) darkens the photo for text contrast while keeping the figure readable; overlay strength is config-driven via `pandorga.home.hero_overlay` (documented) (`test-css-structure`).
 - `PLT-AC-85` Every cropped image on the home (hero plate, specimen/poster plates, featured posters) uses computed `object-position` / `background-position` of `50% 50%` (`center`); specimen/featured/card plates stay 16:9 ±3% (hero background panel excepted) (`test-regression-gate`).
 - `PLT-AC-86` Hero name uses B3 clamps (~35.2px at 1024, ~40.1px at ≥1280, stack `clamp(1.9rem, 7vw, 2.6rem)`); name’s right edge stays within the hero panel; summary/tagline computed color luminance ≥ 0.45 on the photo (`test-regression-gate`).
-- `PLT-AC-87` From 1024px the hero panel aspect ratio matches B3 within 8% (454/736 below 1280, 637/693 from 1280) (`test-regression-gate`).
-- Prior CR-21…21g criteria (PLT-AC-75…80) remain green. Specimen/thumbnail **plates** stay 16:9; the hero panel itself is a background panel (B3 ≈ 0.92 at 1440) and is **not** gated to 16:9.
+- `PLT-AC-87` From 1024px the hero panel width is the left column and its height matches the Projects column (within 2px). The photograph covers that box (`object-fit: cover`, centered); the panel does not use a fixed aspect ratio (`test-regression-gate`).
+- Prior CR-21…21g criteria (PLT-AC-75…80) remain green. Specimen/thumbnail **plates** stay 16:9; the hero panel itself is a background panel sized to the Projects column and is **not** gated to 16:9.
 
 ## Config
 

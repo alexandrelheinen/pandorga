@@ -2189,7 +2189,8 @@ html[data-theme="light"] .home-featured .ledger-poster {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     column-gap: 0;
-    align-items: start;
+    /* Projects content sizes the row; the hero plate stretches to match. */
+    align-items: stretch;
     /* B3 masthead content width (not rem — rem is fluid on this site) */
     width: min(1337.625px, calc(100% - 2 * var(--gutter, 2rem)));
     max-width: 1337.625px;
@@ -2202,6 +2203,8 @@ html[data-theme="light"] .home-featured .ledger-poster {
     grid-column: 1;
     grid-row: 1;
     justify-self: stretch;
+    align-self: stretch;
+    position: relative;
     width: 100%;
     max-width: 100%;
     margin: 0;
@@ -2210,9 +2213,10 @@ html[data-theme="light"] .home-featured .ledger-poster {
     background: #050505;
     border-radius: 3px;
     overflow: hidden;
-    align-self: start;
-    /* B3 @1024 ≈ 454×736 (w/h ≈ 0.617) */
-    aspect-ratio: 454 / 736;
+    /* Width = column; height follows the Projects band (PLT-AC-87).
+       Absolute inner fill so in-flow copy cannot inflate the row —
+       the plate covers the stretched grid area. */
+    aspect-ratio: auto;
     height: auto;
     min-height: 0;
   }
@@ -2223,24 +2227,27 @@ html[data-theme="light"] .home-featured .ledger-poster {
   }
 
   .home-band--hero .home-band-inner {
+    position: absolute;
+    inset: 0;
     max-width: none;
     width: 100%;
+    height: 100%;
     margin: 0;
     padding: 0;
-    height: 100%;
   }
 
   .home-band[data-home-kind="portfolio"] {
     grid-column: 2;
     grid-row: 1;
     justify-self: stretch;
+    align-self: start;
     width: 100%;
     margin: 0;
     padding-block: 0;
     padding-inline: 0;
     border-bottom: 0;
-    align-self: stretch;
-    height: 100%;
+    /* Content height drives the masthead row (hero stretches to match). */
+    height: auto;
     min-height: 0;
   }
 
@@ -2276,10 +2283,12 @@ html[data-theme="light"] .home-featured .ledger-poster {
   .home-hero {
     display: flex;
     flex-direction: column;
-    position: relative;
+    position: absolute;
+    inset: 0;
     isolation: isolate;
-    min-height: 100%;
+    width: 100%;
     height: 100%;
+    min-height: 0;
     gap: 0;
     align-items: stretch;
     justify-content: flex-end;
@@ -2670,9 +2679,3 @@ html[data-theme="light"] .home-featured .ledger-poster {
 
 }
 
-/* Wider desktop: B3 @1440 ≈ 637×693 (w/h ≈ 0.92) */
-@media (min-width: 1280px) {
-  .home-band--hero {
-    aspect-ratio: 637 / 693;
-  }
-}
