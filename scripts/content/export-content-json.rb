@@ -304,7 +304,8 @@ end
 PRINT_ONLY_PAGE_FRAGMENTS = %w[
   cv/summary-extended
   cv/summary-single-page
-  cv/ai-practice
+  cv/ai-practice-extended
+  cv/ai-practice-single-page
 ].freeze
 
 # Private CV PDF sidebar only; the public CV page has no skills section.

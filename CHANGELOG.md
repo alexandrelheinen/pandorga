@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 2.3.28
+
+- Print-only CV AI practice is split into `cv/ai-practice-extended` and
+  `cv/ai-practice-single-page` (export skip list and Studio schema). The
+  shared `cv/ai-practice` fragment is removed.
+
 ## 2.3.27
 
 - Desktop home (≥1024): hero panel height follows the Projects column

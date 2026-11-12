@@ -23,7 +23,8 @@ PRIVATE_JOB_FIELDS = %w[body_extended body_single_page].freeze
 PRINT_ONLY_PAGE_FRAGMENTS = %w[
   pages/cv/summary-extended.json
   pages/cv/summary-single-page.json
-  pages/cv/ai-practice.json
+  pages/cv/ai-practice-extended.json
+  pages/cv/ai-practice-single-page.json
 ].freeze
 
 def fail!(message)

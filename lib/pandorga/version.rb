@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
 module Pandorga
-  VERSION = "2.3.27"
+  VERSION = "2.3.28"
 end

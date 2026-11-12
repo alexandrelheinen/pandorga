@@ -872,12 +872,22 @@ content:
           - name: body
             component: markdown_body
 
-      - name: cv_ai_practice
-        label: AI practice
+      - name: cv_ai_practice_extended
+        label: AI practice (extended PDF)
         type: file
-        path: content/pages/cv/ai-practice.md
+        path: content/pages/cv/ai-practice-extended.md
         format: raw
-        description: "Shared AI practice copy for both Extended PDF and Single-page PDF."
+        description: "AI practice copy for the Extended PDF."
+        fields:
+          - name: body
+            component: markdown_body
+
+      - name: cv_ai_practice_single_page
+        label: AI practice (single-page PDF)
+        type: file
+        path: content/pages/cv/ai-practice-single-page.md
+        format: raw
+        description: "AI practice copy for the Single-page PDF."
         fields:
           - name: body
             component: markdown_body
