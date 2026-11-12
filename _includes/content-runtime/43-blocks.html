@@ -541,7 +541,7 @@
         html += '<p class="ledger-card-copy font-body">' + escapeHtml(summary) + '</p>';
       }
 
-      html += renderTagChips(f.tags, { hrefFor: options.tagHref });
+      /* Home specimen stays quiet: no tag chips (projects index keeps them). */
 
       var links = renderProjectLinks(fm, options);
       var open = options.openLabel

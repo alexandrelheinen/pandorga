@@ -394,7 +394,6 @@ const ASSERT_EXPRESSION = `
             { sel: '.home-specimen-strip .ledger-meta', token: '--type-label-lg', name: 'meta', minusPt: false },
             { sel: '.home-project-specimen .home-specimen-title, .home-project-specimen .ledger-card-title', token: '--type-card-lg', name: 'title', minusPt: true },
             { sel: '.home-project-specimen .ledger-card-copy', token: '--type-body', name: 'copy', minusPt: false },
-            { sel: '.home-project-specimen .ledger-chip', token: '--type-cta', name: 'chip', minusPt: false },
             { sel: '.home-specimen-foot .ledger-cta, .home-project-specimen .home-specimen-open', token: '--type-cta', name: 'foot', minusPt: false }
           ];
           const root = document.documentElement;

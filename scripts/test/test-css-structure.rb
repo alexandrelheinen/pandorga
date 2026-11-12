@@ -258,8 +258,14 @@ end
 unless home_sheet.include?("padding-block: var(--home-masthead-gutter)")
   errors << "assets/css/ledger/home.css: portfolio inner must pad-block with --home-masthead-gutter (PLT-AC-88)"
 end
-unless home_sheet.match?(/\.home-band\[data-home-kind="portfolio"\] \.home-band-inner[\s\S]{0,400}?justify-content:\s*center/)
-  errors << "assets/css/ledger/home.css: portfolio inner must vertically center the list (PLT-AC-88)"
+unless home_sheet.match?(/\.home-band\[data-home-kind="portfolio"\] \.home-band-inner[\s\S]{0,500}?padding-bottom:\s*0/)
+  errors << "assets/css/ledger/home.css: portfolio inner must drop bottom pad so specimen meets the hero (PLT-AC-87)"
+end
+unless home_sheet.match?(/\.home-band\[data-home-kind="portfolio"\] \.home-band-inner[\s\S]{0,500}?justify-content:\s*flex-start/)
+  errors << "assets/css/ledger/home.css: portfolio inner must top-align so bottoms can meet (PLT-AC-87)"
+end
+unless home_sheet.match?(/@media \(min-width: 1024px\)[\s\S]*\.home-specimen-strip\s*\{[^}]*display:\s*none/)
+  errors << "assets/css/ledger/home.css: desktop must hide the specimen folio/label/year strip"
 end
 unless home_sheet.match?(/\.home-projects-inventory-wrap\s*\{[^}]*order:\s*-1/)
   errors << "assets/css/ledger/home.css: icon buttons must sit above the specimen (PLT-AC-88)"

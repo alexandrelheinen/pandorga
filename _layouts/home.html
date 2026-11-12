@@ -329,8 +329,9 @@ layout: shell
           eligible: function () { return true; }
         });
         var selectedSlug = (featuredPick && featuredPick.slug) || portfolio[0].slug;
-        /* Mobile strip columns follow the visible count (≤ limit_mobile). */
-        var iconSlots = Math.min(portfolio.length, isFinite(limitMobile) ? limitMobile : portfolio.length);
+        /* Column count follows the visible portfolio (already sliced by the
+           active limit), so every icon stays on one row. */
+        var iconSlots = portfolio.length;
 
         function entryBySlug(slug) {
           return portfolio.filter(function (entry) { return entry.slug === slug; })[0] || portfolio[0];
@@ -508,10 +509,7 @@ layout: shell
 
         function refreshPortfolioForViewport() {
           portfolio = slicePortfolio(entries);
-          iconSlots = Math.min(
-            portfolio.length,
-            isFinite(limitMobile) ? limitMobile : portfolio.length
-          );
+          iconSlots = portfolio.length;
           var stillVisible = false;
           for (var i = 0; i < portfolio.length; i += 1) {
             if (portfolio[i].slug === selectedSlug) {

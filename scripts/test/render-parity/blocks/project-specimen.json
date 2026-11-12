@@ -39,16 +39,19 @@
     "h3.ledger-card-title",
     "a.ledger-card-stretch",
     "p.ledger-card-copy",
-    "div.ledger-chip-row",
     "div.ledger-card-links",
     "span.home-specimen-open"
   ],
   "forbidden": [
     "projects-plate",
-    "span.ledger-status"
+    "span.ledger-status",
+    "div.ledger-chip-row",
+    "ledger-chip"
   ],
   "excludes": [
-    ">Ongoing<"
+    ">Ongoing<",
+    ">Systems<",
+    ">Rust<"
   ],
   "contains": [
     ">#01<",
@@ -65,7 +68,6 @@
     "ledger-card-stretch": 1,
     "ledger-cta": 4,
     "ledger-cta-icon": 3,
-    "ledger-chip": 2,
     "ledger-meta-sep": 2
   }
 }
