@@ -288,58 +288,43 @@ const ASSERT_EXPRESSION = `
         }
       }
       if (window.innerWidth >= 1024) {
-        document.querySelectorAll('.home-project-inventory-title').forEach(function (title, idx) {
-          if (title.scrollWidth > title.clientWidth + 1) {
-            errors.push('Contents name ' + idx + ' is truncated (PLT-AC-88)');
-          }
-          const tcs = getComputedStyle(title);
-          if (tcs.whiteSpace === 'nowrap' || tcs.textOverflow === 'ellipsis') {
-            errors.push('Contents name ' + idx + ' ellipsizes (PLT-AC-88)');
-          }
-        });
         document.querySelectorAll('.home-project-inventory-row').forEach(function (row, idx) {
           const glyph = row.querySelector('.home-project-inventory-glyph');
           if (!glyph || getComputedStyle(glyph).display === 'none' || glyph.getBoundingClientRect().width < 1) {
-            errors.push('Contents row ' + idx + ' missing visible icon glyph (PLT-AC-88)');
-          } else {
-            const gcs = getComputedStyle(glyph);
-            const ox = gcs.overflowX || gcs.overflow;
-            if (ox !== 'hidden' && ox !== 'clip') {
-              errors.push('Contents icon cell ' + idx + ' must clip overflow (PLT-AC-88)');
-            }
-            if (/\d{2}\s*\//.test((glyph.textContent || '').trim())) {
-              errors.push('Contents icon cell ' + idx + ' leaks folio text (PLT-AC-88)');
-            }
+            errors.push('Project button ' + idx + ' missing visible icon glyph (PLT-AC-88)');
           }
-          ['home-project-inventory-code', 'home-project-inventory-year', 'home-project-inventory-tags'].forEach(function (cls) {
-            const el = row.querySelector('.' + cls);
-            if (!el) return;
-            const cs = getComputedStyle(el);
-            const r = el.getBoundingClientRect();
-            if (cs.display !== 'none' && cs.visibility !== 'hidden' && r.width > 0.5 && r.height > 0.5) {
-              errors.push('Contents row ' + idx + ' still shows .' + cls + ' (PLT-AC-88)');
-            }
-          });
         });
-        const opened = document.querySelector('.home-project-inventory-row.is-selected .home-project-inventory-media');
-        if (opened && opened.getBoundingClientRect().width > 8) {
-          const fr = opened.getBoundingClientRect();
-          const want = 11 * rootFs;
-          if (Math.abs(fr.width - want) > 3) {
-            errors.push('Opened picture width ' + fr.width.toFixed(1) + ' want ~' + want.toFixed(1) + ' (PLT-AC-88)');
-          }
-          const ratio = fr.width / fr.height;
-          if (Math.abs(ratio - (16 / 9)) / (16 / 9) > 0.02) {
-            errors.push('Opened picture ratio ' + ratio.toFixed(3) + ' not 16:9 (PLT-AC-88)');
-          }
-        }
       }
     }
 
-    if (window.innerWidth >= 1024 && bench) {
+    if (window.innerWidth >= 1024 && bench && rows.length > 0) {
       const specimen = document.querySelector('.home-project-specimen');
-      if (specimen && getComputedStyle(specimen).display !== 'none') {
-        errors.push('Specimen card is still shown on the contents page (PLT-AC-88)');
+      const inventory = document.querySelector('.home-project-inventory');
+      if (!specimen || getComputedStyle(specimen).display === 'none') {
+        errors.push('Specimen card is hidden on the desktop phone strip (PLT-AC-88)');
+      } else if (inventory) {
+        const inv = inventory.getBoundingClientRect();
+        const sp = specimen.getBoundingClientRect();
+        const benchR = bench.getBoundingClientRect();
+        if (inv.height > 8 && sp.height > 8 && inv.bottom > sp.top + 1) {
+          errors.push('Project buttons are not above the specimen (PLT-AC-88)');
+        }
+        if (sp.width > 8 && sp.width < benchR.width * 0.9) {
+          errors.push('Specimen width (' + sp.width.toFixed(1) + ') does not span the bench (' + benchR.width.toFixed(1) + ') (PLT-AC-88)');
+        }
+        const plate = specimen.querySelector('.home-specimen-figure > .ledger-poster, .home-specimen-figure > .projects-plate');
+        if (plate) {
+          const pr = plate.getBoundingClientRect();
+          if (pr.width > 8 && pr.height > 8) {
+            const ratio = pr.width / pr.height;
+            if (Math.abs(ratio - (16 / 9)) / (16 / 9) > 0.03) {
+              errors.push('Desktop specimen plate ratio ' + ratio.toFixed(3) + ' not 16:9 (PLT-AC-88)');
+            }
+            if (pr.width < sp.width * 0.7) {
+              errors.push('Desktop specimen plate does not extend across the card (PLT-AC-88)');
+            }
+          }
+        }
       }
     } else if (window.innerWidth >= 900 && bench) {
       const rawSize = getComputedStyle(bench).getPropertyValue('--home-icon-btn-size').trim();

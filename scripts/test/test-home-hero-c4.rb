@@ -18,67 +18,36 @@ def fail!(msg)
   true
 end
 
-# PLT-AC-88 — Contents page from 1024px
-unless HOME.include?("PLT-AC-88 contents")
-  failed = 1 if fail!("PLT-AC-88: home.css must document the contents page")
+# PLT-AC-88 — Phone strip from 1024px (buttons on top, specimen below).
+unless HOME.include?("PLT-AC-88: from 1024px the Projects bench matches the phone")
+  failed = 1 if fail!("PLT-AC-88: home.css must document the phone strip")
 end
-unless HOME.match?(/\.home-project-inventory-body\s*\{[^}]*display:\s*contents/)
-  failed = 1 if fail!("PLT-AC-88: the row body must participate in the line")
+unless HOME.match?(/@media \(min-width: 1024px\)[\s\S]*\.home-projects-bench\s*\{[^}]*display:\s*flex/)
+  failed = 1 if fail!("PLT-AC-88: the desktop bench must stack as a column")
 end
-unless HOME.match?(/width:\s*11rem/)
-  failed = 1 if fail!("PLT-AC-88: the opened picture must be 11rem wide")
+unless HOME.match?(/@media \(min-width: 1024px\)[\s\S]*\.home-projects-inventory-wrap\s*\{[^}]*order:\s*-1/)
+  failed = 1 if fail!("PLT-AC-88: icon buttons must sit above the specimen")
+end
+unless HOME.match?(/@media \(min-width: 1024px\)[\s\S]*\.home-specimen-figure > \.ledger-poster[\s\S]{0,240}?aspect-ratio:\s*16\s*\/\s*9/)
+  failed = 1 if fail!("PLT-AC-88: the specimen plate must stay 16:9 and span the card")
+end
+unless HOME.match?(/@media \(min-width: 1024px\)[\s\S]*-webkit-line-clamp:\s*2/)
+  failed = 1 if fail!("PLT-AC-88: the desktop specimen title must wrap to two lines")
+end
+unless HOME.match?(/@media \(min-width: 1024px\)[\s\S]*max-height:\s*calc\(var\(--type-body\) \* var\(--leading-body\) \* 4\)/)
+  failed = 1 if fail!("PLT-AC-88: the desktop tagline must stop at four lines")
 end
 if HOME.match?(/--home-specimen-plate-height:\s*15\.3125rem/)
   failed = 1 if fail!("PLT-AC-88: desktop must not keep the 15.3125rem specimen cap")
 end
-if HOME.match?(/\.home-project-inventory-title\s*\{[^}]*text-overflow:\s*ellipsis/)
-  failed = 1 if fail!("PLT-AC-88: inventory titles must not ellipsize")
-end
-unless HOME.match?(/\.home-project-inventory-title\s*\{[^}]*white-space:\s*normal/)
-  failed = 1 if fail!("PLT-AC-88: inventory titles must wrap")
-end
-unless HOME.match?(/\.home-project-inventory-title\s*\{[^}]*font-family:\s*var\(--font-body\)/)
-  failed = 1 if fail!("PLT-AC-88: inventory titles must use --font-body")
-end
-unless HOME.match?(/\.home-project-inventory-title\s*\{[^}]*font-weight:\s*var\(--weight-body\)/)
-  failed = 1 if fail!("PLT-AC-88: inventory titles must use --weight-body")
-end
-unless HOME.match?(/font-size:\s*calc\(var\(--type-body\)\s*\+\s*2pt\)/)
-  failed = 1 if fail!("PLT-AC-88: names must be two points over body size")
-end
-if HOME.match?(/\.home-project-inventory-title\s*\{[^}]*font-family:\s*var\(--font-(?:title|label)\)/)
-  failed = 1 if fail!("PLT-AC-88: inventory titles must not use the serif title or label face")
-end
-unless HOME.match?(/\.home-project-specimen[^{]*\{[^}]*display:\s*none/)
-  failed = 1 if fail!("PLT-AC-88: the specimen card must be hidden")
+if HOME.match?(/\.home-project-specimen[^{]*\{[^}]*display:\s*none/)
+  failed = 1 if fail!("PLT-AC-88: the specimen card must stay visible")
 end
 unless HOME.match?(/\.home-projects-bench[\s\S]{0,800}?margin-inline:\s*auto/)
   failed = 1 if fail!("PLT-AC-88: tablet island must keep margin-inline: auto")
 end
-unless SPEC.include?("Contents") && SPEC.include?("11rem")
-  failed = 1 if fail!("PLT-AC-88: spec must describe the contents page and the 11rem picture")
-end
-unless HOME.match?(/\.home-project-inventory-row\s*>\s*\.home-project-inventory-glyph[^{]*\{[^}]*grid-area:\s*icon/) ||
-       HOME.match?(/\.home-project-inventory-glyph[^{]*\{[^}]*grid-area:\s*icon/)
-  failed = 1 if fail!("PLT-AC-88: the project icon glyph must occupy the icon cell")
-end
-unless HOME.match?(/\.home-project-inventory-code[^{]*\{[^}]*display:\s*none/)
-  failed = 1 if fail!("PLT-AC-88: folio/meta code must be hidden on the contents page")
-end
-unless HOME.match?(/\.home-project-inventory-year[^{]*\{[^}]*display:\s*none/)
-  failed = 1 if fail!("PLT-AC-88: year must be hidden on collapsed contents rows")
-end
-unless HOME.match?(/\.home-project-inventory-tags[^{]*\{[^}]*display:\s*none/)
-  failed = 1 if fail!("PLT-AC-88: tags must be hidden on collapsed contents rows")
-end
-unless HOME.match?(/home-project-inventory-excerpt/)
-  failed = 1 if fail!("PLT-AC-88: home.css must style the presentation excerpt")
-end
-unless HOME.match?(/-webkit-line-clamp:\s*[2-6]/)
-  failed = 1 if fail!("PLT-AC-88: the excerpt must clamp to a few lines")
-end
-unless SPEC.include?("icon glyph") || SPEC.include?("project icon")
-  failed = 1 if fail!("PLT-AC-88: spec must describe the icon-plus-name collapsed row")
+unless SPEC.include?("icon buttons on top") && SPEC.include?("hero plate stretches")
+  failed = 1 if fail!("PLT-AC-88: spec must describe the phone strip and the stretched hero plate")
 end
 
 # PLT-AC-89 — soft edgeless overlay, no panel behind copy
@@ -159,9 +128,9 @@ unless HOME.match?(/\.home-hero-actions-contacts[\s\S]{0,120}?flex-wrap:\s*nowra
   failed = 1 if fail!("PLT-AC-94: .home-hero-actions-contacts must keep flex-wrap: nowrap")
 end
 
-# PLT-AC-104 / PLT-AC-105 / PLT-AC-106 — icon/name center + gray wash + pad balance
-unless HOME.include?("PLT-AC-104")
-  failed = 1 if fail!("PLT-AC-104: home.css must document icon/name vertical center")
+# PLT-AC-104 / PLT-AC-105 / PLT-AC-106 — superseded by the phone strip.
+unless HOME.include?("PLT-AC-104/105/106")
+  failed = 1 if fail!("PLT-AC-104: home.css must note that the contents-row criteria are retired")
 end
 if HOME.include?("data-contents-select")
   failed = 1 if fail!("PLT-AC-105: home.css must not keep data-contents-select selection switch")
@@ -169,14 +138,8 @@ end
 if HOME.match?(/--mk-h:\s*0\.42em/)
   failed = 1 if fail!("PLT-AC-105: selected title must not keep the thin 0.42em mark bar")
 end
-unless HOME.include?("PLT-AC-105") && HOME.include?("color-surface-high")
-  failed = 1 if fail!("PLT-AC-105: home.css must document gray --color-surface-high selection wash")
-end
-unless HOME.include?("PLT-AC-106")
-  failed = 1 if fail!("PLT-AC-106: home.css must document selected-row padding balance")
-end
-unless SPEC.include?("PLT-AC-104") && SPEC.include?("PLT-AC-105") && SPEC.include?("PLT-AC-106")
-  failed = 1 if fail!("spec docs/features/home-hero-c4.md must cover PLT-AC-104/105/106")
+unless SPEC.include?("Superseded by PLT-AC-88")
+  failed = 1 if fail!("spec docs/features/home-hero-c4.md must retire PLT-AC-104/105/106")
 end
 
 # Spec + validate wiring

@@ -247,10 +247,10 @@ require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
   ".home-projects-bench", ["grid-template-columns: var(--home-icon-btn-size) max-content", "column-gap: calc(var(--space-xs) * 2)", "width: max-content", "margin-inline: auto"]
 )
-# PLT-AC-88 contents: large body-face lines, no ellipsis, small opened picture.
+# PLT-AC-88: phone strip from 1024px. Buttons sit above a full-width specimen.
 require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
-  ".home-projects-bench", ["width: 100%", "margin-inline: 0"]
+  ".home-projects-bench", ["width: 100%", "margin-inline: 0", "display: flex"]
 )
 unless home_sheet.include?("padding-inline: var(--home-masthead-gutter)")
   errors << "assets/css/ledger/home.css: portfolio inner must pad with --home-masthead-gutter (PLT-AC-88)"
@@ -261,8 +261,11 @@ end
 unless home_sheet.match?(/\.home-band\[data-home-kind="portfolio"\] \.home-band-inner[\s\S]{0,400}?justify-content:\s*center/)
   errors << "assets/css/ledger/home.css: portfolio inner must vertically center the list (PLT-AC-88)"
 end
-unless home_sheet.match?(/grid-template-areas:\s*"icon name"/)
-  errors << "assets/css/ledger/home.css: collapsed contents rows must be a single icon+name track (PLT-AC-88)"
+unless home_sheet.match?(/\.home-projects-inventory-wrap\s*\{[^}]*order:\s*-1/)
+  errors << "assets/css/ledger/home.css: icon buttons must sit above the specimen (PLT-AC-88)"
+end
+if home_sheet.match?(/\.home-project-specimen[^{]*\{[^}]*display:\s*none/)
+  errors << "assets/css/ledger/home.css: the specimen card must stay visible (PLT-AC-88)"
 end
 if home_sheet.match?(/\.home-band--hero\s*\{[^}]*width:\s*calc\(100%\s*-\s*var\(--home-masthead-gutter\)\)/m)
   errors << "assets/css/ledger/home.css: hero must stay full column width (PLT-AC-88)"
@@ -276,34 +279,6 @@ end
 unless home_sheet.match?(/\.home-band\[data-home-kind="portfolio"\][\s\S]{0,400}?align-self:\s*start/)
   errors << "assets/css/ledger/home.css: desktop Projects must size the masthead row (PLT-AC-87)"
 end
-require_declarations(
-  errors, "assets/css/ledger/home.css", home_sheet,
-  ".home-project-inventory-body", ["display: contents"]
-)
-require_declarations(
-  errors, "assets/css/ledger/home.css", home_sheet,
-  ".home-project-inventory-title", ["white-space: normal", "font-family: var(--font-body)", "font-weight: var(--weight-body)", "font-size: calc(var(--type-body)+2pt)"]
-)
-require_declarations(
-  errors, "assets/css/ledger/home.css", home_sheet,
-  ".home-project-inventory-code", ["display: none"]
-)
-require_declarations(
-  errors, "assets/css/ledger/home.css", home_sheet,
-  ".home-project-inventory-year", ["display: none"]
-)
-require_declarations(
-  errors, "assets/css/ledger/home.css", home_sheet,
-  ".home-project-inventory-tags", ["display: none"]
-)
-require_declarations(
-  errors, "assets/css/ledger/home.css", home_sheet,
-  ".home-project-inventory-excerpt", ["-webkit-line-clamp: 4", "overflow: hidden"]
-)
-require_declarations(
-  errors, "assets/css/ledger/home.css", home_sheet,
-  ".home-project-inventory-glyph", ["overflow: hidden", "grid-area: icon"]
-)
 if home_sheet.match?(/\.home-project-inventory-title[^{]*\{[^}]*text-overflow:\s*ellipsis/)
   errors << "assets/css/ledger/home.css: .home-project-inventory-title must not ellipsize (PLT-AC-88)"
 end
@@ -314,17 +289,7 @@ if home_sheet.include?("data-contents-select")
   errors << "assets/css/ledger/home.css: data-contents-select switch must be removed (PLT-AC-105)"
 end
 unless home_sheet.match?(/\.home-project-inventory-row\.is-selected[^{]*\{[^}]*background:\s*var\(--color-surface-high\)/m)
-  errors << "assets/css/ledger/home.css: selected row must use --color-surface-high (PLT-AC-105)"
-end
-unless home_sheet.match?(/padding:\s*0\.55rem\s+0\.65rem/)
-  errors << "assets/css/ledger/home.css: selected row must use equal outer padding (PLT-AC-106)"
-end
-# PLT-AC-104 survives strip_comments via the name-row-only grid hole.
-unless home_sheet.match?(/grid-template-areas:[^;]*"\. plate"/m) || home_sheet.match?(/grid-template-areas:[^;]*"\. plate excerpt"/m)
-  errors << "assets/css/ledger/home.css: icon must share only the name row (PLT-AC-104)"
-end
-unless home_sheet.match?(/\.home-project-inventory-glyph[^{]*\{[^}]*align-self:\s*center/m) || home_sheet.include?("align-self: center")
-  errors << "assets/css/ledger/home.css: glyph/title must center on the name row (PLT-AC-104)"
+  errors << "assets/css/ledger/home.css: selected icon button must use --color-surface-high (PLT-AC-88)"
 end
 if home_sheet.match?(/--home-specimen-plate-height:\s*15\.3125rem/)
   errors << "assets/css/ledger/home.css: desktop must not keep 15.3125rem (PLT-AC-88)"
