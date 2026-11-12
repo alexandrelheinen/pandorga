@@ -24,7 +24,9 @@ jobs:
         run: gitleaks detect --source . --config .gitleaks.toml --verbose --redact
 
   gates:
-    runs-on: ubuntu-latest
+    # ubuntu-latest is 26.04, and ruby-builder has no 3.4.4 package for it.
+    # Pages and .ruby-version stay on 3.4.4, which is still built for 24.04.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
