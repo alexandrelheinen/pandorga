@@ -37,6 +37,11 @@ unless version
   warn "FAIL test-new: Pandorga::VERSION missing"
   exit 1
 end
+locked = ROOT.join("Gemfile.lock").read[/^\s+pandorga \(([^)]+)\)/, 1]
+unless locked == version
+  warn "FAIL test-new: Gemfile.lock pins pandorga #{locked.inspect}, VERSION is #{version}"
+  exit 1
+end
 
 deploy = ROOT.join("docs/deploy/cloudflare.md").read
 upgrading = ROOT.join("docs/upgrading.md").read

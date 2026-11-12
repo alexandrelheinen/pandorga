@@ -8,6 +8,9 @@
   stop at four (PLT-AC-88).
 - CI gates run on `ubuntu-24.04`. `ubuntu-latest` is 26.04, which has no
   Ruby 3.4.4 build.
+- Root `Gemfile.lock` pins the path gem at 2.3.28 so frozen `bundle install`
+  matches `Pandorga::VERSION`. Deploy, upgrade, and scaffold examples use
+  the same tag.
 
 ## 2.3.28
 
