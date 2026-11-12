@@ -6,6 +6,8 @@
   buttons on top of the specimen card — and the hero photograph stretches
   to that column's height. Specimen titles wrap to two lines; taglines
   stop at four (PLT-AC-88).
+- CI gates run on `ubuntu-24.04`. `ubuntu-latest` is 26.04, which has no
+  Ruby 3.4.4 build.
 
 ## 2.3.28
 
