@@ -2,13 +2,15 @@
 
 ## Unreleased
 
+## 2.3.29
+
 - Desktop home (≥1024): the Projects column uses the phone layout — icon
   buttons on top of the specimen card — and the hero photograph stretches
   to that column's height. Specimen titles wrap to two lines; taglines
   stop at four (PLT-AC-88).
 - CI gates run on `ubuntu-24.04`. `ubuntu-latest` is 26.04, which has no
   Ruby 3.4.4 build.
-- Root `Gemfile.lock` pins the path gem at 2.3.28 so frozen `bundle install`
+- Root `Gemfile.lock` pins the path gem at 2.3.29 so frozen `bundle install`
   matches `Pandorga::VERSION`. Deploy, upgrade, and scaffold examples use
   the same tag.
 
