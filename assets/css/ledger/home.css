@@ -532,7 +532,7 @@ html[data-theme="light"] .home-hero-plate {
 }
 
 
-/* Desktop from 1024px is the contents page (PLT-AC-88). */
+/* From 1024px the Projects bench matches the phone strip (PLT-AC-88). */
 
 @media (min-width: 1280px) {
   .home-featured.home-featured--illustrated {
@@ -921,8 +921,9 @@ html[data-theme="light"] .home-hero-plate {
    with the title below it. From 900px the specimen column takes 35% of the
    band (at least 20rem) and the rack 45% (at least 21rem) across one
    `--space-xl` column gap, starting at the band's left edge, and the rack
-   rows share the specimen height. Below 900px the rack is an icon strip
-   above the specimen, one column per project. */
+   rows share the specimen height. Below 900px, and again from 1024px, the
+   rack is an icon strip above the specimen, one column per project. The
+   hero plate stretches to that column. */
 .home-projects-bench {
   --home-specimen-height: 32rem;
   --home-icon-btn-size: 2.75rem;
@@ -2446,8 +2447,10 @@ html[data-theme="light"] .home-featured .ledger-poster {
     background: rgba(255, 255, 255, 0.92);
   }
 
-  /* PLT-AC-88 contents: icon + name; the selected row opens a small picture
-     and, when width allows, a clamped presentation blurb beside it. */
+  /* PLT-AC-88: from 1024px the Projects bench matches the phone —
+     icon buttons on top, specimen card below. The hero plate stretches
+     to this column's height (PLT-AC-87). PLT-AC-104/105/106 described the
+     retired contents rows. */
   .home-band[data-home-kind="portfolio"] {
     --home-projects-block-width: 100%;
   }
@@ -2466,216 +2469,92 @@ html[data-theme="light"] .home-featured .ledger-poster {
   }
 
   .home-projects-bench {
-    display: block;
+    --home-specimen-max-width: none;
+    --home-specimen-plate-width: 100%;
+    --home-specimen-plate-height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-md);
     width: 100%;
     max-width: 100%;
     margin-inline: 0;
     min-width: 0;
   }
 
-  .home-project-specimen,
-  .home-project-specimen-slot {
-    display: none;
-  }
-
-  .home-projects-inventory-wrap,
-  .home-project-inventory {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
+  .home-projects-inventory-wrap {
+    order: -1;
+    display: block;
     width: 100%;
     max-width: none;
     min-width: 0;
-    gap: 0;
   }
 
-  .home-projects-inventory-wrap {
-    container-type: inline-size;
-    container-name: projects-inventory;
+  .home-project-inventory {
+    order: -1;
+    display: grid;
+    grid-template-columns: repeat(var(--home-project-icon-count, 6), minmax(0, 1fr));
+    gap: var(--space-xs);
+    width: 100%;
+    max-width: none;
+    min-width: 0;
   }
 
-  /* PLT-AC-88 / PLT-AC-104: collapsed rows are a single icon+name track so
-     row-gap cannot open empty space under the title. Selected rows add the
-     plate (and excerpt) track. PLT-AC-105/106: selected wash + equal pad. */
   button.home-project-inventory-row,
   .home-project-inventory-row {
-    display: grid;
-    grid-template-columns: 2rem minmax(0, 1fr);
-    grid-template-areas: "icon name";
-    column-gap: var(--space-md);
-    row-gap: 0;
-    align-items: center;
     width: 100%;
-    height: auto;
+    height: var(--home-icon-btn-size);
     min-height: 0;
-    justify-content: stretch;
-    /* Breath around the name; equal outer pad keeps PLT-AC-106. */
-    padding: 0.55rem 0.65rem;
-    border: 0;
-    border-bottom: 1px solid var(--border-gentle);
-    border-radius: 0;
-    background: transparent;
-    outline: none;
-    box-sizing: border-box;
-    position: relative;
-  }
-
-  .home-project-inventory-row:hover,
-  .home-project-inventory-row:focus-visible {
-    background: transparent;
-    outline: none;
-  }
-
-  .home-project-inventory-row.is-selected {
-    grid-template-areas:
-      "icon name"
-      ". plate";
-    row-gap: 0.35rem;
-    background: var(--color-surface-high);
-    outline: none;
-  }
-
-  .home-project-inventory-row:focus-visible {
-    outline: 2px solid var(--color-primary);
-    outline-offset: 2px;
-  }
-
-  .home-project-inventory-body {
-    display: contents;
-  }
-
-  .home-project-inventory-code,
-  .home-project-inventory-year,
-  .home-project-inventory-tags {
-    display: none;
-  }
-
-  .home-project-inventory-row > .home-project-inventory-glyph,
-  .home-project-inventory-glyph {
-    grid-area: icon;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    align-self: center;
-    justify-self: center;
-    width: 2rem;
-    height: 2rem;
-    margin: 0;
     padding: 0;
-    overflow: hidden;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    box-sizing: border-box;
-    font-size: calc(1.125rem + 2pt);
-    line-height: 1;
-    color: var(--color-on-surface-variant);
   }
 
-  .home-project-inventory-row > .home-project-inventory-glyph.material-symbols-outlined,
-  .home-project-inventory-row .home-project-inventory-glyph.material-symbols-outlined {
-    font-size: calc(1.125rem + 2pt);
-  }
-
-  .home-project-inventory-row.is-selected > .home-project-inventory-glyph,
-  .home-project-inventory-row:hover > .home-project-inventory-glyph,
-  .home-project-inventory-row:focus-visible > .home-project-inventory-glyph {
-    color: var(--color-primary);
-  }
-
-  .home-project-inventory-media {
-    display: none;
-    grid-area: plate;
-    width: 11rem;
-    max-width: 11rem;
-    aspect-ratio: 16 / 9;
-    overflow: hidden;
-    margin: 0;
-    justify-self: start;
-    align-self: start;
-  }
-
-  .home-project-inventory-row.is-selected .home-project-inventory-media {
+  .home-project-specimen-slot {
     display: block;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
   }
 
-  .home-project-inventory-media > .ledger-poster,
-  .home-project-inventory-media > .projects-plate {
+  .home-project-specimen {
+    display: flex;
     width: 100%;
-    height: 100%;
+    max-width: none;
+    min-width: 0;
+  }
+
+  .home-specimen-figure > .ledger-poster,
+  .home-specimen-figure > .projects-plate {
+    width: 100%;
+    max-width: none;
+    height: auto;
+    max-height: none;
     aspect-ratio: 16 / 9;
   }
 
-  .home-project-inventory-media:has(.ledger-poster) .home-project-inventory-mark {
-    display: none;
-  }
-
-  .home-project-inventory-excerpt {
-    display: none;
-    grid-area: excerpt;
-    margin: 0;
-    min-width: 0;
-    max-width: 100%;
-    overflow: hidden;
-    font-family: var(--font-body);
-    font-size: var(--type-body);
-    font-weight: var(--weight-body);
-    line-height: var(--leading-body);
-    color: var(--color-on-surface-variant);
-    text-align: start;
-    overflow-wrap: break-word;
-    word-break: normal;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 4;
-    text-overflow: ellipsis;
-    align-self: start;
-  }
-
-  /* Beside the picture when the inventory can hold plate + blurb; otherwise picture only.
-     Icon stays on the name row only (PLT-AC-104). Excerpt top-aligns with the plate. */
-  @container projects-inventory (min-width: 28rem) {
-    .home-project-inventory-row.is-selected {
-      grid-template-columns: 2rem 11rem minmax(0, 1fr);
-      grid-template-areas:
-        "icon name name"
-        ". plate excerpt";
-      align-items: start;
-    }
-
-    .home-project-inventory-row.is-selected > .home-project-inventory-glyph,
-    .home-project-inventory-row.is-selected .home-project-inventory-title {
-      align-self: center;
-    }
-
-    .home-project-inventory-row.is-selected .home-project-inventory-excerpt {
-      display: -webkit-box;
-      margin: 0;
-      align-self: start;
-    }
-  }
-
-  .home-project-inventory-title {
-    grid-area: name;
-    display: flex;
-    align-items: center;
-    margin: 0;
-    min-width: 0;
-    min-height: 2rem;
-    max-width: 100%;
-    overflow: visible;
-    text-overflow: clip;
+  /* Wide card: a long project name wraps to two lines instead of a
+     single ellipsis, and the tagline stops at four lines. */
+  .home-project-specimen .home-specimen-title,
+  .home-project-specimen .ledger-card-title {
+    font-size: var(--type-card-lg);
     white-space: normal;
-    font-family: var(--font-body);
-    font-size: calc(var(--type-body) + 2pt);
-    font-weight: var(--weight-body);
-    letter-spacing: 0;
-    text-transform: none;
-    line-height: 1.2;
-    color: var(--color-on-surface);
-    background: none;
-    align-self: center;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
   }
 
+  .home-project-specimen .ledger-card-copy {
+    height: auto;
+    flex: 0 1 auto;
+    min-height: 0;
+    max-height: calc(var(--type-body) * var(--leading-body) * 4);
+  }
+
+  .home-project-specimen .ledger-card-copy + .ledger-chip-row,
+  .home-project-specimen .ledger-card-copy + .home-specimen-foot {
+    margin-top: auto;
+  }
 
 }
 

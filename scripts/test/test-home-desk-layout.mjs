@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// PLT-AC-88 / PLT-AC-98/99 / PLT-AC-104/105/106 — desk contents, hero +4pt, icon/name center, pad balance.
+// PLT-AC-88 / PLT-AC-98/99 — desk phone strip (buttons on top), hero stretched to that height.
 // Fixture links live base.css + home.css; no Jekyll build required.
 
 import { spawn } from 'node:child_process';
@@ -180,7 +180,7 @@ function buildHtml() {
           <h2 class="section-title">Projects</h2>
         </div>
       </header>
-      <div class="home-projects-bench">
+      <div class="home-projects-bench" style="--home-project-icon-count: 5">
         <div class="home-projects-inventory-wrap">
           <div class="home-project-inventory" role="region" aria-label="Explore projects">
             ${rows}
@@ -191,7 +191,10 @@ function buildHtml() {
             <div class="ledger-poster projects-plate">
               <img alt="" width="1600" height="900" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="/>
             </div>
+            <h3 class="card-title ledger-card-title home-specimen-title">Full-stack Robotic Effector Trajectories for Embedded Collection</h3>
           </figure>
+          <p class="ledger-card-copy font-body">A city-scale collector that plans effector trajectories from onboard vision, then publishes the path as a short operations note for the bench.</p>
+          <div class="ledger-card-foot home-specimen-foot"><span class="ledger-cta home-specimen-open">Open project</span></div>
         </aside>
       </div>
     </div>
@@ -215,6 +218,15 @@ async function measure(cdp, sessionId) {
       const bench = q('.home-projects-bench');
       const inner = q('.home-band[data-home-kind="portfolio"] .home-band-inner');
       const plate = q('.home-specimen-figure > .ledger-poster, .home-specimen-figure > .projects-plate');
+      const specimen = q('.home-project-specimen');
+      const specimenCs = specimen ? getComputedStyle(specimen) : null;
+      const heroBand = q('.home-band--hero');
+      const projectsBand = q('.home-band[data-home-kind="portfolio"]');
+      const heroImg = q('.home-hero-plate img');
+      const specimenTitle = q('.home-specimen-title');
+      const specimenCopy = q('.home-project-specimen .ledger-card-copy');
+      const specimenTitleCs = specimenTitle ? getComputedStyle(specimenTitle) : null;
+      const copyCs = specimenCopy ? getComputedStyle(specimenCopy) : null;
       const frame = q('.home-project-inventory-row.is-selected .home-project-inventory-media');
       const rows = qa('.home-project-inventory-row');
       const hero = q('.home-hero-title');
@@ -227,6 +239,7 @@ async function measure(cdp, sessionId) {
       const gapLeft = benchR && innerR ? benchR.x - innerR.x : null;
       const gapRight = benchR && innerR ? (innerR.x + innerR.w) - (benchR.x + benchR.w) : null;
       const rowHeights = rows.map((r) => r.getBoundingClientRect().height);
+      const rowTops = rows.map((r) => r.getBoundingClientRect().top);
       const titleCs = body ? getComputedStyle(body).display : null;
       const invTitle = q('.home-project-inventory-title');
       const drop = q('.theme-choice');
@@ -328,6 +341,16 @@ async function measure(cdp, sessionId) {
       return {
         gapLeft, gapRight,
         plate: plateR,
+        plateRatio: plateR && plateR.h > 1 ? plateR.w / plateR.h : null,
+        specimen: rect(specimen),
+        specimenDisplay: specimenCs ? specimenCs.display : null,
+        heroBand: rect(heroBand),
+        projectsBand: rect(projectsBand),
+        heroImg: rect(heroImg),
+        rowTops,
+        specimenTitleClamp: specimenTitleCs ? specimenTitleCs.webkitLineClamp : null,
+        specimenTitleWhiteSpace: specimenTitleCs ? specimenTitleCs.whiteSpace : null,
+        copyMaxHeight: copyCs ? copyCs.maxHeight : null,
         frame: frameR,
         plateVarH: bench ? getComputedStyle(bench).getPropertyValue('--home-specimen-plate-height').trim() : null,
         rowHeights,
@@ -455,94 +478,67 @@ async function main() {
             Math.abs(m.gapLeft - m.gapRight) > 2) {
           errors.push(`${vp.name}: gaps L/R=${m.gapLeft?.toFixed?.(1)}/${m.gapRight?.toFixed?.(1)} want ~${wantGutter.toFixed(1)} equal (PLT-AC-88)`);
         }
-        if (m.bodyDisplay !== 'contents') {
-          errors.push(`${vp.name}: inventory body display=${m.bodyDisplay} want contents`);
+        if (m.bodyDisplay !== 'none') {
+          errors.push(`${vp.name}: inventory body display=${m.bodyDisplay} want none (phone strip)`);
         }
-        // PLT-AC-88 (2.3.20): row name face/size/weight = theme dropdown .theme-choice
-        if (!m.invTitleFf || !m.dropFf || m.invTitleFf !== m.dropFf) {
-          errors.push(`${vp.name}: inventory title font-family="${m.invTitleFf}" ≠ dropdown "${m.dropFf}"`);
+        if (!m.specimen || m.specimenDisplay === 'none' || m.specimen.h < 40) {
+          errors.push(`${vp.name}: specimen card is not shown`);
         }
-        if (!m.invTitleFw || !m.dropFw || String(m.invTitleFw) !== String(m.dropFw)) {
-          errors.push(`${vp.name}: inventory title font-weight="${m.invTitleFw}" ≠ dropdown "${m.dropFw}"`);
+        if (!m.list || !m.specimen || m.list.y + m.list.h > m.specimen.y + 1) {
+          errors.push(`${vp.name}: icon buttons are not above the specimen`);
         }
-        if (m.invTitleFf && /TitleSerifFixture|LabelCapsFixture/i.test(m.invTitleFf)) {
-          errors.push(`${vp.name}: inventory title is not the body face (${m.invTitleFf})`);
+        if (!m.rowTops || m.rowTops.length < 2) {
+          errors.push(`${vp.name}: expected a row of project buttons`);
+        } else {
+          const spread = Math.max(...m.rowTops) - Math.min(...m.rowTops);
+          if (spread > 2) {
+            errors.push(`${vp.name}: icon buttons are not on one row (Δtop=${spread.toFixed(1)})`);
+          }
         }
-        const fluid = vp.width * 0.022;
-        const nameFs = Math.min(2.05 * 17.6, Math.max(1.45 * 17.6, fluid));
-        const gotFs = parseFloat(m.invTitleFs);
-        if (!Number.isFinite(gotFs) || Math.abs(gotFs - nameFs) > 1.5) {
-          errors.push(`${vp.name}: name size ${m.invTitleFs} want ~${nameFs.toFixed(2)}`);
+        if (m.specimen && m.bench && m.specimen.w < m.bench.w * 0.9) {
+          errors.push(`${vp.name}: specimen width ${m.specimen.w.toFixed(1)} does not span the bench ${m.bench.w.toFixed(1)}`);
         }
-        if (m.titleWhiteSpace && m.titleWhiteSpace !== 'normal') {
-          errors.push(`${vp.name}: name white-space=${m.titleWhiteSpace} want normal`);
+        if (m.plate && m.specimen && m.plate.w < m.specimen.w * 0.7) {
+          errors.push(`${vp.name}: plate width ${m.plate.w.toFixed(1)} does not extend across the specimen ${m.specimen.w.toFixed(1)}`);
         }
-        if (m.titleOverflow === 'ellipsis') {
-          errors.push(`${vp.name}: name text-overflow is ellipsis`);
+        if (m.plateRatio == null || Math.abs(m.plateRatio - (16 / 9)) / (16 / 9) > 0.03) {
+          errors.push(`${vp.name}: specimen plate ratio ${m.plateRatio} not 16:9`);
         }
-        if (!m.rowHeights.length) {
-          errors.push(`${vp.name}: no inventory rows`);
+        if (!m.heroBand || !m.projectsBand || Math.abs(m.heroBand.h - m.projectsBand.h) > 2) {
+          errors.push(`${vp.name}: hero height ${m.heroBand?.h?.toFixed?.(1)} ≠ projects ${m.projectsBand?.h?.toFixed?.(1)} (PLT-AC-87)`);
         }
-        const truncated = (m.titleTrunc || []).filter((t) => t.truncated);
-        if (truncated.length) {
-          errors.push(`${vp.name}: truncated names ${truncated.map((t) => t.text + '(' + t.scroll + '>' + t.client + ')').join(', ')}`);
+        if (!m.heroImg || !m.heroBand ||
+            Math.abs(m.heroImg.h - m.heroBand.h) > 2 ||
+            Math.abs(m.heroImg.w - m.heroBand.w) > 2) {
+          errors.push(`${vp.name}: hero picture ${m.heroImg?.w?.toFixed?.(1)}×${m.heroImg?.h?.toFixed?.(1)} does not cover the hero ${m.heroBand?.w?.toFixed?.(1)}×${m.heroBand?.h?.toFixed?.(1)}`);
+        }
+        if (m.frame && m.frame.w > 8) {
+          errors.push(`${vp.name}: inventory row opened its own picture`);
+        }
+        if (m.specimenTitleClamp !== '2') {
+          errors.push(`${vp.name}: specimen title clamp=${m.specimenTitleClamp} want 2`);
+        }
+        if (m.specimenTitleWhiteSpace === 'nowrap') {
+          errors.push(`${vp.name}: specimen title still nowrap`);
+        }
+        if (!m.copyMaxHeight || m.copyMaxHeight === 'none' || m.copyMaxHeight === '0px') {
+          errors.push(`${vp.name}: specimen copy has no four-line cap (${m.copyMaxHeight})`);
         }
         if (!m.glyphVisible) {
           errors.push(`${vp.name}: project icon glyph is not visible (PLT-AC-88)`);
-        }
-        if (m.iconOverflow) {
-          errors.push(`${vp.name}: icon cell overflows text (PLT-AC-88)`);
         }
         if (m.codeVisible) {
           errors.push(`${vp.name}: folio/meta code is still visible (PLT-AC-88)`);
         }
         if (m.yearVisible) {
-          errors.push(`${vp.name}: year is visible on contents row (PLT-AC-88)`);
+          errors.push(`${vp.name}: year is visible on the icon button (PLT-AC-88)`);
         }
         if (m.tagsVisible) {
-          errors.push(`${vp.name}: tags are visible on contents row (PLT-AC-88)`);
-        }
-        // PLT-AC-104: icon and name vertical centers within 1px on every row
-        if (typeof m.maxAlignDelta !== 'number' || !m.rowAlign || !m.rowAlign.length) {
-          errors.push(`${vp.name}: missing icon/name align metrics (PLT-AC-104)`);
-        } else if (m.maxAlignDelta > 1) {
-          const bad = m.rowAlign.filter((r) => r.delta > 1).map((r) => `${r.name}(Δ=${r.delta.toFixed(2)})`).join(', ');
-          errors.push(`${vp.name}: icon/name center Δ max=${m.maxAlignDelta.toFixed(2)} > 1px (PLT-AC-104): ${bad}`);
-        }
-        // PLT-AC-105: gray wash on selected row; title has no mark gradient
-        if (m.selTitleBg && m.selTitleBg !== 'none') {
-          errors.push(`${vp.name}: selected title still has background mark (${m.selTitleBg}) (PLT-AC-105)`);
-        }
-        const bg = (m.selRowBg || '').replace(/\s+/g, '');
-        const transparent = !bg || bg === 'transparent' || bg === 'rgba(0,0,0,0)' || bg === 'rgba(0,0,0,0.0)';
-        if (transparent) {
-          errors.push(`${vp.name}: selected row missing gray wash bg=${m.selRowBg} (PLT-AC-105)`);
-        }
-        // PLT-AC-106: top/bottom pad within 1px
-        if (typeof m.padDelta !== 'number') {
-          errors.push(`${vp.name}: missing selected-row pad metrics (PLT-AC-106)`);
-        } else if (m.padDelta > 1) {
-          errors.push(`${vp.name}: selected pad top=${m.padTop?.toFixed?.(2)} bottom=${m.padBottom?.toFixed?.(2)} Δ=${m.padDelta.toFixed(2)} > 1px (PLT-AC-106)`);
-        }
-        if (m.excerptVisible && typeof m.excerptPlateTopDelta === 'number' && m.excerptPlateTopDelta > 1) {
-          errors.push(`${vp.name}: excerpt/plate top Δ=${m.excerptPlateTopDelta.toFixed(2)} > 1px (PLT-AC-106)`);
-        }
-        const frameW = 11 * 17.6;
-        const frameH = frameW * 9 / 16;
-        if (!m.frame || m.frame.w < 8) {
-          errors.push(`${vp.name}: selected line did not open its picture`);
-        } else {
-          if (Math.abs(m.frame.w - frameW) > 2) {
-            errors.push(`${vp.name}: picture W ${m.frame.w.toFixed(1)} want ${frameW.toFixed(1)}`);
-          }
-          if (Math.abs(m.frame.h - frameH) > 3) {
-            errors.push(`${vp.name}: picture H ${m.frame.h.toFixed(1)} want ${frameH.toFixed(1)}`);
-          }
+          errors.push(`${vp.name}: tags are visible on the icon button (PLT-AC-88)`);
         }
         console.log(
-          `  ${vp.name}: listW=${m.list?.w?.toFixed?.(1)} rowH=${m.rowHeights?.[0]?.toFixed?.(1)} frame=${m.frame?.w?.toFixed?.(1)}×${m.frame?.h?.toFixed?.(1)} ` +
-          `fs=${m.invTitleFs} truncated=${truncated.length} excerpt=${m.excerptVisible} lines=${m.excerptLines?.toFixed?.(2)} ` +
-          `alignΔ=${m.maxAlignDelta?.toFixed?.(2)} padΔ=${m.padDelta?.toFixed?.(2)}`
+          `  ${vp.name}: bench=${m.bench?.w?.toFixed?.(1)} specimen=${m.specimen?.w?.toFixed?.(1)}×${m.specimen?.h?.toFixed?.(1)} ` +
+          `plate=${m.plate?.w?.toFixed?.(1)}×${m.plate?.h?.toFixed?.(1)} hero=${m.heroBand?.h?.toFixed?.(1)} img=${m.heroImg?.h?.toFixed?.(1)}`
         );
       } else {
         // Mobile: body stays hidden (icon strip), plate not +25% desk rule
@@ -565,7 +561,7 @@ async function main() {
     console.error('FAIL test-home-desk-layout:\n' + errors.map((e) => ' - ' + e).join('\n'));
     process.exit(1);
   }
-  console.log('PASS test-home-desk-layout (PLT-AC-88/98/99/104/105/106 rendered)');
+  console.log('PASS test-home-desk-layout (PLT-AC-88/98/99 phone strip)');
 }
 
 main().catch((err) => {

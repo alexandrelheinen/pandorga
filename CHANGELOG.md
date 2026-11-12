@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Desktop home (≥1024): the Projects column uses the phone layout — icon
+  buttons on top of the specimen card — and the hero photograph stretches
+  to that column's height. Specimen titles wrap to two lines; taglines
+  stop at four (PLT-AC-88).
+
 ## 2.3.28
 
 - Print-only CV AI practice is split into `cv/ai-practice-extended` and
