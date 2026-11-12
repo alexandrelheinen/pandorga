@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 2.3.30
+
+- Desktop home: project icon strip stays on one row (column count follows the
+  visible portfolio), specimen bottoms meet the hero photo, and spacing under
+  the Projects note is halved. Desk hides the specimen folio/label/year strip;
+  the home specimen omits tag chips (projects index unchanged).
+
 ## 2.3.29
 
 - Desktop home (≥1024): the Projects column uses the phone layout — icon
