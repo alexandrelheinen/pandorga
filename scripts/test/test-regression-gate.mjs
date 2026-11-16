@@ -301,16 +301,16 @@ const ASSERT_EXPRESSION = `
       const specimen = document.querySelector('.home-project-specimen');
       const inventory = document.querySelector('.home-project-inventory');
       if (!specimen || getComputedStyle(specimen).display === 'none') {
-        errors.push('Specimen card is hidden on the desktop phone strip (PLT-AC-88)');
+        errors.push('Specimen card is hidden on the desktop icon column (PLT-AC-88)');
       } else if (inventory) {
         const inv = inventory.getBoundingClientRect();
         const sp = specimen.getBoundingClientRect();
         const benchR = bench.getBoundingClientRect();
-        if (inv.height > 8 && sp.height > 8 && inv.bottom > sp.top + 1) {
-          errors.push('Project buttons are not above the specimen (PLT-AC-88)');
+        if (inv.width > 8 && sp.width > 8 && inv.right > sp.left + 1) {
+          errors.push('Project buttons are not beside the specimen (PLT-AC-88)');
         }
-        if (sp.width > 8 && sp.width < benchR.width * 0.9) {
-          errors.push('Specimen width (' + sp.width.toFixed(1) + ') does not span the bench (' + benchR.width.toFixed(1) + ') (PLT-AC-88)');
+        if (sp.width > 8 && sp.width < benchR.width * 0.55) {
+          errors.push('Specimen width (' + sp.width.toFixed(1) + ') is too narrow for the bench (' + benchR.width.toFixed(1) + ') (PLT-AC-88)');
         }
         const plate = specimen.querySelector('.home-specimen-figure > .ledger-poster, .home-specimen-figure > .projects-plate');
         if (plate) {

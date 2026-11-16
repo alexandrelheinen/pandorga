@@ -432,11 +432,20 @@
         band.classList.toggle('page-accent--' + name, accent === name);
       });
       /* A header left with no text and no link goes with its rule, and the
-       * band keeps a name from its data-home-label (PLT-AC-52). */
+       * band keeps a name from its data-home-label (PLT-AC-52). On the index
+       * references band, keep a neutral rule-only plate edge so Sources /
+       * Network / Bibliography still sit under a ledger rule. */
       if (!root.querySelector('[data-content-section-kicker], [data-content-section-title], [data-content-section-note], .home-section-aside')) {
         var label = band.getAttribute('data-home-label');
         if (label && !band.hasAttribute('aria-label')) band.setAttribute('aria-label', label);
-        root.remove();
+        if (band.classList.contains('home-band--index') && !band.querySelector('.ledger-section-banner--rule-only')) {
+          var rule = document.createElement('div');
+          rule.className = 'ledger-section-banner ledger-section-banner--rule-only';
+          rule.setAttribute('aria-hidden', 'true');
+          root.replaceWith(rule);
+        } else {
+          root.remove();
+        }
       }
     }
 

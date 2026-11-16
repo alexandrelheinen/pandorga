@@ -48,7 +48,9 @@ Out:
      band's `<section>` carries an `aria-label` naming its panels.
   4. **Emptied header, runtime.** After `applyHomeSection` fills or removes
      the slots, a text banner left with no slot and no `.home-section-aside`
-     is removed, and its band `<section>` takes its `data-home-label` as
+     is removed on listing bands. On the index references band it is replaced
+     with a `.ledger-section-banner--rule-only` plate edge when one is not
+     already present, and the band `<section>` takes its `data-home-label` as
      `aria-label`. Rule-only strips have no `data-content-home-section` and
      are left alone. `home/band-index.html` sets `data-home-label` to its
      panels' default titles joined with ", ".

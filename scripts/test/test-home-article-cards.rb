@@ -57,5 +57,7 @@ fail!("portfolio plate edge must not be suppressed") if css =~ /data-home-kind="
 apply = fragments[/function applyHomeSection\(.*?\n    \}\n/m] or fail!("applyHomeSection not found")
 fail!("applyHomeSection does not drop an emptied banner") unless apply.include?("root.remove()") &&
   apply.include?("home-section-aside") && apply.include?("data-home-label")
+fail!("applyHomeSection must keep a rule-only plate edge on the index band") unless apply.include?("ledger-section-banner--rule-only") &&
+  apply.include?("replaceWith")
 
 puts "PASS test-home-article-cards"

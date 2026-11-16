@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// PLT-AC-88 / PLT-AC-98/99 — desk phone strip (buttons on top), hero stretched to that height.
+// PLT-AC-88 / PLT-AC-98/99 — desk icon column beside specimen, hero stretched to that height.
 // Fixture links live base.css + home.css; no Jekyll build required.
 
 import { spawn } from 'node:child_process';
@@ -479,24 +479,24 @@ async function main() {
           errors.push(`${vp.name}: gaps L/R=${m.gapLeft?.toFixed?.(1)}/${m.gapRight?.toFixed?.(1)} want ~${wantGutter.toFixed(1)} equal (PLT-AC-88)`);
         }
         if (m.bodyDisplay !== 'none') {
-          errors.push(`${vp.name}: inventory body display=${m.bodyDisplay} want none (phone strip)`);
+          errors.push(`${vp.name}: inventory body display=${m.bodyDisplay} want none (icon column)`);
         }
         if (!m.specimen || m.specimenDisplay === 'none' || m.specimen.h < 40) {
           errors.push(`${vp.name}: specimen card is not shown`);
         }
-        if (!m.list || !m.specimen || m.list.y + m.list.h > m.specimen.y + 1) {
-          errors.push(`${vp.name}: icon buttons are not above the specimen`);
+        if (!m.list || !m.specimen || m.list.x + m.list.w > m.specimen.x + 1) {
+          errors.push(`${vp.name}: icon buttons are not beside the specimen`);
         }
         if (!m.rowTops || m.rowTops.length < 2) {
-          errors.push(`${vp.name}: expected a row of project buttons`);
+          errors.push(`${vp.name}: expected a column of project buttons`);
         } else {
           const spread = Math.max(...m.rowTops) - Math.min(...m.rowTops);
-          if (spread > 2) {
-            errors.push(`${vp.name}: icon buttons are not on one row (Δtop=${spread.toFixed(1)})`);
+          if (spread < 2) {
+            errors.push(`${vp.name}: icon buttons are still on one row (Δtop=${spread.toFixed(1)})`);
           }
         }
-        if (m.specimen && m.bench && m.specimen.w < m.bench.w * 0.9) {
-          errors.push(`${vp.name}: specimen width ${m.specimen.w.toFixed(1)} does not span the bench ${m.bench.w.toFixed(1)}`);
+        if (m.specimen && m.bench && m.specimen.w < m.bench.w * 0.55) {
+          errors.push(`${vp.name}: specimen width ${m.specimen.w.toFixed(1)} is too narrow for the bench ${m.bench.w.toFixed(1)}`);
         }
         if (m.plate && m.specimen && m.plate.w < m.specimen.w * 0.7) {
           errors.push(`${vp.name}: plate width ${m.plate.w.toFixed(1)} does not extend across the specimen ${m.specimen.w.toFixed(1)}`);
@@ -561,7 +561,7 @@ async function main() {
     console.error('FAIL test-home-desk-layout:\n' + errors.map((e) => ' - ' + e).join('\n'));
     process.exit(1);
   }
-  console.log('PASS test-home-desk-layout (PLT-AC-88/98/99 phone strip)');
+  console.log('PASS test-home-desk-layout (PLT-AC-88/98/99 icon column)');
 }
 
 main().catch((err) => {

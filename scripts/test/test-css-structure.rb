@@ -247,16 +247,16 @@ require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
   ".home-projects-bench", ["grid-template-columns: var(--home-icon-btn-size) max-content", "column-gap: calc(var(--space-xs) * 2)", "width: max-content", "margin-inline: auto"]
 )
-# PLT-AC-88: phone strip from 1024px. Buttons sit above a full-width specimen.
+# PLT-AC-88: icon column beside specimen from 1024px.
 require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
-  ".home-projects-bench", ["width: 100%", "margin-inline: 0", "display: flex"]
+  ".home-projects-bench", ["width: 100%", "margin-inline: 0", "display: grid"]
 )
 unless home_sheet.include?("padding-inline: var(--home-masthead-gutter)")
   errors << "assets/css/ledger/home.css: portfolio inner must pad with --home-masthead-gutter (PLT-AC-88)"
 end
-unless home_sheet.include?("padding-block: var(--home-masthead-gutter)")
-  errors << "assets/css/ledger/home.css: portfolio inner must pad-block with --home-masthead-gutter (PLT-AC-88)"
+unless home_sheet.match?(/\.home-band\[data-home-kind="portfolio"\] \.home-band-inner[\s\S]{0,500}?padding-top:\s*4px/)
+  errors << "assets/css/ledger/home.css: portfolio inner must pad-top 4px so the tick meets the hero (PLT-AC-88)"
 end
 unless home_sheet.match?(/\.home-band\[data-home-kind="portfolio"\] \.home-band-inner[\s\S]{0,500}?padding-bottom:\s*0/)
   errors << "assets/css/ledger/home.css: portfolio inner must drop bottom pad so specimen meets the hero (PLT-AC-87)"
@@ -267,8 +267,8 @@ end
 unless home_sheet.match?(/@media \(min-width: 1024px\)[\s\S]*\.home-specimen-strip\s*\{[^}]*display:\s*none/)
   errors << "assets/css/ledger/home.css: desktop must hide the specimen folio/label/year strip"
 end
-unless home_sheet.match?(/\.home-projects-inventory-wrap\s*\{[^}]*order:\s*-1/)
-  errors << "assets/css/ledger/home.css: icon buttons must sit above the specimen (PLT-AC-88)"
+unless home_sheet.match?(/@media \(min-width: 1024px\)[\s\S]*\.home-projects-bench\s*\{[^}]*grid-template-columns:\s*var\(--home-icon-btn-size\)\s+minmax\(0,\s*1fr\)/)
+  errors << "assets/css/ledger/home.css: icon buttons must sit beside the specimen (PLT-AC-88)"
 end
 if home_sheet.match?(/\.home-project-specimen[^{]*\{[^}]*display:\s*none/)
   errors << "assets/css/ledger/home.css: the specimen card must stay visible (PLT-AC-88)"

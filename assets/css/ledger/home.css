@@ -381,14 +381,15 @@ html[data-theme="light"] .home-hero-plate {
    banner lives inside the projects column, so the rule never spans the hero. */
 
 /* Index references band: when the text header is empty, a rule-only strip
-   still marks the plate. Neutral outline ink — the three panels each carry
-   their own accent. */
+   still marks the plate below Rascunhos. Neutral outline ink — the three
+   panels each carry their own accent. */
 .home-band--index .ledger-section-banner--rule-only {
   --color-primary: var(--color-outline);
   display: block;
   padding-top: 0;
-  padding-bottom: var(--space-md);
-  margin-bottom: 0;
+  padding-bottom: var(--space-lg);
+  margin: 0;
+  min-height: 0;
 }
 
 .home-band .ledger-section-lead {
@@ -920,9 +921,9 @@ html[data-theme="light"] .home-hero-plate {
    with the title below it. From 900px the specimen column takes 35% of the
    band (at least 20rem) and the rack 45% (at least 21rem) across one
    `--space-xl` column gap, starting at the band's left edge, and the rack
-   rows share the specimen height. Below 900px, and again from 1024px, the
-   rack is an icon strip above the specimen, one column per project. The
-   hero plate stretches to that column. */
+   rows share the specimen height. Below 900px the rack is an icon strip
+   above the specimen; from 1024px it is an icon column beside the specimen
+   (full column width). The hero plate stretches to that column. */
 .home-projects-bench {
   --home-specimen-height: 32rem;
   --home-icon-btn-size: 2.75rem;
@@ -1458,6 +1459,28 @@ button.home-project-inventory-row {
  * the page background. */
 .home-band--index {
   isolation: isolate;
+}
+
+/* Rule-only index: sit the gray plate edge just under Rascunhos (tick
+   clearance), and move the former top breathing room below the rule. */
+.home-band--index:has(> .home-band-inner > .ledger-section-banner--rule-only) {
+  padding-top: 4px;
+}
+
+@media (min-width: 768px) {
+  .home-band--index:has(> .home-band-inner > .ledger-section-banner--rule-only) {
+    padding-top: 4px;
+  }
+}
+
+.home-band--index:has(> .home-band-inner > .ledger-section-banner--rule-only) .ledger-section-banner--rule-only {
+  padding-bottom: var(--space-2xl);
+}
+
+@media (min-width: 768px) {
+  .home-band--index:has(> .home-band-inner > .ledger-section-banner--rule-only) .ledger-section-banner--rule-only {
+    padding-bottom: var(--space-3xl);
+  }
 }
 
 .home-index-split {
@@ -2256,18 +2279,27 @@ html[data-theme="light"] .home-featured .ledger-poster {
     width: 100%;
     height: 100%;
     margin: 0;
-    /* Top/side masthead gutter; no bottom pad so the specimen's bottom
-       edge meets the hero photo (PLT-AC-87). Tighter gap under the note. */
-    padding-block: var(--home-masthead-gutter);
+    /* Side gutter only. Top pad is 4px so the plate-edge tick's top
+       meets the hero photo top (PLT-AC-87 bottoms still meet). */
+    padding-top: 4px;
     padding-bottom: 0;
     padding-inline: var(--home-masthead-gutter);
     display: flex;
     flex-direction: column;
     align-items: stretch;
     justify-content: flex-start;
-    gap: var(--space-sm);
+    gap: var(--space-xs);
     min-height: 0;
     box-sizing: border-box;
+  }
+
+  /* Banner padding sits under the hairline; keep the title close to the rule
+     and the note close to the bench. */
+  .home-band[data-home-kind="portfolio"] .ledger-section-banner,
+  #home-projects .ledger-section-banner {
+    padding-top: var(--space-sm);
+    padding-bottom: 0;
+    margin-bottom: 0;
   }
 
   .home-band[data-home-kind="portfolio"] .home-projects-bench {
@@ -2446,10 +2478,11 @@ html[data-theme="light"] .home-featured .ledger-poster {
     background: rgba(255, 255, 255, 0.92);
   }
 
-  /* PLT-AC-88: from 1024px the Projects bench matches the phone —
-     icon buttons on top, specimen card below. The hero plate stretches
-     to this column's height (PLT-AC-87). PLT-AC-104/105/106 described the
-     retired contents rows. */
+  /* PLT-AC-88: from 1024px the Projects bench is an icon column beside the
+     specimen (same idea as the 900–1023 island, full column width). A
+     narrower plate shortens the masthead. The hero plate stretches to this
+     column's height (PLT-AC-87). PLT-AC-104/105/106 described the retired
+     contents rows. */
   .home-band[data-home-kind="portfolio"] {
     --home-projects-block-width: 100%;
   }
@@ -2476,10 +2509,13 @@ html[data-theme="light"] .home-featured .ledger-poster {
     --home-specimen-max-width: none;
     --home-specimen-plate-width: 100%;
     --home-specimen-plate-height: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--space-md);
+    display: grid;
+    grid-template-columns: var(--home-icon-btn-size) minmax(0, 1fr);
+    column-gap: calc(var(--space-xs) * 2);
+    align-items: start;
+    justify-content: start;
+    gap: 0;
+    row-gap: 0;
     width: 100%;
     max-width: 100%;
     margin-inline: 0;
@@ -2487,27 +2523,41 @@ html[data-theme="light"] .home-featured .ledger-poster {
   }
 
   .home-projects-inventory-wrap {
-    order: -1;
-    display: block;
-    width: 100%;
-    max-width: none;
-    min-width: 0;
+    order: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    width: var(--home-icon-btn-size);
+    max-width: var(--home-icon-btn-size);
+    min-width: var(--home-icon-btn-size);
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
   }
 
   .home-project-inventory {
-    order: -1;
-    display: grid;
-    grid-template-columns: repeat(var(--home-project-icon-count, 6), minmax(0, 1fr));
+    order: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
     gap: var(--space-xs);
-    width: 100%;
-    max-width: none;
-    min-width: 0;
+    width: var(--home-icon-btn-size);
+    max-width: var(--home-icon-btn-size);
+    min-width: var(--home-icon-btn-size);
+    min-height: 0;
+    overflow: visible;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    box-sizing: border-box;
   }
 
   button.home-project-inventory-row,
   .home-project-inventory-row {
-    width: 100%;
+    width: var(--home-icon-btn-size);
     height: var(--home-icon-btn-size);
+    flex: 0 0 auto;
     min-height: 0;
     padding: 0;
   }
