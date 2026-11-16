@@ -247,10 +247,10 @@ require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
   ".home-projects-bench", ["grid-template-columns: var(--home-icon-btn-size) max-content", "column-gap: calc(var(--space-xs) * 2)", "width: max-content", "margin-inline: auto"]
 )
-# PLT-AC-88: icon column beside specimen from 1024px.
+# PLT-AC-88: one-row icon strip above specimen from 1024px.
 require_declarations(
   errors, "assets/css/ledger/home.css", home_sheet,
-  ".home-projects-bench", ["width: 100%", "margin-inline: 0", "display: grid"]
+  ".home-projects-bench", ["width: 100%", "margin-inline: 0", "display: flex"]
 )
 unless home_sheet.include?("padding-inline: var(--home-masthead-gutter)")
   errors << "assets/css/ledger/home.css: portfolio inner must pad with --home-masthead-gutter (PLT-AC-88)"
@@ -267,8 +267,20 @@ end
 unless home_sheet.match?(/@media \(min-width: 1024px\)[\s\S]*\.home-specimen-strip\s*\{[^}]*display:\s*none/)
   errors << "assets/css/ledger/home.css: desktop must hide the specimen folio/label/year strip"
 end
-unless home_sheet.match?(/@media \(min-width: 1024px\)[\s\S]*\.home-projects-bench\s*\{[^}]*grid-template-columns:\s*var\(--home-icon-btn-size\)\s+minmax\(0,\s*1fr\)/)
-  errors << "assets/css/ledger/home.css: icon buttons must sit beside the specimen (PLT-AC-88)"
+unless home_sheet.match?(/\.home-projects-inventory-wrap\s*\{[^}]*order:\s*-1/)
+  errors << "assets/css/ledger/home.css: icon buttons must sit above the specimen (PLT-AC-88)"
+end
+unless home_sheet.match?(/@media \(min-width: 1024px\)[\s\S]*\.home-project-inventory\s*\{[^}]*gap:\s*2px/)
+  errors << "assets/css/ledger/home.css: desk icon gap must be 2px (PLT-AC-88)"
+end
+unless home_sheet.match?(/\.home-band\[data-home-kind="portfolio"\] \.ledger-section-banner[\s\S]{0,200}?padding-top:\s*var\(--space-lg\)/)
+  errors << "assets/css/ledger/home.css: portfolio banner pad under hairline must match writing bands (space-lg)"
+end
+unless home_sheet.match?(/\.ledger-section-banner--rule-only\s*\{[^}]*padding-top:\s*var\(--space-lg\)/m)
+  errors << "assets/css/ledger/home.css: index rule-only pad under hairline must match writing bands (space-lg)"
+end
+unless home_sheet.match?(/max-height:\s*calc\(var\(--type-body\) \* var\(--leading-body\) \* 2\)/)
+  errors << "assets/css/ledger/home.css: specimen tagline must clamp to two lines (PLT-AC-88)"
 end
 if home_sheet.match?(/\.home-project-specimen[^{]*\{[^}]*display:\s*none/)
   errors << "assets/css/ledger/home.css: the specimen card must stay visible (PLT-AC-88)"

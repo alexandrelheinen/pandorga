@@ -1,6 +1,6 @@
 # CR-22.4 — Home hero C4 (pandorga 2.3.6)
 
-Status: shipped 2.3.6; contrast follow-up 2.3.7; desktop list rewrite 2.3.18–2.3.20; from 1024px the Projects bench is an icon column beside the specimen (PLT-AC-88). PLT-AC-104/105/106 are superseded.  
+Status: shipped 2.3.6; contrast follow-up 2.3.7; desktop list rewrite 2.3.18–2.3.20; from 1024px the Projects bench is a one-row icon strip above the specimen (PLT-AC-88). PLT-AC-104/105/106 are superseded.  
 Version target: pandorga 2.3.6 (contrast follow-up 2.3.7)  
 Prerequisite: CR-22.3 (2.3.5) shipped.
 
@@ -10,7 +10,7 @@ Ship the approved C4 mockups on top of B3: center the Projects island in the des
 
 ## Acceptance criteria (EARS)
 
-- `PLT-AC-88` **Icon column beside specimen.** From **1024px**, the Projects bench places icon buttons in a vertical stack to the left of the specimen card, spanning the padded column (`width: 100%`, `margin-inline: 0`, grid `icon-size | 1fr`). The specimen stays visible. Its plate is 16:9 and spans the card (narrower than a full-column plate, so the masthead shortens). A long specimen title wraps to two lines; the tagline stops at four lines. The portfolio `.home-band-inner` keeps `--home-masthead-gutter` on the sides, **4px** top pad so the plate-edge tick meets the hero photo top, and **no bottom pad**, so the specimen’s bottom edge meets the hero photo (PLT-AC-87). The desk hides the specimen folio/label/year strip; the home specimen omits tag chips. The Projects column sets the masthead row height and the hero plate stretches to that height at full column width, with the photograph covering the stretched box (PLT-AC-87). Tablet 900–1023 keeps the centered icon-column island. Below 900px keeps the phone strip (icons above specimen) (`test-home-hero-c4`, `test-home-desk-layout`, `test-css-structure`, `test-regression-gate`).
+- `PLT-AC-88` **One-row icon strip.** From **1024px**, the Projects bench places icon buttons in a single row above the specimen card, spanning the padded column (`width: 100%`, `margin-inline: 0`, flex column, inventory `order: -1`, icon gap `2px`). The specimen stays visible. Its plate is 16:9 and spans the card. Specimen title and tagline each stop at two lines. The portfolio `.home-band-inner` keeps `--home-masthead-gutter` on the sides, **4px** top pad so the plate-edge tick meets the hero photo top, and **no bottom pad**, so the specimen’s bottom edge meets the hero photo (PLT-AC-87). The desk hides the specimen folio/label/year strip; the home specimen omits tag chips. Sites cap the visible count with `home.limit_desktop` so every icon stays on one row. The Projects column sets the masthead row height and the hero plate stretches to that height at full column width (PLT-AC-87). Tablet 900–1023 keeps the centered icon-column island. Below 900px keeps the phone strip (`test-home-hero-c4`, `test-home-desk-layout`, `test-css-structure`, `test-regression-gate`).
 - `PLT-AC-104` **Superseded by PLT-AC-88.** The contents-row icon/name centering applied only to the retired desktop list.
 - `PLT-AC-105` **Superseded by PLT-AC-88.** The contents-row gray wash applied only to the retired desktop list. Selected icon buttons keep the shared `--color-surface-high` treatment.
 - `PLT-AC-106` **Superseded by PLT-AC-88.** The contents-row padding balance applied only to the retired desktop list.

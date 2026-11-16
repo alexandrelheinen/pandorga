@@ -378,16 +378,18 @@ html[data-theme="light"] .home-hero-plate {
 }
 
 /* Portfolio keeps the atelier plate edge (primary/blue bar + tick). The
-   banner lives inside the projects column, so the rule never spans the hero. */
+   banner lives inside the projects column, so the rule never spans the hero.
+   Pad below the hairline matches Articles/Rascunhos (`--space-lg`). */
 
 /* Index references band: when the text header is empty, a rule-only strip
    still marks the plate below Rascunhos. Neutral outline ink — the three
-   panels each carry their own accent. */
+   panels each carry their own accent. Pad below the hairline matches the
+   writing bands (`--space-lg`). */
 .home-band--index .ledger-section-banner--rule-only {
   --color-primary: var(--color-outline);
   display: block;
-  padding-top: 0;
-  padding-bottom: var(--space-lg);
+  padding-top: var(--space-lg);
+  padding-bottom: 0;
   margin: 0;
   min-height: 0;
 }
@@ -921,9 +923,9 @@ html[data-theme="light"] .home-hero-plate {
    with the title below it. From 900px the specimen column takes 35% of the
    band (at least 20rem) and the rack 45% (at least 21rem) across one
    `--space-xl` column gap, starting at the band's left edge, and the rack
-   rows share the specimen height. Below 900px the rack is an icon strip
-   above the specimen; from 1024px it is an icon column beside the specimen
-   (full column width). The hero plate stretches to that column. */
+   rows share the specimen height. Below 900px and again from 1024px the
+   rack is a one-row icon strip above the specimen (desk uses a tighter
+   gap). The hero plate stretches to that column. */
 .home-projects-bench {
   --home-specimen-height: 32rem;
   --home-icon-btn-size: 2.75rem;
@@ -1461,8 +1463,9 @@ button.home-project-inventory-row {
   isolation: isolate;
 }
 
-/* Rule-only index: sit the gray plate edge just under Rascunhos (tick
-   clearance), and move the former top breathing room below the rule. */
+/* Rule-only index: tick clearance at the band top (same 4px as desk
+   Projects), then the shared `--space-lg` under the hairline, then the
+   former band top breathing room as padding below the rule. */
 .home-band--index:has(> .home-band-inner > .ledger-section-banner--rule-only) {
   padding-top: 4px;
 }
@@ -2293,11 +2296,10 @@ html[data-theme="light"] .home-featured .ledger-poster {
     box-sizing: border-box;
   }
 
-  /* Banner padding sits under the hairline; keep the title close to the rule
-     and the note close to the bench. */
+  /* Pad under the hairline matches Articles/Rascunhos (`--space-lg`). */
   .home-band[data-home-kind="portfolio"] .ledger-section-banner,
   #home-projects .ledger-section-banner {
-    padding-top: var(--space-sm);
+    padding-top: var(--space-lg);
     padding-bottom: 0;
     margin-bottom: 0;
   }
@@ -2478,11 +2480,11 @@ html[data-theme="light"] .home-featured .ledger-poster {
     background: rgba(255, 255, 255, 0.92);
   }
 
-  /* PLT-AC-88: from 1024px the Projects bench is an icon column beside the
-     specimen (same idea as the 900–1023 island, full column width). A
-     narrower plate shortens the masthead. The hero plate stretches to this
-     column's height (PLT-AC-87). PLT-AC-104/105/106 described the retired
-     contents rows. */
+  /* PLT-AC-88: from 1024px the Projects bench is a one-row icon strip above
+     the specimen (tight gaps so more projects fit). The hero plate stretches
+     to this column's height (PLT-AC-87). Tablet 900–1023 keeps the centered
+     icon-column island. PLT-AC-104/105/106 described the retired contents
+     rows. */
   .home-band[data-home-kind="portfolio"] {
     --home-projects-block-width: 100%;
   }
@@ -2509,13 +2511,10 @@ html[data-theme="light"] .home-featured .ledger-poster {
     --home-specimen-max-width: none;
     --home-specimen-plate-width: 100%;
     --home-specimen-plate-height: auto;
-    display: grid;
-    grid-template-columns: var(--home-icon-btn-size) minmax(0, 1fr);
-    column-gap: calc(var(--space-xs) * 2);
-    align-items: start;
-    justify-content: start;
-    gap: 0;
-    row-gap: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-xs);
     width: 100%;
     max-width: 100%;
     margin-inline: 0;
@@ -2523,41 +2522,27 @@ html[data-theme="light"] .home-featured .ledger-poster {
   }
 
   .home-projects-inventory-wrap {
-    order: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0;
-    width: var(--home-icon-btn-size);
-    max-width: var(--home-icon-btn-size);
-    min-width: var(--home-icon-btn-size);
-    box-sizing: border-box;
-    padding: 0;
-    margin: 0;
+    order: -1;
+    display: block;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
   }
 
   .home-project-inventory {
-    order: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--space-xs);
-    width: var(--home-icon-btn-size);
-    max-width: var(--home-icon-btn-size);
-    min-width: var(--home-icon-btn-size);
-    min-height: 0;
-    overflow: visible;
-    padding: 0;
-    margin: 0;
-    background: transparent;
-    box-sizing: border-box;
+    order: -1;
+    display: grid;
+    grid-template-columns: repeat(var(--home-project-icon-count, 6), minmax(0, 1fr));
+    gap: 2px;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
   }
 
   button.home-project-inventory-row,
   .home-project-inventory-row {
-    width: var(--home-icon-btn-size);
+    width: 100%;
     height: var(--home-icon-btn-size);
-    flex: 0 0 auto;
     min-height: 0;
     padding: 0;
   }
@@ -2585,8 +2570,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
     aspect-ratio: 16 / 9;
   }
 
-  /* Wide card: a long project name wraps to two lines instead of a
-     single ellipsis, and the tagline stops at four lines. */
+  /* Wide card: title and tagline each stop at two lines. */
   .home-project-specimen .home-specimen-title,
   .home-project-specimen .ledger-card-title {
     font-size: var(--type-card-lg);
@@ -2602,7 +2586,7 @@ html[data-theme="light"] .home-featured .ledger-poster {
     height: auto;
     flex: 0 1 auto;
     min-height: 0;
-    max-height: calc(var(--type-body) * var(--leading-body) * 4);
+    max-height: calc(var(--type-body) * var(--leading-body) * 2);
   }
 
   .home-project-specimen .ledger-card-copy + .home-specimen-foot {

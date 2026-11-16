@@ -18,15 +18,18 @@ def fail!(msg)
   true
 end
 
-# PLT-AC-88 — Icon column beside specimen from 1024px.
-unless HOME.include?("PLT-AC-88: from 1024px the Projects bench is an icon column beside")
-  failed = 1 if fail!("PLT-AC-88: home.css must document the icon-column desk layout")
+# PLT-AC-88 — One-row icon strip above specimen from 1024px.
+unless HOME.include?("PLT-AC-88: from 1024px the Projects bench is a one-row icon strip")
+  failed = 1 if fail!("PLT-AC-88: home.css must document the one-row desk strip")
 end
-unless HOME.match?(/@media \(min-width: 1024px\)[\s\S]*\.home-projects-bench\s*\{[^}]*display:\s*grid/)
-  failed = 1 if fail!("PLT-AC-88: the desktop bench must be a grid")
+unless HOME.match?(/@media \(min-width: 1024px\)[\s\S]*\.home-projects-bench\s*\{[^}]*display:\s*flex/)
+  failed = 1 if fail!("PLT-AC-88: the desktop bench must stack as a column")
 end
-unless HOME.match?(/@media \(min-width: 1024px\)[\s\S]*\.home-projects-bench\s*\{[^}]*grid-template-columns:\s*var\(--home-icon-btn-size\)\s+minmax\(0,\s*1fr\)/)
-  failed = 1 if fail!("PLT-AC-88: icon buttons must sit beside the specimen")
+unless HOME.match?(/@media \(min-width: 1024px\)[\s\S]*\.home-projects-inventory-wrap\s*\{[^}]*order:\s*-1/)
+  failed = 1 if fail!("PLT-AC-88: icon buttons must sit above the specimen")
+end
+unless HOME.match?(/@media \(min-width: 1024px\)[\s\S]*\.home-project-inventory\s*\{[^}]*gap:\s*2px/)
+  failed = 1 if fail!("PLT-AC-88: desk icon gap must be tight (2px)")
 end
 unless HOME.match?(/@media \(min-width: 1024px\)[\s\S]*\.home-band\[data-home-kind="portfolio"\] \.home-band-inner[\s\S]{0,400}?padding-top:\s*4px/)
   failed = 1 if fail!("PLT-AC-88: portfolio top pad must be 4px so the tick meets the hero")
@@ -37,8 +40,8 @@ end
 unless HOME.match?(/@media \(min-width: 1024px\)[\s\S]*-webkit-line-clamp:\s*2/)
   failed = 1 if fail!("PLT-AC-88: the desktop specimen title must wrap to two lines")
 end
-unless HOME.match?(/@media \(min-width: 1024px\)[\s\S]*max-height:\s*calc\(var\(--type-body\) \* var\(--leading-body\) \* 4\)/)
-  failed = 1 if fail!("PLT-AC-88: the desktop tagline must stop at four lines")
+unless HOME.match?(/@media \(min-width: 1024px\)[\s\S]*max-height:\s*calc\(var\(--type-body\) \* var\(--leading-body\) \* 2\)/)
+  failed = 1 if fail!("PLT-AC-88: the desktop tagline must stop at two lines")
 end
 if HOME.match?(/--home-specimen-plate-height:\s*15\.3125rem/)
   failed = 1 if fail!("PLT-AC-88: desktop must not keep the 15.3125rem specimen cap")
@@ -49,8 +52,8 @@ end
 unless HOME.match?(/\.home-projects-bench[\s\S]{0,800}?margin-inline:\s*auto/)
   failed = 1 if fail!("PLT-AC-88: tablet island must keep margin-inline: auto")
 end
-unless SPEC.include?("Icon column beside specimen") && SPEC.include?("hero plate stretches")
-  failed = 1 if fail!("PLT-AC-88: spec must describe the icon column and the stretched hero plate")
+unless SPEC.include?("One-row icon strip") && SPEC.include?("hero plate stretches")
+  failed = 1 if fail!("PLT-AC-88: spec must describe the one-row strip and the stretched hero plate")
 end
 
 # PLT-AC-89 — soft edgeless overlay, no panel behind copy
