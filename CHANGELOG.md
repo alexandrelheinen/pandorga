@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 2.3.33
+
+- Home Projects (≥1024): one-row icon strip above the specimen with a 2px
+  gap; specimen title and tagline each clamp to two lines.
+- Home plate edge: Projects and the gray index rule-only use the same
+  `--space-lg` pad under the hairline as Articles/Rascunhos.
+
 ## 2.3.32
 
 - Home Projects (≥1024): icon column beside the specimen, 4px top pad so the
