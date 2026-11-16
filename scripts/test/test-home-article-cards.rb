@@ -45,8 +45,13 @@ fail!("card top rule is not var(--color-primary)") unless base.include?("border-
 
 # 3. Build time.
 fail!("band-index does not set data-home-label") unless band_index.include?("data-home-label=")
-fail!("band-index does not guard the banner on empty header texts") unless band_index =~ /\{%-?\s*unless _hide_banner\s*-?%\}\s*<div class="ledger-section-banner"/m
+fail!("band-index does not guard the text banner on empty header texts") unless band_index =~ /\{%-?\s*unless _hide_banner\s*-?%\}\s*<div class="ledger-section-banner"/m
+fail!("band-index does not emit a rule-only plate edge when the text banner is hidden") unless band_index =~ /\{%-?\s*else\s*-?%\}\s*<div class="ledger-section-banner ledger-section-banner--rule-only"/m
 fail!("band-index does not label the section when the banner is hidden") unless band_index =~ /_hide_banner\s*%\}\s*aria-label=/
+fail!("home.css lacks neutral rule-only plate edge") unless css.include?(".ledger-section-banner--rule-only") &&
+  css.include?("--color-primary: var(--color-outline)")
+fail!("portfolio plate edge must not be suppressed") if css =~ /data-home-kind="portfolio"[^{]*\{[^}]*border-top:\s*none/m ||
+  css =~ /#home-projects \.ledger-section-banner::before[^{]*\{[^}]*display:\s*none/m
 
 # 4. Runtime.
 apply = fragments[/function applyHomeSection\(.*?\n    \}\n/m] or fail!("applyHomeSection not found")

@@ -377,22 +377,18 @@ html[data-theme="light"] .home-hero-plate {
   background: color-mix(in srgb, var(--color-primary) 55%, var(--color-outline));
 }
 
-/* CR-22.3 — B3: no ruled banner above Projects & Experiments.
-   Spacing under the section note is half the prior mb+gap+pb stack so the
-   icon strip sits closer to "A living…". */
-.home-band[data-home-kind="portfolio"] .ledger-section-banner,
-#home-projects .ledger-section-banner {
+/* Portfolio keeps the atelier plate edge (primary/blue bar + tick). The
+   banner lives inside the projects column, so the rule never spans the hero. */
+
+/* Index references band: when the text header is empty, a rule-only strip
+   still marks the plate. Neutral outline ink — the three panels each carry
+   their own accent. */
+.home-band--index .ledger-section-banner--rule-only {
+  --color-primary: var(--color-outline);
+  display: block;
   padding-top: 0;
-  padding-bottom: 0.25rem;
-  border-top: none;
-  box-shadow: none;
-  margin-bottom: 0.4rem;
-}
-.home-band[data-home-kind="portfolio"] .ledger-section-banner::before,
-.home-band[data-home-kind="portfolio"] .ledger-section-banner::after,
-#home-projects .ledger-section-banner::before,
-#home-projects .ledger-section-banner::after {
-  display: none;
+  padding-bottom: var(--space-md);
+  margin-bottom: 0;
 }
 
 .home-band .ledger-section-lead {
@@ -1317,10 +1313,10 @@ button.home-project-inventory-row {
 
   .home-band[data-home-kind="portfolio"] .ledger-section-banner,
   #home-projects .ledger-section-banner {
-    width: max-content;
+    width: 100%;
     max-width: 100%;
-    align-self: center;
-    margin-inline: auto;
+    align-self: stretch;
+    margin-inline: 0;
     flex: 0 0 auto;
   }
 

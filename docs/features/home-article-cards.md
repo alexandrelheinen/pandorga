@@ -7,8 +7,9 @@ the "Read" link share the card's last row. Every listed card carries the
 Articles page accent on its top rule instead of rotating through the
 palette, so one card no longer shows the secondary (ochre) hue inside a
 green band. And a band whose header texts are all saved empty in
-`content/pages/headers.yml` drops the whole header, rule included, instead
-of keeping an empty ruled strip.
+`content/pages/headers.yml` drops the text header instead of keeping an
+empty title strip. The index references band still keeps a neutral
+rule-only plate edge above its three panels.
 
 ## Scope
 
@@ -41,10 +42,13 @@ Out:
      `:nth-child`.
   3. **Emptied header, build time.** When `headers.yml` was read at build
      time and the index band's entry has no non-blank kicker, title or
-     note, `home/band-index.html` emits no `.ledger-section-banner`, and
-     the band's `<section>` carries an `aria-label` naming its panels.
+     note, `home/band-index.html` emits no text `.ledger-section-banner`
+     (no kicker/title/note slots), emits a
+     `.ledger-section-banner--rule-only` plate edge instead, and the
+     band's `<section>` carries an `aria-label` naming its panels.
   4. **Emptied header, runtime.** After `applyHomeSection` fills or removes
-     the slots, a banner left with no slot and no `.home-section-aside` is
-     removed, and its band `<section>` takes its `data-home-label` as
-     `aria-label`. `home/band-index.html` sets `data-home-label` to its
+     the slots, a text banner left with no slot and no `.home-section-aside`
+     is removed, and its band `<section>` takes its `data-home-label` as
+     `aria-label`. Rule-only strips have no `data-content-home-section` and
+     are left alone. `home/band-index.html` sets `data-home-label` to its
      panels' default titles joined with ", ".

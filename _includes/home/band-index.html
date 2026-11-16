@@ -4,8 +4,9 @@
 {%- endcomment -%}
 {%- comment -%}
   The band's name when its header is gone: the panels' default titles. A
-  header whose kicker, title and note are all blank in headers.yml is not
-  emitted at all, so no empty ruled strip is left (PLT-AC-52).
+  header whose kicker, title and note are all blank in headers.yml drops the
+  text banner (PLT-AC-52) but keeps a neutral rule-only plate edge so the
+  three accented panels still sit under a ledger rule.
 {%- endcomment -%}
 {%- assign _band_label = "" -%}
 {%- for panel in band.pages -%}
@@ -38,6 +39,8 @@
         <p class="home-section-note font-body" data-content-section-note></p>
       </div>
     </div>
+    {%- else -%}
+    <div class="ledger-section-banner ledger-section-banner--rule-only" aria-hidden="true"></div>
     {%- endunless -%}
     <div class="home-index-split">
       {%- for panel in band.pages -%}
