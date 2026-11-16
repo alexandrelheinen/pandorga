@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 2.3.31
+
+- Home: restore the atelier plate edge above Projects (primary/blue bar +
+  tick, column-width only). When the references index header is empty, keep
+  a neutral rule-only plate edge above Sources / Network / Bibliography
+  (PLT-AC-52).
+
 ## 2.3.30
 
 - Desktop home: project icon strip stays on one row (column count follows the
