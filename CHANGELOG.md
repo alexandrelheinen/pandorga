@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 2.3.32
+
+- Home Projects (≥1024): icon column beside the specimen, 4px top pad so the
+  plate-edge tick meets the hero photo, tighter note→bench gap.
+- Home references: emptied index header keeps a gray rule-only plate edge at
+  runtime (not only at build), pulled up under Rascunhos.
+
 ## 2.3.31
 
 - Home: restore the atelier plate edge above Projects (primary/blue bar +
