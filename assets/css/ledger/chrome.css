@@ -88,13 +88,11 @@
   line-height: 1;
 }
 
-/* The wordmark is the configured site name (the first name when identity
-   sets one). It stays on a phone, truncated, beside the logo. */
+/* The full name does not fit a phone bar alongside the theme toggle and the
+   Explore button — at 390px it ran 60px underneath them. Below the first
+   breakpoint the mark alone carries the link home, which is what it is for. */
 .site-wordmark {
-  display: inline;
-  max-width: 42vw;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  display: none;
   font-family: var(--font-title);
   font-size: calc(var(--type-dek) * 1.25);
   line-height: 1;
@@ -103,18 +101,7 @@
 
 @media (min-width: 640px) {
   .site-wordmark {
-    max-width: none;
-  }
-}
-
-/* The theme control keeps the 44px phone target from 2.3.38. The menu
-   button stays the 2.25rem menu glyph (v2.3.37): icon, box, and name. */
-@media (max-width: 767px) {
-  #theme-toggle-btn {
-    min-width: 44px;
-    min-height: 44px;
-    width: auto;
-    height: auto;
+    display: inline;
   }
 }
 

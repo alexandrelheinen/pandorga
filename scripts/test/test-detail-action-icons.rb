@@ -30,8 +30,8 @@ end
 if DETAIL.match?(/max-width:\s*767px[\s\S]*detail-action-label\s*\{[^}]*position:\s*static/m)
   failed = 1 if fail!("PLT-AC-95: phone detail action labels must stay clipped")
 end
-unless DETAIL.include?('content: "· Updated "')
-  failed = 1 if fail!("PLT-AC-113: phone dates must join with · Updated")
+if DETAIL.include?('content: "· Updated "')
+  failed = 1 if fail!("PLT-AC-113: phone dates stay stacked dossier rows")
 end
 # Desktop base stays 1rem (labeled pills)
 unless DETAIL.match?(/\.detail-action\s+\.material-symbols-outlined\s*\{[^}]*font-size:\s*1rem;/m)

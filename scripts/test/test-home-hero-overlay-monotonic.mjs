@@ -85,6 +85,34 @@ async function openSocket(url) {
   return ws;
 }
 
+async function launchChrome(chromePath) {
+  let lastError;
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    const profile = await mkdtemp(join(tmpdir(), 'pandorga-mono-chrome-'));
+    const dbgPort = await freePort();
+    const chrome = spawn(chromePath, [
+      '--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
+      '--no-first-run', '--remote-allow-origins=*',
+      '--remote-debugging-address=127.0.0.1',
+      `--remote-debugging-port=${dbgPort}`,
+      `--user-data-dir=${profile}`,
+      'about:blank'
+    ], { stdio: ['ignore', 'ignore', 'pipe'] });
+    try {
+      const version = await waitForDevtools(dbgPort, chrome);
+      return { chrome, profile, version };
+    } catch (error) {
+      lastError = error;
+      chrome.kill('SIGKILL');
+      await rm(profile, { recursive: true, force: true });
+      if (attempt === 3) break;
+      console.warn(`WARN: Chrome launch attempt ${attempt} failed: ${error.message}; retrying...`);
+      await delay(300);
+    }
+  }
+  throw lastError;
+}
+
 async function waitForDevtools(port, chrome) {
   let stderr = '';
   if (chrome.stderr) chrome.stderr.on('data', (c) => { stderr += c; });
@@ -288,21 +316,11 @@ async function main() {
   });
   await new Promise((r) => httpServer.listen(httpPort, '127.0.0.1', r));
 
-  const chromePath = findChrome();
-  const profile = await mkdtemp(join(tmpdir(), 'pandorga-mono-chrome-'));
-  const dbgPort = await freePort();
-  const chrome = spawn(chromePath, [
-    '--headless=new', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage',
-    '--no-first-run', '--remote-allow-origins=*',
-    '--remote-debugging-address=127.0.0.1',
-    `--remote-debugging-port=${dbgPort}`,
-    `--user-data-dir=${profile}`,
-    'about:blank'
-  ], { stdio: ['ignore', 'ignore', 'pipe'] });
+  const launched = await launchChrome(findChrome());
+  const { chrome, profile, version } = launched;
 
   const errors = [];
   try {
-    const version = await waitForDevtools(dbgPort, chrome);
     const ws = await openSocket(version.webSocketDebuggerUrl);
     const browser = new Cdp(ws);
 

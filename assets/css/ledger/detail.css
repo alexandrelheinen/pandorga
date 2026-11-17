@@ -1612,32 +1612,3 @@ nav.text-page-nav:not(:has(a)) {
     animation: none;
   }
 }
-
-/* PLT-AC-113. Phone article header: one date line. Action buttons stay the
-   v2.3.37 icon row (PLT-AC-95). */
-@media (max-width: 767px) {
-  .text-detail-sidebar .article-sidebar-heading,
-  .text-detail-sidebar .article-meta {
-    padding-left: 0;
-    padding-right: 0;
-  }
-
-  .text-detail-sidebar .article-meta .date-evolution {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.35rem;
-    font-family: var(--font-mono);
-    font-size: var(--type-meta);
-  }
-
-  .text-detail-sidebar .article-meta .date-evolution > span + span::before {
-    content: "· Updated ";
-  }
-
-  .text-detail-sidebar .article-toc--disclosure {
-    background: transparent;
-    margin-bottom: var(--space-sm);
-    border-top: 1px solid var(--border-gentle-divider);
-  }
-}
