@@ -502,7 +502,7 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
 .studio-nav button.nav-item[aria-current="page"] {
   background: #ebebeb;
   color: var(--on-surface);
-  border-left-color: var(--primary);
+  border-left: 2px solid var(--primary);
   box-shadow: none;
 }
 
@@ -528,22 +528,23 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
   min-height: 0;
   height: 100%;
   overflow: hidden;
-  background: transparent;
+  background: var(--background);
 }
 
+/* Stitch: Marcellus SC crumbs in the toolbar voice — not mono uppercase. */
 .studio-breadcrumb {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.25rem 0.4rem;
-  padding: var(--studio-space-xs) var(--studio-space-md);
-  border-bottom: 1px solid color-mix(in srgb, var(--outline-variant) 45%, transparent);
-  font-family: var(--font-mono);
-  font-size: var(--studio-type-micro);
+  padding: 0;
+  border-bottom: 0;
+  font-family: var(--font-label);
+  font-size: 0.75rem;
   letter-spacing: 0.04em;
-  text-transform: uppercase;
+  text-transform: none;
   color: var(--on-surface-variant);
-  background: var(--background);
+  background: transparent;
 }
 
 .studio-crumb-sep {
@@ -553,7 +554,7 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
 .studio-crumb.is-current {
   color: var(--on-surface);
   text-transform: none;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
 }
 
 .studio-toolbar {
@@ -577,9 +578,14 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
 .studio-toolbar-brand {
   display: flex;
   align-items: center;
-  gap: var(--studio-space-sm);
+  gap: var(--studio-space-md);
   min-width: 0;
   flex: 0 1 auto;
+}
+
+.studio-toolbar-brand .studio-breadcrumb {
+  padding-left: var(--studio-space-md);
+  border-left: 1px solid var(--outline-variant);
 }
 
 .studio-toolbar-status {
@@ -1007,24 +1013,15 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
   cursor: not-allowed;
 }
 
+/* Saved / idle primary: Stitch hairline outline — not a faint marca wash. */
 .studio-toolbar>.btn-tool.btn-primary:disabled,
 .btn-primary:disabled {
-  color: color-mix(in srgb, var(--on-surface-variant) 70%, transparent);
-  --mark-1: 12%;
-  --mark-2: 9%;
-  --mark-3: 3%;
-  background: linear-gradient(
-      var(--mk-angle),
-      transparent var(--mk-s0),
-      color-mix(in srgb, var(--mark-ink) var(--mark-1), transparent) var(--mk-s1),
-      color-mix(in srgb, var(--mark-ink) var(--mark-2), transparent) var(--mk-mid),
-      color-mix(in srgb, var(--mark-ink) var(--mark-3), transparent) var(--mk-end),
-      transparent 100%
-    )
-    0 var(--mk-y) / 100% var(--mk-h) no-repeat;
-  border-color: transparent;
+  color: var(--on-surface-variant);
+  background: transparent;
+  border: 1px solid var(--outline-variant);
   opacity: 1;
   cursor: not-allowed;
+  filter: none;
 }
 
 .studio-body {

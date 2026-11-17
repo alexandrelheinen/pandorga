@@ -1246,13 +1246,14 @@ function syncToolbarStatus() {
   pill.title = state.error || state.errorDetail || state.status || "";
 }
 
-function renderStudioToolbar({ brand = null, menuToggle = null } = {}) {
+function renderStudioToolbar({ brand = null, menuToggle = null, breadcrumb = null } = {}) {
   const saveLabel = state.saving ? "Saving…" : state.dirty ? "Save" : "Saved";
   const saveIcon = state.saving ? "progress_activity" : state.dirty ? "save" : "check";
   const statusText = state.error ? "Error" : state.status || "";
 
   const brandCluster = el("div", { className: "studio-toolbar-brand" }, [
     brand,
+    breadcrumb,
     statusText
       ? el("span", {
           className: "status-pill studio-toolbar-status" + (state.error ? " error" : ""),
@@ -1609,11 +1610,7 @@ function syncErrorBanner() {
   const next = renderErrorBanner();
   if (existing && next) existing.replaceWith(next);
   else if (existing && !next) existing.remove();
-  else if (!existing && next) {
-    const crumb = main.querySelector(".studio-breadcrumb");
-    if (crumb) crumb.before(next);
-    else main.prepend(next);
-  }
+  else if (!existing && next) main.prepend(next);
 }
 
 function seedNavGroupsOpen(schema) {
@@ -1744,11 +1741,14 @@ function renderShell() {
     [panel]
   );
 
-  const toolbar = renderStudioToolbar({ brand, menuToggle });
+  const toolbar = renderStudioToolbar({
+    brand,
+    menuToggle,
+    breadcrumb: renderStudioBreadcrumb(),
+  });
 
   const main = el("div", { className: "studio-main" }, [
     renderErrorBanner(),
-    renderStudioBreadcrumb(),
     el("div", {
       className: "studio-body" + (state.file ? "" : " list-only"),
       id: "studio-body",
@@ -1770,17 +1770,14 @@ function renderShell() {
 }
 
 function renderStudioBreadcrumb() {
-  const parts = [el("span", { className: "studio-crumb", text: "Studio" })];
+  /* Stitch toolbar crumb starts at the group (Writing / Articles), not "Studio". */
+  const parts = [];
   if (state.mediaOpen && !state.collection) {
-    parts.push(
-      el("span", { className: "studio-crumb-sep", "aria-hidden": "true", text: "/" }),
-      el("span", { className: "studio-crumb is-current", text: "Media" })
-    );
+    parts.push(el("span", { className: "studio-crumb is-current", text: "Media" }));
   } else if (state.collection) {
     const group = state.collection.group || "Content";
     const label = state.collection.label || state.collection.name;
     parts.push(
-      el("span", { className: "studio-crumb-sep", "aria-hidden": "true", text: "/" }),
       el("span", { className: "studio-crumb", text: group }),
       el("span", { className: "studio-crumb-sep", "aria-hidden": "true", text: "/" }),
       el("span", {
@@ -1800,10 +1797,7 @@ function renderStudioBreadcrumb() {
       );
     }
   } else {
-    parts.push(
-      el("span", { className: "studio-crumb-sep", "aria-hidden": "true", text: "/" }),
-      el("span", { className: "studio-crumb is-current", text: "Map" })
-    );
+    parts.push(el("span", { className: "studio-crumb is-current", text: "Map" }));
   }
   return el("nav", {
     className: "studio-breadcrumb",

@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+## 2.3.37
+
+- Studio toolbar: breadcrumb moves into the brand cluster (Marcellus SC,
+  Writing / Articles), matching Stitch; no second mono crumb bar under the
+  toolbar.
+- Saved / idle primary is a grey hairline outline (Stitch “Saved”), not a
+  faint marca wash; dirty Save and New entry stay marca-texto strong.
+
 ## 2.3.36
 
 - Studio chrome harmonized to the Stitch list mockup: flat paper background
