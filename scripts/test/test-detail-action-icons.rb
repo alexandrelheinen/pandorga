@@ -15,13 +15,23 @@ def fail!(msg)
   true
 end
 
-# PLT-AC-95 — glyph +2pt; box rules unchanged vs 2.3.5
+# PLT-AC-95 — glyph +2pt; box rules unchanged vs 2.3.5.
+# PLT-AC-113 keeps this icon row on phones (the 2.3.38 text actions are reverted).
 unless DETAIL.match?(/\.article-meta\s+\.detail-action\s+\.material-symbols-outlined[\s\S]{0,80}?font-size:\s*calc\(1rem\s*\+\s*2pt\)/m) ||
        DETAIL.match?(/detail-action \.material-symbols-outlined,[\s\S]{0,200}?font-size:\s*calc\(1rem\s*\+\s*2pt\)/m)
   failed = 1 if fail!("PLT-AC-95: mobile .detail-action icons must use font-size: calc(1rem + 2pt)")
 end
 unless DETAIL.include?("calc(1rem + 2pt)")
   failed = 1 if fail!("PLT-AC-95: calc(1rem + 2pt) must appear for mobile action glyphs")
+end
+if DETAIL.match?(/max-width:\s*767px[\s\S]*detail-action \.material-symbols-outlined\s*\{[^}]*display:\s*none/m)
+  failed = 1 if fail!("PLT-AC-95: phone detail actions must keep the icon")
+end
+if DETAIL.match?(/max-width:\s*767px[\s\S]*detail-action-label\s*\{[^}]*position:\s*static/m)
+  failed = 1 if fail!("PLT-AC-95: phone detail action labels must stay clipped")
+end
+if DETAIL.include?('content: "· Updated "')
+  failed = 1 if fail!("PLT-AC-113: phone dates stay stacked dossier rows")
 end
 # Desktop base stays 1rem (labeled pills)
 unless DETAIL.match?(/\.detail-action\s+\.material-symbols-outlined\s*\{[^}]*font-size:\s*1rem;/m)

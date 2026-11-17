@@ -210,7 +210,7 @@ fail!("menu control must keep its accessible name") unless shell.include?('aria-
 fail!("menu control must show the menu glyph at text-xl") unless shell.include?('class="material-symbols-outlined text-xl" aria-hidden="true">menu</span>')
 fail!("Explore must not be hardcoded as a person's name") if shell.include?("Alexandre")
 fail!("phone menu glyph must stay visible") if chrome.match?(/#mobile-menu-btn \.material-symbols-outlined\s*\{[^}]*display:\s*none/m)
-fail!("phone top-bar controls must keep the 2.25rem box") if chrome.match?(/max-width:\s*767px[\s\S]*#mobile-menu-btn[\s\S]{0,240}width:\s*auto/m)
+fail!("phone top-bar controls must keep the 2.25rem box") if chrome.match?(/max-width:\s*767px[\s\S]*#(?:theme-toggle-btn|mobile-menu-btn)[\s\S]{0,240}width:\s*auto/m)
 fail!("menu glyph size must stay 1.25rem") unless base.include?(".material-symbols-outlined.text-xl { font-size: 1.25rem; }")
 fail!("theme glyph size must stay var(--type-card)") unless base.match?(/#theme-toggle-icon\.material-symbols-outlined\s*\{[^}]*font-size:\s*var\(--type-card\);/m)
 fail!("phone dates must stay stacked dossier rows") if detail.include?('content: "· Updated "')

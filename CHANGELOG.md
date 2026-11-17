@@ -4,12 +4,13 @@
 
 ## 2.3.40
 
-- Article pages match 2.3.37 again on a phone. The top bar shows the menu
-  icon (visually hidden Explore, aria-label "Explore site pages") beside
-  the theme icon, and the wordmark stays hidden below 640px. Dates stay
-  stacked at the dossier sizes (mono `--type-meta` values, `--type-label`
-  labels). Back, Share, and Cite are the 2.5rem icon buttons, with glyphs
-  at `calc(1rem + 2pt)`.
+- Article pages on a phone restore the v2.3.37 menu icon in the top bar
+  (Material `menu`, 2.25rem box, `aria-label="Explore site pages"`) and the
+  icon Back, Share, and Cite buttons. The wordmark stays hidden below 640px,
+  and dates stay the stacked dossier rows at the v2.3.37 sizes (mono
+  `--type-meta` values, `--type-label` Published and Updated labels). The
+  top bar, dates, and action buttons use the v2.3.37 font sizes and spacing.
+  The drop cap stays.
 
 ## 2.3.39
 
