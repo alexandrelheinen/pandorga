@@ -6,8 +6,11 @@
 
 - Article pages on a phone restore the v2.3.37 menu icon in the top bar
   (Material `menu`, 2.25rem box, `aria-label="Explore site pages"`) and the
-  icon Back, Share, and Cite buttons. The site name, one date line, and
-  drop cap stay.
+  icon Back, Share, and Cite buttons. The wordmark stays hidden below 640px,
+  and dates stay the stacked dossier rows at the v2.3.37 sizes (mono
+  `--type-meta` values, `--type-label` Published and Updated labels). The
+  top bar, dates, and action buttons use the v2.3.37 font sizes and spacing.
+  The drop cap stays.
 
 ## 2.3.39
 

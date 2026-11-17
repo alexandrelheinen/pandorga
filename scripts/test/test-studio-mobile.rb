@@ -146,6 +146,12 @@ fail!("Vite must read lib/pandorga/version.rb") unless vite.include?("lib/pandor
 fail!("Vite must inject __PANDORGA_VERSION__") unless vite.include?("__PANDORGA_VERSION__")
 fail!("preview version must not hardcode a release number") if preview_version.match?(/PANDORGA_VERSION\s*=\s*"/)
 fail!("preview version must use the injected constant") unless preview_version.include?("__PANDORGA_VERSION__")
+version = read("lib/pandorga/version.rb")[/VERSION = "([^"]+)"/, 1]
+studio_html = read("studio/index.html")
+bundle_name = studio_html[%r{/studio/assets/(index-[A-Za-z0-9_-]+\.js)}, 1]
+fail!("studio bundle missing") unless bundle_name
+bundle = read("studio/assets/#{bundle_name}")
+fail!("studio bundle must bake Pandorga::VERSION #{version}") unless bundle.include?(%("#{version}"))
 
 # --- PLT-AC-112 token cleanup ---
 fail!("spec missing PLT-AC-112") unless spec.include?("PLT-AC-112")
@@ -188,21 +194,34 @@ css.scan(/box-shadow:\s*([^;]+);/).each do |value|
   fail!("drop shadow remains: #{v}") unless v == "none" || v == "none !important"
 end
 
-# --- PLT-AC-113 phone article ---
+# --- PLT-AC-113 phone article, restored to 2.3.37 in 2.3.40 ---
 fail!("spec missing PLT-AC-113") unless spec.include?("PLT-AC-113")
 chrome = read("assets/css/ledger/chrome.css")
 shell = read("_layouts/shell.html")
 detail = read("assets/css/ledger/detail.css")
-fail!("the wordmark must show on a phone") if chrome.match?(/\.site-wordmark\s*\{[^}]*display:\s*none/m)
-fail!("Explore must be the menu icon") unless shell.include?('aria-label="Explore site pages"') &&
-  shell.include?('<span class="sr-only">Explore</span>') &&
-  shell.include?('aria-hidden="true">menu</span>')
-fail!("the phone menu glyph must stay visible") if chrome.match?(/#mobile-menu-btn \.material-symbols-outlined\s*\{[^}]*display:\s*none/m)
-fail!("Explore must not be a visible label") if shell.include?("site-explore-label")
+base = read("assets/css/base.css")
+fail!("phone wordmark must stay hidden") unless chrome.match?(/\.site-wordmark\s*\{[^}]*display:\s*none;/m)
+fail!("wordmark must return at 640px") unless chrome.match?(/min-width:\s*640px[\s\S]{0,80}\.site-wordmark\s*\{[^}]*display:\s*inline;/m)
+fail!("wordmark size must stay calc(var(--type-dek) * 1.25)") unless chrome.match?(/\.site-wordmark\s*\{[^}]*font-size:\s*calc\(var\(--type-dek\)\s*\*\s*1\.25\);/m)
+fail!("wordmark must use the title face") unless chrome.match?(/\.site-wordmark\s*\{[^}]*font-family:\s*var\(--font-title\);/m)
+fail!("Explore must stay visually hidden") unless shell.include?('<span class="sr-only">Explore</span>')
+fail!("Explore must not be a visible top-bar label") if shell.include?("site-explore-label")
+fail!("menu control must keep its accessible name") unless shell.include?('aria-label="Explore site pages"') && shell.include?('title="Menu"')
+fail!("menu control must show the menu glyph at text-xl") unless shell.include?('class="material-symbols-outlined text-xl" aria-hidden="true">menu</span>')
 fail!("Explore must not be hardcoded as a person's name") if shell.include?("Alexandre")
-fail!("phone dates must be one mono line") unless detail.include?('content: "· Updated "')
+fail!("phone menu glyph must stay visible") if chrome.match?(/#mobile-menu-btn \.material-symbols-outlined\s*\{[^}]*display:\s*none/m)
+fail!("phone top-bar controls must keep the 2.25rem box") if chrome.match?(/max-width:\s*767px[\s\S]*#(?:theme-toggle-btn|mobile-menu-btn)[\s\S]{0,240}width:\s*auto/m)
+fail!("menu glyph size must stay 1.25rem") unless base.include?(".material-symbols-outlined.text-xl { font-size: 1.25rem; }")
+fail!("theme glyph size must stay var(--type-card)") unless base.match?(/#theme-toggle-icon\.material-symbols-outlined\s*\{[^}]*font-size:\s*var\(--type-card\);/m)
+fail!("phone dates must stay stacked dossier rows") if detail.include?('content: "· Updated "')
+fail!("date values must use the mono meta size") unless detail.match?(/\.text-detail-sidebar \.article-meta\s*\{[^}]*font-family:\s*var\(--font-mono\);[^}]*font-size:\s*var\(--type-meta\);/m)
+fail!("date labels must use --type-label") unless detail.match?(/date-evolution>span\[title\]::before\s*\{[^}]*font-size:\s*var\(--type-label\);/m)
+fail!("phone action glyphs must stay calc(1rem + 2pt)") unless detail.match?(/max-width:\s*767px[\s\S]*detail-action \.material-symbols-outlined,[\s\S]{0,220}?font-size:\s*calc\(1rem \+ 2pt\)/m)
+fail!("phone action labels must stay clipped") unless detail.match?(/max-width:\s*767px[\s\S]*detail-action-label,[\s\S]{0,500}?clip:\s*rect\(0,\s*0,\s*0,\s*0\);/m)
 fail!("phone actions must keep their icons") if detail.match?(/max-width:\s*767px[\s\S]*detail-action \.material-symbols-outlined\s*\{[^}]*display:\s*none/m)
-fail!("phone action labels must stay clipped") if detail.match?(/max-width:\s*767px[\s\S]*detail-action-label\s*\{[^}]*position:\s*static/m)
+fail!("phone action boxes must stay 2.5rem with no padding") unless detail.match?(/max-width:\s*767px[\s\S]*\.detail-action,\s*\n\s*\.text-detail-sidebar \.article-meta \.detail-type-size-trigger\s*\{[^}]*height:\s*2\.5rem;[^}]*padding:\s*0;/m)
+fail!("desktop action glyphs must stay 1rem") unless detail.match?(/\.detail-action \.material-symbols-outlined\s*\{[^}]*font-size:\s*1rem;/m)
+fail!("desktop action labels must keep the label face and size") unless detail.match?(/\.detail-action\s*\{[^}]*font-family:\s*var\(--font-label\);[^}]*font-size:\s*var\(--type-label-lg\);/m)
 
 # --- PLT-AC-114 phone follow-up ---
 fail!("spec missing PLT-AC-114") unless spec.include?("PLT-AC-114")

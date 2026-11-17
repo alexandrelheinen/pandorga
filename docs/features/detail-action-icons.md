@@ -1,7 +1,7 @@
 # CR-23 — Detail action icons + TOC gap (pandorga 2.3.8)
 
-Status: 2.3.8 shipped; desktop box fix in 2.3.9  
-Version target: pandorga 2.3.9 (2.3.8 scoped glyphs to mobile)  
+Status: 2.3.8 shipped; desktop box fix in 2.3.9. The 2.3.38 phone text actions were reverted in 2.3.40; the icon row from this note is the phone article header again.  
+Version target: pandorga 2.3.9 (2.3.8 scoped glyphs to mobile); phone row restored in 2.3.40  
 Prerequisite: CR-22.4 (2.3.6/2.3.7) shipped.
 
 ## Intent
