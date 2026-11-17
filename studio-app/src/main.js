@@ -55,37 +55,105 @@ const CLERK_REDIRECTS = {
   signUpFallbackRedirectUrl: STUDIO_PATH,
 };
 
-/** Clerk UI appearance — site tokens, square, Ancizar Sans, marca-texto primary. */
+/**
+ * Clerk UI appearance — current variable names (clerk-js 6), live Studio
+ * tokens, square, Ancizar Sans body, Marcellus SC buttons. Values are CSS
+ * variables so a remount after setThemeChoice picks up light or dark.
+ * colorText / colorTextSecondary are ignored by current Clerk.
+ */
 const CLERK_APPEARANCE = {
+  layout: {
+    socialButtonsVariant: "blockButton",
+    socialButtonsPlacement: "top",
+  },
   variables: {
-    colorPrimary: "#1c5a7a",
-    colorText: "#000000",
-    colorTextSecondary: "#5e5d59",
-    colorBackground: "#ffffff",
+    colorPrimary: "var(--primary)",
+    colorPrimaryForeground: "var(--background)",
+    colorForeground: "var(--on-surface)",
+    colorMutedForeground: "var(--on-surface-variant)",
+    colorBackground: "var(--background)",
+    colorInput: "var(--background)",
+    colorInputForeground: "var(--on-surface)",
+    colorNeutral: "var(--on-surface)",
+    colorDanger: "var(--error)",
+    colorRing: "transparent",
+    colorShadow: "transparent",
     borderRadius: "0",
     fontFamily: '"Ancizar Sans", sans-serif',
+    fontFamilyButtons: '"Marcellus SC", serif',
   },
   elements: {
+    rootBox: {
+      width: "100%",
+    },
+    cardBox: {
+      width: "100%",
+      boxShadow: "none",
+      border: "none",
+      borderRadius: "0",
+      backgroundColor: "var(--background)",
+    },
     card: {
       boxShadow: "none",
       border: "none",
       borderRadius: "0",
+      backgroundColor: "var(--background)",
+      padding: "0",
     },
-    formButtonPrimary: {
+    header: {
+      display: "none",
+    },
+    socialButtonsBlockButton: {
+      height: "44px",
+      minHeight: "44px",
       borderRadius: "0",
       boxShadow: "none",
-      fontFamily: '"Marcellus SC", serif',
-      letterSpacing: "0.04em",
-      background:
-        "linear-gradient(104deg, transparent 0.9%, color-mix(in srgb, #1c5a7a 28%, transparent) 2.6%, color-mix(in srgb, #1c5a7a 22%, transparent) 58%, color-mix(in srgb, #1c5a7a 8%, transparent) 98%, transparent 100%)",
-      color: "color-mix(in srgb, #1c5a7a 82%, #000)",
+      border: "1px solid var(--outline-variant)",
+      backgroundColor: "var(--background)",
+      color: "var(--on-surface)",
+      fontFamily: '"Ancizar Sans", sans-serif',
       textTransform: "none",
+      letterSpacing: "0",
+    },
+    socialButtonsBlockButtonText: {
+      fontFamily: '"Ancizar Sans", sans-serif',
+      textTransform: "none",
+      fontSize: "1rem",
     },
     formFieldLabel: {
       fontFamily: '"Marcellus SC", serif',
-      letterSpacing: "0.06em",
+      letterSpacing: "0.04em",
       textTransform: "uppercase",
       fontSize: "0.78rem",
+      color: "var(--on-surface-variant)",
+    },
+    formFieldInput: {
+      height: "44px",
+      minHeight: "44px",
+      borderRadius: "0",
+      boxShadow: "none",
+      border: "1px solid var(--outline-variant)",
+      backgroundColor: "var(--background)",
+      color: "var(--on-surface)",
+    },
+    formButtonPrimary: {
+      height: "44px",
+      minHeight: "44px",
+      borderRadius: "0",
+      border: "none",
+      boxShadow: "none",
+      backgroundImage: "none",
+      backgroundColor: "var(--primary)",
+      color: "var(--background)",
+      fontFamily: '"Marcellus SC", serif',
+      letterSpacing: "0.04em",
+      textTransform: "none",
+    },
+    footer: {
+      background: "transparent",
+      backgroundColor: "transparent",
+      boxShadow: "none",
+      borderTop: "1px solid var(--outline-variant)",
     },
   },
 };
@@ -226,6 +294,10 @@ const state = {
   previewWidth: "desktop",
   /** Article preview iframe chrome — independent of the Studio app theme. */
   previewTheme: "light",
+  /** Clerk instance, so a theme change can remount SignIn. */
+  clerk: null,
+  /** "sign-in" | "pending" | "api-error" | "app" — which surface is showing. */
+  authSurface: null,
   bodyEditor: null,
   insertMenuOpen: false,
   /** Soft hint under AI Proof when selection is missing. */
@@ -761,12 +833,33 @@ function el(tag, attrs = {}, children = []) {
   return node;
 }
 
-const THEME_CHOICE_KEY = "studio-theme";
+const THEME_CHOICE_KEY = "site-theme";
+const THEME_CHOICE_LEGACY_KEY = "studio-theme";
 const THEME_MENU_ICONS = { light: "light_mode", dark: "dark_mode", system: "routine" };
+const THEME_COLOR = { light: "#ffffff", dark: "#0c0c0e" };
+
+function isThemeChoice(value) {
+  return value === "light" || value === "dark" || value === "system";
+}
+
+/** Copy a pre-2.3.38 `studio-theme` value into `site-theme` once. */
+function migrateLegacyThemeChoice() {
+  try {
+    const current = localStorage.getItem(THEME_CHOICE_KEY);
+    if (isThemeChoice(current)) return current;
+    const legacy = localStorage.getItem(THEME_CHOICE_LEGACY_KEY);
+    if (!isThemeChoice(legacy)) return current;
+    localStorage.setItem(THEME_CHOICE_KEY, legacy);
+    localStorage.removeItem(THEME_CHOICE_LEGACY_KEY);
+    return legacy;
+  } catch {
+    return null;
+  }
+}
 
 function themeChoice() {
-  const saved = localStorage.getItem(THEME_CHOICE_KEY);
-  if (saved === "light" || saved === "dark" || saved === "system") return saved;
+  const saved = migrateLegacyThemeChoice();
+  if (isThemeChoice(saved)) return saved;
   return "system";
 }
 
@@ -781,10 +874,38 @@ function setThemeChoice(choice) {
   localStorage.setItem(THEME_CHOICE_KEY, choice);
   applyResolvedTheme();
   syncThemeMenuUi();
+  if (state.authSurface === "sign-in") remountClerkSignIn();
+}
+
+function syncThemeColorMeta() {
+  const theme = resolvedTheme();
+  document.documentElement.style.colorScheme = theme;
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute("content", THEME_COLOR[theme] || THEME_COLOR.light);
 }
 
 function applyResolvedTheme() {
   document.documentElement.setAttribute("data-theme", resolvedTheme());
+  syncThemeColorMeta();
+}
+
+/** Clerk snapshots appearance at mount. Remount so dark/light tokens apply. */
+function remountClerkSignIn() {
+  const clerk = state.clerk;
+  const host = document.getElementById("clerk-sign-in");
+  if (!clerk || clerk.dev || !host || typeof clerk.mountSignIn !== "function") return;
+  if (typeof clerk.unmountSignIn === "function") {
+    try {
+      clerk.unmountSignIn(host);
+    } catch {
+      /* already unmounted */
+    }
+  }
+  host.replaceChildren();
+  clerk.mountSignIn(host, {
+    ...CLERK_REDIRECTS,
+    appearance: CLERK_APPEARANCE,
+  });
 }
 
 function initTheme() {
@@ -843,8 +964,6 @@ function renderThemeMenu() {
         setThemeChoice(c.id);
         state.themeMenuOpen = false;
         syncThemeMenuUi();
-        // Studio's own theme is independent of the article preview's
-        // Light/Dark control (preview-controls), so nothing to re-mount here.
       },
     }, [
       materialIcon(c.icon),
@@ -1380,13 +1499,20 @@ function renderAuthGate(clerk) {
     return;
   }
 
+  state.authSurface = "sign-in";
   app.innerHTML = "";
+  const title = el("h1");
+  title.append(document.createTextNode("Sign in to "));
+  const marked = document.createElement("em");
+  marked.textContent = "edit";
+  title.append(marked);
   const box = el("div", { className: "auth-gate" }, [
+    el("div", { className: "auth-gate-theme" }, [renderThemeMenu()]),
     el("div", { className: "studio-brand" }, [
       studioMark({ size: 32, label: "Studio" }),
       el("strong", { text: "Studio" }),
     ]),
-    el("h1", { text: "Sign in to edit" }),
+    title,
     el("p", {
       text: "Studio is for site admins only. Anyone may register; access is granted after review.",
     }),
@@ -1415,8 +1541,10 @@ function renderAuthGate(clerk) {
 
 /** Signed in with Clerk, but /api/studio/session failed (local Jekyll, misconfig, …). */
 function renderSignedInApiErrorGate(clerk, message) {
+  state.authSurface = "api-error";
   app.innerHTML = "";
   const box = el("div", { className: "auth-gate" }, [
+    el("div", { className: "auth-gate-theme" }, [renderThemeMenu()]),
     el("div", { className: "studio-brand" }, [
       studioMark({ size: 32, label: "Studio" }),
       el("strong", { text: "Studio" }),
@@ -1447,6 +1575,7 @@ function renderSignedInApiErrorGate(clerk, message) {
 
 /** Signed-in but not on STUDIO_ALLOWLIST — polite brick wall. */
 function renderPendingReviewGate(clerk, emailHint) {
+  state.authSurface = "pending";
   const email = emailHint || clerkUserEmail(clerk) || "the address you used to register";
   app.innerHTML = "";
   const p1 = el("p", { className: "pending-copy" });
@@ -1467,6 +1596,7 @@ function renderPendingReviewGate(clerk, emailHint) {
   title.append(marked);
 
   const box = el("div", { className: "auth-gate auth-gate--pending" }, [
+    el("div", { className: "auth-gate-theme" }, [renderThemeMenu()]),
     el("div", { className: "studio-brand" }, [
       studioMark({ size: 32, label: "Studio" }),
       el("strong", { text: "Studio" }),
@@ -1623,6 +1753,7 @@ function seedNavGroupsOpen(schema) {
 }
 
 function renderShell() {
+  state.authSurface = "app";
   app.innerHTML = "";
   seedNavGroupsOpen(state.schema);
   const groups = collectionGroups(state.schema);
@@ -4647,6 +4778,7 @@ async function bootApp(clerk) {
 async function main() {
   initTheme();
   const clerk = await initClerk();
+  state.clerk = clerk;
 
   if (clerk.dev) {
     await bootApp(clerk);
