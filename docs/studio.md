@@ -91,6 +91,14 @@ response includes `commit` (Git commit SHA).
 
 The PAT needs **Actions: Read** in addition to Contents write.
 
+## Phone toolbar
+
+At 960px and below the bar is a single 56px row: the collections menu, the
+word Studio, the collection label only (one line, ellipsis), the pipeline
+or Export icon, and Save. The open entry's title stays out of that row.
+Revert and the theme menu move into the collections menu. Wider screens
+keep the full Writing / Articles / title crumb in the bar.
+
 ## Sign-in and theme
 
 Studio and the public site share the `site-theme` key (`light`, `dark`, or

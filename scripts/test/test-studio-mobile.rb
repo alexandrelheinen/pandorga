@@ -79,4 +79,27 @@ fail!("index.html must set the dark theme-color") unless html.include?("#0c0c0e"
 
 fail!("auth gate must not keep a framed border") if css.match?(/\.auth-gate \{[^}]*border:\s*1px/m)
 
+# --- PLT-AC-108 phone toolbar ---
+fail!("spec missing PLT-AC-108") unless spec.include?("PLT-AC-108")
+fail!("toolbar must render a short crumb") unless main.include?("studio-breadcrumb--short")
+fail!("toolbar must keep the desktop crumb") unless main.include?("studio-breadcrumb--full")
+fail!("theme and revert must live in the phone menu") unless main.include?("studio-nav-mobile-tools")
+
+# The short crumb is the collection label only. The full title stays on the desktop crumb.
+crumb = main[/function renderStudioBreadcrumb\(.*?\n\}/m]
+fail!("renderStudioBreadcrumb missing") unless crumb
+compact_branch = crumb[/if \(compact\) \{.*?\n  \}/m]
+fail!("compact crumb branch missing") unless compact_branch
+fail!("compact crumb must not print the entry title") if compact_branch.include?("fields?.title") || compact_branch.include?("state.file")
+
+mobile_at = css.index("@media (max-width: 960px)")
+fail!("960px studio rules missing") unless mobile_at
+mobile_css = css[mobile_at..]
+fail!("960px studio rules missing") unless mobile_css
+fail!("phone bar must hide the full crumb") unless mobile_css.include?(".studio-breadcrumb--full") && mobile_css.match?(/\.studio-breadcrumb--full\s*\{[^}]*display:\s*none/m)
+fail!("phone bar must show the short crumb on one line") unless mobile_css.match?(/\.studio-breadcrumb--short\s*\{[^}]*white-space:\s*nowrap/m)
+fail!("phone bar must hide toolbar theme and revert") unless mobile_css.include?('[data-studio-action="discard"]')
+fail!("phone menu must show the moved tools") unless mobile_css.include?(".studio-nav-mobile-tools")
+fail!("phone bar must show the Studio word") unless mobile_css.match?(/\.studio-brand-name\s*\{[^}]*display:\s*inline/m)
+
 puts "PASS test-studio-mobile"
