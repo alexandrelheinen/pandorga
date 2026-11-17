@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Studio sign-in follows the site theme. Clerk colors come from CSS
+  variables, the theme menu sits on the login and pending gates, and the
+  stored choice is `site-theme` (an old `studio-theme` value is copied once).
+
 ## 2.3.37
 
 - Studio toolbar: breadcrumb moves into the brand cluster (Marcellus SC,

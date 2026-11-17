@@ -77,6 +77,21 @@
   --studio-pane-pad: 1.15rem 1.35rem;
   /* Tall enough that pane-scroll-to-end shows editor + metrics only. */
   --studio-editor-min-height: max(24rem, calc(100dvh - 7.5rem));
+  /* Clerk reads these at paint; they follow the active theme tokens. */
+  --clerk-color-primary: var(--primary);
+  --clerk-color-primary-foreground: var(--background);
+  --clerk-color-foreground: var(--on-surface);
+  --clerk-color-muted-foreground: var(--on-surface-variant);
+  --clerk-color-background: var(--background);
+  --clerk-color-input: var(--background);
+  --clerk-color-input-foreground: var(--on-surface);
+  --clerk-color-neutral: var(--on-surface);
+  --clerk-color-danger: var(--error);
+  --clerk-color-ring: transparent;
+  --clerk-color-shadow: transparent;
+  --clerk-border-radius: 0;
+  --clerk-font-family: var(--font-body);
+  --clerk-font-family-buttons: var(--font-label);
 }
 
 [data-theme="dark"] {
@@ -2334,11 +2349,28 @@ textarea.body-source.editor-surface {
 }
 
 .auth-gate {
+  position: relative;
   max-width: 28rem;
-  margin: 4rem auto;
-  padding: 1.5rem;
-  border: 1px solid color-mix(in srgb, var(--outline-variant) 55%, transparent);
+  margin: 0 auto;
+  padding: 4.5rem 1rem 2.5rem;
+  border: 0;
+  box-shadow: none;
   background: var(--background);
+  background-image: none;
+}
+
+.auth-gate-theme {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+
+.auth-gate-theme .btn-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
 }
 
 .auth-gate h1 {
@@ -2386,11 +2418,61 @@ textarea.body-source.editor-surface {
   margin: 0 0 1.25rem;
 }
 
+.auth-gate .cl-header {
+  display: none !important;
+}
+
+.auth-gate .cl-rootBox {
+  width: 100%;
+}
+
 .auth-gate .cl-card,
+.auth-gate .cl-cardBox,
 .auth-gate .cl-rootBox,
 .auth-gate .cl-main {
   box-shadow: none !important;
+  border: 0 !important;
   border-radius: 0 !important;
+  background: var(--background) !important;
+  background-image: none !important;
+}
+
+.auth-gate .cl-socialButtonsBlockButton {
+  min-height: 44px;
+  height: 44px;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border: 1px solid var(--outline-variant) !important;
+  background: var(--background) !important;
+  color: var(--on-surface) !important;
+  font-family: var(--font-body) !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+.auth-gate .cl-formFieldInput {
+  min-height: 44px;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border: 1px solid var(--outline-variant) !important;
+  background: var(--background) !important;
+  color: var(--on-surface) !important;
+}
+
+.auth-gate .cl-formButtonPrimary {
+  min-height: 44px;
+  height: 44px;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background-image: none !important;
+  background-color: var(--primary) !important;
+  color: var(--background) !important;
+}
+
+.auth-gate .cl-footer {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-top: 1px solid var(--outline-variant);
 }
 
 .status-pill {

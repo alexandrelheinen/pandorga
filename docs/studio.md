@@ -91,6 +91,21 @@ response includes `commit` (Git commit SHA).
 
 The PAT needs **Actions: Read** in addition to Contents write.
 
+## Sign-in and theme
+
+Studio and the public site share the `site-theme` key (`light`, `dark`, or
+`system`). A value left under the old `studio-theme` key is copied once and
+then removed. An inline script in `studio-app/index.html` sets `data-theme`,
+`color-scheme`, and `theme-color` before the first paint.
+
+Clerk's sign-in card reads the same tokens (`--primary`, `--background`,
+`--on-surface`, `--on-surface-variant`, `--error`). Changing the theme
+remounts SignIn so the card picks up the new palette. The login and pending
+gates show the same theme menu as the editor. The word "edit" in the sign-in
+title carries the highlighter mark. The pending Sign out button is that same
+mark. The Development mode line under the form is Clerk's own development
+instance badge.
+
 ## Android shell
 
 An optional Expo WebView APK lives under `studio-mobile/` in the git

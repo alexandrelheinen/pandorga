@@ -42,6 +42,7 @@ TESTS=(
   scripts/test/test-form-control-theming.rb
   scripts/test/test-listing-filter-contract.rb
   scripts/test/test-studio-api-contract.rb
+  scripts/test/test-studio-mobile.rb
   scripts/test/test-studio-rewrite-api-contract.rb
   scripts/test/test-studio-schema-composition.rb
   scripts/test/test-studio-taxonomy.rb
