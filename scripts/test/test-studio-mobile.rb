@@ -187,4 +187,15 @@ css.scan(/box-shadow:\s*([^;]+);/).each do |value|
   fail!("drop shadow remains: #{v}") unless v == "none" || v == "none !important"
 end
 
+# --- PLT-AC-113 phone article ---
+fail!("spec missing PLT-AC-113") unless spec.include?("PLT-AC-113")
+chrome = read("assets/css/ledger/chrome.css")
+shell = read("_layouts/shell.html")
+detail = read("assets/css/ledger/detail.css")
+fail!("the wordmark must show on a phone") if chrome.match?(/\.site-wordmark\s*\{[^}]*display:\s*none/m)
+fail!("the top bar must say Explore") unless shell.include?("site-explore-label")
+fail!("Explore must not be hardcoded as a person's name") if shell.include?("Alexandre")
+fail!("phone dates must be one mono line") unless detail.include?('content: "· Updated "')
+fail!("phone actions must show their labels") unless detail.match?(/max-width:\s*767px[\s\S]*detail-action-label\s*\{[^}]*position:\s*static/m)
+
 puts "PASS test-studio-mobile"
