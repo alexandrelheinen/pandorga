@@ -130,4 +130,21 @@ fail!("phone format bar must pin to the bottom") unless mobile_css.match?(/\.edi
 fail!("phone editor must hide the top insert row") unless mobile_css.match?(/\.editor-chrome-actions\s*\{[^}]*display:\s*none/m)
 fail!("phone body must drop the nested frame") unless mobile_css.match?(/\.editor-surface\s*\{[^}]*border:\s*0/m)
 
+# --- PLT-AC-111 phone preview and version ---
+fail!("spec missing PLT-AC-111") unless spec.include?("PLT-AC-111")
+preview_doc = read("studio-app/src/preview/document.js")
+preview_version = read("studio-app/src/preview/pandorga-version.js")
+vite = read("studio-app/vite.config.js")
+fail!("preview shell must include the article title") unless preview_doc.include?('id="preview-title"')
+fail!("preview shell must include the article dates") unless preview_doc.include?('id="preview-dates"')
+fail!("preview shell must include the standfirst") unless preview_doc.include?('id="preview-standfirst"')
+fail!("preview must fill the article header") unless main.include?("fillPreviewArticleHeader")
+fail!("narrow preview must default to mobile") unless main.include?('max-width: 960px') && main.include?('previewWidth:')
+fail!("phone preview iframe must use the container width") unless mobile_css.match?(/\.preview-folio--mobile\s*>\s*\.preview-iframe\s*\{[^}]*width:\s*100%/m)
+fail!("phone preview must hide the empty editor body") unless mobile_css.match?(/\.studio-body\.view-preview\s+\.editor-pane-fill\s*\{[^}]*display:\s*none/m)
+fail!("Vite must read lib/pandorga/version.rb") unless vite.include?("lib/pandorga/version.rb")
+fail!("Vite must inject __PANDORGA_VERSION__") unless vite.include?("__PANDORGA_VERSION__")
+fail!("preview version must not hardcode a release number") if preview_version.match?(/PANDORGA_VERSION\s*=\s*"/)
+fail!("preview version must use the injected constant") unless preview_version.include?("__PANDORGA_VERSION__")
+
 puts "PASS test-studio-mobile"
