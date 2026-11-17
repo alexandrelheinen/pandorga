@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Studio editor tabs are Fields, Visual, Source, and Preview. Front
+  matter is the Fields tab. A phone pins bold, italic, strike, heading,
+  quote, link, code, Correct, and Refine to the bottom.
 - Studio lists on a phone use a 56 by 42 thumbnail, a two-line serif
   title, and a date · language line. Sort and New share a row. Delete
   moves into the editor.
