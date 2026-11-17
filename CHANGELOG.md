@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 2.3.39
+
 - Studio phone follow-up: the search field is 44px, the collection crumb
   keeps its full label when it fits, Visual shows the body, the format
   bar stays on one row, Preview drops the empty panel and keeps the drop
