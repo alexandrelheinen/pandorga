@@ -107,25 +107,14 @@
   }
 }
 
-.site-explore-label {
-  font-family: var(--font-label);
-  font-size: var(--type-nav);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  line-height: 1;
-}
-
+/* The theme control keeps the 44px phone target from 2.3.38. The menu
+   button stays the 2.25rem menu glyph (v2.3.37): icon, box, and name. */
 @media (max-width: 767px) {
-  #theme-toggle-btn,
-  #mobile-menu-btn {
+  #theme-toggle-btn {
     min-width: 44px;
     min-height: 44px;
     width: auto;
     height: auto;
-  }
-
-  #mobile-menu-btn .material-symbols-outlined {
-    display: none;
   }
 }
 

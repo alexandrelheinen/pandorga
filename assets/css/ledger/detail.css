@@ -1613,7 +1613,8 @@ nav.text-page-nav:not(:has(a)) {
   }
 }
 
-/* PLT-AC-113. Phone article header: one date line and text actions. */
+/* PLT-AC-113. Phone article header: one date line. Action buttons stay the
+   v2.3.37 icon row (PLT-AC-95). */
 @media (max-width: 767px) {
   .text-detail-sidebar .article-sidebar-heading,
   .text-detail-sidebar .article-meta {
@@ -1632,42 +1633,6 @@ nav.text-page-nav:not(:has(a)) {
 
   .text-detail-sidebar .article-meta .date-evolution > span + span::before {
     content: "· Updated ";
-  }
-
-  .text-detail-sidebar .article-meta .detail-actions {
-    justify-content: flex-start;
-    gap: 0.9rem;
-    width: auto;
-    border-top: 1px solid var(--border-gentle-divider);
-  }
-
-  .text-detail-sidebar .article-meta .detail-action {
-    flex: 0 0 auto;
-    width: auto;
-    height: auto;
-    min-height: 44px;
-    padding: 0.35rem 0;
-    border-radius: 0;
-    justify-content: flex-start;
-    font-family: var(--font-body);
-  }
-
-  .text-detail-sidebar .article-meta .detail-action .material-symbols-outlined {
-    display: none;
-  }
-
-  .text-detail-sidebar .article-meta .detail-action-label {
-    position: static;
-    width: auto;
-    height: auto;
-    margin: 0;
-    overflow: visible;
-    clip: auto;
-    white-space: nowrap;
-  }
-
-  .text-detail-sidebar .article-meta .detail-type-size {
-    display: none;
   }
 
   .text-detail-sidebar .article-toc--disclosure {

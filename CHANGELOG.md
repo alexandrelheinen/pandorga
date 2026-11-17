@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 2.3.40
+
+- Article pages on a phone restore the v2.3.37 menu icon in the top bar
+  (Material `menu`, 2.25rem box, `aria-label="Explore site pages"`) and the
+  icon Back, Share, and Cite buttons. The site name, one date line, and
+  drop cap stay.
+
 ## 2.3.39
 
 - Studio phone follow-up: the search field is 44px, the collection crumb
