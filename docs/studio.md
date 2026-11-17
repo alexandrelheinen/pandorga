@@ -91,6 +91,15 @@ response includes `commit` (Git commit SHA).
 
 The PAT needs **Actions: Read** in addition to Contents write.
 
+## Phone article
+
+Below 768px the public article header is compact. The top bar shows the
+logo and the configured wordmark (the first name when the site sets one),
+then the theme icon and the word Explore. The article itself shows tags,
+the title, the standfirst, one monospace line for the published date and
+a later update, a hairline, and the words Back, Share, and Cite. The
+title-face drop cap is unchanged.
+
 ## Chrome tokens
 
 Studio color tokens in `studio-app/src/styles/studio.css` match

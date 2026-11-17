@@ -88,11 +88,13 @@
   line-height: 1;
 }
 
-/* The full name does not fit a phone bar alongside the theme toggle and the
-   Explore button — at 390px it ran 60px underneath them. Below the first
-   breakpoint the mark alone carries the link home, which is what it is for. */
+/* The wordmark is the configured site name (the first name when identity
+   sets one). It stays on a phone, truncated, beside the logo. */
 .site-wordmark {
-  display: none;
+  display: inline;
+  max-width: 42vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-family: var(--font-title);
   font-size: calc(var(--type-dek) * 1.25);
   line-height: 1;
@@ -101,7 +103,29 @@
 
 @media (min-width: 640px) {
   .site-wordmark {
-    display: inline;
+    max-width: none;
+  }
+}
+
+.site-explore-label {
+  font-family: var(--font-label);
+  font-size: var(--type-nav);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+@media (max-width: 767px) {
+  #theme-toggle-btn,
+  #mobile-menu-btn {
+    min-width: 44px;
+    min-height: 44px;
+    width: auto;
+    height: auto;
+  }
+
+  #mobile-menu-btn .material-symbols-outlined {
+    display: none;
   }
 }
 

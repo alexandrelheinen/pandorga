@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Article pages on a phone use a compact header: the site name, theme,
+  and Explore in the bar, then tags, title, standfirst, one date line,
+  and the text actions Back, Share, and Cite.
 - Studio chrome keeps Courier Prime for dates, paths, and code. Drop
   shadows are gone. Palette tokens match the theme files.
 - Studio preview on a phone starts at the container width and shows the
