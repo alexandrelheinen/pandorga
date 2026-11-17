@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 2.3.38
+
 - Article pages on a phone use a compact header: the site name, theme,
   and Explore in the bar, then tags, title, standfirst, one date line,
   and the text actions Back, Share, and Cite.
