@@ -290,8 +290,11 @@ const state = {
   listLoading: false,
   fileLoading: false,
   previewHtml: "",
-  /** Article preview iframe chrome — Desktop (1280) / Mobile (390) width. */
-  previewWidth: "desktop",
+  /**
+   * Article preview iframe chrome — Desktop (1280) / Mobile (container).
+   * A phone starts on Mobile so the 1280 frame does not overflow the pane.
+   */
+  previewWidth: window.matchMedia("(max-width: 960px)").matches ? "mobile" : "desktop",
   /** Article preview iframe chrome — independent of the Studio app theme. */
   previewTheme: "light",
   /** Clerk instance, so a theme change can remount SignIn. */
@@ -4236,6 +4239,52 @@ function resizePreviewFrameToContent(frame) {
   frame.style.height = `${height}px`;
 }
 
+function formatPreviewDate(value) {
+  const raw = String(value || "").trim().slice(0, 10);
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(raw);
+  if (!match) return String(value || "").trim();
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const month = months[Number(match[2]) - 1];
+  if (!month) return raw;
+  return `${month} ${match[3]}, ${match[1]}`;
+}
+
+/** Tags, title, standfirst, and dates — the same header the live article shows. */
+function fillPreviewArticleHeader(doc) {
+  const fields = state.fields || {};
+  const tags = doc.getElementById("preview-tags");
+  const title = doc.getElementById("preview-title");
+  const stand = doc.getElementById("preview-standfirst");
+  const dates = doc.getElementById("preview-dates");
+  if (title) title.textContent = String(fields.title || "");
+  if (stand) {
+    const text = String(fields.description || fields.tagline || "").trim();
+    stand.textContent = text;
+    stand.hidden = !text;
+  }
+  if (tags) {
+    tags.replaceChildren();
+    const list = Array.isArray(fields.tags) ? fields.tags : String(fields.tags || "").split(",").map((t) => t.trim()).filter(Boolean);
+    for (const tag of list) {
+      const chip = doc.createElement("span");
+      chip.className = "ledger-chip";
+      chip.textContent = String(tag);
+      tags.append(chip);
+    }
+    tags.hidden = list.length === 0;
+  }
+  if (dates) {
+    const created = formatPreviewDate(fields.date);
+    const updatedRaw = fields.last_updated || fields.updated || "";
+    const updated = formatPreviewDate(updatedRaw);
+    const parts = [];
+    if (created) parts.push(created);
+    if (updated && updated !== created) parts.push(`Updated ${updated}`);
+    dates.textContent = parts.join(" · ");
+    dates.hidden = parts.length === 0;
+  }
+}
+
 /** Patches body HTML, theme, and page-accent/drop-cap classes into an already-loaded preview iframe. */
 function applyArticlePreviewContent(frame) {
   const doc = frame.contentDocument;
@@ -4253,6 +4302,7 @@ function applyArticlePreviewContent(frame) {
       "max-w-7xl mx-auto px-4 sm:px-8 md:px-16 py-12 text-page" + (accent ? ` ${accent}` : "");
   }
 
+  fillPreviewArticleHeader(doc);
   const content = doc.getElementById("preview-article-content");
   if (!content) return;
   content.className = "article-content" + (articlePreviewHasDropCap() ? " has-drop-cap" : "");

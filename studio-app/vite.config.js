@@ -15,6 +15,16 @@ function frontendApiHostFromKey(key) {
   }
 }
 
+function pandorgaVersion() {
+  const file = path.resolve(__dirname, "../lib/pandorga/version.rb");
+  const src = fs.readFileSync(file, "utf8");
+  const match = src.match(/VERSION\s*=\s*"([^"]+)"/);
+  if (!match) {
+    throw new Error(`Cannot read Pandorga::VERSION from ${file}`);
+  }
+  return match[1];
+}
+
 function rejectExampleClerkHost(mode) {
   return {
     name: "reject-example-clerk-host",
@@ -72,6 +82,9 @@ export default defineConfig(({ mode }) => ({
   base: "/studio/",
   publicDir: false,
   plugins: [rejectExampleClerkHost(mode)],
+  define: {
+    __PANDORGA_VERSION__: JSON.stringify(pandorgaVersion()),
+  },
   build: {
     outDir: path.resolve(__dirname, "../studio"),
     emptyOutDir: false,

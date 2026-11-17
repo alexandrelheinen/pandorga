@@ -1,6 +1,6 @@
 /**
- * Mirrors `Pandorga::VERSION` in `../../../lib/pandorga/version.rb`. The two
- * are not wired together (studio-app has no Ruby access at build time) —
- * bump both together when cutting a release that touches article styles.
+ * Vite replaces `__PANDORGA_VERSION__` with `Pandorga::VERSION` from
+ * `lib/pandorga/version.rb` at build time. Do not hardcode a release number
+ * here; the gem file is the source of truth.
  */
-export const PANDORGA_VERSION = "2.3.34";
+export const PANDORGA_VERSION = __PANDORGA_VERSION__;

@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Studio preview on a phone starts at the container width and shows the
+  article header. The preview version is read from the gem version at
+  build time.
 - Studio editor tabs are Fields, Visual, Source, and Preview. Front
   matter is the Fields tab. A phone pins bold, italic, strike, heading,
   quote, link, code, Correct, and Refine to the bottom.

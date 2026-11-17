@@ -3369,6 +3369,29 @@ body.figure-lightbox-open {
   .pane-editor {
     padding-bottom: 3.25rem;
   }
+
+  .studio-body.view-preview .editor-pane-fill {
+    display: none;
+  }
+
+  .studio-body.view-preview .pane-editor {
+    flex: 0 0 auto;
+    min-height: 0;
+    padding-bottom: 0;
+  }
+
+  .preview-folio {
+    overflow: hidden;
+    border: 0;
+    padding: 0;
+  }
+
+  .preview-folio > .preview-iframe,
+  .preview-folio--mobile > .preview-iframe {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
 }
 
 .editor-path {

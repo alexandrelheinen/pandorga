@@ -72,7 +72,16 @@ ${contentLinks}
 <body class="bg-background text-on-surface">
 <div class="max-w-7xl mx-auto px-4 sm:px-8 md:px-16 py-12 text-page" id="preview-page">
   <div class="grid grid-cols-1 gap-8 lg:gap-12 items-start text-detail-grid">
-    <aside></aside>
+    <aside class="text-detail-sidebar" id="preview-article-header">
+      <div class="article-sidebar-heading">
+        <div class="ledger-chip-row" id="preview-tags"></div>
+        <h1 class="text-title" id="preview-title"></h1>
+        <p class="article-sidebar-description" id="preview-standfirst"></p>
+      </div>
+      <div class="article-meta">
+        <div class="date-evolution" id="preview-dates"></div>
+      </div>
+    </aside>
     <div class="text-detail-main">
       <div class="text-reading-column text-page-main" data-detail-view>
         <div class="article-content" id="preview-article-content"></div>

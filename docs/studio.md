@@ -91,6 +91,19 @@ response includes `commit` (Git commit SHA).
 
 The PAT needs **Actions: Read** in addition to Contents write.
 
+## Phone preview
+
+At 960px and below the article preview opens at the width of its pane,
+not at a 1280px desktop frame. The frame shows the tags, title,
+standfirst, and dates, then the body with the same drop cap as the
+published article. The editor body does not sit as an empty panel above
+that frame.
+
+The caption "Rendered with pandorga … article styles" uses
+`Pandorga::VERSION`. Vite reads `lib/pandorga/version.rb` when it builds
+`studio/` and injects that string. A release that bumps the gem version
+and rebuilds Studio updates the caption with it.
+
 ## Phone editor
 
 The editor tabs are Fields, Visual, Source, and Preview. Fields is the
