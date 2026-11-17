@@ -736,10 +736,12 @@ aside:has(> .text-detail-sidebar) {
    (site config, default 2) in the reading face. `initial-letter` sinks it
    inside the paragraph; the float is only for engines that still lack that
    property. */
+/* Stitch article mockup: drop cap is the title face (Ancizar Serif), not body. */
 .article-content.has-drop-cap > p:first-of-type::first-letter {
-  font-family: var(--font-body);
-  font-weight: var(--weight-body);
+  font-family: var(--font-content-title), "Ancizar Serif", serif;
+  font-weight: 400;
   font-style: normal;
+  font-synthesis: none;
   color: var(--color-on-surface);
   initial-letter: var(--drop-cap-lines);
   margin-right: 0.2em;

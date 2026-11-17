@@ -237,8 +237,12 @@ const state = {
    * takes focus off the editor and clears the live selection.
    */
   aiProofSelection: null,
-  /** Open left-nav accordion groups (start empty = all folded). */
+  /**
+   * Open left-nav accordion groups. Seeded with schema groups on first
+   * shell render so the rail matches Stitch (all sections visible).
+   */
   navOpenGroups: new Set(),
+  navGroupsSeeded: false,
   /** Mobile nav disclosure (≤960px); desktop left aside from 961px up. */
   navMenuOpen: false,
   /** Theme menu (light / dark / system) in the icon toolbar. */
@@ -1612,8 +1616,18 @@ function syncErrorBanner() {
   }
 }
 
+function seedNavGroupsOpen(schema) {
+  if (state.navGroupsSeeded || !schema) return;
+  state.navOpenGroups.add("Media");
+  for (const group of collectionGroups(schema).keys()) {
+    state.navOpenGroups.add(group);
+  }
+  state.navGroupsSeeded = true;
+}
+
 function renderShell() {
   app.innerHTML = "";
+  seedNavGroupsOpen(state.schema);
   const groups = collectionGroups(state.schema);
   const menuOpen = !!state.navMenuOpen;
 
@@ -2947,7 +2961,7 @@ function renderListHeader(collection, { entryCount = null } = {}) {
           "aria-label": `New ${label} entry`,
           onClick: () => createNewEntry(),
         },
-        [materialIcon("add"), el("span", { className: "btn-label", text: "New" })]
+        [materialIcon("add"), el("span", { className: "btn-label", text: "New entry" })]
       )
     );
   }

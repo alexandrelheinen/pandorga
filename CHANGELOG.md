@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+## 2.3.36
+
+- Studio chrome harmonized to the Stitch list mockup: flat paper background
+  (no ledger grid), white toolbar, `#f4f4f4` rail with Marcellus group labels
+  (no chevron/underline), active item `#ebebeb` + 2px petrol rule, ledger
+  rows as hairlines (not inset grey cards), list title 40px Ancizar Serif,
+  chrome buttons on the label face, primary CTAs still marca-texto.
+- Drop cap on article/detail pages uses the title face (Ancizar Serif),
+  matching the Stitch article mockup `font-headline` initial — not body Sans.
+
 ## 2.3.35
 
 - Lean listing payload: the export now also writes `data/listing_index.json`,
