@@ -924,23 +924,25 @@ function closeThemeMenu() {
 
 function syncThemeMenuUi() {
   const active = themeChoice();
-  const icon = document.querySelector("[data-studio-theme-icon]");
-  if (icon) icon.textContent = THEME_MENU_ICONS[active] || THEME_MENU_ICONS.system;
+  const iconName = THEME_MENU_ICONS[active] || THEME_MENU_ICONS.system;
+  for (const icon of document.querySelectorAll("[data-studio-theme-icon]")) {
+    icon.textContent = iconName;
+  }
   for (const item of document.querySelectorAll("[data-theme-choice]")) {
     const choice = item.getAttribute("data-theme-choice");
     const selected = choice === active;
     item.setAttribute("aria-checked", selected ? "true" : "false");
     item.classList.toggle("is-selected", selected);
   }
-  const btn = document.querySelector("[data-studio-action='theme-menu']");
-  const menu = document.getElementById("studio-theme-menu");
-  if (btn && menu) {
-    btn.setAttribute("aria-expanded", state.themeMenuOpen ? "true" : "false");
+  for (const menu of document.querySelectorAll(".studio-theme-menu-panel")) {
+    const wrap = menu.closest(".studio-theme-menu");
+    const btn = wrap && wrap.querySelector("[data-studio-action='theme-menu']");
     menu.hidden = !state.themeMenuOpen;
+    if (btn) btn.setAttribute("aria-expanded", state.themeMenuOpen ? "true" : "false");
   }
 }
 
-function renderThemeMenu() {
+function renderThemeMenu({ menuId = "studio-theme-menu" } = {}) {
   const choices = [
     { id: "light", label: "Light", icon: "light_mode" },
     { id: "dark", label: "Dark", icon: "dark_mode" },
@@ -948,7 +950,7 @@ function renderThemeMenu() {
   ];
   const menu = el("div", {
     className: "studio-theme-menu-panel",
-    id: "studio-theme-menu",
+    id: menuId,
     role: "menu",
     "aria-label": "Choose color theme",
     hidden: !state.themeMenuOpen,
@@ -979,7 +981,7 @@ function renderThemeMenu() {
     "data-studio-action": "theme-menu",
     "aria-haspopup": "true",
     "aria-expanded": state.themeMenuOpen ? "true" : "false",
-    "aria-controls": "studio-theme-menu",
+    "aria-controls": menuId,
     onClick: (e) => {
       e.stopPropagation();
       state.themeMenuOpen = !state.themeMenuOpen;
@@ -1372,6 +1374,7 @@ function renderStudioToolbar({ brand = null, menuToggle = null, breadcrumb = nul
 
   const brandCluster = el("div", { className: "studio-toolbar-brand" }, [
     brand,
+    renderStudioBreadcrumb({ compact: true }),
     breadcrumb,
     statusText
       ? el("span", {
@@ -1432,12 +1435,13 @@ function renderStudioToolbar({ brand = null, menuToggle = null, breadcrumb = nul
     })
   );
 
-  const kids = [
+  const kids = [];
+  if (menuToggle) kids.push(menuToggle);
+  kids.push(
     brandCluster,
     el("span", { className: "spacer", "aria-hidden": "true" }),
     ...actions,
-  ];
-  if (menuToggle) kids.push(menuToggle);
+  );
   const header = el("header", { className: "studio-toolbar studio-icon-bar" }, kids);
   const failBanner = renderPipelineFailBanner();
   if (failBanner) header.append(failBanner);
@@ -1863,6 +1867,23 @@ function renderShell() {
     panel.append(el("div", { className: "studio-nav-group" }, [toggle, items]));
   }
 
+  panel.append(el("div", { className: "studio-nav-mobile-tools" }, [
+    renderThemeMenu({ menuId: "studio-theme-menu-nav" }),
+    toolbarActionButton({
+      className: "btn btn-tool",
+      title: "Revert all edits to the last loaded or saved version",
+      ariaLabel: "Discard edits",
+      action: "discard",
+      disabled: !state.file || !state.dirty || !state.baseline,
+      onClick: () => {
+        state.navMenuOpen = false;
+        discardChanges();
+      },
+      icon: "undo",
+      label: "Revert",
+    }),
+  ]));
+
   const nav = el(
     "nav",
     {
@@ -1900,7 +1921,19 @@ function renderShell() {
   }
 }
 
-function renderStudioBreadcrumb() {
+function renderStudioBreadcrumb({ compact = false } = {}) {
+  if (compact) {
+    let label = "Map";
+    if (state.mediaOpen && !state.collection) label = "Media";
+    else if (state.collection) label = state.collection.label || state.collection.name || "Index";
+    return el("nav", {
+      className: "studio-breadcrumb studio-breadcrumb--short",
+      "aria-label": "Location",
+    }, [
+      el("span", { className: "studio-crumb is-current", text: label }),
+    ]);
+  }
+
   /* Stitch toolbar crumb starts at the group (Writing / Articles), not "Studio". */
   const parts = [];
   if (state.mediaOpen && !state.collection) {
@@ -1931,7 +1964,7 @@ function renderStudioBreadcrumb() {
     parts.push(el("span", { className: "studio-crumb is-current", text: "Map" }));
   }
   return el("nav", {
-    className: "studio-breadcrumb",
+    className: "studio-breadcrumb studio-breadcrumb--full",
     "aria-label": "Location",
   }, parts);
 }
@@ -2228,7 +2261,7 @@ function syncCommitButtons() {
     const label = save.querySelector(".btn-label");
     if (label) label.textContent = saveLabel;
   }
-  if (discard) {
+  for (const discard of document.querySelectorAll("[data-studio-action='discard']")) {
     discard.disabled = !state.file || !state.dirty || !state.baseline;
   }
   syncAiProofControls();

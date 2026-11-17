@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Studio phone toolbar is one row: menu, Studio, the collection name,
+  pipeline, and Save. The entry title no longer wraps inside the bar.
+  Revert and the theme choice sit in the menu.
 - Studio sign-in follows the site theme. Clerk colors come from CSS
   variables, the theme menu sits on the login and pending gates, and the
   stored choice is `site-theme` (an old `studio-theme` value is copied once).
