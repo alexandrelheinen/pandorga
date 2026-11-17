@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## 2.3.40
+
+- Article pages match 2.3.37 again on a phone. The top bar shows the menu
+  icon (visually hidden Explore, aria-label "Explore site pages") beside
+  the theme icon, and the wordmark stays hidden below 640px. Dates stay
+  stacked at the dossier sizes (mono `--type-meta` values, `--type-label`
+  labels). Back, Share, and Cite are the 2.5rem icon buttons, with glyphs
+  at `calc(1rem + 2pt)`.
+
 ## 2.3.39
 
 - Studio phone follow-up: the search field is 44px, the collection crumb
