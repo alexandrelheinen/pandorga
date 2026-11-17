@@ -91,6 +91,13 @@ response includes `commit` (Git commit SHA).
 
 The PAT needs **Actions: Read** in addition to Contents write.
 
+## Chrome tokens
+
+Studio color tokens in `studio-app/src/styles/studio.css` match
+`_data/themes/light.yml` and `dark.yml`. Courier Prime is reserved for
+dates, paths, and code. Rules are 1px. The chrome does not use drop shadows
+or a ledger grid.
+
 ## Phone preview
 
 At 960px and below the article preview opens at the width of its pane,
