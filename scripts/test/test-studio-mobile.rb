@@ -118,4 +118,16 @@ fail!("phone list must hide the page-size select") unless mobile_css.match?(/\.l
 fail!("phone titles must clamp to two lines") unless mobile_css.include?("-webkit-line-clamp: 2")
 fail!("phone thumbs must be 56 by 42") unless mobile_css.include?("56px") && mobile_css.include?("42px")
 
+# --- PLT-AC-110 phone editor ---
+fail!("spec missing PLT-AC-110") unless spec.include?("PLT-AC-110")
+fail!("editor must offer a Fields tab") unless main.include?('text: "Fields"')
+fail!("editor must show an unsaved path marker") unless main.include?("editor-path-unsaved")
+fail!("editor must pin a phone format bar") unless main.include?("editor-format-bar-mobile")
+editor = main[/function renderEditorPane\(\) \{.*?\n\}/m]
+fail!("renderEditorPane missing") unless editor
+fail!("front matter must not stay an accordion in the editor") if editor.include?("front-matter")
+fail!("phone format bar must pin to the bottom") unless mobile_css.match?(/\.editor-format-bar-mobile\s*\{[^}]*position:\s*fixed/m) && mobile_css.include?("bottom: 0")
+fail!("phone editor must hide the top insert row") unless mobile_css.match?(/\.editor-chrome-actions\s*\{[^}]*display:\s*none/m)
+fail!("phone body must drop the nested frame") unless mobile_css.match?(/\.editor-surface\s*\{[^}]*border:\s*0/m)
+
 puts "PASS test-studio-mobile"

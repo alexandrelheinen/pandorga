@@ -1975,6 +1975,18 @@ function markDirty() {
   state.dirty = true;
   syncCommitButtons();
   refreshBodyStats();
+  syncEditorPathDirty();
+}
+
+function syncEditorPathDirty() {
+  const host = document.querySelector(".editor-path");
+  if (!host) return;
+  let mark = host.querySelector(".editor-path-unsaved");
+  if (state.dirty && !mark) {
+    host.append(el("span", { className: "editor-path-unsaved", text: "unsaved" }));
+  } else if (!state.dirty && mark) {
+    mark.remove();
+  }
 }
 
 function canAiProof() {
@@ -3156,38 +3168,13 @@ function renderEditorPane() {
     form.append(renderField(field));
   }
 
-  const fmOpen = shouldFrontMatterOpen();
-  const frontMatter =
-    fields.length > 0
-      ? el(
-          "details",
-          {
-            className: "front-matter",
-            open: fmOpen,
-            onToggle: (e) => {
-              state.frontMatterOpen = !!e.target.open;
-            },
-          },
-          [
-            el("summary", { className: "front-matter-summary" }, [
-              el("span", {
-                className: "front-matter-summary-label",
-                text: "Front-matter",
-              }),
-              el("span", {
-                className: "front-matter-summary-hint",
-                text: fmOpen ? "Collapse" : "Expand",
-              }),
-            ]),
-            form,
-          ]
-        )
-      : null;
+  const mode = state.bodyMode;
+  const showFields = mode === "fields";
+  if (!showFields) form.hidden = true;
 
   const bodyWrap = el("div", { className: "field body-editor-stack", id: "body-wrap" });
-  if (bodies.length) {
-    const primary = bodies[0];
-    const mode = state.bodyMode;
+  if (showFields) bodyWrap.hidden = true;
+  if (bodies.length && !showFields) {
     const visual = mode === "visual";
     // On wide screens Preview is a side panel; keep a Visual surface mounted under Preview.
     const showVisualSurface = visual || mode === "preview";
@@ -3213,8 +3200,6 @@ function renderEditorPane() {
     if (!showSourceSurface) source.hidden = true;
 
     bodyWrap.append(
-      el("label", { text: primary.label || "Body" }),
-      renderEditorChrome(mode),
       el("div", { className: "editor-pane-fill" }, [tiptapHost, source])
     );
     if (bodies.length > 1) {
@@ -3284,8 +3269,10 @@ function renderEditorPane() {
           : null,
       ]),
     ]),
-    frontMatter,
+    renderEditorChrome(mode),
+    form,
     bodyWrap,
+    mode === "visual" || mode === "source" ? renderMobileFormatBar() : null,
     bodyStats,
   ]);
 }
@@ -3326,6 +3313,7 @@ function refreshBodyStats() {
 }
 
 function renderEditorChrome(mode) {
+  const fields = mode === "fields";
   const visual = mode === "visual";
   const source = mode === "source";
   const preview = mode === "preview";
@@ -3335,6 +3323,21 @@ function renderEditorChrome(mode) {
     role: "tablist",
     "aria-label": "Editor mode",
   }, [
+    el("button", {
+      className: "editor-mode-tab",
+      type: "button",
+      role: "tab",
+      text: "Fields",
+      title: "Front matter",
+      "aria-selected": fields ? "true" : "false",
+      onClick: () => {
+        if (fields) return;
+        syncBodyFromEditor();
+        state.bodyMode = "fields";
+        closeEditorMenus();
+        renderShell();
+      },
+    }),
     el("button", {
       className: "editor-mode-tab",
       type: "button",
@@ -3395,8 +3398,16 @@ function renderEditorChrome(mode) {
     ]),
   ]);
 
+  const pathLine = el("p", { className: "editor-path" }, [
+    el("span", { className: "editor-path-text", text: state.file || "" }),
+    state.dirty
+      ? el("span", { className: "editor-path-unsaved", text: "unsaved" })
+      : null,
+  ]);
+
   return el("div", { className: "editor-chrome" }, [
     chromeRow,
+    pathLine,
     el("p", {
       id: "ai-proof-hint",
       className: "ai-proof-hint",
@@ -3405,6 +3416,46 @@ function renderEditorChrome(mode) {
       "aria-live": "polite",
     }),
     visual ? renderFormatToolbar() : null,
+  ]);
+}
+
+function renderMobileFormatBar() {
+  const iconBtn = (title, icon, run) =>
+    el("button", {
+      className: "editor-format-bar-btn",
+      type: "button",
+      title,
+      "aria-label": title,
+      onMouseDown: (e) => e.preventDefault(),
+      onClick: () => run(),
+    }, [materialIcon(icon)]);
+  const textBtn = (title, label, run) =>
+    el("button", {
+      className: "editor-format-bar-btn",
+      type: "button",
+      title,
+      "aria-label": title,
+      onMouseDown: (e) => e.preventDefault(),
+      onClick: () => run(),
+    }, [el("span", { text: label })]);
+
+  return el("div", {
+    className: "editor-format-bar-mobile",
+    role: "toolbar",
+    "aria-label": "Formatting",
+  }, [
+    iconBtn("Bold", "format_bold", () => editorChain()?.toggleBold().run()),
+    iconBtn("Italic", "format_italic", () => editorChain()?.toggleItalic().run()),
+    iconBtn("Strikethrough", "format_strikethrough", () => editorChain()?.toggleStrike().run()),
+    textBtn("Heading", "H", () => editorChain()?.toggleHeading({ level: 2 }).run()),
+    iconBtn("Quote", "format_quote", () => editorChain()?.toggleBlockquote().run()),
+    iconBtn("Link", "link", () => {
+      const href = window.prompt("Link URL");
+      if (!href) return;
+      editorChain()?.setLink({ href }).run();
+    }),
+    iconBtn("Code", "code", () => editorChain()?.toggleCode().run()),
+    renderAiProofControl(),
   ]);
 }
 
@@ -4537,7 +4588,11 @@ function discardChanges() {
   state.insertMenuOpen = false;
   if (state.bodyMode === "preview") {
     /* keep preview tab */
-  } else if (state.bodyMode !== "visual" && state.bodyMode !== "source") {
+  } else if (
+    state.bodyMode !== "visual" &&
+    state.bodyMode !== "source" &&
+    state.bodyMode !== "fields"
+  ) {
     state.bodyMode = state.lastEditorMode || "visual";
   }
   clearError();

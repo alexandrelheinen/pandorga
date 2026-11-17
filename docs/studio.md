@@ -91,6 +91,16 @@ response includes `commit` (Git commit SHA).
 
 The PAT needs **Actions: Read** in addition to Contents write.
 
+## Phone editor
+
+The editor tabs are Fields, Visual, Source, and Preview. Fields is the
+front matter; it is not an accordion. Under the tabs, a monospace line
+shows the file path and the word unsaved while the draft differs from
+the last load or save. On a phone the format controls pin to the bottom:
+bold, italic, strike, heading, quote, link, code, Correct, and Refine.
+Insert and the letter-case controls leave the top chrome at that width.
+The body sits on the page without a nested box.
+
 ## Phone list
 
 A collection list on a phone shows a 56 by 42 thumbnail, or a Material
