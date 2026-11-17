@@ -76,12 +76,58 @@
       return formatted.slice(0, -1).join(', ') + ', and ' + formatted[formatted.length - 1];
     }
 
+    /* DOI and URL both end a reference as a live link, not inert text — a
+       reader should be able to follow the citation without retyping it. The
+       link text stays short: a full DOI or URL running the width of the
+       apparatus column reads as noise even with `overflow-wrap: anywhere`
+       catching the overflow. A trailing `open_in_new`, the same glyph the
+       detail actions use for an outbound link, marks it as leaving the page. */
+    function externalLinkIconHtml() {
+      return '<span class="material-symbols-outlined bib-ext-link-icon" aria-hidden="true">open_in_new</span>';
+    }
+
+    function cleanDoi(raw) {
+      return String(raw || '').trim().replace(/^(doi:\s*|https?:\/\/(dx\.)?doi\.org\/)/i, '').trim();
+    }
+
+    function doiHref(raw) {
+      return 'https://doi.org/' + encodeURI(cleanDoi(raw));
+    }
+
+    /* host + path, not the full address — `https://` and a trailing slash
+       carry nothing a reader needs, and a long path is cut on a character
+       boundary with an ellipsis rather than left to wrap mid-word. */
+    function shortenUrlDisplay(raw) {
+      var display = String(raw || '').trim()
+        .replace(/^https?:\/\//i, '')
+        .replace(/^www\./i, '')
+        .replace(/\/$/, '');
+      var max = 42;
+      if (display.length > max) display = display.slice(0, max - 1) + '\u2026';
+      return display;
+    }
+
+    function renderDoiLink(raw) {
+      var doi = cleanDoi(raw);
+      if (!doi) return '';
+      return '<a href="' + escapeAttr(doiHref(raw)) + '" target="_blank" rel="noopener noreferrer">' +
+        escapeHtml('doi:' + doi) + externalLinkIconHtml() + '</a>';
+    }
+
+    function renderUrlLink(raw) {
+      var url = String(raw || '').trim();
+      if (!url) return '';
+      return '<a href="' + escapeAttr(url) + '" target="_blank" rel="noopener noreferrer">' +
+        escapeHtml(shortenUrlDisplay(url)) + externalLinkIconHtml() + '</a>';
+    }
+
     function formatIeeeEntry(entry, number) {
       var type = (entry && entry.type) || 'misc';
       var author = formatIeeeAuthors(bibField(entry, 'author'));
       var title = bibField(entry, 'title');
       var year = bibField(entry, 'year');
       var url = bibField(entry, 'url');
+      var doi = bibField(entry, 'doi');
       var parts = [];
 
       if (type === 'book') {
@@ -122,8 +168,11 @@
       if (note) parts.push(escapeHtml(note) + '.');
 
       var text = parts.join(' ');
-      if (url) {
-        text += ' [Online]. Available: ' + escapeHtml(url);
+      // DOI is the more durable identifier when both are present — it
+      // survives a publisher moving or retiring the page the URL points at.
+      var onlineLink = doi ? renderDoiLink(doi) : (url ? renderUrlLink(url) : '');
+      if (onlineLink) {
+        text += ' [Online]. Available: ' + onlineLink;
       }
       return text;
     }
@@ -179,9 +228,15 @@
       root.innerHTML = String(html || '');
       root.querySelectorAll('.article-references .bibliography li').forEach(function (li) {
         li.innerHTML = li.innerHTML.replace(/^(<(?:sup|span)\b[^>]*>)\[[0-9]+\]\s*/, '$1');
+        // Fallback for a bare "Available: https://…" that did not go through
+        // formatIeeeEntry's own doi/url link (e.g. a URL typed into `note` or
+        // `howpublished`). Same short-display + icon treatment, not the raw
+        // address as link text.
         li.innerHTML = li.innerHTML.replace(
           /(Available(?:\s+at)?):\s*(https?:\/\/[^\s<"]+)([.,;)\]]*)/g,
-          '$1: <a href="$2" target="_blank" rel="noopener noreferrer">$2</a>$3'
+          function (_, prefix, rawUrl, trailing) {
+            return prefix + ': ' + renderUrlLink(rawUrl) + trailing;
+          }
         );
       });
       return root.innerHTML;

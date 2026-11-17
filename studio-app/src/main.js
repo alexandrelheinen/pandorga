@@ -5,6 +5,8 @@ import { splitDocument, rebuildDocument } from "./lib/document.js";
 import { createBodyEditor, INCLUDE_DEFS } from "./editor/body-editor.js";
 import { roundTripMarkdown } from "./editor/liquid-core.js";
 import { renderPreview } from "./preview/render.js";
+import { buildArticlePreviewShellHtml } from "./preview/document.js";
+import { PANDORGA_VERSION } from "./preview/pandorga-version.js";
 import {
   LIST_SORT_OPTIONS,
   LIST_PAGE_SIZE_OPTIONS,
@@ -51,6 +53,41 @@ const CLERK_REDIRECTS = {
   signInFallbackRedirectUrl: STUDIO_PATH,
   signUpForceRedirectUrl: STUDIO_PATH,
   signUpFallbackRedirectUrl: STUDIO_PATH,
+};
+
+/** Clerk UI appearance — site tokens, square, Ancizar Sans, marca-texto primary. */
+const CLERK_APPEARANCE = {
+  variables: {
+    colorPrimary: "#1c5a7a",
+    colorText: "#000000",
+    colorTextSecondary: "#5e5d59",
+    colorBackground: "#ffffff",
+    borderRadius: "0",
+    fontFamily: '"Ancizar Sans", sans-serif',
+  },
+  elements: {
+    card: {
+      boxShadow: "none",
+      border: "none",
+      borderRadius: "0",
+    },
+    formButtonPrimary: {
+      borderRadius: "0",
+      boxShadow: "none",
+      fontFamily: '"Marcellus SC", serif',
+      letterSpacing: "0.04em",
+      background:
+        "linear-gradient(104deg, transparent 0.9%, color-mix(in srgb, #1c5a7a 28%, transparent) 2.6%, color-mix(in srgb, #1c5a7a 22%, transparent) 58%, color-mix(in srgb, #1c5a7a 8%, transparent) 98%, transparent 100%)",
+      color: "color-mix(in srgb, #1c5a7a 82%, #000)",
+      textTransform: "none",
+    },
+    formFieldLabel: {
+      fontFamily: '"Marcellus SC", serif',
+      letterSpacing: "0.06em",
+      textTransform: "uppercase",
+      fontSize: "0.78rem",
+    },
+  },
 };
 
 /** Decode Frontend API host from a Clerk publishable key (`pk_test_` / `pk_live_`). */
@@ -185,6 +222,10 @@ const state = {
   listLoading: false,
   fileLoading: false,
   previewHtml: "",
+  /** Article preview iframe chrome — Desktop (1280) / Mobile (390) width. */
+  previewWidth: "desktop",
+  /** Article preview iframe chrome — independent of the Studio app theme. */
+  previewTheme: "light",
   bodyEditor: null,
   insertMenuOpen: false,
   /** Soft hint under AI Proof when selection is missing. */
@@ -798,8 +839,8 @@ function renderThemeMenu() {
         setThemeChoice(c.id);
         state.themeMenuOpen = false;
         syncThemeMenuUi();
-        const frame = $("#preview-frame");
-        if (frame) void mountMermaidPreview(frame);
+        // Studio's own theme is independent of the article preview's
+        // Light/Dark control (preview-controls), so nothing to re-mount here.
       },
     }, [
       materialIcon(c.icon),
@@ -963,8 +1004,12 @@ function syncPipelineChip() {
   const current = document.querySelector("[data-studio-action='pipeline-status']");
   if (!current) return;
   const key = pipelineChipViewKey();
-  if (current.getAttribute("data-pipeline-key") === key) return;
+  if (current.getAttribute("data-pipeline-key") === key) {
+    syncPipelineFailBanner();
+    return;
+  }
   current.replaceWith(renderPipelineChip());
+  syncPipelineFailBanner();
 }
 
 function applyPipelinePayload(data) {
@@ -1269,7 +1314,46 @@ function renderStudioToolbar({ brand = null, menuToggle = null } = {}) {
     ...actions,
   ];
   if (menuToggle) kids.push(menuToggle);
-  return el("header", { className: "studio-toolbar studio-icon-bar" }, kids);
+  const header = el("header", { className: "studio-toolbar studio-icon-bar" }, kids);
+  const failBanner = renderPipelineFailBanner();
+  if (failBanner) header.append(failBanner);
+  return header;
+}
+
+/** Failed pipeline band overlays below the toolbar so the editor does not jump. */
+function renderPipelineFailBanner() {
+  if (state.pipeline.state !== "error") return null;
+  const sha = String(state.pipeline.sha || "").slice(0, 7) || "………";
+  const kids = [
+    el("span", {
+      text: `Content pipeline failed for commit ${sha}`,
+    }),
+  ];
+  if (state.pipeline.runUrl) {
+    kids.push(el("span", { text: " · " }));
+    kids.push(
+      el("a", {
+        href: state.pipeline.runUrl,
+        target: "_blank",
+        rel: "noopener noreferrer",
+        text: "Open run",
+      })
+    );
+  }
+  return el("div", {
+    className: "studio-pipeline-banner",
+    role: "alert",
+  }, kids);
+}
+
+function syncPipelineFailBanner() {
+  const toolbar = document.querySelector(".studio-toolbar");
+  if (!toolbar) return;
+  const existing = toolbar.querySelector(".studio-pipeline-banner");
+  const next = renderPipelineFailBanner();
+  if (existing && next) existing.replaceWith(next);
+  else if (existing && !next) existing.remove();
+  else if (!existing && next) toolbar.append(next);
 }
 
 function clerkUserEmail(clerk) {
@@ -1305,7 +1389,10 @@ function renderAuthGate(clerk) {
   ]);
   app.append(box);
   if (clerk && !clerk.dev) {
-    clerk.mountSignIn($("#clerk-sign-in"), { ...CLERK_REDIRECTS });
+    clerk.mountSignIn($("#clerk-sign-in"), {
+      ...CLERK_REDIRECTS,
+      appearance: CLERK_APPEARANCE,
+    });
   } else {
     $("#clerk-sign-in").append(
       el("p", {
@@ -1368,19 +1455,25 @@ function renderPendingReviewGate(clerk, emailHint) {
   p1.append(bold);
   p1.append(document.createTextNode("."));
 
+  const title = el("h1");
+  title.append(document.createTextNode("Registration "));
+  const marked = document.createElement("em");
+  marked.textContent = "received";
+  title.append(marked);
+
   const box = el("div", { className: "auth-gate auth-gate--pending" }, [
     el("div", { className: "studio-brand" }, [
       studioMark({ size: 32, label: "Studio" }),
       el("strong", { text: "Studio" }),
     ]),
-    el("h1", { text: "Registration received" }),
+    title,
     p1,
     el("p", {
-      className: "pending-signoff",
-      text: "Have a nice one! ✍️",
+      className: "pending-signed-in",
+      text: `Signed in as ${email}`,
     }),
     el("button", {
-      className: "btn",
+      className: "btn btn-primary",
       type: "button",
       text: "Sign out",
       onClick: async () => {
@@ -3589,33 +3682,119 @@ function renderObjectListEditor(field, items, { onChange, idPrefix }) {
   return host;
 }
 
+/** Desktop/Mobile chrome widths for the article preview iframe (handover 07/08). */
+const PREVIEW_WIDTHS = { desktop: 1280, mobile: 390 };
+
 function renderPreviewPane() {
-  const width =
-    typeof window !== "undefined" && window.innerWidth
-      ? `${Math.round(window.innerWidth)}px`
-      : "";
+  const yaml = isYamlCollection();
   const metaParts = [el("span", { className: "preview-pane-label", text: "Preview" })];
-  if (width) {
+  if (!yaml) {
     metaParts.push(
       el("span", { className: "preview-pane-sep", "aria-hidden": "true", text: "·" }),
       el("span", {
         className: "preview-pane-meta",
-        text: `Viewport ${width}`,
+        text: `${PREVIEW_WIDTHS[state.previewWidth] || PREVIEW_WIDTHS.desktop}px`,
       })
     );
   }
-  return el("div", { className: "pane pane-preview" }, [
-    el("div", { className: "preview-pane-head" }, metaParts),
-    el("div", {
-      className: "preview-folio",
-    }, [
-      el("div", {
-        className: "preview-frame",
-        id: "preview-frame",
-        html: state.previewHtml,
-      }),
-    ]),
-  ]);
+
+  const children = [el("div", { className: "preview-pane-head" }, metaParts)];
+  if (!yaml) children.push(renderPreviewControls());
+
+  const folioClass =
+    "preview-folio" +
+    (!yaml && state.previewWidth === "mobile" ? " preview-folio--mobile" : "");
+  children.push(
+    el("div", { className: folioClass }, [
+      yaml
+        ? el("div", {
+            className: "preview-frame",
+            id: "preview-frame",
+            html: state.previewHtml,
+          })
+        : el("iframe", {
+            className: "preview-frame preview-iframe",
+            id: "preview-frame",
+            title: "Article preview",
+            loading: "eager",
+          }),
+    ])
+  );
+
+  if (!yaml) {
+    children.push(
+      el("p", {
+        className: "preview-caption",
+        text: `Rendered with pandorga ${PANDORGA_VERSION} article styles`,
+      })
+    );
+  }
+
+  return el("div", { className: "pane pane-preview" }, children);
+}
+
+/** Desktop/Mobile width + Light/Dark controls for the article preview iframe. */
+function renderPreviewControls() {
+  const widthBtn = (id, label) =>
+    el("button", {
+      type: "button",
+      className: "preview-control-btn" + (state.previewWidth === id ? " is-active" : ""),
+      "aria-pressed": state.previewWidth === id ? "true" : "false",
+      "data-preview-width": id,
+      text: label,
+      onClick: () => {
+        if (state.previewWidth === id) return;
+        state.previewWidth = id;
+        syncPreviewControlsUi();
+      },
+    });
+  const themeBtn = (id, label) =>
+    el("button", {
+      type: "button",
+      className: "preview-control-btn" + (state.previewTheme === id ? " is-active" : ""),
+      "aria-pressed": state.previewTheme === id ? "true" : "false",
+      "data-preview-theme": id,
+      text: label,
+      onClick: () => {
+        if (state.previewTheme === id) return;
+        state.previewTheme = id;
+        syncPreviewControlsUi();
+        const frame = $("#preview-frame");
+        if (frame && frame.tagName === "IFRAME") applyArticlePreviewContent(frame);
+      },
+    });
+  return el(
+    "div",
+    { className: "preview-controls", role: "group", "aria-label": "Preview display" },
+    [
+      el("div", { className: "preview-control-group", role: "group", "aria-label": "Width" }, [
+        widthBtn("desktop", "Desktop"),
+        widthBtn("mobile", "Mobile"),
+      ]),
+      el("div", { className: "preview-control-group", role: "group", "aria-label": "Theme" }, [
+        themeBtn("light", "Light"),
+        themeBtn("dark", "Dark"),
+      ]),
+    ]
+  );
+}
+
+/** Repaints preview-controls active state + the folio width class in place (no renderMain()). */
+function syncPreviewControlsUi() {
+  const folio = document.querySelector(".preview-folio");
+  if (folio) folio.classList.toggle("preview-folio--mobile", state.previewWidth === "mobile");
+  const meta = document.querySelector(".preview-pane-meta");
+  if (meta) meta.textContent = `${PREVIEW_WIDTHS[state.previewWidth] || PREVIEW_WIDTHS.desktop}px`;
+  for (const btn of document.querySelectorAll("[data-preview-width]")) {
+    const active = btn.getAttribute("data-preview-width") === state.previewWidth;
+    btn.classList.toggle("is-active", active);
+    btn.setAttribute("aria-pressed", active ? "true" : "false");
+  }
+  for (const btn of document.querySelectorAll("[data-preview-theme]")) {
+    const active = btn.getAttribute("data-preview-theme") === state.previewTheme;
+    btn.classList.toggle("is-active", active);
+    btn.setAttribute("aria-pressed", active ? "true" : "false");
+  }
 }
 
 function mountBodyEditor() {
@@ -3699,6 +3878,14 @@ function paintCitePill(el, status) {
   else if (status === "missing") el.classList.add("studio-ref-pill--missing");
 }
 
+/** Current preview document for cite/mermaid: the yaml `<pre>` host, or the article iframe's contentDocument. */
+function currentPreviewRoot() {
+  const frame = $("#preview-frame");
+  if (!frame) return null;
+  if (frame.tagName === "IFRAME") return frame.contentDocument || null;
+  return frame;
+}
+
 function scheduleCiteLookups(frame) {
   if (!frame) return;
   const present = new Set();
@@ -3750,7 +3937,7 @@ function scheduleCiteLookups(frame) {
         const exists = await citeKeyExists(kind, key);
         const status = exists ? "ok" : "missing";
         citeLookupStatus.set(id, status);
-        const root = $("#preview-frame");
+        const root = currentPreviewRoot();
         if (!root) return;
         for (const el of root.querySelectorAll(
           `[data-cite-check="${kind}"][data-key="${CSS.escape(key)}"]`
@@ -3763,31 +3950,97 @@ function scheduleCiteLookups(frame) {
   }
 }
 
+/** `.page-accent--<accent>` on the entry's own front matter (blue is the default, unmarked). */
+function articlePreviewAccentClass() {
+  const accent = String(state.fields?.accent || "").trim().toLowerCase();
+  return accent && accent !== "blue" ? `page-accent--${accent}` : "";
+}
+
+/** Mirrors `_layouts/text.html`'s `has-drop-cap`: `drop_cap: true` and the body does not open on a heading. */
+function articlePreviewHasDropCap() {
+  if (state.fields?.drop_cap !== true) return false;
+  const firstLine = String(state.body || "")
+    .split("\n")
+    .map((line) => line.trim())
+    .find((line) => line !== "");
+  return !!firstLine && !firstLine.startsWith("#");
+}
+
+/**
+ * First build of the article preview iframe document for this `renderMain()`
+ * pass — stylesheets/fonts only load once per mount; later edits patch the
+ * live `contentDocument` in place (see `applyArticlePreviewContent`) so
+ * typing does not reload the frame.
+ */
+function ensureArticlePreviewDocument(frame) {
+  if (frame.dataset.previewBuilt === "1") return true;
+  frame.dataset.previewBuilt = "1";
+  frame.addEventListener("load", () => applyArticlePreviewContent(frame), { once: true });
+  frame.srcdoc = buildArticlePreviewShellHtml({ theme: state.previewTheme });
+  return false;
+}
+
+/** Iframe is sized to its own content height — the pane, not an inner scrollbar, scrolls a long article. */
+function resizePreviewFrameToContent(frame) {
+  const doc = frame.contentDocument;
+  if (!doc || !doc.documentElement) return;
+  const height = Math.max(
+    doc.documentElement.scrollHeight || 0,
+    doc.body ? doc.body.scrollHeight : 0,
+    1
+  );
+  frame.style.height = `${height}px`;
+}
+
+/** Patches body HTML, theme, and page-accent/drop-cap classes into an already-loaded preview iframe. */
+function applyArticlePreviewContent(frame) {
+  const doc = frame.contentDocument;
+  if (!doc || !doc.getElementById) return;
+  const win = frame.contentWindow;
+  const scrollX = win ? win.scrollX : 0;
+  const scrollY = win ? win.scrollY : 0;
+
+  doc.documentElement.setAttribute("data-theme", state.previewTheme === "dark" ? "dark" : "light");
+
+  const page = doc.getElementById("preview-page");
+  if (page) {
+    const accent = articlePreviewAccentClass();
+    page.className =
+      "max-w-7xl mx-auto px-4 sm:px-8 md:px-16 py-12 text-page" + (accent ? ` ${accent}` : "");
+  }
+
+  const content = doc.getElementById("preview-article-content");
+  if (!content) return;
+  content.className = "article-content" + (articlePreviewHasDropCap() ? " has-drop-cap" : "");
+  content.innerHTML = state.previewHtml;
+  if (win) win.scrollTo(scrollX, scrollY);
+  resizePreviewFrameToContent(frame);
+
+  scheduleCiteLookups(doc);
+  void Promise.resolve(mountMermaidPreview(doc)).then(() => {
+    resizePreviewFrameToContent(frame);
+    if (win && frame.contentWindow === win) win.scrollTo(scrollX, scrollY);
+  });
+}
+
 function refreshPreview() {
   const frame = $("#preview-frame");
   if (isYamlCollection()) {
     state.previewHtml = renderYamlPreviewHtml();
-  } else {
-    state.previewHtml = renderPreview(state.body || "");
-  }
-  if (frame) {
-    // innerHTML wipe resets scroll; keep the reader's place while typing.
-    const scrollTop = frame.scrollTop;
-    const scrollLeft = frame.scrollLeft;
-    frame.innerHTML = state.previewHtml;
-    frame.scrollTop = scrollTop;
-    frame.scrollLeft = scrollLeft;
-    if (!isYamlCollection()) {
-      scheduleCiteLookups(frame);
-      void Promise.resolve(mountMermaidPreview(frame)).then(() => {
-        // Mermaid layout can shift height after the sync restore above.
-        if ($("#preview-frame") === frame) {
-          frame.scrollTop = scrollTop;
-          frame.scrollLeft = scrollLeft;
-        }
-      });
+    if (frame && frame.tagName !== "IFRAME") {
+      // innerHTML wipe resets scroll; keep the reader's place while typing.
+      const scrollTop = frame.scrollTop;
+      const scrollLeft = frame.scrollLeft;
+      frame.innerHTML = state.previewHtml;
+      frame.scrollTop = scrollTop;
+      frame.scrollLeft = scrollLeft;
     }
+    return;
   }
+  state.previewHtml = renderPreview(state.body || "");
+  if (!frame || frame.tagName !== "IFRAME") return;
+  const alreadyLoaded = ensureArticlePreviewDocument(frame);
+  if (alreadyLoaded) applyArticlePreviewContent(frame);
 }
 
 function escapePreviewText(value) {
@@ -3854,19 +4107,28 @@ function mermaidFallback(node, message) {
   node.removeAttribute("data-processed");
   const errLine = message ? `Mermaid: ${message}\n\n` : "Mermaid (unrendered)\n\n";
   node.innerHTML = "";
-  const pre = document.createElement("pre");
+  // `node`'s own document — the preview iframe's `contentDocument`, not
+  // necessarily this module's `document` — so the fallback `<pre>` is a
+  // native node of the tree it is about to be appended into.
+  const doc = node.ownerDocument || document;
+  const pre = doc.createElement("pre");
   pre.className = "studio-mermaid-fallback__pre";
   pre.textContent = errLine + source;
   node.append(pre);
 }
 
-/** Convert ```mermaid fences to diagrams; boxed monospace fallback on failure. */
-async function mountMermaidPreview(root) {
-  if (!root) return;
+/**
+ * Convert ```mermaid fences to diagrams; boxed monospace fallback on
+ * failure. `doc` is the preview's own document (the article iframe's
+ * `contentDocument`, or the yaml `<pre>` host's owner document) so diagrams
+ * mount, and read their theme, from the surface they are actually painted on.
+ */
+async function mountMermaidPreview(doc) {
+  if (!doc) return;
   const nodes = [];
-  root.querySelectorAll("pre code.language-mermaid").forEach((code) => {
+  doc.querySelectorAll("pre code.language-mermaid").forEach((code) => {
     const source = code.textContent || "";
-    const div = document.createElement("div");
+    const div = doc.createElement("div");
     div.className = "mermaid studio-mermaid";
     div.dataset.mermaidSource = source;
     div.textContent = source;
@@ -3875,7 +4137,7 @@ async function mountMermaidPreview(root) {
     else code.replaceWith(div);
     nodes.push(div);
   });
-  root
+  doc
     .querySelectorAll(".mermaid[data-mermaid-source], .studio-mermaid-fallback[data-mermaid-source]")
     .forEach((node) => {
       if (!nodes.includes(node)) nodes.push(node);
@@ -3894,7 +4156,7 @@ async function mountMermaidPreview(root) {
 
   mermaid.initialize({
     startOnLoad: false,
-    theme: document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "default",
+    theme: doc.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "default",
     securityLevel: "strict",
   });
 

@@ -424,8 +424,21 @@
   max-width: 100%;
 }
 
+/* `auto 16 / 9` keeps the intrinsic ratio when the image has one (the HTML
+   `width`/`height` attrs, or a real decode once it loads) and falls back to
+   16:9 only while neither is known yet — the span the layout reserves before
+   the image arrives, so the plate does not collapse and then jump taller
+   once the picture paints (CLS). `width: 100%` + `height: auto` let that
+   ratio govern the box; the surface fill is the same plate ground every
+   other medium in a figure sits on, so an unloaded slot reads as "coming"
+   rather than as a hole in the page. */
 .article-content figure img {
   margin-inline: auto;
+  aspect-ratio: auto 16 / 9;
+  width: 100%;
+  height: auto;
+  display: block;
+  background: var(--color-surface-container-low);
 }
 
 /* Video is the one medium that brings its own black, so it takes the full
@@ -985,14 +998,13 @@ body.figure-lightbox-open {
 a.xcite-ref {
   color: var(--color-secondary);
   text-decoration-line: underline;
-  text-underline-offset: 2px;
+  text-underline-offset: 0.15em;
   text-decoration-thickness: 1px;
-  text-decoration-style: dotted;
+  text-decoration-style: solid;
 }
 
 a.xcite-ref:hover {
   color: var(--color-link-hover);
-  text-decoration-style: solid;
 }
 
 .xcite-missing {

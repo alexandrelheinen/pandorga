@@ -1465,7 +1465,14 @@ button.home-project-inventory-row {
 
 /* Rule-only index: tick clearance at the band top (same 4px as desk
    Projects), then the shared `--space-lg` under the hairline, then the
-   former band top breathing room as padding below the rule. */
+   former band top breathing room as padding below the rule.
+   Drop the previous band's border-bottom so the atelier plate edge
+   (hairline + offset wash + accent bar) is the only seam under Rascunhos —
+   otherwise two hairlines sit 4px apart and read as a broken overlap. */
+.home-band:has(+ .home-band--index > .home-band-inner > .ledger-section-banner--rule-only) {
+  border-bottom: 0;
+}
+
 .home-band--index:has(> .home-band-inner > .ledger-section-banner--rule-only) {
   padding-top: 4px;
 }

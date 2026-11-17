@@ -239,6 +239,8 @@ vm.runInContext(
     functionSource("pipelineChipMeta"),
     functionSource("pipelineChipViewKey"),
     functionSource("renderPipelineChip"),
+    functionSource("renderPipelineFailBanner"),
+    functionSource("syncPipelineFailBanner"),
     functionSource("syncPipelineChip"),
     functionSource("applyPipelinePayload"),
     functionSource("localExportPresentation"),

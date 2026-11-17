@@ -279,6 +279,9 @@ end
 unless home_sheet.match?(/\.ledger-section-banner--rule-only\s*\{[^}]*padding-top:\s*var\(--space-lg\)/m)
   errors << "assets/css/ledger/home.css: index rule-only pad under hairline must match writing bands (space-lg)"
 end
+unless home_sheet.match?(/\.home-band:has\(\+\s*\.home-band--index[^)]*rule-only[^)]*\)\s*\{[^}]*border-bottom:\s*0/m)
+  errors << "assets/css/ledger/home.css: band before index rule-only must drop border-bottom (no double hairline under Rascunhos)"
+end
 unless home_sheet.match?(/max-height:\s*calc\(var\(--type-body\) \* var\(--leading-body\) \* 2\)/)
   errors << "assets/css/ledger/home.css: specimen tagline must clamp to two lines (PLT-AC-88)"
 end

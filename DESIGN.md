@@ -156,10 +156,10 @@ borders:
 # ─────────────────────────────────────────────────────────────
 typography:
   fontFamilies:
-    title: "'Cinzel Decorative', serif"
-    subtitle: "'Newsreader', serif"
+    title: "'Ancizar Serif', serif"
+    subtitle: "'Ancizar Sans', sans-serif"
     label: "'Marcellus SC', serif"
-    body: "'Newsreader', Georgia, serif"
+    body: "'Ancizar Sans', sans-serif"
     mono: "'Courier Prime', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace"
     code: "'Courier Prime', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace"
   rootFontSize: "110%"
@@ -738,19 +738,21 @@ leading is actively wrong rather than merely loose — box drawing made of `s`,
 
 ## Typography
 
-Owner stack (2026-10-01): **Cinzel Decorative** for *page / display* titles,
-**Newsreader** for body and content titles (**Light 300** / **SemiBold 600**),
-**Newsreader** for subtitle / standfirst roles that still use `--font-subtitle`,
-**Marcellus SC** for labels / marginalia, **Courier Prime** for notation and
-code. Declared once in `_data/themes/shared.yml` — light and dark only swap
-colour. Root **110%**.
-Titles are **+2pt** over the Stitch rem steps; chrome (meta, dek,
-labels, nav, CTAs, mono) stays on the bare rem steps so dates, pills, and
-“Read article” links do not outgrow the prose. Detail prose is **1.2rem** below 1024px (about **21.1px**) and
-**1.25rem** from there (about **22px**). A reader can step that default
-by −4…+4 pt (`--prose-size-offset`) from a compact dropdown.
+Owner stack (2026-11): **Ancizar Serif** for *page / display* titles and
+content titles, **Ancizar Sans** for body / subtitle / standfirst
+(**Light 300** desktop / **350** mobile; **SemiBold 600** where titles
+need weight on the sans), **Marcellus SC** for labels / marginalia,
+**Courier Prime** for notation and code. Declared once in
+`_data/themes/shared.yml` — light and dark only swap colour. Root **110%**.
+Four families only. Titles are **+2pt** over the Stitch rem steps; chrome
+(meta, dek, labels, nav, CTAs, mono) stays on the bare rem steps so dates
+and “Read article” links do not outgrow the prose. Detail prose is
+**1.2rem** below 1024px (about **21.1px**) and **1.25rem** from there
+(about **22px**). A reader can step that default by −4…+4 pt
+(`--prose-size-offset`) from a compact dropdown.
 
-Print CV keeps its own Lora / Overlock path in `cv-print.css` (untouched).
+Print CV may keep a private face path in the consuming site's
+`cv-print.css` (site-owned).
 
 Type sizes live as `--type-*` tokens on `html` in `base.css`, mapped from the
 Stitch Borders scale (§19.4 of reimagined-borders). Page CSS must consume
@@ -758,16 +760,16 @@ those tokens — no one-off rem sizes for roles that already have a step.
 
 | Role | Family | Weight | Size token |
 | :--- | :--- | :--- | :--- |
-| Display | Cinzel Decorative | 400 | `--type-display` / `-lg` |
-| Page H1 | Cinzel Decorative | 400 | `--type-page` / `-lg` |
-| Section | Cinzel Decorative | 400 | `--type-section` / `-lg` |
-| Detail title | Newsreader | 600 | `--type-title` / `-lg` |
-| Card / row title | Newsreader | 600 | `--type-card` / `-lg`; listing entry titles always `-lg` (PLT-AC-55) |
-| Prose | Newsreader | 300 | `--type-prose` |
-| UI body | Newsreader | 300 | `--type-body` |
-| Detail standfirst | Newsreader | 300 | `--type-subtitle` (= body − 1pt) |
-| Dek / masthead tags | Newsreader | 300 | `--type-dek` |
-| Meta / dates / kickers | Newsreader | 300 | `--type-meta` |
+| Display | Ancizar Serif | 400 | `--type-display` / `-lg` |
+| Page H1 | Ancizar Serif | 400 | `--type-page` / `-lg` |
+| Section | Ancizar Serif | 400 | `--type-section` / `-lg` |
+| Detail title | Ancizar Serif | 600 | `--type-title` / `-lg` |
+| Card / row title | Ancizar Serif | 600 | `--type-card` / `-lg`; listing entry titles always `-lg` (PLT-AC-55) |
+| Prose | Ancizar Sans | 300 | `--type-prose` |
+| UI body | Ancizar Sans | 300 | `--type-body` |
+| Detail standfirst | Ancizar Sans | 300 | `--type-subtitle` (= body − 1pt) |
+| Dek / masthead tags | Ancizar Sans | 300 | `--type-dek` |
+| Meta / dates / kickers | Ancizar Sans | 300 | `--type-meta` |
 | Chips / nav / SC | Marcellus SC | 400 | `--type-label` / `-lg` |
 | Notation | Courier Prime | 400 | `--type-mono` |
 | Code | Courier Prime | 400 | `--font-code` |
@@ -794,7 +796,7 @@ those tokens — no one-off rem sizes for roles that already have a step.
 
 A page with `drop_cap: true` raises the first letter of the opening paragraph
 across `--drop-cap-lines` (2 unless `_config.yml` says otherwise) in the
-reading face, Newsreader, when the body does not open with a heading.
+reading face, Ancizar Sans, when the body does not open with a heading.
 
 One leading token, `--leading-body: 1.5`, covers chrome and short body copy;
 `--leading-prose: 1.6` covers long-form. Both are declared on `html` in
@@ -1232,9 +1234,13 @@ as enforced by [`_plugins/lib/tag_validator.rb`](_plugins/lib/tag_validator.rb):
 * **Do set `font-synthesis: none` on title text.** Simonetta ships 400 and 900 and nothing between; the gap must not be faked.
 * **Do reuse `.ledger-cta` / `.ledger-cta--emphasis` / `.ledger-cta--emphasis-alt`
   (`base.css`) for any CTA that used to reach for a padded, solid-filled
-  button.** `--emphasis` is the primary hue tinted fill; `--emphasis-alt` swaps
-  to the secondary hue for a second button-level action beside it (e.g. the
-  home hero's "Full curriculum vitæ" / "Contacts" pair). Don't add another one-off
+  button.** Primary actions are **marca-texto** (felt-pen highlighter wash via
+  `--mark-strong-*` gradients), not opaque petroleum rectangles at rest.
+  Hover may go solid. Studio primary controls (Save, New entry, Upload, Clerk
+  primary) follow the same wash — never a filled box in the resting state.
+  `--emphasis` is the primary hue tinted fill; `--emphasis-alt` swaps to the
+  secondary hue for a second button-level action beside it (e.g. the home
+  hero's "Full curriculum vitæ" / "Contacts" pair). Don't add another one-off
   button class — the old `.home-cta` / `--solid` / `--outline` family was
   retired in 2026-09 specifically because every page had started growing its
   own.

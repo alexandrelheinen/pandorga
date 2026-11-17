@@ -77,10 +77,61 @@ layout: shell
     </div>
   </div>
 
-  <div id="blog-detail" class="hidden">
+  {%- comment -%}
+    Loading skeleton — twin of articles.html's, same classes and the same
+    `aria-busy` contract. See the articles.html layout and
+    assets/css/ledger/detail.css for why it is static markup rather than
+    something the runtime injects.
+  {%- endcomment -%}
+  <div id="blog-detail" class="hidden" aria-busy="true">
     <div class="grid grid-cols-1 gap-8 lg:gap-12 items-start text-detail-grid">
-      <aside id="blog-detail-sidebar"></aside>
-      <div id="blog-detail-main"></div>
+      <aside id="blog-detail-sidebar">
+        <div class="text-detail-sidebar detail-skeleton" aria-hidden="true">
+          <div class="article-sidebar-heading mb-8">
+            <div class="ledger-chip-row">
+              <span class="detail-skeleton-line" style="display: inline-block; width: 3.5rem; height: 1.3rem; margin-right: 0.4rem;"></span>
+              <span class="detail-skeleton-line" style="display: inline-block; width: 3rem; height: 1.3rem;"></span>
+            </div>
+            <div class="detail-skeleton-title" style="width: 92%;"></div>
+            <div class="detail-skeleton-title" style="width: 85%;"></div>
+            <div class="detail-skeleton-title" style="width: 55%;"></div>
+            <div class="detail-skeleton-line" style="width: 100%; height: 0.95rem; margin-top: 0.75rem;"></div>
+            <div class="detail-skeleton-line" style="width: 88%; height: 0.95rem;"></div>
+          </div>
+          <div class="article-meta mb-8">
+            <div class="detail-skeleton-line" style="width: 60%; height: 0.75rem;"></div>
+            <div class="detail-skeleton-line" style="width: 45%; height: 0.75rem;"></div>
+            <div class="detail-actions">
+              <span class="detail-skeleton-line" style="display: inline-block; width: 4rem; height: 1.6rem; margin-right: 0.5rem;"></span>
+              <span class="detail-skeleton-line" style="display: inline-block; width: 4rem; height: 1.6rem; margin-right: 0.5rem;"></span>
+              <span class="detail-skeleton-line" style="display: inline-block; width: 4rem; height: 1.6rem;"></span>
+            </div>
+          </div>
+          <div class="article-toc--sidebar">
+            <div class="detail-skeleton-line" style="width: 40%; height: 0.75rem;"></div>
+            <div class="detail-skeleton-line" style="width: 100%; height: 0.75rem; margin-top: 0.9rem;"></div>
+            <div class="detail-skeleton-line" style="width: 90%; height: 0.75rem;"></div>
+            <div class="detail-skeleton-line" style="width: 95%; height: 0.75rem;"></div>
+          </div>
+        </div>
+      </aside>
+      <div id="blog-detail-main" class="text-detail-main">
+        <div class="text-reading-column text-page-main detail-skeleton" aria-hidden="true">
+          <div class="article-content">
+            <div class="detail-skeleton-line" style="width: 3.25rem; height: 3.25rem; float: left; margin: 0 0.75rem 0.5rem 0;"></div>
+            <div class="detail-skeleton-line" style="width: 100%; height: 2.0625rem;"></div>
+            <div class="detail-skeleton-line" style="width: 97%; height: 2.0625rem;"></div>
+            <div class="detail-skeleton-line" style="width: 90%; height: 2.0625rem;"></div>
+            <div class="detail-skeleton-line" style="width: 83%; height: 2.0625rem; clear: left;"></div>
+            <div class="detail-skeleton-title" style="width: 42%; margin-top: 2rem;"></div>
+            <div class="detail-skeleton-line" style="width: 100%; height: 2.0625rem;"></div>
+            <div class="detail-skeleton-line" style="width: 95%; height: 2.0625rem;"></div>
+            <div class="detail-skeleton-line" style="width: 88%; height: 2.0625rem;"></div>
+            <div class="detail-skeleton-figure" style="margin-top: 1.5rem;"></div>
+            <div class="detail-skeleton-line" style="width: 55%; height: 0.9rem; margin-top: 0.75rem; margin-bottom: 0;"></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -128,6 +179,17 @@ layout: shell
     var dateLocale = '{{ blog_locale }}';
     if (dateLocale === 'ptbr' || dateLocale === 'pt_BR') dateLocale = 'pt-BR';
     var uiLang = '{{ blog_ui }}';
+
+    /* Detail slug known from the URL: show skeleton before fetches resolve. */
+    if (selectedPost) {
+      if (listingRoot) listingRoot.classList.add('hidden');
+      if (masthead) masthead.classList.add('hidden');
+      if (pageHeader) pageHeader.classList.add('hidden');
+      if (detailRoot) {
+        detailRoot.classList.remove('hidden');
+        detailRoot.setAttribute('aria-busy', 'true');
+      }
+    }
 
     function t(key) {
       return runtime.translate(key, uiLang) || key;
@@ -410,7 +472,10 @@ layout: shell
 
     function showListing() {
       if (listingRoot) listingRoot.classList.remove('hidden');
-      if (detailRoot) detailRoot.classList.add('hidden');
+      if (detailRoot) {
+        detailRoot.classList.add('hidden');
+        detailRoot.removeAttribute('aria-busy');
+      }
       if (masthead) masthead.classList.remove('hidden');
       if (pageHeader) pageHeader.classList.remove('hidden');
       if (filterUi) filterUi.setVisible(true);
@@ -426,7 +491,16 @@ layout: shell
       if (masthead) masthead.classList.add('hidden');
       if (pageHeader) pageHeader.classList.add('hidden');
       if (filterUi) filterUi.setVisible(false);
-      if (detailRoot) detailRoot.classList.remove('hidden');
+      if (detailRoot) {
+        detailRoot.classList.remove('hidden');
+        detailRoot.setAttribute('aria-busy', 'true');
+      }
+
+      // Unlike renderArticleDetail, this function does not route through
+      // showListing() first, so the skeleton markup sitting in detailMain
+      // has to be cleared explicitly before the real section is appended —
+      // otherwise it stays in the DOM beside the mounted content.
+      if (detailMain) detailMain.innerHTML = '';
 
       var fm = post.front_matter || {};
       var lang = fm.language || dateLocale;
@@ -457,6 +531,7 @@ layout: shell
           showRandom: index <= 0
         }
       });
+      if (detailRoot) detailRoot.removeAttribute('aria-busy');
     }
 
     function initFilter() {
@@ -533,6 +608,11 @@ layout: shell
         return runtime.loadCollectionItem(collection, slugToLoad).then(function (post) {
           return renderPostDetail(post, allPosts);
         }).catch(function (error) {
+          // The skeleton was shown ahead of this fetch on the strength of the
+          // slug alone; a failed fetch has to hand the page back to the
+          // listing (and drop aria-busy with it) rather than leave the
+          // skeleton stuck with no error in view.
+          showListing();
           runtime.reportDetailLoadError(error, {
             emptyState: emptyState,
             grid: grid,

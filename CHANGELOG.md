@@ -2,6 +2,36 @@
 
 ## Unreleased
 
+## 2.3.34
+
+- Design contract: `DESIGN.md` documents the Ancizar four-family stack and
+  **marca-texto** (felt-pen wash) primary CTAs instead of solid petroleum
+  boxes at rest. Site consumers point at this file rather than forking it.
+- Studio identity: Google Fonts load Ancizar Serif/Sans + Marcellus SC +
+  Courier Prime (Cinzel Decorative / Newsreader removed). Primary buttons
+  (Save, New entry, Upload, Sign out, Clerk primary) use the strong marker
+  wash; pipeline status is icon+text without pill fills; toolbar is 56px;
+  nav rail is 240px with a 2px primary inset on the active item; Failed
+  pipeline shows a `#ffdad6` band under the toolbar. Registration-received
+  drops the emoji sign-off and marks “received” with the title wash.
+  Clerk `appearance` matches site tokens (square card, Marcellus labels).
+- Studio Visual editor: TipTap prose uses Ancizar Sans 300/20px (19px/350
+  on narrow), 680px measure, underlined links, Ancizar Serif headings.
+- Studio preview (AC-STU / telas 07–08): article/post body preview renders
+  inside an `<iframe>` loading the real site stylesheets (`base.css`,
+  `global-link.css`, `article.css`, `ledger/detail.css`, `tailwind.css`)
+  plus a literal copy of the theme token block, instead of an
+  approximated-markdown `<div>`. Desktop (1280) / Mobile (390) and
+  independent Light/Dark controls; Courier Prime “Rendered with pandorga
+  X.Y.Z article styles” caption. Cite/xcite and Mermaid use the iframe
+  `contentDocument`. YAML collection preview is unchanged (plain text).
+- Public article: prose/citation/bibliography links always underlined;
+  DOI/URL references show short labels with `open_in_new`; figures reserve
+  `aspect-ratio: auto 16 / 9` on the plate. Detail loading skeleton
+  (static blocks, `aria-busy`, `min-height: 100dvh`) on articles and posts.
+- Home: band before the index rule-only plate drops `border-bottom` so the
+  atelier hairline under Rascunhos is a single seam, not a double rule.
+
 ## 2.3.33
 
 - Home Projects (≥1024): one-row icon strip above the specimen with a 2px

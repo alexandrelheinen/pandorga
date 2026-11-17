@@ -1030,7 +1030,9 @@ aside:has(> .text-detail-sidebar) {
 
 .article-content .citation-sup a.citation {
   color: var(--color-primary);
-  text-decoration: none;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
 }
 
 .article-content .citation-sup a.citation:hover {
@@ -1084,6 +1086,84 @@ aside:has(> .text-detail-sidebar) {
   content: "[" counter(detail-ref) "]";
   flex: none;
   color: var(--color-primary);
+}
+
+/* DOI / URL trailing glyph (30-includes-bib.html's formatIeeeEntry and
+   enhanceReferencesHtml). Sits inside the link it marks, at apparatus size
+   rather than the reference's own, so it reads as a small "leaves the page"
+   mark and not as a second word in the citation. */
+.article-content .article-references .bibliography a .bib-ext-link-icon {
+  font-size: 0.8em;
+  line-height: 1;
+  vertical-align: -0.1em;
+  margin-left: 0.2em;
+}
+
+/* ══ Detail loading skeleton ══
+   Static markup in articles.html / blog.html (inside `#articles-detail` /
+   `#blog-detail`, hidden by default), not something the runtime injects —
+   the point is for it to already be in the DOM and paintable on the first
+   frame, before the writing-index fetch or the entry fetch has resolved.
+   Two flat fills, no shimmer: a loading block that is gone within one
+   network round trip is not worth animating, and an animation is one more
+   thing a reduced-motion reader would have to be excused from. */
+.detail-skeleton-line,
+.detail-skeleton-title,
+.detail-skeleton-figure {
+  display: block;
+  border-radius: 2px;
+  background: #ebebeb;
+}
+
+.detail-skeleton-line {
+  height: 1rem;
+  margin-bottom: 0.75rem;
+  background: #f4f4f4;
+}
+
+.detail-skeleton-line:last-child {
+  margin-bottom: 0;
+}
+
+.detail-skeleton-title {
+  height: 1.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.detail-skeleton-figure {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin: 1.5rem 0 0.75rem;
+}
+
+/* Belt-and-braces: nothing here animates by default, but if a later change
+   adds a fade-in for the swap from skeleton to real content, it has to stand
+   down under reduced motion like every other transition on the page. */
+@media (prefers-reduced-motion: reduce) {
+  .detail-skeleton,
+  .detail-skeleton-line,
+  .detail-skeleton-title,
+  .detail-skeleton-figure {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* The body column reserves a full viewport while its fetch is in flight, so
+   the footer nav / cite block / related texts below it do not render at a
+   half-height skeleton's position and then jump down once the real,
+   normally-much-taller body mounts. Keyed off `aria-busy` on the detail
+   root (set by the two listing layouts' boot scripts) rather than on the
+   skeleton's own presence, so the reservation also covers the gap between
+   DOM load and the runtime script's first paint. */
+[aria-busy="true"] .text-detail-main {
+  min-height: 100vh;
+}
+
+@supports (height: 100dvh) {
+  [aria-busy="true"] .text-detail-main {
+    min-height: 100dvh;
+  }
 }
 
 /* ══ Prev / next ══
@@ -1476,4 +1556,57 @@ nav.text-page-nav:not(:has(a)) {
 .article-related-card-dates-sep {
   color: var(--color-on-surface);
   opacity: 0.55;
+}
+
+
+/* ── Detail loading skeleton (Stitch tela 13) ── */
+.detail-skeleton-line,
+.detail-skeleton-title,
+.detail-skeleton-figure {
+  display: block;
+  background: #ebebeb;
+  border-radius: 0;
+  margin: 0.35rem 0;
+}
+
+[data-theme="dark"] .detail-skeleton-line,
+[data-theme="dark"] .detail-skeleton-title,
+[data-theme="dark"] .detail-skeleton-figure {
+  background: #26262b;
+}
+
+.detail-skeleton-title {
+  height: 1.65rem;
+  background: #f4f4f4;
+}
+
+[data-theme="dark"] .detail-skeleton-title {
+  background: #1a1a1e;
+}
+
+.detail-skeleton-figure {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #f4f4f4;
+  margin-block: 0.5rem;
+}
+
+[data-theme="dark"] .detail-skeleton-figure {
+  background: #1a1a1e;
+}
+
+#articles-detail[aria-busy="true"] .text-detail-main,
+#blog-detail[aria-busy="true"] .text-detail-main,
+#articles-detail[aria-busy="true"] .text-reading-column,
+#blog-detail[aria-busy="true"] .text-reading-column {
+  min-height: 100dvh;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detail-skeleton-line,
+  .detail-skeleton-title,
+  .detail-skeleton-figure {
+    transition: none;
+    animation: none;
+  }
 }

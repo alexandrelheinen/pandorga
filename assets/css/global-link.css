@@ -21,6 +21,23 @@ a {
  * `article h2/h3 a:hover` exception that existed only to cancel it for card
  * titles, plus the chip exceptions that were being added one class at a time
  * as each new piece of card chrome turned up underlined. */
+/* Prose links carry a visible underline at rest, not only under the pointer
+ * — in running text, color alone does not say "this is a link" for every
+ * reader. Scoped to the same prose selectors as the hover rule below (plus
+ * the citation anchors and the reference list), so card CTAs, tag chips and
+ * other button-styled links — which set their own text-decoration — are
+ * untouched. */
+p a,
+.article-content a,
+.description a,
+.article-references .bibliography a,
+.article-content a.citation,
+.article-content .citation-sup a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
+}
+
 p a:hover,
 .article-content a:hover,
 .description a:hover {
