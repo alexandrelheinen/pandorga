@@ -194,10 +194,15 @@ chrome = read("assets/css/ledger/chrome.css")
 shell = read("_layouts/shell.html")
 detail = read("assets/css/ledger/detail.css")
 fail!("the wordmark must show on a phone") if chrome.match?(/\.site-wordmark\s*\{[^}]*display:\s*none/m)
-fail!("the top bar must say Explore") unless shell.include?("site-explore-label")
+fail!("Explore must be the menu icon") unless shell.include?('aria-label="Explore site pages"') &&
+  shell.include?('<span class="sr-only">Explore</span>') &&
+  shell.include?('aria-hidden="true">menu</span>')
+fail!("the phone menu glyph must stay visible") if chrome.match?(/#mobile-menu-btn \.material-symbols-outlined\s*\{[^}]*display:\s*none/m)
+fail!("Explore must not be a visible label") if shell.include?("site-explore-label")
 fail!("Explore must not be hardcoded as a person's name") if shell.include?("Alexandre")
 fail!("phone dates must be one mono line") unless detail.include?('content: "· Updated "')
-fail!("phone actions must show their labels") unless detail.match?(/max-width:\s*767px[\s\S]*detail-action-label\s*\{[^}]*position:\s*static/m)
+fail!("phone actions must keep their icons") if detail.match?(/max-width:\s*767px[\s\S]*detail-action \.material-symbols-outlined\s*\{[^}]*display:\s*none/m)
+fail!("phone action labels must stay clipped") if detail.match?(/max-width:\s*767px[\s\S]*detail-action-label\s*\{[^}]*position:\s*static/m)
 
 # --- PLT-AC-114 phone follow-up ---
 fail!("spec missing PLT-AC-114") unless spec.include?("PLT-AC-114")
