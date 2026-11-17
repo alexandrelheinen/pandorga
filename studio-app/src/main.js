@@ -108,6 +108,9 @@ const CLERK_APPEARANCE = {
       minHeight: "44px",
       borderRadius: "0",
       boxShadow: "none",
+      borderStyle: "solid",
+      borderWidth: "1px",
+      borderColor: "var(--outline-variant)",
       border: "1px solid var(--outline-variant)",
       backgroundColor: "var(--background)",
       color: "var(--on-surface)",
@@ -132,6 +135,9 @@ const CLERK_APPEARANCE = {
       minHeight: "44px",
       borderRadius: "0",
       boxShadow: "none",
+      borderStyle: "solid",
+      borderWidth: "1px",
+      borderColor: "var(--outline-variant)",
       border: "1px solid var(--outline-variant)",
       backgroundColor: "var(--background)",
       color: "var(--on-surface)",
@@ -143,6 +149,7 @@ const CLERK_APPEARANCE = {
       border: "none",
       boxShadow: "none",
       backgroundImage: "none",
+      background: "var(--primary)",
       backgroundColor: "var(--primary)",
       color: "var(--background)",
       fontFamily: '"Marcellus SC", serif',
@@ -1618,7 +1625,6 @@ function renderPendingReviewGate(clerk, emailHint) {
     el("button", {
       className: "btn btn-primary",
       type: "button",
-      text: "Sign out",
       onClick: async () => {
         if (clerk && !clerk.dev && clerk.signOut) {
           await clerk.signOut({ redirectUrl: STUDIO_PATH });
@@ -1626,7 +1632,7 @@ function renderPendingReviewGate(clerk, emailHint) {
         }
         renderAuthGate(clerk);
       },
-    }),
+    }, [materialIcon("logout"), el("span", { text: "Sign out" })]),
   ]);
   app.append(box);
 }
@@ -2800,6 +2806,10 @@ function renderListPane() {
     },
   });
   search.id = "list-search-input";
+  const searchField = el("label", { className: "list-search" }, [
+    materialIcon("search", "list-search-icon"),
+    search,
+  ]);
 
   const sortSelect = el("select", {
     className: "list-sort-select",
@@ -2854,7 +2864,7 @@ function renderListPane() {
     : null;
 
   const controls = el("div", { className: "list-controls" }, [
-    search,
+    searchField,
     el("div", { className: "list-controls-row" }, [
       el("label", { className: "list-sort-label" }, [
         el("span", { className: "list-sort-caption", text: "Sort" }),
@@ -3173,10 +3183,8 @@ function renderEditorPane() {
 
   const mode = state.bodyMode;
   const showFields = mode === "fields";
-  if (!showFields) form.hidden = true;
 
   const bodyWrap = el("div", { className: "field body-editor-stack", id: "body-wrap" });
-  if (showFields) bodyWrap.hidden = true;
   if (bodies.length && !showFields) {
     const visual = mode === "visual";
     // On wide screens Preview is a side panel; keep a Visual surface mounted under Preview.
@@ -3273,8 +3281,8 @@ function renderEditorPane() {
       ]),
     ]),
     renderEditorChrome(mode),
-    form,
-    bodyWrap,
+    showFields ? form : null,
+    showFields ? null : bodyWrap,
     mode === "visual" || mode === "source" ? renderMobileFormatBar() : null,
     bodyStats,
   ]);
@@ -3458,8 +3466,32 @@ function renderMobileFormatBar() {
       editorChain()?.setLink({ href }).run();
     }),
     iconBtn("Code", "code", () => editorChain()?.toggleCode().run()),
-    renderAiProofControl(),
+    proofBarButton("correct", "Correct", "check"),
+    proofBarButton("refine", "Refine", "edit"),
   ]);
+}
+
+function proofBarButton(action, label, icon) {
+  return el(
+    "button",
+    {
+      className: "editor-format-bar-btn editor-format-bar-proof",
+      type: "button",
+      title: label,
+      "aria-label": label,
+      "data-studio-action": action,
+      disabled: !canAiProof() || state.aiProofBusy,
+      onMouseDown: (e) => {
+        e.preventDefault();
+        state.aiProofSelection = getBodySelection();
+      },
+      onClick: () => {
+        flashAiProofHint("");
+        void startRewrite(action);
+      },
+    },
+    [materialIcon(icon), el("span", { className: "editor-format-bar-proof-label", text: label })]
+  );
 }
 
 function promptIncludeAttrs(def) {
@@ -4203,9 +4235,16 @@ function articlePreviewAccentClass() {
   return accent && accent !== "blue" ? `page-accent--${accent}` : "";
 }
 
-/** Mirrors `_layouts/text.html`'s `has-drop-cap`: `drop_cap: true` and the body does not open on a heading. */
+/** Same truthiness as `{% if page.drop_cap %}` on the live article. */
+function dropCapRequested(value) {
+  if (value === true || value === 1) return true;
+  const text = String(value == null ? "" : value).trim().toLowerCase();
+  return text === "true" || text === "yes" || text === "1";
+}
+
+/** Mirrors `_layouts/text.html`'s `has-drop-cap`: drop_cap is set and the body does not open on a heading. */
 function articlePreviewHasDropCap() {
-  if (state.fields?.drop_cap !== true) return false;
+  if (!dropCapRequested(state.fields?.drop_cap)) return false;
   const firstLine = String(state.body || "")
     .split("\n")
     .map((line) => line.trim())
@@ -4550,6 +4589,8 @@ async function selectCollection(col) {
 async function openFile(path) {
   destroyBodyEditor();
   state.insertMenuOpen = false;
+  state.bodyMode = "visual";
+  state.lastEditorMode = "visual";
   state.fileLoading = true;
   state.file = null;
   state.baseline = null;

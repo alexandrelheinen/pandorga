@@ -66,7 +66,11 @@ ${contentLinks}
      without them the html-body fixed background grid from base.css would
      scroll the reading column against a static backdrop that never
      matches the page it is lifted from. */
-  html, body { background-color: var(--color-canvas); }
+  :root { --drop-cap-lines: 2; }
+  html, body {
+    background-color: var(--color-canvas);
+    background-image: none;
+  }
 </style>
 </head>
 <body class="bg-background text-on-surface">

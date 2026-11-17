@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Studio phone follow-up: the search field is 44px, the collection crumb
+  keeps its full label when it fits, Visual shows the body, the format
+  bar stays on one row, Preview drops the empty panel and keeps the drop
+  cap, and the sign-in controls are flat rectangles.
+
 ## 2.3.38
 
 - Article pages on a phone use a compact header: the site name, theme,

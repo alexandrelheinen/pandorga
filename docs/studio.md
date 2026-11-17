@@ -130,6 +130,19 @@ bold, italic, strike, heading, quote, link, code, Correct, and Refine.
 Insert and the letter-case controls leave the top chrome at that width.
 The body sits on the page without a nested box.
 
+## Phone follow-up
+
+The collection search field is a single 44px row with a search icon. The
+phone toolbar gives the collection name the free space beside Studio, and
+ellipsizes it only when the label does not fit. Visual opens on the body.
+Fields is the front matter. The back and delete icons have no frame. The
+format bar is one 44px row, with Correct and Refine as highlighter text
+buttons. Preview hides the editor body and the character counter, and the
+drop cap follows the same `drop_cap` check as the published article. The
+Google button and the email field are full 1px rectangles, and Continue is
+flat petrol. The pending "Signed in as" line is Courier Prime, and Sign out
+carries a logout icon.
+
 ## Phone list
 
 A collection list on a phone shows a 56 by 42 thumbnail, or a Material
