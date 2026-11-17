@@ -174,7 +174,8 @@ mono_ok = /
   \.editor-path |
   \.studio-map-card-meta |
   \.list-error-detail |
-  \.media-row-meta
+  \.media-row-meta |
+  \.pending-signed-in
 /x
 css.scan(/([^{}]+)\{([^{}]*)\}/m).each do |selector, body|
   next unless body.include?("var(--font-mono)")
@@ -197,5 +198,28 @@ fail!("the top bar must say Explore") unless shell.include?("site-explore-label"
 fail!("Explore must not be hardcoded as a person's name") if shell.include?("Alexandre")
 fail!("phone dates must be one mono line") unless detail.include?('content: "· Updated "')
 fail!("phone actions must show their labels") unless detail.match?(/max-width:\s*767px[\s\S]*detail-action-label\s*\{[^}]*position:\s*static/m)
+
+# --- PLT-AC-114 phone follow-up ---
+fail!("spec missing PLT-AC-114") unless spec.include?("PLT-AC-114")
+fail!("search field must not grow on the column axis") if css.include?("flex: 1 1 14rem")
+search_rule = css[/\.list-search-input\s*\{[^}]*\}/m]
+fail!("list search rule missing") unless search_rule
+fail!("search field must be 44px") unless search_rule.include?("height: 44px")
+fail!("search field needs a search icon") unless main.include?('className: "list-search"') && main.include?('materialIcon("search"')
+fail!("phone toolbar spacer must not eat the crumb") unless mobile_css.match?(/\.studio-toolbar \.spacer\s*\{[^}]*flex:\s*0\s+0\s+auto/m)
+fail!("short crumb must take free space") unless mobile_css.match?(/\.studio-breadcrumb--short\s*\{[^}]*flex:\s*1\s+1\s+auto/m)
+editor = main[/function renderEditorPane\(\) \{.*?\n\}/m]
+fail!("renderEditorPane missing") unless editor
+fail!("Visual must not mount the front-matter form") unless editor.include?("showFields ? form : null")
+fail!("editor mast must not keep a frame") if css.match?(/\.editor-mast\s*\{[^}]*border:\s*1px/m)
+fail!("phone format bar must be one 44px row") unless mobile_css.match?(/\.editor-format-bar-mobile\s*\{[^}]*height:\s*44px/m)
+fail!("Correct and Refine must be bar buttons") unless main.include?("editor-format-bar-proof")
+fail!("Preview tab must hide the body stack") unless css.match?(/\.studio-body\.view-preview \.body-editor-stack\s*\{[^}]*display:\s*none/m)
+fail!("Preview tab must hide the counter") unless css.match?(/\.studio-body\.view-preview \.editor-body-stats\s*\{[^}]*display:\s*none/m)
+fail!("drop cap must treat a truthy drop_cap like the live article") unless main.include?("function dropCapRequested")
+fail!("Clerk fields must draw all four sides") unless css.include?("border-left-width: 1px") && css.include?("border-right-width: 1px")
+fail!("Continue must drop the Clerk overlay") unless css.include?(".cl-formButtonPrimary::after")
+fail!("pending email line must be mono") unless css.match?(/\.pending-signed-in\s*\{[^}]*font-family:\s*var\(--font-mono\)/m)
+fail!("Sign out must include a logout icon") unless main.include?('materialIcon("logout")')
 
 puts "PASS test-studio-mobile"
