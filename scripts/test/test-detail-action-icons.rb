@@ -15,33 +15,31 @@ def fail!(msg)
   true
 end
 
-# PLT-AC-113 supersedes the phone icon-only row of PLT-AC-95.
-# Desktop glyphs stay 1rem. Phones show the words and hide the icons.
-unless DETAIL.match?(/max-width:\s*767px[\s\S]*detail-action \.material-symbols-outlined\s*\{[^}]*display:\s*none/m)
-  failed = 1 if fail!("PLT-AC-113: phone detail actions must hide the icon")
+# PLT-AC-95 — glyph +2pt; box rules unchanged vs 2.3.5
+unless DETAIL.match?(/\.article-meta\s+\.detail-action\s+\.material-symbols-outlined[\s\S]{0,80}?font-size:\s*calc\(1rem\s*\+\s*2pt\)/m) ||
+       DETAIL.match?(/detail-action \.material-symbols-outlined,[\s\S]{0,200}?font-size:\s*calc\(1rem\s*\+\s*2pt\)/m)
+  failed = 1 if fail!("PLT-AC-95: mobile .detail-action icons must use font-size: calc(1rem + 2pt)")
 end
-unless DETAIL.match?(/max-width:\s*767px[\s\S]*detail-action-label\s*\{[^}]*position:\s*static/m)
-  failed = 1 if fail!("PLT-AC-113: phone detail action labels must be visible")
-end
-unless DETAIL.include?('content: "· Updated "')
-  failed = 1 if fail!("PLT-AC-113: phone dates must join with · Updated")
+unless DETAIL.include?("calc(1rem + 2pt)")
+  failed = 1 if fail!("PLT-AC-95: calc(1rem + 2pt) must appear for mobile action glyphs")
 end
 # Desktop base stays 1rem (labeled pills)
 unless DETAIL.match?(/\.detail-action\s+\.material-symbols-outlined\s*\{[^}]*font-size:\s*1rem;/m)
   failed = 1 if fail!("PLT-AC-95: desktop .detail-action icons must keep font-size: 1rem")
 end
-# Phone actions are text. They keep a 44px touch target.
-unless DETAIL.match?(/max-width:\s*767px[\s\S]*\.detail-action\s*\{[^}]*min-height:\s*44px/m)
-  failed = 1 if fail!("PLT-AC-113: phone detail actions must keep a 44px target")
+# Button box declarations from 2.3.5 must remain
+unless DETAIL.match?(/\.text-detail-sidebar\s+\.article-meta\s+\.detail-action,\s*\n\s*\.text-detail-sidebar\s+\.article-meta\s+\.detail-type-size-trigger\s*\{[^}]*height:\s*2\.5rem;[^}]*padding:\s*0;/m) ||
+       DETAIL.match?(/height:\s*2\.5rem;[\s\S]{0,120}?padding:\s*0;/)
+  failed = 1 if fail!("PLT-AC-95: mobile detail-action boxes must keep height: 2.5rem and padding: 0")
 end
 # Padding on base .detail-action must stay 0.35rem 0.85rem (2.3.5)
 unless DETAIL.match?(/\.detail-action\s*\{[^}]*padding:\s*0\.35rem\s+0\.85rem;/m)
   failed = 1 if fail!("PLT-AC-95: base .detail-action padding must remain 0.35rem 0.85rem")
 end
 
-# PLT-AC-113 — the phone row starts at the left edge.
-unless DETAIL.match?(/max-width:\s*767px[\s\S]*\.detail-actions\s*\{[^}]*justify-content:\s*flex-start/m)
-  failed = 1 if fail!("PLT-AC-113: phone detail actions must start at the left")
+# PLT-AC-96 — flex centering on mobile icon buttons
+unless DETAIL.match?(/\.text-detail-sidebar\s+\.article-meta\s+\.detail-action,[\s\S]{0,200}?justify-content:\s*center;[\s\S]{0,80}?align-items:\s*center;/m)
+  failed = 1 if fail!("PLT-AC-96: mobile detail-action boxes must justify-content/align-items center")
 end
 
 # PLT-AC-97 — gap via space-sm + space-xs under actions / above TOC rule
