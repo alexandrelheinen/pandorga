@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Studio lists on a phone use a 56 by 42 thumbnail, a two-line serif
+  title, and a date · language line. Sort and New share a row. Delete
+  moves into the editor.
 - Studio phone toolbar is one row: menu, Studio, the collection name,
   pipeline, and Save. The entry title no longer wraps inside the bar.
   Revert and the theme choice sit in the menu.

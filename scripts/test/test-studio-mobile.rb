@@ -102,4 +102,20 @@ fail!("phone bar must hide toolbar theme and revert") unless mobile_css.include?
 fail!("phone menu must show the moved tools") unless mobile_css.include?(".studio-nav-mobile-tools")
 fail!("phone bar must show the Studio word") unless mobile_css.match?(/\.studio-brand-name\s*\{[^}]*display:\s*inline/m)
 
+# --- PLT-AC-109 phone list ---
+fail!("spec missing PLT-AC-109") unless spec.include?("PLT-AC-109")
+fail!("missing thumbnail must use the image icon") unless main.include?('text: "image"')
+fail!("list meta must join date and language") unless main.include?('join(" · ")')
+fail!("pager must use arrow buttons") unless main.include?("list-pager-arrow")
+fail!("list controls must share a row") unless main.include?("list-controls-row")
+fail!("page size must be marked for the phone hide") unless main.include?("list-page-size")
+editor = main[/function renderEditorPane\(\) \{.*?\n\}/m]
+fail!("renderEditorPane missing") unless editor
+fail!("delete must be available in the editor") unless editor.include?("deleteEntry")
+fail!("phone list must hide row actions") unless mobile_css.match?(/\.ledger-ops\s*\{[^}]*display:\s*none/m)
+fail!("phone list must hide the status pill") unless mobile_css.match?(/\.ledger-status\s*\{[^}]*display:\s*none/m)
+fail!("phone list must hide the page-size select") unless mobile_css.match?(/\.list-page-size\s*\{[^}]*display:\s*none/m)
+fail!("phone titles must clamp to two lines") unless mobile_css.include?("-webkit-line-clamp: 2")
+fail!("phone thumbs must be 56 by 42") unless mobile_css.include?("56px") && mobile_css.include?("42px")
+
 puts "PASS test-studio-mobile"

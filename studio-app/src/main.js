@@ -771,13 +771,13 @@ function resolveThumbnailUrl(raw) {
 
 function missingThumbPlaceholder() {
   return el("span", {
-    className: "ledger-thumb placeholder",
+    className: "ledger-thumb-box ledger-thumb placeholder",
     title: "No thumbnail",
     "aria-label": "No thumbnail",
   }, [
     el("span", {
       className: "material-symbols-outlined",
-      text: "web_asset_off",
+      text: "image",
       "aria-hidden": "true",
     }),
   ]);
@@ -793,10 +793,11 @@ function thumbnailNode(item) {
     loading: "lazy",
     referrerpolicy: "no-referrer",
   });
+  const box = el("span", { className: "ledger-thumb-box" }, [img]);
   img.addEventListener("error", () => {
-    img.replaceWith(missingThumbPlaceholder());
+    box.replaceWith(missingThumbPlaceholder());
   });
-  return img;
+  return box;
 }
 
 function $(sel, root = document) {
@@ -2823,15 +2824,32 @@ function renderListPane() {
     );
   }
 
+  const newEntry = collectionAllowsCreate(state.collection)
+    ? el(
+        "button",
+        {
+          className: "btn btn-tool btn-primary list-new-btn",
+          type: "button",
+          title: `Add a new ${state.collection?.label || "entry"}`,
+          "aria-label": `New ${state.collection?.label || "entry"}`,
+          onClick: () => createNewEntry(),
+        },
+        [materialIcon("add"), el("span", { className: "btn-label", text: "New" })]
+      )
+    : null;
+
   const controls = el("div", { className: "list-controls" }, [
     search,
-    el("label", { className: "list-sort-label" }, [
-      el("span", { className: "list-sort-caption", text: "Sort" }),
-      sortSelect,
-    ]),
-    el("label", { className: "list-sort-label" }, [
-      el("span", { className: "list-sort-caption", text: "Show" }),
-      pageSizeSelect,
+    el("div", { className: "list-controls-row" }, [
+      el("label", { className: "list-sort-label" }, [
+        el("span", { className: "list-sort-caption", text: "Sort" }),
+        sortSelect,
+      ]),
+      el("label", { className: "list-sort-label list-page-size" }, [
+        el("span", { className: "list-sort-caption", text: "Show" }),
+        pageSizeSelect,
+      ]),
+      newEntry,
     ]),
   ]);
 
@@ -2864,15 +2882,14 @@ function renderListPane() {
     }
   }
 
-  const showPager =
-    pageInfo.pageSize != null && pageInfo.pageCount > 1 && filtered.length > 0;
-  const pager = showPager
+  const pager = filtered.length
     ? el("div", { className: "list-pager", role: "navigation", "aria-label": "List pages" }, [
         el("button", {
-          className: "btn list-pager-btn",
+          className: "btn list-pager-btn list-pager-arrow",
           type: "button",
-          text: "Prev",
+          text: "‹",
           title: "Previous page",
+          "aria-label": "Previous page",
           disabled: pageInfo.page <= 1,
           onClick: () => {
             if (pageInfo.page <= 1) return;
@@ -2882,13 +2899,14 @@ function renderListPane() {
         }),
         el("span", {
           className: "list-pager-status",
-          text: `Page ${pageInfo.page} of ${pageInfo.pageCount}`,
+          text: `${pageInfo.from}-${pageInfo.to} of ${filtered.length}`,
         }),
         el("button", {
-          className: "btn list-pager-btn",
+          className: "btn list-pager-btn list-pager-arrow",
           type: "button",
-          text: "Next",
+          text: "›",
           title: "Next page",
+          "aria-label": "Next page",
           disabled: pageInfo.page >= pageInfo.pageCount,
           onClick: () => {
             if (pageInfo.page >= pageInfo.pageCount) return;
@@ -2986,8 +3004,18 @@ function renderLedgerOps(item, { open }) {
   ]);
 }
 
+/** Phone list meta: date and language, never the filename. */
+function ledgerRowMeta(item, writing) {
+  if (writing) {
+    const date = String(item?.date || "").trim().slice(0, 10);
+    const lang = String(item?.language || "").trim().toUpperCase();
+    return [date, lang].filter(Boolean).join(" · ");
+  }
+  return formatEntryListMeta(item, state.collection);
+}
+
 function renderLedgerRow(item, writing) {
-  const metaText = formatEntryListMeta(item, state.collection);
+  const metaText = ledgerRowMeta(item, writing);
   const open = () => openFile(item.path);
   const ops = renderLedgerOps(item, { open });
 
@@ -3103,24 +3131,8 @@ function renderListHeader(collection, { entryCount = null } = {}) {
     titleRow.push(
       el("span", {
         className: "list-pane-count",
-        text:
-          entryCount === 1 ? "1 entry" : `${entryCount} entries`,
+        text: String(entryCount),
       })
-    );
-  }
-  if (collectionAllowsCreate(collection)) {
-    titleRow.push(
-      el(
-        "button",
-        {
-          className: "btn btn-tool btn-primary list-new-btn",
-          type: "button",
-          title: `Add a new ${label} entry`,
-          "aria-label": `New ${label} entry`,
-          onClick: () => createNewEntry(),
-        },
-        [materialIcon("add"), el("span", { className: "btn-label", text: "New entry" })]
-      )
     );
   }
   return el("header", { className: "list-register" }, [
@@ -3258,6 +3270,15 @@ function renderEditorPane() {
             renderShell();
           },
         }, [materialIcon("chevron_left", "btn-nav-icon")]),
+        collectionAllowsDelete()
+          ? el("button", {
+              className: "btn btn-icon ledger-delete-btn editor-delete-btn",
+              type: "button",
+              title: "Delete this entry",
+              "aria-label": "Delete this entry",
+              onClick: () => deleteEntry(state.file, state.sha),
+            }, [materialIcon("delete")])
+          : null,
         mastPills.length
           ? el("div", { className: "editor-mast-pills" }, mastPills)
           : null,
