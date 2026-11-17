@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Studio chrome keeps Courier Prime for dates, paths, and code. Drop
+  shadows are gone. Palette tokens match the theme files.
 - Studio preview on a phone starts at the container width and shows the
   article header. The preview version is read from the gem version at
   build time.

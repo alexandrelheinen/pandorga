@@ -515,7 +515,7 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
 }
 
 .studio-nav button.nav-item[aria-current="page"] {
-  background: #ebebeb;
+  background: var(--surface-high);
   color: var(--on-surface);
   border-left: 2px solid var(--primary);
   box-shadow: none;
@@ -531,7 +531,7 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
 
 .nav-item-count {
   flex: 0 0 auto;
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--studio-type-meta);
   color: var(--on-surface-variant);
 }
@@ -618,7 +618,7 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
   border: 1px solid color-mix(in srgb, var(--outline-variant) 55%, transparent);
   background: var(--background);
   color: var(--on-surface-variant);
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--studio-type-micro);
   letter-spacing: 0.03em;
   text-transform: uppercase;
@@ -758,19 +758,19 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
 }
 
 .btn-reexport {
-  color: #5c4b00;
-  border-color: color-mix(in srgb, #c9a227 55%, var(--outline-variant));
-  background: color-mix(in srgb, #f5d76e 55%, var(--background));
+  color: var(--tertiary);
+  border-color: var(--outline-variant);
+  background: color-mix(in srgb, var(--tertiary) 16%, var(--background));
 }
 
 .btn-reexport:hover {
-  background: color-mix(in srgb, #f5d76e 75%, var(--background));
+  background: color-mix(in srgb, var(--tertiary) 24%, var(--background));
 }
 
 [data-theme="dark"] .btn-reexport {
-  color: #f5e6a3;
-  border-color: color-mix(in srgb, #c9a227 50%, var(--outline-variant));
-  background: color-mix(in srgb, #746f30 45%, var(--panel));
+  color: var(--tertiary);
+  border-color: var(--outline-variant);
+  background: color-mix(in srgb, var(--tertiary) 28%, var(--panel));
 }
 
 /* Pipeline status: icon + text, same colour — no pill / filled chip. */
@@ -785,22 +785,22 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
 }
 
 .pipeline-awaiting {
-  color: #746f30;
+  color: var(--tertiary);
 }
 
 .btn-reexport.pipeline-running,
 .pipeline-running {
-  color: #1c5a7a;
+  color: var(--primary);
 }
 
 .pipeline-ok,
 .btn-reexport.pipeline-ok {
-  color: #287445;
+  color: var(--secondary);
 }
 
 .pipeline-error,
 .btn-reexport.pipeline-error {
-  color: #ba1a1a;
+  color: var(--error);
 }
 
 .pipeline-stalled,
@@ -842,11 +842,11 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
   align-items: center;
   gap: 0.5rem;
   padding: 0.45rem 1rem;
-  background: #ffdad6;
-  color: #93000a;
-  font-family: var(--font-mono);
+  background: color-mix(in srgb, var(--error) 14%, var(--background));
+  color: var(--error);
+  font-family: var(--font-body);
   font-size: var(--studio-type-meta);
-  border-bottom: 1px solid color-mix(in srgb, #93000a 25%, transparent);
+  border-bottom: 1px solid var(--outline-variant);
 }
 
 .studio-pipeline-banner a {
@@ -1017,7 +1017,7 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
 }
 
 [data-theme="dark"] .btn-primary:hover:not(:disabled) {
-  color: #0f1a22;
+  color: var(--background);
 }
 
 .btn:disabled {
@@ -1160,7 +1160,7 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
   flex: 0 0 5.25rem;
   padding: 0.1rem 0.3rem;
   border: 1px solid transparent;
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--studio-type-micro);
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -1240,7 +1240,7 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
     align-items: end;
     padding: var(--studio-space-xs) var(--studio-space-md);
     margin: 0 0 var(--studio-space-2xs);
-    font-family: var(--font-mono);
+    font-family: var(--font-body);
     font-size: var(--studio-type-micro);
     letter-spacing: 0.05em;
     text-transform: uppercase;
@@ -1261,15 +1261,15 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
 }
 
 .ledger-status--published {
-  color: color-mix(in srgb, #1b6b3a 88%, var(--on-surface));
-  background: color-mix(in srgb, #1b6b3a 14%, transparent);
-  border-color: color-mix(in srgb, #1b6b3a 35%, transparent);
+  color: color-mix(in srgb, var(--secondary) 88%, var(--on-surface));
+  background: color-mix(in srgb, var(--secondary) 14%, transparent);
+  border-color: color-mix(in srgb, var(--secondary) 35%, transparent);
 }
 
 .ledger-status--draft {
-  color: color-mix(in srgb, #a12828 90%, var(--on-surface));
-  background: color-mix(in srgb, #a12828 14%, transparent);
-  border-color: color-mix(in srgb, #a12828 35%, transparent);
+  color: color-mix(in srgb, var(--error) 90%, var(--on-surface));
+  background: color-mix(in srgb, var(--error) 14%, transparent);
+  border-color: color-mix(in srgb, var(--error) 35%, transparent);
 }
 
 .ledger-thumb-box {
@@ -1369,7 +1369,7 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
   gap: var(--studio-space-xs);
   flex: 0 1 auto;
   margin: 0;
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--studio-type-ui);
   color: var(--on-surface-variant);
   text-transform: none;
@@ -1377,7 +1377,7 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
 }
 
 .list-sort-caption {
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-size: var(--studio-type-micro);
@@ -1392,7 +1392,7 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
   border: 1px solid color-mix(in srgb, var(--outline-variant) 70%, transparent);
   background: var(--background);
   padding: 0 var(--studio-space-sm);
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--studio-type-ui);
   min-width: 10rem;
   max-width: 100%;
@@ -1404,7 +1404,7 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
 
 .list-count {
   margin: 0 0 var(--studio-space-xs);
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--studio-type-meta);
   color: var(--on-surface-variant);
   min-height: 1em;
@@ -1425,7 +1425,7 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
 }
 
 .list-pager-status {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--studio-type-meta);
   color: var(--on-surface-variant);
   min-width: 7rem;
@@ -1492,7 +1492,7 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
 }
 
 .list-pane-count {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 0.9375rem;
   color: var(--on-surface-variant);
   letter-spacing: 0.02em;
@@ -1516,7 +1516,7 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
   padding: 0.45rem 0.65rem;
   cursor: pointer;
   list-style: none;
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--studio-type-micro);
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -1612,7 +1612,7 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
   padding: var(--studio-space-sm) var(--studio-space-md);
   background: var(--background);
   border: 1px solid color-mix(in srgb, var(--outline-variant) 45%, transparent);
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--studio-type-micro);
   letter-spacing: 0.03em;
   text-transform: uppercase;
@@ -1629,7 +1629,7 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
   align-items: baseline;
   gap: var(--studio-space-xs) var(--studio-space-sm);
   margin: 0 0 var(--studio-space-sm);
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--studio-type-micro);
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -1731,7 +1731,7 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
 /* Footer caption under the framed preview — Courier Prime, quiet ink. */
 .preview-caption {
   margin: var(--studio-space-sm) 0 0;
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--studio-type-micro);
   letter-spacing: 0.03em;
   color: var(--on-surface-variant);
@@ -1775,7 +1775,7 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
 
 .list-error-message {
   margin: 0;
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 0.9rem;
   color: var(--on-surface);
   word-break: break-word;
@@ -1961,7 +1961,7 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
 .field label,
 .field .field-heading {
   display: block;
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--studio-type-micro);
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -1978,7 +1978,7 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
 .form-grid .field input:not([type="checkbox"]):not([type="radio"]),
 .form-grid .field select,
 .form-grid .field textarea {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--studio-type-ui);
 }
 
@@ -2083,7 +2083,7 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
 
 .ai-proof-hint {
   margin: 0;
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--studio-type-micro);
   letter-spacing: 0.02em;
   color: var(--on-surface-variant);
@@ -2160,7 +2160,7 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
   padding: 0.25rem;
   background: var(--background);
   border: 1px solid color-mix(in srgb, var(--outline-variant) 70%, transparent);
-  box-shadow: 0 8px 20px color-mix(in srgb, var(--on-surface) 12%, transparent);
+  box-shadow: none;
 }
 
 .editor-insert-menu[hidden] {
@@ -2437,7 +2437,7 @@ textarea.body-source.editor-surface {
 
 .auth-gate--pending .pending-copy strong {
   font-weight: 400;
-  color: #000;
+  color: var(--on-surface);
 }
 
 [data-theme="dark"] .auth-gate--pending .pending-copy strong {
@@ -2445,7 +2445,7 @@ textarea.body-source.editor-surface {
 }
 
 .auth-gate--pending .pending-signed-in {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--studio-type-meta);
   color: var(--on-surface-variant);
   margin: 0 0 1.25rem;
@@ -2509,7 +2509,7 @@ textarea.body-source.editor-surface {
 }
 
 .status-pill {
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--studio-type-meta);
   color: var(--on-surface-variant);
 }
@@ -3348,7 +3348,7 @@ body.figure-lightbox-open {
 
   .editor-mode-tab[aria-selected="true"] {
     background: transparent;
-    box-shadow: inset 0 -2px 0 var(--primary);
+    border-bottom: 2px solid var(--primary);
     font-weight: 600;
   }
 

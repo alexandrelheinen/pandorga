@@ -147,4 +147,44 @@ fail!("Vite must inject __PANDORGA_VERSION__") unless vite.include?("__PANDORGA_
 fail!("preview version must not hardcode a release number") if preview_version.match?(/PANDORGA_VERSION\s*=\s*"/)
 fail!("preview version must use the injected constant") unless preview_version.include?("__PANDORGA_VERSION__")
 
+# --- PLT-AC-112 token cleanup ---
+fail!("spec missing PLT-AC-112") unless spec.include?("PLT-AC-112")
+require "yaml"
+light = YAML.safe_load(read("_data/themes/light.yml"))
+dark = YAML.safe_load(read("_data/themes/dark.yml"))
+{
+  "--primary" => [light.dig("colors", "primary"), dark.dig("colors", "primary")],
+  "--background" => [light.dig("neutrals", "background"), dark.dig("neutrals", "background")],
+  "--on-surface" => [light.dig("neutrals", "on_surface"), dark.dig("neutrals", "on_surface")],
+  "--outline" => [light.dig("neutrals", "outline"), dark.dig("neutrals", "outline")],
+  "--error" => [light.dig("colors", "error") || light.dig("static", "error"), dark.dig("colors", "error") || dark.dig("static", "error")]
+}.each do |token, pair|
+  pair.each do |hex|
+    fail!("#{token} missing theme value #{hex}") if hex && !css.include?("#{token}: #{hex}")
+  end
+end
+
+mono_ok = /
+  \.ledger-meta |
+  textarea\.body-source |
+  \.liquid-block |
+  textarea\.yaml-source |
+  \.yaml-preview-pre |
+  \.media-breadcrumb |
+  \.editor-path |
+  \.studio-map-card-meta |
+  \.list-error-detail |
+  \.media-row-meta
+/x
+css.scan(/([^{}]+)\{([^{}]*)\}/m).each do |selector, body|
+  next unless body.include?("var(--font-mono)")
+  flat = selector.gsub(/\s+/, " ").strip
+  fail!("monospace is not a date, path, or code face: #{flat}") unless flat.match?(mono_ok)
+end
+
+css.scan(/box-shadow:\s*([^;]+);/).each do |value|
+  v = value[0].strip
+  fail!("drop shadow remains: #{v}") unless v == "none" || v == "none !important"
+end
+
 puts "PASS test-studio-mobile"
