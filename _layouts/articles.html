@@ -259,8 +259,12 @@ layout: shell
       return listingPath + '?tag=' + encodeURIComponent(tag);
     }
 
+    /* The listing (cards, tag facets, pagination) only needs the lean
+     * listing_index; a detail route additionally needs resolveWritingAlias
+     * (old-slug aliases) and prev/next neighbors, which only the full
+     * writing_index carries, so it reads that one instead. */
     function loadArticles() {
-      return runtime.loadWritingIndex(collection);
+      return selectedArticle ? runtime.loadWritingIndex(collection) : runtime.loadListingIndex(collection);
     }
 
     function sortItems(a, b, sortKey) {

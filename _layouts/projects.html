@@ -528,7 +528,10 @@ layout: shell
 
     function loadListing() {
       showListing();
-      Promise.all([runtime.loadWritingIndex(collection), headersReady]).then(function (results) {
+      /* The grid/lead cards only need the lean listing_index; the dossier's
+         article-title lookup (above) and the detail prev/next neighbors
+         (below) read the full writing_index for its aliases/xcites. */
+      Promise.all([runtime.loadListingIndex(collection), headersReady]).then(function (results) {
         renderListing(results[0]);
       }).catch(function (error) {
         console.error(error);

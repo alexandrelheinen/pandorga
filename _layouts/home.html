@@ -590,7 +590,12 @@ layout: shell
       document.querySelectorAll('[data-home-band][data-home-kind]:not([data-home-kind="index"])')
     );
 
-    runtime.loadJson('data/writing_index.json').then(function (entries) {
+    /* Home bands only need the lean listing_index.json (no xcites, no
+     * aliases, no category — see export-content-json.rb); a stale shell
+     * ahead of fresh content JSON falls back to the full writing_index. */
+    runtime.loadJson('data/listing_index.json').catch(function () {
+      return runtime.loadJson('data/writing_index.json');
+    }).then(function (entries) {
       var index = Array.isArray(entries) ? entries : [];
       var chain = Promise.resolve();
       sections.forEach(function (section) {

@@ -18,6 +18,12 @@ module Pandorga
     WIDTHS = [480, 960, 1440].freeze
     IMAGE_EXTENSIONS = %w[.jpg .jpeg .png .webp].freeze
     QUALITY = 82
+    # WebP sibling of every jpg variant (PLT Phase B). 480w is the mobile/LCP
+    # size, so it carries a lower cap to push file size down further; wider
+    # variants keep the standard quality since they are requested less often.
+    WEBP_QUALITY = 78
+    WEBP_QUALITY_NARROW = 70
+    WEBP_QUALITY_NARROW_WIDTH = 480
 
     module_function
 
@@ -57,20 +63,35 @@ module Pandorga
             next
           end
 
+          height = (width * 9) / 16
           dest = variants_dir.join("#{stem}-#{width}.jpg")
           # A newer variant is kept only when it is already this 16:9 size.
           # Hero variants used to be 3:4 under the same names.
           if dest.file? && dest.mtime >= src_mtime &&
-             identify_size(bins[:identify], dest) == [width, (width * 9) / 16]
+             identify_size(bins[:identify], dest) == [width, height]
+            summary[:skipped] += 1
+          else
+            begin
+              write_variant(bins[:convert], src, dest, width)
+              summary[:written] += 1
+            rescue StandardError => e
+              warn "warning: #{e.message.lines.first.to_s.strip}; keeping the original only"
+              summary[:failed] += 1
+            end
+          end
+
+          webp_dest = variants_dir.join("#{stem}-#{width}.webp")
+          if webp_dest.file? && webp_dest.mtime >= src_mtime &&
+             identify_size(bins[:identify], webp_dest) == [width, height]
             summary[:skipped] += 1
             next
           end
 
           begin
-            write_variant(bins[:convert], src, dest, width)
+            write_webp_variant(bins[:convert], src, webp_dest, width)
             summary[:written] += 1
           rescue StandardError => e
-            warn "warning: #{e.message.lines.first.to_s.strip}; keeping the original only"
+            warn "warning: #{e.message.lines.first.to_s.strip}; keeping the jpg variant only"
             summary[:failed] += 1
           end
         end
@@ -97,10 +118,13 @@ module Pandorga
 
       url_dir = File.dirname(media_rel)
       parts = WIDTHS.filter_map do |width|
-        variant = variants_dir.join("#{stem}-#{width}.jpg")
-        next unless variant.file?
-
-        "#{url_dir}/variants/#{stem}-#{width}.jpg #{width}w"
+        webp_variant = variants_dir.join("#{stem}-#{width}.webp")
+        jpg_variant = variants_dir.join("#{stem}-#{width}.jpg")
+        if webp_variant.file?
+          "#{url_dir}/variants/#{stem}-#{width}.webp #{width}w"
+        elsif jpg_variant.file?
+          "#{url_dir}/variants/#{stem}-#{width}.jpg #{width}w"
+        end
       end
       return nil if parts.empty?
 
@@ -284,6 +308,35 @@ module Pandorga
       unless status.success? && tmp.file?
         FileUtils.rm_f(tmp)
         raise "ImageMagick failed for #{src} (#{width}w): #{out}\n#{err}"
+      end
+      File.rename(tmp.to_s, dest.to_s)
+    ensure
+      FileUtils.rm_f(tmp) if tmp && tmp.exist?
+    end
+
+    def webp_quality_for(width)
+      width == WEBP_QUALITY_NARROW_WIDTH ? WEBP_QUALITY_NARROW : WEBP_QUALITY
+    end
+
+    def write_webp_variant(convert_cmd, src, dest, width)
+      height = (width * 9) / 16
+      FileUtils.mkdir_p(dest.dirname)
+      tmp = dest.dirname.join(".#{dest.basename}.tmp-#{Process.pid}")
+      cmd = [
+        *convert_cmd,
+        "#{src}[0]",
+        "-auto-orient",
+        "-resize", "#{width}x#{height}^",
+        "-gravity", "center",
+        "-extent", "#{width}x#{height}",
+        "-strip",
+        "-quality", webp_quality_for(width).to_s,
+        "webp:#{tmp}"
+      ]
+      out, err, status = Open3.capture3(*cmd)
+      unless status.success? && tmp.file?
+        FileUtils.rm_f(tmp)
+        raise "ImageMagick failed for #{src} (#{width}w webp): #{out}\n#{err}"
       end
       File.rename(tmp.to_s, dest.to_s)
     ensure

@@ -2,6 +2,38 @@
 
 ## Unreleased
 
+## 2.3.35
+
+- Lean listing payload: the export now also writes `data/listing_index.json`,
+  a slim per-entry projection of `data/writing_index.json` carrying only the
+  fields card grids read (slug, key, title, date, last_updated, url, type,
+  collection, language, description, excerpt, thumbnail, thumbnail_srcset,
+  tags, plus the project card fields — tagline, icon, status, label,
+  start_date, end_date, external_url, article_url, github, company, product,
+  project, sort_order). It drops `xcites`, `aliases` and `category`, which
+  only cross-reference resolution and detail-route neighbor/alias lookups
+  need. `home.html`, `articles.html`, `blog.html` and `projects.html` read it
+  for their listing/card grids; a detail route (old-slug alias resolution,
+  prev/next neighbors) and `xcite` resolution still read the full
+  `writing_index.json`, unchanged. `critical-preload.html` preloads
+  `listing_index.json` instead of `writing_index.json` for those four
+  layouts. The runtime's new `loadListingIndex()` falls back to
+  `writing_index.json` when a stale shell requests a listing index a fresher
+  content JSON has not written yet.
+- WebP thumbnail variants: `Pandorga::ThumbnailVariants.generate` now writes
+  a `{stem}-{width}.webp` sibling (quality 78, 70 at 480w) next to every
+  `{stem}-{width}.jpg` project/hero variant, generated from the source with
+  the same 16:9 center-crop and no upscaling. `srcset_for` and
+  `HeroPortraits.entries` prefer the webp file in `srcset` at each width when
+  it exists, falling back to the jpg sibling per-width otherwise.
+- Home LCP: after `portraits.json` resolves in `critical-preload.html`,
+  inject a high-priority `<link rel="preload" as="image">` for the
+  preferred (or first) hero plate — including `imagesrcset` / `imagesizes`
+  when the export wrote them — so the browser starts the LCP image before
+  the content runtime mounts.
+- Note: article prose weight 300 (matching the loaded Ancizar Sans face)
+  is set on the consuming site's theme-vars override, not in this gem.
+
 ## 2.3.34
 
 - Design contract: `DESIGN.md` documents the Ancizar four-family stack and

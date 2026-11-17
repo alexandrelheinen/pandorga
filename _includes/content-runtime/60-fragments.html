@@ -173,6 +173,24 @@
       });
     }
 
+    /* Card/listing grids only need the slim `listing_index.json` (no xcites,
+     * no aliases, no category — see export-content-json.rb). Detail routes
+     * still resolve old slugs and prev/next neighbors from the full
+     * `loadWritingIndex`, which carries those fields. A deploy where the
+     * shell is newer than the content JSON (listing_index.json 404s) falls
+     * back to the full index rather than breaking every listing page. */
+    function loadListingIndex(filterCollection) {
+      return loadJson('data/listing_index.json').catch(function () {
+        return loadJson('data/writing_index.json');
+      }).then(function (entries) {
+        var items = (entries || []).map(writingIndexAsListingItem);
+        if (!filterCollection) return items;
+        return items.filter(function (item) {
+          return item.collection === filterCollection || item.type === filterCollection;
+        });
+      });
+    }
+
     function stripDatedSlugPrefix(slug) {
       return String(slug || '').replace(/^(?:\d{4}-\d{2}-\d{2}-|\d{8}-)/, '');
     }

@@ -26,10 +26,16 @@ module HeroPortraits
       entry = { "src" => "/media/images/hero/#{file.basename}" }
       stem = file.basename.to_s.sub(/\.[^.]+\z/, "")
       parts = WIDTHS.filter_map do |width|
-        variant = root.join("media/images/hero/variants/#{stem}-#{width}.jpg")
-        next unless variant.file? && wide?(variant)
+        # 16:9 correctness is checked against the jpg variant only — webp
+        # headers are not sniffed here — but both are written together by
+        # Pandorga::ThumbnailVariants, so a passing jpg means its webp
+        # sibling shares the same geometry. webp is served when present.
+        jpg_variant = root.join("media/images/hero/variants/#{stem}-#{width}.jpg")
+        next unless jpg_variant.file? && wide?(jpg_variant)
 
-        "/media/images/hero/variants/#{variant.basename} #{width}w"
+        webp_variant = root.join("media/images/hero/variants/#{stem}-#{width}.webp")
+        chosen = webp_variant.file? ? webp_variant : jpg_variant
+        "/media/images/hero/variants/#{chosen.basename} #{width}w"
       end
       next entry if parts.empty?
 

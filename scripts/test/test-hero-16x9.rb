@@ -351,10 +351,15 @@ item(9) do
       fail!("variants/#{name} should be #{want}, got #{got.inspect}") unless got == want
     end
     fail!("no variant wider than its original") if pool.join("variants/small-1440.jpg").exist?
+    fail!("no webp variant wider than its original") if pool.join("variants/small-1440.webp").exist?
+    %w[wide-480.webp wide-960.webp wide-1440.webp small-480.webp small-960.webp].each do |name|
+      fail!("generate must also write #{name} (PLT Phase B)") unless pool.join("variants", name).file?
+    end
 
     entries = HeroPortraits.entries(root.join("content"))
     wide = entries.find { |e| e["src"] == "/media/images/hero/wide.jpg" }
-    want = %w[480 960 1440].map { |w| "/media/images/hero/variants/wide-#{w}.jpg #{w}w" }.join(", ")
+    # webp is preferred in srcset once its sibling exists (PLT Phase B).
+    want = %w[480 960 1440].map { |w| "/media/images/hero/variants/wide-#{w}.webp #{w}w" }.join(", ")
     fail!("the export must list the generated variants, got #{wide.inspect}") unless wide && wide["srcset"] == want
   end
 end

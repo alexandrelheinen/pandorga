@@ -664,12 +664,40 @@ def export_derived_data(content_root, output_root)
   write_json(writing_index_path, index)
   WritingIndexContract.assert_slugs_match_export!(output_root, index)
   write_json(timeline_path, TimelineBuilder.build(adapter))
+  listing_index_path = export_listing_index(output_root, index)
 
   {
     "timeline" => [timeline_path.relative_path_from(output_root).to_s],
     "writing_index" => [writing_index_path.relative_path_from(output_root).to_s],
+    "listing_index" => [listing_index_path],
     "band_art" => export_band_art(output_root, index)
   }
+end
+
+# Card/listing grids (home, articles, blog, projects) need a fraction of the
+# writing_index fields: no xcites (resolved from the full index only, by
+# content-runtime/30-includes-xcite.html), no aliases (resolved from the full
+# index only, by resolveWritingAlias for detail routes), no category (no
+# listing filters by that field — see articles.html/blog.html, which filter by
+# tag). Shipping the slim shape as its own file means a listing page's first
+# render depends on a smaller payload than detail-neighbor navigation does.
+LISTING_INDEX_FIELDS = %w[
+  slug key title date last_updated url type collection language description
+  excerpt thumbnail thumbnail_srcset tags tagline icon status label
+  start_date end_date external_url article_url github company product
+  project sort_order
+].freeze
+
+def listing_index_entry(entry)
+  LISTING_INDEX_FIELDS.each_with_object({}) do |field, slim|
+    slim[field] = entry[field] if entry.key?(field)
+  end
+end
+
+def export_listing_index(output_root, writing_index)
+  listing_index_path = output_root.join("data/listing_index.json")
+  write_json(listing_index_path, writing_index.map { |entry| listing_index_entry(entry) })
+  listing_index_path.relative_path_from(output_root).to_s
 end
 
 # The home page's reference band, drawn from the corpus this run just exported

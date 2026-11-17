@@ -175,30 +175,38 @@ Dir.mktmpdir("pandorga-thumb-lib-") do |dir|
   fail!("small-960.jpg must be skipped") if variants.join("small-960.jpg").exist?
   fail!("small-1440.jpg must be skipped") if variants.join("small-1440.jpg").exist?
 
-  # Nothing written for URL, video, missing
+  # Nothing written for URL, video, missing. Every jpg variant now has a webp
+  # sibling (PLT Phase B).
   written_names = variants.children.map { |p| p.basename.to_s }.sort
   expected_names = %w[
     small-480.jpg
+    small-480.webp
     tall-480.jpg
+    tall-480.webp
     tall-960.jpg
+    tall-960.webp
     wide-1440.jpg
+    wide-1440.webp
     wide-480.jpg
+    wide-480.webp
     wide-960.jpg
+    wide-960.webp
   ]
   fail!("unexpected files in variants/: #{written_names.inspect}") unless written_names == expected_names
 
-  # Check srcset_for helper
+  # Check srcset_for helper. webp is preferred over jpg at every width once
+  # both exist, so srcset lists the smaller file.
   wide_srcset = Pandorga::ThumbnailVariants.srcset_for(site, "/media/images/covers/wide.jpg")
   fail!("unexpected wide srcset: #{wide_srcset.inspect}") unless wide_srcset ==
-    "/media/images/covers/variants/wide-480.jpg 480w, /media/images/covers/variants/wide-960.jpg 960w, /media/images/covers/variants/wide-1440.jpg 1440w"
+    "/media/images/covers/variants/wide-480.webp 480w, /media/images/covers/variants/wide-960.webp 960w, /media/images/covers/variants/wide-1440.webp 1440w"
 
   tall_srcset = Pandorga::ThumbnailVariants.srcset_for(site, "/media/images/covers/tall.png")
   fail!("unexpected tall srcset: #{tall_srcset.inspect}") unless tall_srcset ==
-    "/media/images/covers/variants/tall-480.jpg 480w, /media/images/covers/variants/tall-960.jpg 960w"
+    "/media/images/covers/variants/tall-480.webp 480w, /media/images/covers/variants/tall-960.webp 960w"
 
   small_srcset = Pandorga::ThumbnailVariants.srcset_for(site, "/media/images/covers/small.jpg")
   fail!("unexpected small srcset: #{small_srcset.inspect}") unless small_srcset ==
-    "/media/images/covers/variants/small-480.jpg 480w"
+    "/media/images/covers/variants/small-480.webp 480w"
 
   fail!("expected nil srcset for external URL") unless Pandorga::ThumbnailVariants.srcset_for(site, "https://example.com/x.jpg").nil?
   fail!("expected nil srcset for video") unless Pandorga::ThumbnailVariants.srcset_for(site, "/media/images/covers/clip.mp4").nil?
@@ -235,7 +243,10 @@ Dir.mktmpdir("pandorga-thumb-cli-") do |dir|
   fail!("CLI pandorga thumbnails failed:\n#{stdout}\n#{stderr}") unless status.success?
 
   variants = site.join("content/media/images/covers/variants")
-  %w[wide-480.jpg wide-960.jpg wide-1440.jpg tall-480.jpg tall-960.jpg small-480.jpg].each do |name|
+  %w[
+    wide-480.jpg wide-960.jpg wide-1440.jpg tall-480.jpg tall-960.jpg small-480.jpg
+    wide-480.webp wide-960.webp wide-1440.webp tall-480.webp tall-960.webp small-480.webp
+  ].each do |name|
     fail!("CLI did not write #{name}") unless variants.join(name).file?
   end
 end
@@ -265,9 +276,9 @@ Dir.mktmpdir("pandorga-thumb-export-") do |dir|
   wide_json = JSON.parse(out.join("collections/projects/wide-a.json").read)
   wide_fm = wide_json.fetch("front_matter")
   expected_wide_srcset = [
-    "https://cdn.example.com/media/images/covers/variants/wide-480.jpg 480w",
-    "https://cdn.example.com/media/images/covers/variants/wide-960.jpg 960w",
-    "https://cdn.example.com/media/images/covers/variants/wide-1440.jpg 1440w"
+    "https://cdn.example.com/media/images/covers/variants/wide-480.webp 480w",
+    "https://cdn.example.com/media/images/covers/variants/wide-960.webp 960w",
+    "https://cdn.example.com/media/images/covers/variants/wide-1440.webp 1440w"
   ].join(", ")
   unless wide_fm["thumbnail"] == "https://cdn.example.com/media/images/covers/wide.jpg"
     fail!("wide-a thumbnail unexpected: #{wide_fm['thumbnail'].inspect}")
@@ -278,15 +289,15 @@ Dir.mktmpdir("pandorga-thumb-export-") do |dir|
 
   tall_fm = JSON.parse(out.join("collections/projects/tall-p.json").read).fetch("front_matter")
   expected_tall_srcset = [
-    "https://cdn.example.com/media/images/covers/variants/tall-480.jpg 480w",
-    "https://cdn.example.com/media/images/covers/variants/tall-960.jpg 960w"
+    "https://cdn.example.com/media/images/covers/variants/tall-480.webp 480w",
+    "https://cdn.example.com/media/images/covers/variants/tall-960.webp 960w"
   ].join(", ")
   unless tall_fm["thumbnail_srcset"] == expected_tall_srcset
     fail!("tall-p thumbnail_srcset unexpected: #{tall_fm['thumbnail_srcset'].inspect}")
   end
 
   small_fm = JSON.parse(out.join("collections/projects/small-p.json").read).fetch("front_matter")
-  expected_small_srcset = "https://cdn.example.com/media/images/covers/variants/small-480.jpg 480w"
+  expected_small_srcset = "https://cdn.example.com/media/images/covers/variants/small-480.webp 480w"
   unless small_fm["thumbnail_srcset"] == expected_small_srcset
     fail!("small-p thumbnail_srcset unexpected: #{small_fm['thumbnail_srcset'].inspect}")
   end
@@ -312,6 +323,17 @@ Dir.mktmpdir("pandorga-thumb-export-") do |dir|
       fail!("writing_index #{slug} must not have thumbnail_srcset, got #{entry['thumbnail_srcset'].inspect}")
     end
   end
+
+  # listing_index.json (PLT Phase B) carries the same webp-preferring
+  # thumbnail_srcset for card grids, with no xcites/aliases.
+  listing_index = JSON.parse(out.join("data/listing_index.json").read)
+  wide_listing = listing_index.find { |e| e["slug"] == "wide-a" }
+  fail!("wide-a missing from listing_index.json") unless wide_listing
+  unless wide_listing["thumbnail_srcset"] == expected_wide_srcset
+    fail!("listing_index wide-a thumbnail_srcset unexpected: #{wide_listing['thumbnail_srcset'].inspect}")
+  end
+  fail!("listing_index entries must not carry xcites") if wide_listing.key?("xcites")
+  fail!("listing_index entries must not carry aliases") if wide_listing.key?("aliases")
 end
 
 # 4. Without ImageMagick: export succeeds, prints one warning line, writes no variants and no thumbnail_srcset

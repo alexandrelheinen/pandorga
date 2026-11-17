@@ -4,15 +4,15 @@
 {%- endcomment -%}
 {%- case page.layout -%}
 {%- when "home" -%}
-  {%- assign _preload_paths = "pages/home/summary.json|pages/cv/summary.json|pages/home/subtitle.json|pages/home/portraits.json|pages/headers.json|data/writing_index.json" -%}
+  {%- assign _preload_paths = "pages/home/summary.json|pages/cv/summary.json|pages/home/subtitle.json|pages/home/portraits.json|pages/headers.json|data/listing_index.json" -%}
 {%- when "articles" -%}
-  {%- assign _preload_paths = "data/writing_index.json|pages/headers.json|manifest.json" -%}
+  {%- assign _preload_paths = "data/listing_index.json|pages/headers.json|manifest.json" -%}
 {%- when "blog" -%}
-  {%- assign _preload_paths = "data/writing_index.json|pages/headers.json|manifest.json" -%}
+  {%- assign _preload_paths = "data/listing_index.json|pages/headers.json|manifest.json" -%}
 {%- when "cv" -%}
   {%- assign _preload_paths = "pages/cv/summary.json|pages/cv/disclaimer.json|data/education.json|data/languages.json|pages/headers.json|manifest.json" -%}
 {%- when "projects" -%}
-  {%- assign _preload_paths = "data/writing_index.json|pages/headers.json|manifest.json" -%}
+  {%- assign _preload_paths = "data/listing_index.json|pages/headers.json|manifest.json" -%}
 {%- else -%}
   {%- assign _preload_paths = "" -%}
 {%- endcase -%}
@@ -23,6 +23,13 @@
   base = String(base || "").replace(/\/$/, "");
   var paths = {{ _preload_paths | split: "|" | jsonify }};
   window.__pandorgaPreload = window.__pandorgaPreload || {};
+  function abs(path) {
+    var p = String(path || "").trim();
+    if (!p) return "";
+    if (/^https?:\/\//i.test(p) || p.indexOf("//") === 0) return p;
+    if (p.charAt(0) === "/") return base ? base + p : p;
+    return base ? base + "/" + p : "/" + p;
+  }
   paths.forEach(function (path) {
     var url = base ? base + "/" + path : "/" + path;
     window.__pandorgaPreload[path] = fetch(url, { credentials: "same-origin" }).then(function (response) {
@@ -30,6 +37,44 @@
       return response.json();
     });
   });
+  {%- if page.layout == "home" -%}
+  /* LCP: once portraits.json resolves, preload the preferred (or first)
+     plate image so the browser starts it before the content runtime. */
+  var prefer = {{ site.pandorga.home.hero_portrait | default: "" | jsonify }};
+  var portraits = window.__pandorgaPreload["pages/home/portraits.json"];
+  if (portraits && typeof portraits.then === "function") {
+    portraits.then(function (data) {
+      var list = Array.isArray(data) ? data : [];
+      var needle = String(prefer || "").trim().toLowerCase();
+      var chosen = list[0] || null;
+      var i;
+      if (needle) {
+        for (i = 0; i < list.length; i++) {
+          if (String((list[i] && list[i].src) || "").toLowerCase().indexOf(needle) !== -1) {
+            chosen = list[i];
+            break;
+          }
+        }
+      }
+      if (!chosen || !chosen.src) return;
+      var link = document.createElement("link");
+      link.rel = "preload";
+      link.as = "image";
+      link.fetchPriority = "high";
+      link.href = abs(chosen.src);
+      if (chosen.srcset) {
+        link.imageSrcset = String(chosen.srcset).split(",").map(function (part) {
+          var bits = part.trim().split(/\s+/);
+          if (!bits[0]) return "";
+          bits[0] = abs(bits[0]);
+          return bits.filter(Boolean).join(" ");
+        }).filter(Boolean).join(", ");
+      }
+      if (chosen.sizes) link.imageSizes = chosen.sizes;
+      document.head.appendChild(link);
+    }).catch(function () {});
+  }
+  {%- endif -%}
 })();
 </script>
 {%- endif -%}
