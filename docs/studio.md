@@ -91,6 +91,17 @@ response includes `commit` (Git commit SHA).
 
 The PAT needs **Actions: Read** in addition to Contents write.
 
+## Phone list
+
+A collection list on a phone shows a 56 by 42 thumbnail, or a Material
+image mark when the entry has no thumbnail. The title is serif and stops
+at two lines. The meta line is the date and the language, such as
+`2026-11-12 · EN`. The status pill, the filename, and the per-row edit and
+delete buttons are not on that row. Delete is a control in the editor.
+Search sits on its own row. Sort and New sit on the next row. The
+page-size select is hidden. Paging is ‹ and › with a range such as
+`1-10 of 37`. The heading is the collection name with the count beside it.
+
 ## Phone toolbar
 
 At 960px and below the bar is a single 56px row: the collections menu, the
