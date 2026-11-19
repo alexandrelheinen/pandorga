@@ -61,8 +61,13 @@
   /* pills, tags, captions */
   --studio-brand-title: calc(var(--studio-type-title) + 3pt);
   --studio-nav-label: calc(var(--studio-type-body) - 0.5pt);
-  --studio-nav-item: var(--studio-type-body);
-  --studio-ledger-title: var(--studio-type-body);
+  /* Menu entries and list titles share one size on every viewport. */
+  --studio-nav-item: 1.0625rem;
+  --studio-ledger-title: var(--studio-nav-item);
+  --studio-title-track: 0.02em;
+  --studio-btn-size: var(--studio-type-ui);
+  --studio-btn-track: 0.04em;
+  --studio-icon-btn: 2.25rem;
   --studio-ledger-meta: var(--studio-type-meta);
   --studio-list-control-height: 2.25rem;
   --studio-ledger-thumb-w: 64px;
@@ -503,7 +508,7 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
   cursor: pointer;
   color: var(--on-surface-variant);
   font-family: var(--font-body);
-  font-size: 1.0625rem;
+  font-size: var(--studio-nav-item);
   font-weight: 300;
   line-height: 1.35;
   letter-spacing: 0.01em;
@@ -970,8 +975,8 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
   justify-content: center;
   /* Chrome actions use label face; mono stays for paths/counts only. */
   font-family: var(--font-label);
-  font-size: var(--studio-type-ui);
-  letter-spacing: 0.04em;
+  font-size: var(--studio-btn-size);
+  letter-spacing: var(--studio-btn-track);
 }
 
 .btn-nav {
@@ -1143,9 +1148,10 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
 
 .ledger-title {
   font-family: var(--font-title);
-  font-size: 1.25rem;
+  font-size: var(--studio-ledger-title);
   font-weight: 400;
   font-synthesis: none;
+  letter-spacing: var(--studio-title-track);
   line-height: 1.3;
   min-width: 0;
 }
@@ -1489,7 +1495,7 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
   font-weight: 400;
   font-synthesis: none;
   line-height: 1.15;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--studio-title-track);
   margin: 0 0 var(--studio-space-sm);
 }
 
@@ -1909,10 +1915,11 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
 
 .studio-map-group-label {
   margin: 0;
-  font-family: var(--font-label);
+  font-family: var(--font-title);
   font-size: var(--studio-type-title);
   font-weight: 400;
-  letter-spacing: 0.03em;
+  font-synthesis: none;
+  letter-spacing: var(--studio-title-track);
   line-height: 1.2;
 }
 
@@ -1958,9 +1965,11 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
 }
 
 .studio-map-card-title {
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: var(--studio-type-body);
+  font-family: var(--font-title);
+  font-weight: 400;
+  font-synthesis: none;
+  font-size: var(--studio-ledger-title);
+  letter-spacing: var(--studio-title-track);
   line-height: 1.3;
 }
 
@@ -2215,7 +2224,7 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
 }
 
 .editor-format-toolbar {
-  --editor-tool-size: 2.35rem;
+  --editor-tool-size: var(--studio-icon-btn);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -2225,36 +2234,52 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
   background: var(--panel);
 }
 
-.editor-toolbar-btn {
+/* One format control, on the desktop row and the phone bar. */
+.editor-toolbar-btn,
+.editor-format-bar-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  width: var(--editor-tool-size);
-  min-width: var(--editor-tool-size);
-  max-width: var(--editor-tool-size);
-  height: var(--editor-tool-size);
-  min-height: var(--editor-tool-size);
-  max-height: var(--editor-tool-size);
+  flex: 0 0 var(--studio-icon-btn);
+  width: var(--studio-icon-btn);
+  min-width: var(--studio-icon-btn);
+  height: var(--studio-icon-btn);
+  min-height: var(--studio-icon-btn);
+  max-height: var(--studio-icon-btn);
   margin: 0;
   padding: 0;
-  border: 0;
+  border: 1px solid color-mix(in srgb, var(--outline-variant) 70%, transparent);
   border-radius: 0;
-  background: transparent;
+  background: var(--background);
   cursor: pointer;
   color: var(--on-surface);
-  font: inherit;
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-family: var(--font-label);
+  font-size: var(--studio-btn-size);
+  font-weight: 400;
+  letter-spacing: var(--studio-btn-track);
   line-height: 1;
-  overflow: hidden;
 }
 
-.editor-toolbar-btn:hover {
+.editor-toolbar-btn--label,
+.editor-format-bar-btn--label {
+  width: auto;
+  padding: 0 0.45rem;
+}
+
+.editor-toolbar-btn:disabled,
+.editor-format-bar-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.editor-toolbar-btn:hover:not(:disabled),
+.editor-format-bar-btn:hover:not(:disabled) {
   background: var(--surface-high);
 }
 
-.editor-toolbar-btn .material-symbols-outlined {
+.editor-toolbar-btn .material-symbols-outlined,
+.editor-format-bar-btn .material-symbols-outlined {
   font-size: 1.15rem;
   line-height: 1;
   font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 24;
@@ -2275,7 +2300,9 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
   border: 1px solid color-mix(in srgb, var(--outline-variant) 70%, transparent);
   background: var(--background);
   padding: 0 0.4rem;
-  font-size: 0.82rem;
+  font-family: var(--font-label);
+  font-size: var(--studio-btn-size);
+  letter-spacing: var(--studio-btn-track);
   line-height: 1;
   max-width: 8.5rem;
 }
@@ -2324,6 +2351,41 @@ button.studio-brand-home.studio-brand-toolbar[aria-current="page"] {
 .tiptap .ProseMirror :is(h1, h2, h3, h4) {
   font-family: var(--font-title);
   font-weight: 400;
+}
+
+.tiptap .ProseMirror em {
+  font-style: italic;
+}
+
+.tiptap .ProseMirror strong {
+  font-weight: 600;
+}
+
+.tiptap .ProseMirror :is(s, del) {
+  text-decoration: line-through;
+}
+
+.tiptap .ProseMirror code {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  background: var(--surface-high);
+  padding: 0.05em 0.3em;
+}
+
+.tiptap .ProseMirror blockquote {
+  margin: 0.6rem 0;
+  padding-left: 0.85rem;
+  border-left: 2px solid var(--outline-variant);
+}
+
+.tiptap .ProseMirror :is(ul, ol) {
+  margin: 0.4rem 0;
+  padding-left: 1.4rem;
+}
+
+.ledger-title em,
+.media-row-name em {
+  font-style: italic;
 }
 
 .tiptap .ProseMirror p {
@@ -2428,8 +2490,11 @@ textarea.body-source.editor-surface {
 }
 
 .auth-gate h1 {
-  font-family: var(--font-display);
-  font-size: 1.6rem;
+  font-family: var(--font-title);
+  font-size: var(--studio-type-title);
+  font-weight: 400;
+  font-synthesis: none;
+  letter-spacing: var(--studio-title-track);
   margin: 0 0 0.5rem;
 }
 
@@ -2832,9 +2897,11 @@ textarea.body-source.editor-surface {
 
 .yaml-editor-title {
   margin: 0;
-  font-family: var(--font-display);
-  font-size: 1.35rem;
-  font-weight: 500;
+  font-family: var(--font-title);
+  font-size: var(--studio-type-title);
+  font-weight: 400;
+  font-synthesis: none;
+  letter-spacing: var(--studio-title-track);
   color: var(--on-surface);
 }
 
@@ -2972,9 +3039,11 @@ textarea.yaml-source.editor-surface {
 
 .media-header h1.media-title {
   margin: 0 0 0.35rem;
-  font-family: var(--font-display);
-  font-size: 1.55rem;
-  font-weight: 600;
+  font-family: var(--font-title);
+  font-size: var(--studio-type-title);
+  font-weight: 400;
+  font-synthesis: none;
+  letter-spacing: var(--studio-title-track);
 }
 
 .media-breadcrumb {
@@ -3120,7 +3189,11 @@ textarea.yaml-source.editor-surface {
 }
 
 .media-row-name {
-  font-weight: 600;
+  font-family: var(--font-title);
+  font-size: var(--studio-ledger-title);
+  font-weight: 400;
+  font-synthesis: none;
+  letter-spacing: var(--studio-title-track);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -3501,57 +3574,8 @@ body.figure-lightbox-open {
   }
 }
 
-.editor-format-bar-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 36px;
-  width: 36px;
-  height: 44px;
-  min-width: 36px;
-  min-height: 44px;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--on-surface);
-  font-family: var(--font-label);
-  font-size: 0.95rem;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.editor-format-bar-btn .material-symbols-outlined,
-.editor-format-bar-btn > span {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  height: 1.25rem;
-}
-
+/* Correct / Refine use the same square icon button as the other format controls. */
 .editor-format-bar-proof {
-  flex: 0 1 auto;
-  width: auto;
-  min-width: 0;
-  height: 32px;
-  min-height: 32px;
-  padding: 0 0.4rem;
-  gap: 0.2rem;
-  font-size: 0.68rem;
-  letter-spacing: 0.03em;
-  white-space: nowrap;
-  background-image: linear-gradient(
-    var(--mk-angle),
-    transparent var(--mk-s0),
-    color-mix(in srgb, var(--primary) var(--mark-strong-a), transparent) var(--mk-s1),
-    color-mix(in srgb, var(--primary) var(--mark-strong-b), transparent) var(--mk-mid),
-    color-mix(in srgb, var(--primary) var(--mark-strong-c), transparent) var(--mk-end),
-    transparent 100%
-  );
-  color: color-mix(in srgb, var(--primary) var(--facet-ink-mix), var(--on-surface));
-}
-
-.editor-format-bar-proof .material-symbols-outlined {
-  font-size: 0.95rem;
+  background-image: none;
+  color: var(--on-surface);
 }

@@ -28,12 +28,12 @@ module Pandorga
 
     DEFAULTS = {
       title: { family: "Ancizar Serif", spec: "ital,wght@0,400;0,600;1,400", fallback: "serif" },
-      subtitle: { family: "Ancizar Sans", spec: "wght@300;350;400;600", fallback: "sans-serif" },
+      subtitle: { family: "Ancizar Sans", spec: "ital,wght@0,300;0,350;0,400;0,600;1,300;1,350;1,400;1,600", fallback: "sans-serif" },
       label: { family: "Marcellus SC", spec: "wght@400;700", fallback: "serif" },
-      body: { family: "Ancizar Sans", spec: "wght@300;350;400;600", fallback: "sans-serif" },
+      body: { family: "Ancizar Sans", spec: "ital,wght@0,300;0,350;0,400;0,600;1,300;1,350;1,400;1,600", fallback: "sans-serif" },
       mono: { family: "Courier Prime", spec: "ital,wght@0,400;0,700;1,400;1,700", fallback: MONO_FALLBACK },
       code: { family: "Courier Prime", spec: "ital,wght@0,300;0,400;0,700;1,400;1,700", fallback: MONO_FALLBACK },
-      cv_body: { family: "Ancizar Sans", spec: "wght@300;350;400;600", fallback: "sans-serif" }
+      cv_body: { family: "Ancizar Sans", spec: "ital,wght@0,300;0,350;0,400;0,600;1,300;1,350;1,400;1,600", fallback: "sans-serif" }
     }.freeze
 
     def resolve(site_fonts, theme_fonts = nil)

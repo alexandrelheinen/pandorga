@@ -120,6 +120,17 @@ The caption "Rendered with pandorga … article styles" uses
 `studio/` and injects that string. A release that bumps the gem version
 and rebuilds Studio updates the caption with it.
 
+## Body marks
+
+The visual editor and the saved Markdown share one set of marks. Italic is
+stored as `_word_`. A file that still uses `*word*` opens as italic and is
+rewritten to underscores the next time that paragraph is edited. Bold is
+`**word**`, including around italic (`**bold _and_ more**`). `***both***`
+and `___both___` open as bold italic and save as `**_both_**`. Strike,
+links, and inline code survive the same round trip. The preview and the
+published article paint bold at weight 600 and italic in the italic cut of
+the reading face.
+
 ## Phone editor
 
 The editor tabs are Fields, Visual, Source, and Preview. Fields is the
@@ -136,8 +147,9 @@ The collection search field is a single 44px row with a search icon. The
 phone toolbar gives the collection name the free space beside Studio, and
 ellipsizes it only when the label does not fit. Visual opens on the body.
 Fields is the front matter. The back and delete icons have no frame. The
-format bar is one 44px row, with Correct and Refine as highlighter text
-buttons. Preview hides the editor body and the character counter, and the
+format bar is one 44px row. Correct and Refine are the same square icon
+buttons as bold, italic, and the other marks, on that row and on the desktop
+format row. Preview hides the editor body and the character counter, and the
 drop cap follows the same `drop_cap` check as the published article. The
 Google button and the email field are full 1px rectangles, and Continue is
 flat petrol. The pending "Signed in as" line is Courier Prime, and Sign out

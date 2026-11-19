@@ -20,12 +20,12 @@ fonts:
   title_fallback: "serif"
   label_fallback: "serif"
   google_title_spec: "ital,wght@0,400;0,600;1,400"
-  google_subtitle_spec: "wght@300;350;400;600"
+  google_subtitle_spec: "ital,wght@0,300;0,350;0,400;0,600;1,300;1,350;1,400;1,600"
   google_label_spec: "wght@400;700"
-  google_body_spec: "wght@300;350;400;600"
+  google_body_spec: "ital,wght@0,300;0,350;0,400;0,600;1,300;1,350;1,400;1,600"
   google_mono_spec: "ital,wght@0,400;0,700;1,400;1,700"
   google_code_spec: "ital,wght@0,300;0,400;0,700;1,400;1,700"
-  google_cv_body_spec: "wght@300;350;400;600"
+  google_cv_body_spec: "ital,wght@0,300;0,350;0,400;0,600;1,300;1,350;1,400;1,600"
 
 motion:
   duration_fast: "0.15s"

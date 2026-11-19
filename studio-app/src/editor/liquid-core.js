@@ -177,6 +177,144 @@ function includeMarkdown(def, attrs) {
   return attrsToInclude(def, attrs);
 }
 
+function isWordChar(ch) {
+  return !!ch && /[\p{L}\p{N}]/u.test(ch);
+}
+
+/**
+ * Wrapped emphasis (`*`, `_`, `**`, `__`, `***`, `___`, `~~`).
+ * Flanking matches the editor: not inside a word, not a longer run of the
+ * same marker, and the inside does not start or end with space. The inside
+ * may contain the other delimiter, so `**bold _and_ more**` and `***both***`
+ * reopen as the same marks the preview paints.
+ */
+function matchWrapped(src, i, marker) {
+  if (!src.startsWith(marker, i)) return null;
+  const sym = marker[0];
+  const uniform = [...marker].every((c) => c === sym);
+  if (uniform && src[i + marker.length] === sym) return null;
+  if (isWordChar(src[i - 1])) return null;
+  const innerStart = i + marker.length;
+  if (!src[innerStart] || /\s/.test(src[innerStart])) return null;
+  for (let j = innerStart + 1; j < src.length; j++) {
+    if (src[j] === "\n") return null;
+    if (src[j] === "\\") {
+      j += 1;
+      continue;
+    }
+    if (src[j] === "`") {
+      const code = src.slice(j).match(/^`[^`\n]+`/);
+      if (code) {
+        j += code[0].length - 1;
+        continue;
+      }
+    }
+    if (!src.startsWith(marker, j)) continue;
+    if (uniform && src[j + marker.length] === sym) continue;
+    if (/\s/.test(src[j - 1])) continue;
+    if (isWordChar(src[j + marker.length])) continue;
+    const text = src.slice(innerStart, j);
+    if (!text) return null;
+    return { text, length: j + marker.length - i };
+  }
+  return null;
+}
+
+function withMark(node, mark) {
+  if (!mark || node.type !== "text") return node;
+  // Index 0 is the outer mark, matching ProseMirror (lower schema rank first).
+  return { ...node, marks: [mark, ...(node.marks || [])] };
+}
+
+/** Inline marks the visual editor and the saved Markdown share. */
+function parseInline(src) {
+  const nodes = [];
+  let i = 0;
+  let buf = "";
+  const flush = () => {
+    if (!buf) return;
+    nodes.push({ type: "text", text: buf });
+    buf = "";
+  };
+  const take = (inner, mark, rawLength) => {
+    flush();
+    const marks = Array.isArray(mark) ? mark : [mark];
+    for (const node of parseInline(inner)) {
+      let next = node;
+      for (let n = marks.length - 1; n >= 0; n -= 1) next = withMark(next, marks[n]);
+      nodes.push(next);
+    }
+    i += rawLength;
+  };
+
+  while (i < src.length) {
+    const rest = src.slice(i);
+    if (rest.startsWith("  \n")) {
+      flush();
+      nodes.push({ type: "hardBreak" });
+      i += 3;
+      continue;
+    }
+    let m = rest.match(/^`([^`\n]+)`/);
+    if (m) {
+      flush();
+      nodes.push({ type: "text", text: m[1], marks: [{ type: "code" }] });
+      i += m[0].length;
+      continue;
+    }
+    m = rest.match(/^<span style="color:([^"]+)">([\s\S]*?)<\/span>/);
+    if (m) {
+      take(m[2], { type: "textStyle", attrs: { color: m[1] } }, m[0].length);
+      continue;
+    }
+    m = rest.match(/^\[([^\]\n]+)\]\(([^)\s]+)\)/);
+    if (m) {
+      take(m[1], { type: "link", attrs: { href: m[2] } }, m[0].length);
+      continue;
+    }
+    const strike = matchWrapped(src, i, "~~");
+    if (strike) {
+      take(strike.text, { type: "strike" }, strike.length);
+      continue;
+    }
+    const both = ["***", "___"]
+      .map((marker) => ({ marker, hit: matchWrapped(src, i, marker) }))
+      .find((row) => row.hit);
+    if (both) {
+      take(
+        both.hit.text,
+        [{ type: "bold" }, { type: "italic" }],
+        both.hit.length
+      );
+      continue;
+    }
+    const strong = ["**", "__"]
+      .map((marker) => matchWrapped(src, i, marker))
+      .find(Boolean);
+    if (strong) {
+      take(strong.text, { type: "bold" }, strong.length);
+      continue;
+    }
+    const em = [matchWrapped(src, i, "*"), matchWrapped(src, i, "_")].find(Boolean);
+    if (em) {
+      take(em.text, { type: "italic" }, em.length);
+      continue;
+    }
+    buf += src[i];
+    i += 1;
+  }
+  flush();
+  return nodes;
+}
+
+function pushParsedText(nodes, text) {
+  if (!text) return;
+  for (const node of parseInline(text)) {
+    if (node.type === "text" && node.text === "") continue;
+    nodes.push(node);
+  }
+}
+
 function paragraphNodes(text) {
   const src = String(text || "");
   const nodes = [];
@@ -184,20 +322,16 @@ function paragraphNodes(text) {
   let last = 0;
   let m;
   while ((m = re.exec(src))) {
-    if (m.index > last) {
-      nodes.push({ type: "text", text: src.slice(last, m.index) });
-    }
+    if (m.index > last) pushParsedText(nodes, src.slice(last, m.index));
     const def = defForInclude(m[1]);
     if (def?.inline) {
       nodes.push(includeNode(def, m[2], m[0]));
     } else {
-      nodes.push({ type: "text", text: m[0] });
+      pushParsedText(nodes, m[0]);
     }
     last = m.index + m[0].length;
   }
-  if (last < src.length) {
-    nodes.push({ type: "text", text: src.slice(last) });
-  }
+  if (last < src.length) pushParsedText(nodes, src.slice(last));
   return nodes.filter((n) => n.type !== "text" || n.text !== "");
 }
 
@@ -205,11 +339,49 @@ function stripOuterBlankLines(chunk) {
   return String(chunk || "").replace(/^\n+|\n+$/g, "");
 }
 
+function listItem(text) {
+  return {
+    type: "listItem",
+    content: [{ type: "paragraph", content: paragraphNodes(text) }],
+  };
+}
+
 function pushPlainChunk(content, text) {
-  const line = stripOuterBlankLines(text);
-  if (!line) return;
-  const heading = line.match(/^(#{1,6})\s+([\s\S]*)$/);
-  if (heading && !line.includes("\n") && line.trim() === line) {
+  const raw = stripOuterBlankLines(text);
+  if (!raw) return;
+  if (/^(?:---|\*\*\*|___)\s*$/.test(raw)) {
+    content.push({ type: "horizontalRule" });
+    return;
+  }
+  const lines = raw.split("\n");
+  if (lines.every((l) => l.startsWith(">"))) {
+    const inner = lines.map((l) => l.replace(/^>\s?/, "")).join("\n");
+    const innerNodes = [];
+    pushProseChunks(innerNodes, inner);
+    content.push({
+      type: "blockquote",
+      content: innerNodes.length ? innerNodes : [{ type: "paragraph" }],
+    });
+    return;
+  }
+  const bullet = lines.map((l) => l.match(/^[-+*]\s+(.*)$/));
+  if (bullet.every(Boolean)) {
+    content.push({
+      type: "bulletList",
+      content: bullet.map((m) => listItem(m[1])),
+    });
+    return;
+  }
+  const ordered = lines.map((l) => l.match(/^\d+\.\s+(.*)$/));
+  if (ordered.every(Boolean)) {
+    content.push({
+      type: "orderedList",
+      content: ordered.map((m) => listItem(m[1])),
+    });
+    return;
+  }
+  const heading = raw.match(/^(#{1,6})\s+([\s\S]*)$/);
+  if (heading && !raw.includes("\n") && raw.trim() === raw) {
     content.push({
       type: "heading",
       attrs: { level: heading[1].length },
@@ -217,7 +389,7 @@ function pushPlainChunk(content, text) {
     });
     return;
   }
-  content.push({ type: "paragraph", content: paragraphNodes(line) });
+  content.push({ type: "paragraph", content: paragraphNodes(raw) });
 }
 
 function pushRichChunk(content, chunk) {
@@ -288,30 +460,141 @@ export function markdownToEditorContent(markdown) {
   return { type: "doc", content };
 }
 
-function inlineToMd(nodes) {
-  return (nodes || [])
-    .map((n) => {
-      if (n.type === "text") {
-        let t = n.text || "";
-        const marks = n.marks || [];
-        for (const mark of marks) {
-          if (mark.type === "bold") t = `**${t}**`;
-          if (mark.type === "italic") t = `*${t}*`;
-          if (mark.type === "strike") t = `~~${t}~~`;
-          if (mark.type === "code") t = `\`${t}\``;
-          if (mark.type === "link") t = `[${t}](${mark.attrs?.href || ""})`;
-          if (mark.type === "textStyle" && mark.attrs?.color) {
-            t = `<span style="color:${mark.attrs.color}">${t}</span>`;
-          }
-        }
-        return t;
-      }
-      if (n.type === "hardBreak") return "  \n";
-      const def = INCLUDE_DEFS.find((d) => d.name === n.type);
-      if (def) return includeMarkdown(def, n.attrs || {});
+function markKey(mark) {
+  if (!mark) return "";
+  if (mark.type === "link") return `link:${mark.attrs?.href || ""}`;
+  if (mark.type === "textStyle") return `color:${mark.attrs?.color || ""}`;
+  return mark.type;
+}
+
+/** Stored order is outer mark first, the same order ProseMirror keeps. */
+function outerMarks(marks) {
+  return (marks || []).filter((mark) => mark && mark.type !== "code");
+}
+
+function openDelim(mark) {
+  switch (mark.type) {
+    case "bold":
+      return "**";
+    case "italic":
+      return "_";
+    case "strike":
+      return "~~";
+    case "link":
+      return "[";
+    case "textStyle":
+      return `<span style="color:${mark.attrs?.color || ""}">`;
+    default:
       return "";
-    })
-    .join("");
+  }
+}
+
+function closeDelim(mark) {
+  switch (mark.type) {
+    case "bold":
+      return "**";
+    case "italic":
+      return "_";
+    case "strike":
+      return "~~";
+    case "link":
+      return `](${mark.attrs?.href || ""})`;
+    case "textStyle":
+      return "</span>";
+    default:
+      return "";
+  }
+}
+
+/** Spaces at the edge of a mark sit outside the delimiter, so `_hello _` reloads as italic. */
+function trimMarkWhitespace(chars) {
+  const keys = new Set();
+  for (const item of chars) {
+    for (const mark of item.marks) keys.add(markKey(mark));
+  }
+  for (const key of keys) {
+    let i = 0;
+    while (i < chars.length) {
+      const has = (index) => chars[index].marks.some((mark) => markKey(mark) === key);
+      if (!has(i)) {
+        i += 1;
+        continue;
+      }
+      let j = i;
+      while (j < chars.length && has(j)) j += 1;
+      let start = i;
+      let end = j;
+      while (start < end && /\s/.test(chars[start].ch)) {
+        chars[start].marks = chars[start].marks.filter((mark) => markKey(mark) !== key);
+        start += 1;
+      }
+      while (end > start && /\s/.test(chars[end - 1].ch)) {
+        chars[end - 1].marks = chars[end - 1].marks.filter((mark) => markKey(mark) !== key);
+        end -= 1;
+      }
+      i = j;
+    }
+  }
+}
+
+function serializeTextChars(chars) {
+  trimMarkWhitespace(chars);
+  let out = "";
+  let active = [];
+  for (const item of chars) {
+    const next = item.marks;
+    let shared = 0;
+    while (
+      shared < active.length &&
+      shared < next.length &&
+      markKey(active[shared]) === markKey(next[shared])
+    ) {
+      shared += 1;
+    }
+    for (let j = active.length - 1; j >= shared; j -= 1) out += closeDelim(active[j]);
+    for (let j = shared; j < next.length; j += 1) out += openDelim(next[j]);
+    active = next;
+    out += item.ch;
+  }
+  for (let j = active.length - 1; j >= 0; j -= 1) out += closeDelim(active[j]);
+  return out;
+}
+
+function inlineToMd(nodes) {
+  let out = "";
+  let chars = [];
+  const flush = () => {
+    if (!chars.length) return;
+    out += serializeTextChars(chars);
+    chars = [];
+  };
+  for (const node of nodes || []) {
+    if (node.type === "text") {
+      const marks = node.marks || [];
+      if (marks.some((mark) => mark.type === "code")) {
+        flush();
+        out += `\`${node.text || ""}\``;
+        continue;
+      }
+      const ordered = outerMarks(marks);
+      for (const ch of node.text || "") {
+        chars.push({
+          ch,
+          marks: ordered.map((mark) => ({ type: mark.type, attrs: mark.attrs })),
+        });
+      }
+      continue;
+    }
+    flush();
+    if (node.type === "hardBreak") {
+      out += "  \n";
+      continue;
+    }
+    const def = INCLUDE_DEFS.find((d) => d.name === node.type);
+    if (def) out += includeMarkdown(def, node.attrs || {});
+  }
+  flush();
+  return out;
 }
 
 function nodesToMarkdown(nodes) {
@@ -329,13 +612,14 @@ function nodesToMarkdown(nodes) {
           const level = node.attrs?.level || 1;
           return `${"#".repeat(level)} ${inlineToMd(node.content || [])}\n\n`;
         }
-        case "blockquote":
-          return (
-            nodesToMarkdown(node.content || [])
-              .split("\n")
-              .map((l) => (l ? `> ${l}` : ">"))
-              .join("\n") + "\n\n"
-          );
+        case "blockquote": {
+          const inner = nodesToMarkdown(node.content || []).replace(/\n+$/, "");
+          const quoted = inner
+            .split("\n")
+            .map((l) => (l.length ? `> ${l}` : ">"))
+            .join("\n");
+          return `${quoted}\n\n`;
+        }
         case "bulletList":
           return (
             (node.content || [])

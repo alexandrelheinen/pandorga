@@ -2008,13 +2008,13 @@ function syncAiProofControls() {
   const busy = state.aiProofBusy;
   const enabled = canAiProof() && !busy;
   for (const action of ["correct", "refine"]) {
-    const item = document.querySelector(`[data-studio-action='${action}']`);
-    if (!item) continue;
-    item.disabled = !enabled;
-    const label = item.querySelector(".editor-ai-proof-label");
-    if (!label) continue;
-    if (busy) label.textContent = "Working…";
-    else label.textContent = action === "refine" ? "Refine" : "Correct";
+    for (const item of document.querySelectorAll(`[data-studio-action='${action}']`)) {
+      item.disabled = !enabled;
+      const label = item.querySelector(".editor-ai-proof-label");
+      if (!label) continue;
+      if (busy) label.textContent = "Working…";
+      else label.textContent = action === "refine" ? "Refine" : "Correct";
+    }
   }
 }
 
@@ -3039,16 +3039,36 @@ function ledgerRowMeta(item, writing) {
   return formatEntryListMeta(item, state.collection);
 }
 
+/** Show `*italic*` and `_italic_` as emphasis. Markers are escaped first. */
+function emphasisHtml(value) {
+  const safe = String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+  return safe
+    .replace(/\*\*([^*\n]+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/__([^_\n]+?)__/g, "<strong>$1</strong>")
+    .replace(
+      /(^|[\s(])\*([^*\s](?:[^*\n]*[^*\s])?)\*(?=$|[\s).,;:!?])/g,
+      "$1<em>$2</em>"
+    )
+    .replace(
+      /(^|[\s(])_([^_\s](?:[^_\n]*[^_\s])?)_(?=$|[\s).,;:!?])/g,
+      "$1<em>$2</em>"
+    );
+}
+
 function renderLedgerRow(item, writing) {
   const metaText = ledgerRowMeta(item, writing);
   const open = () => openFile(item.path);
+  const titleHtml = emphasisHtml(item.title || item.name);
   const ops = renderLedgerOps(item, { open });
 
   if (!writing) {
     const titleBlock = el("div", { className: "ledger-copy" }, [
       el("div", {
         className: "ledger-title",
-        text: item.title || item.name,
+        html: titleHtml,
       }),
       metaText
         ? el("div", { className: "ledger-meta", text: metaText })
@@ -3077,7 +3097,7 @@ function renderLedgerRow(item, writing) {
     publishStatusPill(item),
     el("div", {
       className: "ledger-title",
-      text: item.title || item.name,
+      html: titleHtml,
     }),
   ]);
 
@@ -3404,7 +3424,7 @@ function renderEditorChrome(mode) {
   const chromeRow = el("div", { className: "editor-chrome-row" }, [
     modeTabs,
     el("div", { className: "editor-chrome-actions" }, [
-      visual || source ? renderAiProofControl() : null,
+      source ? renderAiProofControl() : null,
       visual ? renderInsertControl() : null,
     ]),
   ]);
@@ -3442,7 +3462,7 @@ function renderMobileFormatBar() {
     }, [materialIcon(icon)]);
   const textBtn = (title, label, run) =>
     el("button", {
-      className: "editor-format-bar-btn",
+      className: "editor-format-bar-btn editor-format-bar-btn--label",
       type: "button",
       title,
       "aria-label": title,
@@ -3490,7 +3510,7 @@ function proofBarButton(action, label, icon) {
         void startRewrite(action);
       },
     },
-    [materialIcon(icon), el("span", { className: "editor-format-bar-proof-label", text: label })]
+    [materialIcon(icon)]
   );
 }
 
@@ -3590,9 +3610,10 @@ function renderAiProofControl() {
       el(
         "button",
         {
-          className: "btn editor-insert-btn",
+          className: "editor-toolbar-btn",
           type: "button",
           title: item.title,
+          "aria-label": item.label,
           "data-studio-action": item.action,
           disabled: !canAiProof() || state.aiProofBusy,
           onMouseDown: (e) => {
@@ -3605,13 +3626,7 @@ function renderAiProofControl() {
             void startRewrite(item.action);
           },
         },
-        [
-          materialIcon(item.icon),
-          el("span", {
-            className: "editor-ai-proof-label",
-            text: state.aiProofBusy ? "Working…" : item.label,
-          }),
-        ]
+        [materialIcon(item.icon)]
       )
     )
   );
@@ -3622,11 +3637,15 @@ function editorChain() {
 }
 
 function toolbarBtn(opts) {
+  const label = opts.text ? " editor-toolbar-btn--label" : "";
   return el("button", {
-    className: "editor-toolbar-btn",
+    className: `editor-toolbar-btn${label}`,
     type: "button",
     title: opts.title,
     "aria-label": opts.title,
+    "data-studio-action": opts.action || null,
+    disabled: !!opts.disabled,
+    onMouseDown: opts.onMouseDown,
     onClick: opts.onClick,
   }, [
     opts.icon ? materialIcon(opts.icon) : null,
@@ -3706,6 +3725,20 @@ function renderFormatToolbar() {
       icon: "format_strikethrough",
       onClick: () => editorChain()?.toggleStrike().run(),
     }),
+    toolbarBtn({
+      title: "Link",
+      icon: "link",
+      onClick: () => {
+        const href = window.prompt("Link URL");
+        if (!href) return;
+        editorChain()?.setLink({ href }).run();
+      },
+    }),
+    toolbarBtn({
+      title: "Code",
+      icon: "code",
+      onClick: () => editorChain()?.toggleCode().run(),
+    }),
     toolbarSep(),
     colorSelect,
     toolbarSep(),
@@ -3723,6 +3756,35 @@ function renderFormatToolbar() {
       title: "Title case",
       text: "Aa",
       onClick: () => state.bodyEditor?.transformSelectionCase("title"),
+    }),
+    toolbarSep(),
+    toolbarBtn({
+      title: "Correct",
+      icon: "check",
+      action: "correct",
+      disabled: !canAiProof() || state.aiProofBusy,
+      onMouseDown: (e) => {
+        e.preventDefault();
+        state.aiProofSelection = getBodySelection();
+      },
+      onClick: () => {
+        flashAiProofHint("");
+        void startRewrite("correct");
+      },
+    }),
+    toolbarBtn({
+      title: "Refine",
+      icon: "edit",
+      action: "refine",
+      disabled: !canAiProof() || state.aiProofBusy,
+      onMouseDown: (e) => {
+        e.preventDefault();
+        state.aiProofSelection = getBodySelection();
+      },
+      onClick: () => {
+        flashAiProofHint("");
+        void startRewrite("refine");
+      },
     }),
   ]);
 }

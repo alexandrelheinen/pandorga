@@ -18,7 +18,7 @@ require_relative "../../lib/pandorga/fonts"
 
 DEFAULT_HREF = "https://fonts.googleapis.com/css2?family=Ancizar+Serif:ital,wght@0,400;0,600;1,400" \
                "&family=Marcellus+SC:wght@400;700" \
-               "&family=Ancizar+Sans:wght@300;350;400;600" \
+               "&family=Ancizar+Sans:ital,wght@0,300;0,350;0,400;0,600;1,300;1,350;1,400;1,600" \
                "&family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700" \
                "&display=swap"
 
