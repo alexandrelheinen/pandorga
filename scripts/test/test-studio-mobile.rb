@@ -181,7 +181,8 @@ mono_ok = /
   \.studio-map-card-meta |
   \.list-error-detail |
   \.media-row-meta |
-  \.pending-signed-in
+  \.pending-signed-in |
+  \.tiptap\s+\.ProseMirror\s+code
 /x
 css.scan(/([^{}]+)\{([^{}]*)\}/m).each do |selector, body|
   next unless body.include?("var(--font-mono)")

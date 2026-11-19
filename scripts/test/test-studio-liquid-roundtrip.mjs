@@ -13,7 +13,7 @@ const root = path.resolve(__dirname, "../..");
 
 // Import from studio-app source (Node-friendly pure helpers).
 const liquidPath = path.join(root, "studio-app/src/editor/liquid-core.js");
-const { attrsToInclude, parseIncludes, INCLUDE_DEFS, roundTripMarkdown } =
+const { attrsToInclude, parseIncludes, INCLUDE_DEFS, roundTripMarkdown, serializeContent } =
   await import(liquidPath);
 const { splitDocument, rebuildDocument } = await import(
   path.join(root, "studio-app/src/lib/document.js")
@@ -175,5 +175,75 @@ assert.match(
   /The earlier account, \{% include xcite\.html key="studio-cms" %\}, records that room\./
 );
 assert.equal(rebuilt.includes('title: "'), false);
+
+assert.equal(roundTripMarkdown("Say _hello_ there.\n"), "Say _hello_ there.\n");
+assert.equal(roundTripMarkdown("Say *hello* there.\n"), "Say _hello_ there.\n");
+assert.equal(roundTripMarkdown("A **bold** word.\n"), "A **bold** word.\n");
+assert.equal(roundTripMarkdown("A __bold__ word.\n"), "A **bold** word.\n");
+assert.equal(roundTripMarkdown("Keep foo_bar_baz intact.\n"), "Keep foo_bar_baz intact.\n");
+assert.equal(roundTripMarkdown("2 * 3 = 6\n"), "2 * 3 = 6\n");
+assert.equal(roundTripMarkdown("## Title with _em_\n"), "## Title with _em_\n");
+assert.equal(roundTripMarkdown("## Title with *em*\n"), "## Title with _em_\n");
+assert.equal(roundTripMarkdown("> Quoted line.\n"), "> Quoted line.\n");
+assert.equal(roundTripMarkdown("- One\n- Two\n"), "- One\n- Two\n");
+assert.equal(roundTripMarkdown("1. First\n2. Second\n"), "1. First\n2. Second\n");
+assert.equal(
+  roundTripMarkdown('See _this_, {% include xcite.html key="studio-cms" %}, now.\n'),
+  'See _this_, {% include xcite.html key="studio-cms" %}, now.\n'
+);
+assert.equal(
+  roundTripMarkdown("**_both_** and _~~gone~~_.\n"),
+  "**_both_** and _~~gone~~_.\n"
+);
+assert.equal(roundTripMarkdown("---\n"), "---\n");
+
+assert.equal(roundTripMarkdown("**bold _and_ more**\n"), "**bold _and_ more**\n");
+assert.equal(roundTripMarkdown("**foo *bar* baz**\n"), "**foo _bar_ baz**\n");
+assert.equal(roundTripMarkdown("***both***\n"), "**_both_**\n");
+assert.equal(roundTripMarkdown("___both___\n"), "**_both_**\n");
+assert.equal(roundTripMarkdown("~~_gone_~~\n"), "~~_gone_~~\n");
+assert.equal(
+  roundTripMarkdown("See [_this_](https://example.com).\n"),
+  "See [_this_](https://example.com).\n"
+);
+
+const mixedMarks = serializeContent([
+  {
+    type: "paragraph",
+    content: [
+      { type: "text", text: "bold ", marks: [{ type: "bold" }] },
+      { type: "text", text: "and", marks: [{ type: "bold" }, { type: "italic" }] },
+      { type: "text", text: " more", marks: [{ type: "bold" }] },
+    ],
+  },
+]);
+assert.equal(mixedMarks, "**bold _and_ more**\n");
+assert.equal(roundTripMarkdown(mixedMarks), mixedMarks);
+
+const edgeSpace = serializeContent([
+  {
+    type: "paragraph",
+    content: [
+      { type: "text", text: "hello ", marks: [{ type: "italic" }] },
+      { type: "text", text: "there" },
+    ],
+  },
+]);
+assert.equal(edgeSpace, "_hello_ there\n");
+assert.equal(roundTripMarkdown(edgeSpace), edgeSpace);
+assert.equal(roundTripMarkdown("_hello world_\n"), "_hello world_\n");
+
+const { marked } = await import(
+  path.join(root, "studio-app/node_modules/marked/lib/marked.esm.js")
+);
+function rendered(md) {
+  return marked.parse(md, { gfm: true, breaks: false });
+}
+assert.match(rendered("Say _hello_ there.\n"), /<em>hello<\/em>/);
+assert.match(rendered("Say *hello* there.\n"), /<em>hello<\/em>/);
+assert.match(rendered("**bold _and_ more**\n"), /<strong>bold <em>and<\/em> more<\/strong>/);
+assert.match(rendered("***both***\n"), /<em><strong>both<\/strong><\/em>|<strong><em>both<\/em><\/strong>/);
+assert.equal(rendered("2 * 3 = 6\n").includes("<em>"), false);
+assert.equal(rendered("Keep foo_bar_baz intact.\n").includes("<em>"), false);
 
 console.log("All Studio liquid round-trip checks passed.");

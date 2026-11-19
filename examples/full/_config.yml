@@ -28,6 +28,7 @@ pandorga:
     body:
       family: "Ancizar Sans"
       weights: [300, 350, 400, 600]
+      italic: true
     mono:
       family: "Courier Prime"
       weights: [400, 700]

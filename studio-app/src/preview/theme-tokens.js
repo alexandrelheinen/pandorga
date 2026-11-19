@@ -19,7 +19,7 @@
 // for the gem defaults — one family per role, deduped (title, label, body,
 // mono). Keep in sync with studio-app/index.html's own font `<link>`.
 export const PREVIEW_FONTS_HREF =
-  "https://fonts.googleapis.com/css2?family=Ancizar+Serif:ital,wght@0,400;0,600;1,400&family=Marcellus+SC:wght@400;700&family=Ancizar+Sans:wght@300;350;400;600&family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap";
+  "https://fonts.googleapis.com/css2?family=Ancizar+Serif:ital,wght@0,400;0,600;1,400&family=Marcellus+SC:wght@400;700&family=Ancizar+Sans:ital,wght@0,300;0,350;0,400;0,600;1,300;1,350;1,400;1,600&family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap";
 
 const FONT_TITLE = "'Ancizar Serif', 'Pandorga Ancizar Fallback', serif";
 const FONT_SUBTITLE_BODY = "'Ancizar Sans', 'Pandorga Ancizar Sans Fallback', sans-serif";

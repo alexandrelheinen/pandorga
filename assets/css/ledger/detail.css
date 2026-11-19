@@ -823,6 +823,21 @@ aside:has(> .text-detail-sidebar) {
   margin-bottom: 1.15em;
 }
 
+/* The reading face is weight 300. Tailwind's `bolder` then resolves to 400,
+   so a saved `**bold**` looked almost plain next to the editor's 600.
+   Italic uses the real italic cut (the body axis requests it). */
+.article-content :is(strong, b) {
+  font-weight: 600;
+}
+
+.article-content em {
+  font-style: italic;
+}
+
+.article-content :is(s, del) {
+  text-decoration: line-through;
+}
+
 /* Architectural rectilinearity: the prose furniture still had soft corners. */
 .article-content code,
 .article-content pre,

@@ -37,7 +37,7 @@ When `backend` is omitted, a non-empty `base_url` or `content_api_base_url` sele
 | Key | Type | Notes |
 |---|---|---|
 | `title` | string or map | Display face. Default family `Ancizar Serif`, weights 400, 600, italic 400 |
-| `body` | string or map | Reading face. Default family `Ancizar Sans`, weights 300, 350, 400, and 600 |
+| `body` | string or map | Reading face. Default family `Ancizar Sans`, weights 300, 350, 400, and 600, with italic at those weights |
 | `mono` | string or map | Monospace face. Default family `Courier Prime`, roman and italic at 400 and 700 |
 | `label` | string or map | Optional chrome face. Default family `Marcellus SC`, weights 400 and 700 |
 | `subtitle` | string or map | Optional tagline face. Omitted, it follows `body` when the theme used the same family |

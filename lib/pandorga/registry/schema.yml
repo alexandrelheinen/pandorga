@@ -66,7 +66,7 @@ fonts:
       notes: Display face. Default family `Ancizar Serif`, weights 400, 600, italic 400
     body:
       type: string or map
-      notes: Reading face. Default family `Ancizar Sans`, weights 300, 350, 400, and 600
+      notes: Reading face. Default family `Ancizar Sans`, weights 300, 350, 400, and 600, with italic at those weights
     mono:
       type: string or map
       notes: Monospace face. Default family `Courier Prime`, roman and italic at 400 and 700
