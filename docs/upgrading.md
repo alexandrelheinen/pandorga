@@ -13,6 +13,15 @@ is `Pandorga::VERSION` (`lib/pandorga/version.rb`).
 
 Read [CHANGELOG.md](../CHANGELOG.md) before you bump.
 
+## Studio marks and reading-face italic (2.4.0)
+
+Backward compatible. The visual editor saves italic as `_word_` and still
+opens `*word*` as italic. Bold that contains italic stays one Markdown run.
+Article prose paints bold at weight 600. The default Ancizar Sans request
+includes the italic cut at the same weights, so `<em>` uses that face. A
+site that sets `pandorga.fonts.body` weights without `italic: true` keeps
+the previous axis.
+
 ## Mobile article/post detail action button wrap (2.2.1)
 
 Bug fix only. Restores `flex-wrap: wrap` on mobile `.text-detail-sidebar .article-meta` under `@media (max-width: 767px)` so action buttons (Back, Share, Cite, reading size) wrap to the next row when dates and actions cannot share one line, preventing button crushing and clipping on narrow screens (regression from 2.1.0) (PLT-AC-67).
@@ -346,7 +355,7 @@ Consumer sites should pin a release tag, not `main`:
 gem "pandorga", "~> 2.0"
 
 # Or pin a GitHub release tag
-gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v2.3.40"
+gem "pandorga", github: "alexandrelheinen/pandorga", tag: "v2.4.0"
 ```
 
 After a bump, run `bundle update pandorga` and commit `Gemfile.lock`. Host
@@ -396,7 +405,7 @@ Manual publish (optional, local MFA may apply):
 
 ```bash
 mise exec -- gem build pandorga.gemspec
-mise exec -- gem push pandorga-2.3.40.gem
+mise exec -- gem push pandorga-2.4.0.gem
 ```
 
 ## Android shell (1.2+)
