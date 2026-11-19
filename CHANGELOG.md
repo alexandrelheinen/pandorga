@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+## 2.4.0
+
+- The visual editor, the saved Markdown, and the article render share one
+  set of marks. Italic is stored as `_word_`. A file that still uses
+  `*word*` opens as italic and is rewritten on the next edit of that
+  paragraph. Bold that wraps italic stays one run (`**bold _and_ more**`).
+  `***both***` and `___both___` save as `**_both_**`.
+- Article prose paints bold at weight 600. The default reading face
+  requests italic at the same weights, so emphasis uses the italic cut of
+  Ancizar Sans.
+- Studio format controls share one square icon button on the desktop
+  toolbar and the phone bar. Menu entries and list titles share one size.
+
 ## 2.3.40
 
 - Article pages on a phone restore the v2.3.37 menu icon in the top bar
